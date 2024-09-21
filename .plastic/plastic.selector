@@ -1,0 +1,4 @@
+repository "Galactic Frontier@grindewald1504@cloud"
+  path "/"
+    br "/main"
+    co "/main"
