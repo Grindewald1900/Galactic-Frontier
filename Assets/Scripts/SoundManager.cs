@@ -2,49 +2,82 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager instance { get; private set; }
-    [SerializeField] private AudioClip[] clips;
+    public static SoundManager Instance { get; private set; }
     public AudioClip bgmClip;
-    // private AudioSource audioSource;
-    private AudioSource backgroundMusic;
-
+    public AudioSource soundEffect;
+    public AudioSource backgroundMusic;
 
     void Awake()
     {
-        instance = this;
-        // audioSource = GetComponent<AudioSource>();
-        backgroundMusic = GetComponent<AudioSource>();
+        Instance = this;
     }
 
     void Start()
     {
-        if (bgmClip != null)
-        {
-            backgroundMusic.clip = bgmClip;
-        }
-        backgroundMusic.loop = true;
-        PlayBGM();
+        PlaySound(SoundType.BGM, bgmClip);
     }
 
-    public void PlaySound(AudioClip clip)
+    public void PlaySound(SoundType type, AudioClip clip)
     {
-        backgroundMusic.PlayOneShot(clip);
-    }
-
-    public void PlayBGM()
-    {
-        if (!backgroundMusic.isPlaying)
+        AudioSource audioSource = null;
+        if (null == clip)
         {
-            backgroundMusic.Play();
+            return;
+        }
+        if (type == SoundType.BGM)
+        {
+            audioSource = backgroundMusic;
+            audioSource.loop = true;
+        }
+        if (type == SoundType.SOUND_EFFECT)
+        {
+            audioSource = soundEffect;
+            audioSource.loop = false;
+        }
+        if (type == SoundType.LOOP_SOUND_EFFECT)
+        {
+            audioSource = soundEffect;
+            audioSource.loop = true;
+            audioSource.pitch = 2;
+        }
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.clip = clip;
+            audioSource.Play();
         }
     }
 
-    public void PauseBGM()
+    public void PauseSound(SoundType type)
     {
-        if (backgroundMusic.isPlaying)
+        AudioSource audioSource = null;
+
+        switch (type)
         {
-            backgroundMusic.Pause();
+            case SoundType.BGM:
+                audioSource = backgroundMusic;
+                break;
+
+            case SoundType.SOUND_EFFECT:
+                audioSource = soundEffect;
+                break;
+
+            case SoundType.LOOP_SOUND_EFFECT:
+                audioSource = soundEffect;
+                break;
         }
+
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
+    }
+
+    public enum SoundType
+    {
+        BGM,
+        SOUND_EFFECT,
+        LOOP_SOUND_EFFECT
     }
 
 }

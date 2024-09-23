@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class CharacterMovements : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float jumpForce = 5f;
+    public float moveSpeed = 0f;
+    public float normalSpeed = 5f;
+    public float sprintSpeed = 10f;
+    public float jumpForce = 50f;
     public float groundCheckRadius = 0.2f;
     public Transform groundCheck;
     public AudioClip stepGrass;
+    public AudioClip bgm;
     public CharacterDirection currentDirection = CharacterDirection.Right;
     public LayerMask groundLayer;
     private Rigidbody2D rb;
@@ -20,13 +23,27 @@ public class CharacterMovements : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        moveSpeed = normalSpeed;
     }
 
     void Update()
     {
+        CheckSpeed();
         CheckRunning();
         CheckJumping();
         CheckShooting();
+    }
+
+    private void CheckSpeed()
+    {
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            moveSpeed = sprintSpeed;
+        }
+        else
+        {
+            moveSpeed = normalSpeed;
+        }
     }
 
     private void CheckJumping()
@@ -35,9 +52,9 @@ public class CharacterMovements : MonoBehaviour
         animator.SetBool("isJumping", !isGrounded);
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            // rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            rb.AddForce(new Vector2(0f, 800));
         }
-
     }
 
     private void CheckRunning()
@@ -57,7 +74,11 @@ public class CharacterMovements : MonoBehaviour
 
         if (isRunning)
         {
-            SoundManager.instance.PlaySound(stepGrass);
+            SoundManager.Instance.PlaySound(SoundManager.SoundType.LOOP_SOUND_EFFECT, stepGrass);
+        }
+        else
+        {
+            SoundManager.Instance.PauseSound(SoundManager.SoundType.LOOP_SOUND_EFFECT);
         }
         spriteRenderer.flipX = currentDirection == CharacterDirection.Left;
     }
