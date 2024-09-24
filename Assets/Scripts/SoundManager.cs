@@ -2,14 +2,15 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    public static SoundManager Instance { get; private set; }
+    public static SoundManager Instance;
     public AudioClip bgmClip;
     public AudioSource soundEffect;
     public AudioSource backgroundMusic;
 
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+            Instance = this;
     }
 
     void Start()

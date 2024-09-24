@@ -85,11 +85,11 @@ public class CharacterMovements : MonoBehaviour
 
     private void CheckShooting()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetButtonDown("Fire1"))
         {
             PlayShootAnimationOnce();
         }
-        if (Input.GetMouseButton(0))
+        if (Input.GetButton("Fire1"))
         {
             PlayShootAnimationLoop();
         }
