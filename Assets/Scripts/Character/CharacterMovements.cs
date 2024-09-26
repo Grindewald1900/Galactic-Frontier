@@ -3,8 +3,8 @@ using UnityEngine;
 public class CharacterMovements : MonoBehaviour
 {
     public float moveSpeed = 0f;
-    public float normalSpeed = 5f;
-    public float sprintSpeed = 10f;
+    public float normalSpeed = 6f;
+    public float sprintSpeed = 12f;
     public float jumpForce = 50f;
     public float groundCheckRadius = 0.2f;
     public Transform groundCheck;
@@ -61,6 +61,7 @@ public class CharacterMovements : MonoBehaviour
     {
         float moveX = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
+        animator.speed = moveSpeed <= normalSpeed ? 1 : 1.5f;
         if (moveX < 0)
         {
             currentDirection = CharacterDirection.Left;
