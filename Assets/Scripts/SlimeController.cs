@@ -21,6 +21,11 @@ public class SlimeController : MonoBehaviour
                 HintTextController.Instance.HideHint();
             }
         }
+        else
+        {
+            HintTextController.Instance.HideHint();
+            DialogueController.Instance.HideDialogue();
+        }
     }
 
     private void CheckIsInteractive()

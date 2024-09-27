@@ -1,8 +1,9 @@
 using System;
 using System.Diagnostics;
 
-public class Constants
+public static class Constants
 {
 
     public static String version = "0.0.1";
+    public static int maxItemCountPerSlot = 99; // max item count per slot
 }

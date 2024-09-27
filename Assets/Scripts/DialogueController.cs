@@ -70,7 +70,7 @@ public class DialogueController : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    void HideDialogue()
+    public void HideDialogue()
     {
         gameObject.SetActive(false);
         isDialogueActive = false;
