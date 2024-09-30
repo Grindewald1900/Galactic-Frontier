@@ -1,22 +1,37 @@
 // using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine.UI;
 using UnityEngine;
-using System;
+using TMPro;
+using System.Collections.Generic;
+
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
+    public ItemSlot itemSlotPrefab;
+    public Transform inventoryGrid;
     public GameObject equipmentMenu;
     public GameObject inventoryMenu;
     public GameObject basePanel;
     public GameObject equipmentTab;
     public GameObject inventoryTab;
+    public List<ItemSlot> itemSlots;
     private TabType currentActiveType;
-    public ItemSlot[] itemSlots;
     // public ItemSO[] itemSos;
 
-    private void Start()
+
+    void Awake()
     {
+        // InitInventory();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+
+    }
+    void Start()
+    {
+
         basePanel.SetActive(false);
         currentActiveType = TabType.NONE;
     }
@@ -101,6 +116,26 @@ public class InventoryManager : MonoBehaviour
         }
         currentActiveType = TabType.NONE;
         basePanel.SetActive(false);
+    }
+
+    // 动态生成itemSlot，并设置它的子元素
+    public void UpdateInventoryItem(Item item, int index)
+    {
+        if (item.itemIcon != null)
+        {
+            Debug.Log("UpdateInventoryItem Index:" + index);
+            itemSlots[index].itemImage.sprite = item.itemIcon;  // 设置物品图标
+        }
+        Destroy(item.gameObject);
+    }
+
+    public void InitInventory()
+    {
+        for (int i = 0; i < Constants.defaultInventorySlots; i++)
+        {
+            ItemSlot newItemSlot = Instantiate<ItemSlot>(itemSlotPrefab, inventoryGrid);
+            itemSlots.Add(newItemSlot);
+        }
     }
 
     public enum TabType
