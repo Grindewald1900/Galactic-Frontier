@@ -5,6 +5,7 @@ public class SoundManager : MonoBehaviour
     public static SoundManager Instance;
     public AudioClip bgmClip;
     public AudioSource soundEffect;
+    public AudioSource soundEffectLoop;
     public AudioSource backgroundMusic;
 
     void Awake()
@@ -16,69 +17,58 @@ public class SoundManager : MonoBehaviour
     void Start()
     {
         PlaySound(SoundType.BGM, bgmClip);
+        backgroundMusic.loop = true;
+        soundEffectLoop.loop = true;
+        soundEffect.loop = false;
     }
 
     public void PlaySound(SoundType type, AudioClip clip)
     {
-        AudioSource audioSource = null;
         if (null == clip)
         {
+            Debug.Log("SoundManager: PlaySound: clip is null");
             return;
         }
-        if (type == SoundType.BGM)
-        {
-            audioSource = backgroundMusic;
-            audioSource.loop = true;
-        }
+        AudioSource audioSource = GetAudioSource(type);
+        audioSource.clip = clip;
         if (type == SoundType.SOUND_EFFECT)
         {
-            audioSource = soundEffect;
-            audioSource.loop = false;
-        }
-        if (type == SoundType.LOOP_SOUND_EFFECT)
-        {
-            audioSource = soundEffect;
-            audioSource.loop = true;
-            audioSource.pitch = 2;
-        }
-
-        if (!audioSource.isPlaying)
-        {
-            audioSource.clip = clip;
             audioSource.Play();
+        }
+        else
+        {
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
     }
 
     public void PauseSound(SoundType type)
     {
-        AudioSource audioSource = null;
-
-        switch (type)
-        {
-            case SoundType.BGM:
-                audioSource = backgroundMusic;
-                break;
-
-            case SoundType.SOUND_EFFECT:
-                audioSource = soundEffect;
-                break;
-
-            case SoundType.LOOP_SOUND_EFFECT:
-                audioSource = soundEffect;
-                break;
-        }
-
+        AudioSource audioSource = GetAudioSource(type);
         if (audioSource != null && audioSource.isPlaying)
         {
             audioSource.Pause();
         }
     }
 
+    private AudioSource GetAudioSource(SoundType type)
+    {
+        return type switch
+        {
+            SoundType.BGM => backgroundMusic,
+            SoundType.SOUND_EFFECT => soundEffect,
+            SoundType.LOOP_SOUND_EFFECT => soundEffectLoop,
+            _ => soundEffect,
+        };
+    }
+
     public enum SoundType
     {
         BGM,
         SOUND_EFFECT,
-        LOOP_SOUND_EFFECT
+        LOOP_SOUND_EFFECT,
     }
 
 }

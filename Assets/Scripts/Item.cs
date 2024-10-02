@@ -6,18 +6,15 @@ public class Item : MonoBehaviour
 {
     public Transform player;
     public Sprite itemIcon;
-    public ItemType itemType;
+    public ItemType itemType = ItemType.Unknown;
+    public AudioClip collectSound;
     public string itemName;
-    public int quantity;
+    public int quantity = 1;
     public int value;
-    public int pickUpRange;
-    private bool isCollected;
+    public readonly int pickUpRange = 3;
+    private bool isCollected = false;
     void Start()
     {
-        isCollected = false;
-        quantity = 1;
-        pickUpRange = 5;
-        itemType = ItemType.Unknown;
         itemName ??= gameObject.name; // If itemName is null or empty, set it to the GameObject's name
     }
 
@@ -40,6 +37,7 @@ public class Item : MonoBehaviour
             if (ItemManager.Instance.AddItem(this))
             {
                 isCollected = true;
+                SoundManager.Instance.PlaySound(SoundManager.SoundType.SOUND_EFFECT, collectSound);
                 // TODO: Should remove item gameobject from scene
                 gameObject.SetActive(false);
                 // Destroy(gameObject);
