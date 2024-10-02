@@ -1,9 +1,12 @@
-// using Microsoft.Unity.VisualStudio.Editor;
+/** 
+ * This class manages the inventory and equipment menu
+ * Focus on UI related stuff rather than item logic
+ */
+
 using UnityEngine.UI;
 using UnityEngine;
-using TMPro;
 using System.Collections.Generic;
-
+using System.Linq;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -22,16 +25,15 @@ public class InventoryManager : MonoBehaviour
 
     void Awake()
     {
-        // InitInventory();
         if (Instance == null)
         {
             Instance = this;
         }
 
     }
+
     void Start()
     {
-
         basePanel.SetActive(false);
         currentActiveType = TabType.NONE;
     }
@@ -58,6 +60,7 @@ public class InventoryManager : MonoBehaviour
         image.color = ColorUtil.ChangeAlpha(image.color, alpha);
     }
 
+    // Trigger tab view with different type (equipment, inventory)
     public void ToggleTab(TabType type)
     {
         if (type == currentActiveType)
@@ -118,15 +121,14 @@ public class InventoryManager : MonoBehaviour
         basePanel.SetActive(false);
     }
 
-    // 动态生成itemSlot，并设置它的子元素
-    public void UpdateInventoryItem(Item item, int index)
+    public void UpdateInventory()
     {
-        if (item.itemIcon != null)
+        Debug.Log("UpdateInventory: size " + ItemManager.Instance.items.Count + "First item: " + ItemManager.Instance.items[0]);
+        for (int i = 0; i < ItemManager.Instance.items.Count; i++)
         {
-            Debug.Log("UpdateInventoryItem Index:" + index);
-            itemSlots[index].itemImage.sprite = item.itemIcon;  // 设置物品图标
+            itemSlots[i].SetItem(ItemManager.Instance.items[i]);
+            Debug.Log("UpdateInventory: " + ItemManager.Instance.items[i].itemName + "Quantity" + ItemManager.Instance.items[i].quantity);
         }
-        Destroy(item.gameObject);
     }
 
     public void InitInventory()

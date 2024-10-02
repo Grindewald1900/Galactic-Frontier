@@ -6,18 +6,19 @@ public class Item : MonoBehaviour
 {
     public Transform player;
     public Sprite itemIcon;
-    public string itemName;  // 物品名称
-    public int quantity;     // 物品数量
-    public int value;        // 物品价值
-    public int range;
-    public ItemType itemType;  // 物品类型
+    public ItemType itemType;
+    public string itemName;
+    public int quantity;
+    public int value;
+    public int pickUpRange;
     private bool isCollected;
     void Start()
     {
         isCollected = false;
         quantity = 1;
-        range = 5;
+        pickUpRange = 5;
         itemType = ItemType.Unknown;
+        itemName ??= gameObject.name; // If itemName is null or empty, set it to the GameObject's name
     }
 
     void Update()
@@ -34,11 +35,15 @@ public class Item : MonoBehaviour
             player = GameObject.Find("Player").transform;
         }
         float distance = Vector2.Distance(player.position, transform.position);
-        if (distance < range)
+        if (distance < pickUpRange)
         {
-            Debug.Log($"Collecting item: {itemName}");
-            ItemManager.Instance.AddItem(this);
-            isCollected = true;
+            if (ItemManager.Instance.AddItem(this))
+            {
+                isCollected = true;
+                // TODO: Should remove item gameobject from scene
+                gameObject.SetActive(false);
+                // Destroy(gameObject);
+            }
         }
     }
     public enum ItemType

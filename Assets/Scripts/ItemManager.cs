@@ -1,52 +1,43 @@
+/**
+ * Manages the player's inventory and handles adding and using items.
+ * Provides a singleton instance for easy access throughout the game.
+ * Focus on item logic e.g. adding, using, removing or filtering items.
+ */
+
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
 public class ItemManager : MonoBehaviour
 {
-    public List<Item> inventory = new List<Item>();
+    // List all of items player has
+    public List<Item> items = new List<Item>();
     public int inventorySize = 20;
-
     public static ItemManager Instance;
 
-    void Start()
+    void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
         }
-
-        for (int i = 0; i < Constants.defaultInventorySlots; i++)
-        {
-            inventory.Add(null);
-        }
     }
 
-    public void AddItem(Item newItem)
+    public bool AddItem(Item newItem)
     {
-        Debug.Log($"AddItem:" + newItem.itemName);
-        Item existingItem = inventory.Find(item => item != null && item.itemName == newItem.itemName);
-
-        if (existingItem != null && existingItem.quantity < Constants.maxItemCountPerSlot)
+        int index = items.FindIndex(item => item.itemName.Equals(newItem.itemName));
+        if (index != -1)
         {
-            existingItem.quantity = Mathf.Min(existingItem.quantity + newItem.quantity, Constants.maxItemCountPerSlot);
-            InventoryManager.Instance.UpdateInventoryItem(newItem, inventory.IndexOf(existingItem));
-            Debug.Log($"Added {newItem.itemName}.  quantity: {existingItem.quantity}");
+            Debug.Log($"Item {newItem.itemName} already exists in the inventory. Index is " + index);
+            items[index].quantity += newItem.quantity;
         }
         else
         {
-            int emptySlotIndex = inventory.FindIndex(item => item == null);
-            if (emptySlotIndex != -1)
-            {
-                inventory[emptySlotIndex] = newItem;
-                InventoryManager.Instance.UpdateInventoryItem(newItem, emptySlotIndex);
-                Debug.Log($"Picked up {newItem.itemName}, placed in slot {emptySlotIndex}");
-            }
-            else
-            {
-                Debug.Log("Inventory is full!");
-            }
+            Debug.Log($"Item {newItem.itemName} does not exist in the inventory.");
+            items.Add(newItem);
         }
+        InventoryManager.Instance.UpdateInventory();
+        return true;
     }
 
     public void UseItem(Item item)
@@ -58,8 +49,8 @@ public class ItemManager : MonoBehaviour
 
             if (item.quantity == 0)
             {
-                int index = inventory.IndexOf(item);
-                inventory[index] = null;
+                int index = items.IndexOf(item);
+                items[index] = null;
                 Debug.Log($"{item.itemName} is removed from the inventory.");
             }
         }
@@ -70,24 +61,23 @@ public class ItemManager : MonoBehaviour
         switch (sortType)
         {
             case SortType.ByName:
-                inventory = inventory.Where(item => item != null).OrderBy(item => item.itemName).ToList();
+                items = items.Where(item => item != null).OrderBy(item => item.itemName).ToList();
                 break;
             case SortType.ByValue:
-                inventory = inventory.Where(item => item != null).OrderByDescending(item => item.value).ToList();
+                items = items.Where(item => item != null).OrderByDescending(item => item.value).ToList();
                 break;
         }
 
-        while (inventory.Count < inventorySize)
+        while (items.Count < inventorySize)
         {
-            inventory.Add(null);
+            items.Add(null);
         }
         Debug.Log("Inventory sorted.");
     }
 
-
     public List<Item> FilterItemsByType(Item.ItemType itemType)
     {
-        return inventory.Where(item => item != null && item.itemType == itemType).ToList();
+        return items.Where(item => item != null && item.itemType == itemType).ToList();
     }
 }
 
