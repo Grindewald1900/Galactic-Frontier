@@ -38,22 +38,6 @@ public class InventoryManager : MonoBehaviour
         currentActiveType = TabType.NONE;
     }
 
-    void Update()
-    {
-        if (Input.GetButtonDown("Equipment"))
-        {
-            ToggleTab(TabType.EQUIPMENT);
-        }
-        if (Input.GetButtonDown("Inventory"))
-        {
-            ToggleTab(TabType.INVENTORY);
-        }
-        if (Input.GetButtonDown("Cancel"))
-        {
-            CloseMenu();
-        }
-    }
-
     void ChangeTabAlpha(GameObject menu, float alpha)
     {
         Image image = menu.gameObject.GetComponent<Image>();
@@ -65,7 +49,7 @@ public class InventoryManager : MonoBehaviour
     {
         if (type == currentActiveType)
         {
-            CloseMenu();
+            CloseInventoryMenu();
             return;
         }
         // Close menu if its open already 
@@ -106,7 +90,7 @@ public class InventoryManager : MonoBehaviour
         };
     }
 
-    public void CloseMenu()
+    public void CloseInventoryMenu()
     {
         Time.timeScale = 1;
         foreach (TabType t in TabType.GetValues(typeof(TabType)))
