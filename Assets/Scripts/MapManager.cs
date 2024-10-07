@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapManager : MonoBehaviour
@@ -14,23 +15,37 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
-        CloseMapMenu();
+        HideMap();
     }
 
     public void ToggleMap()
     {
         if (this.gameObject.activeSelf)
         {
-            this.gameObject.SetActive(false);
+            HideMap();
         }
         else
         {
-            this.gameObject.SetActive(true);
+            ShowMap();
         }
     }
 
-    public void CloseMapMenu()
+    private void ShowMap()
+    {
+        this.gameObject.SetActive(true);
+        PlayerStatManager.Instance.HideStats();
+
+    }
+
+    private void HideMap()
     {
         this.gameObject.SetActive(false);
+        PlayerStatManager.Instance.ShowStats();
+    }
+
+    // TODO: Implement map loading
+    public void LoadMap(string mapName)
+    {
+
     }
 }
