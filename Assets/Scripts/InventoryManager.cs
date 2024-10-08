@@ -111,7 +111,6 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < ItemManager.Instance.items.Count; i++)
         {
             itemSlots[i].SetItem(ItemManager.Instance.items[i]);
-            Debug.Log("UpdateInventory: " + ItemManager.Instance.items[i].itemName + "Quantity" + ItemManager.Instance.items[i].quantity);
         }
     }
 

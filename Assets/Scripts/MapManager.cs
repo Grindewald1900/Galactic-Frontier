@@ -1,8 +1,13 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapManager : MonoBehaviour
 {
+    public TextMeshProUGUI planetName;
+    public TextMeshProUGUI planetDescription;
+    public Image planetImage;
     public static MapManager Instance;
 
     void Awake()
@@ -34,7 +39,7 @@ public class MapManager : MonoBehaviour
     {
         this.gameObject.SetActive(true);
         PlayerStatManager.Instance.HideStats();
-
+        MapListManager.Instance.InitFocus();
     }
 
     private void HideMap()
@@ -43,6 +48,13 @@ public class MapManager : MonoBehaviour
         PlayerStatManager.Instance.ShowStats();
     }
 
+    public void SetPlanetInfo(Planet planet)
+    {
+        Debug.Log("Planet Name " + planet.planetName);
+        planetName.text = planet.planetName;
+        planetDescription.text = planet.planetDescription;
+        planetImage.sprite = planet.backgroundSprite;
+    }
     // TODO: Implement map loading
     public void LoadMap(string mapName)
     {

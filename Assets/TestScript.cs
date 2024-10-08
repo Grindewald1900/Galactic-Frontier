@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TestScript : MonoBehaviour
@@ -18,14 +19,12 @@ public class TestScript : MonoBehaviour
 
     private void LoadMap()
     {
-        Sprite sprite = ImageUtil.GetSpriteByName("Planets/", "Planet_A_1");
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 5", "Planet_A_1", "Info"));
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 6", "Planet_A_2", "Info"));
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 7", "Planet_A_3", "Info"));
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 7", "Planet_A_4", "Info"));
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 7", "Planet_A_5", "Info"));
-        MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 7", "Planet_A_6", "Info"));
-
+        List<string> planetNames = new List<string>() { "Planet_A_1", "Planet_A_2", "Planet_A_3", "Planet_A_4", "Planet_A_5", "Planet_A_6" };
+        for (int i = 0; i < planetNames.Count; i++)
+        {
+            Sprite sprite = ImageUtil.GetSpriteByName("Planets/", planetNames[i]);
+            MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 5", planetNames[i], "This is a basic planet"));
+        }
     }
 
     private void SpawnObject()

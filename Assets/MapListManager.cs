@@ -9,7 +9,8 @@ public class MapListManager : MonoBehaviour
     public static MapListManager Instance;
     public GameObject itemPrefab;
     public Transform contentParent;
-    private List<GameObject> items = new List<GameObject>();
+    private List<PlanetItem> items = new List<PlanetItem>();
+    private int currentIndex = 0;
 
     void Awake()
     {
@@ -19,15 +20,32 @@ public class MapListManager : MonoBehaviour
         }
     }
 
+    public void InitFocus()
+    {
+        if (items.Count > 0)
+        {
+            SetCurrentFocus(items[0]);
+        }
+    }
+
+    public void SetCurrentFocus(PlanetItem newFocus)
+    {
+        foreach (PlanetItem item in items)
+        {
+            item.SetFocus(item == newFocus);
+        }
+        currentIndex = items.IndexOf(newFocus);
+    }
+
     public void AddItem(Planet planet)
     {
         GameObject newItem = Instantiate(itemPrefab, contentParent);
         PlanetItem planetItem = newItem.GetComponent<PlanetItem>();
         planetItem.SetPlanet(planet);
-        items.Add(newItem);
+        items.Add(planetItem);
     }
 
-    public void RemoveItem(GameObject item)
+    public void RemoveItem(PlanetItem item)
     {
         if (items.Contains(item))
         {
