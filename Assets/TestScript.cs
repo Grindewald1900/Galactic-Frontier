@@ -11,10 +11,10 @@ public class TestScript : MonoBehaviour
 
     void Start()
     {
-        spawnAreaMin = new Vector2(-15f, -2.5f);
-        spawnAreaMax = new Vector2(0f, -1f);
-        InvokeRepeating("SpawnObject", 0f, spawnInterval);
-        LoadMap();
+        // spawnAreaMin = new Vector2(-15f, -2.5f);
+        // spawnAreaMax = new Vector2(0f, -1f);
+        // InvokeRepeating("SpawnObject", 0f, spawnInterval);
+        // LoadMap(); 
     }
 
     private void LoadMap()
