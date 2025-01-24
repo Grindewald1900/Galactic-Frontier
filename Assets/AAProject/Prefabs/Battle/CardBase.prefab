@@ -110,7 +110,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 90}
-  m_SizeDelta: {x: 140, y: 180}
+  m_SizeDelta: {x: 120, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3813256222902273025
 CanvasRenderer:
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8820019030556727327, guid: 42f9ed2bc9481e5429058e1c0259c8d4, type: 3}
+  m_Sprite: {fileID: 2870995433807322669, guid: 42f9ed2bc9481e5429058e1c0259c8d4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -213,15 +213,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -265,11 +265,15 @@ MonoBehaviour:
   healthBar: {fileID: 2514797685836268103}
   energyBar: {fileID: 1409616383488403067}
   damage: 10
+  speed: 10
   energyIncreaseRate: 10
   maxHealth: 100
   maxEnergy: 100
+  maxAttack: 30
   healthAmount: 100
   energyAmount: 100
+  attackAmount: 0
+  position: 0
 --- !u!1 &4175986706884701449
 GameObject:
   m_ObjectHideFlags: 0
