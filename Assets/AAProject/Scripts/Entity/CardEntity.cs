@@ -49,5 +49,11 @@ public class CardEntity
         return this;
     }
 
+    public CardEntity SetEnergyIncreaseRate(float energyIncreaseRate)
+    {
+        this.energyIncreaseRate = energyIncreaseRate;
+        return this;
+    }
+
 }
 

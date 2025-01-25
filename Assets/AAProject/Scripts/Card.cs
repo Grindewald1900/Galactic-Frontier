@@ -7,6 +7,8 @@ public class Card : MonoBehaviour
     public UnityEngine.UI.Image energyBar;
     public Image cardImage;
     public string cardName;
+
+    public bool isPlayerCard;
     public float damage = 10;
     public float speed = 10;
     public float energyIncreaseRate = 10f;
@@ -32,7 +34,13 @@ public class Card : MonoBehaviour
 
     public void InitCard(CardEntity cardEntity)
     {
-
+        cardName = cardEntity.cardName;
+        damage = cardEntity.damage;
+        speed = cardEntity.speed;
+        energyIncreaseRate = cardEntity.energyIncreaseRate;
+        maxHealth = cardEntity.maxHealth;
+        maxEnergy = cardEntity.maxEnergy;
+        maxAttack = cardEntity.maxAttack;
     }
     private void UpdateEnergyBar()
     {
@@ -53,16 +61,16 @@ public class Card : MonoBehaviour
         var progress = CalculateProgress(speed, maxAttack, ref currentAttack);
         if (progress >= 1f)
         {
-            Attack(damage);
+            Attack();
         }
     }
 
     public bool IsAlive()
     {
-        return currentHealth > 0;
+        return currentHealth > 0 && gameObject.activeSelf;
     }
 
-    private void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
         Debug.Log("Damage " + damage + " triggered.");
         currentHealth -= damage;
@@ -70,13 +78,14 @@ public class Card : MonoBehaviour
         healthBar.fillAmount = currentHealth / maxHealth;
         if (currentHealth <= 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 
-    private void Attack(float damage)
+    private void Attack()
     {
         Debug.Log("Attack " + damage + " triggered.");
+        BattleController.Instance.AttackMinPosEnermy(this);
     }
 
     private void SuperAttack(float damage)
