@@ -15,14 +15,19 @@ public class CardDataManager : MonoBehaviour
             Instance = this;
         }
         // On most platforms, Application.persistentDataPath is a good location for data
-        filePath = Path.Combine(Application.persistentDataPath, "cardData.json");
+        filePath = Path.Combine(Application.persistentDataPath, "Cards.json");
         dataContainer = new CardDataContainer();
+    }
+
+    void Start()
+    {
+        LoadCards();
     }
 
     // Add a new card to our container in memory
     public void AddCard()
     {
-        CardEntity newCard = new CardEntity("Yee", 15f, 20f, 15f, 100f, 100f, 30f);
+        CardEntity newCard = new CardEntity();
         dataContainer.cards.Add(newCard);
     }
 

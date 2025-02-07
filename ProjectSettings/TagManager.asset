@@ -24,6 +24,8 @@ TagManager:
   - 
   - 
   - 
+  - CardCharacter
+  - CardBase
   - 
   - 
   - 
@@ -34,9 +36,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - Max
   m_SortingLayers:
   - name: Default
     uniqueID: 0
@@ -46,6 +46,9 @@ TagManager:
     locked: 0
   - name: Foreground
     uniqueID: 344428519
+    locked: 0
+  - name: BattleInfo
+    uniqueID: 2759608293
     locked: 0
   m_RenderingLayers:
   - Default
