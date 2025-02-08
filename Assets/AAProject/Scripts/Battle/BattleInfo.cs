@@ -23,7 +23,7 @@ public class BattleInfo : MonoBehaviour
         }
     }
 
-    public void PlayBattleStartAnimation(string info)
+    public void PlayBattleInfoAnimation(string info)
     {
         if (battleInfoText == null) return;
         battleInfoText.text = info;

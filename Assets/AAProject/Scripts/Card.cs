@@ -1,13 +1,14 @@
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections;
 
 public class Card : MonoBehaviour
 {
     public UnityEngine.UI.Image healthBar;
     public UnityEngine.UI.Image energyBar;
     public Image cardImage;
-    public DamageText damageText;
+    public DamageText[] damageTexts;
     public string cardName;
 
     public bool isPlayerCard;
@@ -20,8 +21,11 @@ public class Card : MonoBehaviour
 
     public float moveDistance = 50f;
     public float forwardTime = 0.2f;
-    public float backTime = 0.2f;
+    private float backTime = 0.2f;
+    private float attackTime = 0.2f;
+    public float vanishDuration = 1f;
     private Vector3 startPos;
+    private int nextIndex = 0;
     void Awake()
     {
         gameObject.SetActive(false);
@@ -58,49 +62,55 @@ public class Card : MonoBehaviour
         }
     }
 
-    private void UpdateAttack()
+    public IEnumerator TakeDamage(DamageEntity[] damage)
     {
-        var progress = CalculateProgress(cardEntity.speed, cardEntity.maxAttack, ref currentAttack);
-        if (progress >= 1f)
+        if (damageTexts == null || damageTexts.Length == 0)
         {
-            Attack();
+            Debug.LogWarning("DamageTextManager: damageTexts is null");
+            yield break;
         }
-
-    }
-
-    public bool IsAlive()
-    {
-        return currentHealth > 0 && gameObject.activeSelf;
-    }
-
-    public void TakeDamage(float damage)
-    {
-        Debug.Log("Damage " + damage + " triggered.");
-        ShowDamageText((Mathf.RoundToInt(damage)));
-        currentHealth -= damage;
-        currentAttack = Mathf.Clamp(currentHealth, 0, cardEntity.health);
+        foreach (var d in damage)
+        {
+            if (d.damageType == DamageType.MISS)
+            {
+                damageTexts[nextIndex].SetDamageText("MISS", ColorUtil.missDamagelColor);
+                continue;
+            }
+            DamageText dt = damageTexts[nextIndex];
+            nextIndex = (nextIndex + 1) % damageTexts.Length;
+            Color textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
+            dt.SetDamageText($"-{Mathf.RoundToInt(d.damageAmount)}", textColor);
+            currentHealth -= d.damageAmount;
+            yield return new WaitForSeconds(attackTime);
+        }
+        nextIndex = 0;
         healthBar.fillAmount = currentHealth / cardEntity.health;
         if (currentHealth <= 0)
         {
-            gameObject.SetActive(false);
+            Die();
         }
-
-    }
-
-    private void ShowDamageText(int dmg)
-    {
-        damageText.SetDamageValue(dmg);
-    }
-
-    public void Attack()
-    {
-        PlayAttackAnimation();
-        BattleController.Instance.AttackMinPosEnermy(this);
     }
 
     private void SuperAttack(float damage)
     {
-        Debug.Log("SuperAttack " + damage + " triggered.");
+        // Debug.Log("SuperAttack " + damage + " triggered.");
+    }
+    public void Die()
+    {
+        // CanvasGroup cg = GetComponent<CanvasGroup>();
+        // if (cg == null)
+        // {
+        //     cg = gameObject.AddComponent<CanvasGroup>();
+        // }
+
+        // 创建 DOTween 动画序列，同时进行淡出和缩小效果
+        Sequence seq = DOTween.Sequence();
+        seq.Join(transform.DOScale(Vector3.zero, vanishDuration).SetEase(Ease.InBack));
+        seq.OnComplete(() =>
+        {
+            gameObject.SetActive(false);
+        });
+
     }
 
     private float CalculateProgress(float rate, float maxValue, ref float currentValue)
@@ -125,5 +135,10 @@ public class Card : MonoBehaviour
                  {
                      transform.DOLocalMove(startPos, backTime);
                  });
+    }
+
+    public bool IsAlive()
+    {
+        return currentHealth > 0 && gameObject.activeSelf;
     }
 }

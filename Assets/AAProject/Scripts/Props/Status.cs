@@ -1,4 +1,3 @@
-
 public static class Status
 {
     public enum BuffType
@@ -9,7 +8,9 @@ public static class Status
         Haste,
         CritUp,
         DamageUp,
+        None
     }
+
 
     public enum DebuffType
     {
@@ -21,15 +22,14 @@ public static class Status
         Poisoned,
         // Controll Type
         Frozen,
-        Paralyzed,
         Slowed,
         Stunned,
         Silenced,
-        Restrained,
         // Other
         Blinded,
         DefenseDown,
         AttackDown,
-        Vulnerable
+        Vulnerable,
+        None
     }
 }

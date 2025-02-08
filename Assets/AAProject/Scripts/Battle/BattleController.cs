@@ -26,13 +26,6 @@ public class BattleController : MonoBehaviour
     {
         Init();
         StartBattle();
-        // CardDataManager.Instance.AddCard();
-        // CardDataManager.Instance.SaveCards();
-    }
-
-    void Update()
-    {
-
     }
 
     private void Init()
@@ -45,76 +38,126 @@ public class BattleController : MonoBehaviour
         }
     }
 
-    public static int FindMinPositionIndex(List<Card> cards)
+    // 单体攻击方法
+    // attacker 发动攻击的一方
+    // selection: 目标选择策略（随机、最快、最低血量、最低防御）
+    // status: 附加的异常状态（如果不需要，则传 StatusType.None）
+    public void AttackSingleTarget(Card attacker, TargetSelection selection, Status.DebuffType status = Status.DebuffType.None)
     {
-        if (cards == null || cards.Count == 0)
+        List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
+        if (targets == null || targets.Count == 0)
+            return;
+
+        // 仅考虑存活的目标
+        var aliveTargets = targets.Where(t => t.IsAlive()).ToList();
+        if (aliveTargets.Count == 0) return;
+
+        Card target = null;
+        switch (selection)
         {
-            return -1;
+            case TargetSelection.Random:
+                target = aliveTargets[UnityEngine.Random.Range(0, aliveTargets.Count)];
+                break;
+            case TargetSelection.Fastest:
+
+                target = aliveTargets.OrderByDescending(t => t.cardEntity.speed).First();
+                break;
+            case TargetSelection.LowestHP:
+                target = aliveTargets.OrderBy(t => t.currentHealth).First();
+                break;
+            case TargetSelection.LowestDefense:
+                target = aliveTargets.OrderBy(t => t.cardEntity.defense).First();
+                break;
         }
+        if (target == null) return;
 
-        int minPosition = int.MaxValue;
-        int minIndex = -1;
+        CalculateDamage(attacker, target);
+        attacker.PlayAttackAnimation();
 
-        for (int i = 0; i < cards.Count; i++)
-        {
-            Card currentCard = cards[i];
-            if (!currentCard.IsAlive())
-            {
-                continue;
-            }
-
-            if (currentCard.position < minPosition)
-            {
-                minPosition = currentCard.position;
-                minIndex = i;
-            }
-        }
-
-        return minIndex;
+        /**       
+         * if (status != StatusType.None)
+               {
+                   target.ApplyStatus(status);
+                   Debug.Log($"[{target.cardName}] is inflicted with {status}.");
+               }
+       **/
     }
 
-    public void AttackMinPosEnermy(Card card)
+    // 群体攻击方法
+    // attacker 发动攻击的一方
+    // selection: 群体目标选择策略（随机多人、攻击前排、攻击后排）
+    // status: 附加的异常状态（如果不需要，则传 StatusType.None）
+    public void AttackGroupTarget(Card attacker, TargetSelection selection, Status.DebuffType status = Status.DebuffType.None)
     {
-        List<Card> enermyList = card.isPlayerCard ? enermyCards : playerCards;
-        if (enermyList == null) return;
-        if (enermyList.Count == 0) return;
-        int enermyIndex = FindMinPositionIndex(enermyList);
-        if (enermyIndex == -1) return;
-        float damage = CalculateDamage(card, enermyList[enermyIndex]);
-        enermyList[enermyIndex].TakeDamage(damage);
-    }
+        List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
 
-    public void AttackRandomEnermy(Card card, int count)
-    {
-        List<Card> enermyList = card.isPlayerCard ? enermyCards : playerCards;
-        if (enermyList == null) return;
-        if (enermyList.Count == 0) return;
+        if (targets == null || targets.Count == 0)
+            return;
 
-        // Get list of alive enemies
-        var aliveEnemies = enermyList.Where(e => e.IsAlive()).ToList();
-        if (aliveEnemies.Count == 0) return;
+        // 取出存活的目标
+        var aliveTargets = targets.Where(t => t.IsAlive()).ToList();
+        if (aliveTargets.Count == 0) return;
 
-        for (int i = 0; i < count; i++)
+        List<Card> selectedTargets = new List<Card>();
+
+        switch (selection)
         {
-            int enermyIndex = UnityEngine.Random.Range(0, aliveEnemies.Count);
-            float damage = CalculateDamage(card, aliveEnemies[enermyIndex]);
-            aliveEnemies[enermyIndex].TakeDamage(damage);
+            case TargetSelection.RandomGroup:
+                // 攻击随机 2~3 个目标（可根据需求调整数量）
+                int count = Mathf.Min(UnityEngine.Random.Range(2, 4), aliveTargets.Count);
+                selectedTargets = aliveTargets.OrderBy(x => Guid.NewGuid()).Take(count).ToList();
+                break;
+
+            case TargetSelection.FrontRow:
+                // 前排卡牌：假设 position==1或2 为前排
+                selectedTargets = aliveTargets.Where(t => t.position == 1 || t.position == 2).ToList();
+                break;
+            case TargetSelection.BackRow:
+                // 后排卡牌：假设 position==3,4,5 为后排
+                selectedTargets = aliveTargets.Where(t => t.position >= 3 && t.position <= 5).ToList();
+                break;
+        }
+
+        if (selectedTargets.Count == 0)
+        {
+            // 如果没有满足条件的目标，则降级为随机攻击所有存活目标
+            selectedTargets = aliveTargets;
+        }
+
+        foreach (var target in selectedTargets)
+        {
+            CalculateDamage(attacker, target);
+            attacker.PlayAttackAnimation();
+            // if (status != StatusType.None)
+            // {
+            //     target.ApplyStatus(status);
+            //     Debug.Log($"[{target.cardName}] is inflicted with {status}.");
+            // }
         }
     }
 
-    public float CalculateDamage(Card playerCard, Card enermyCard)
+    public void CalculateDamage(Card playerCard, Card enermyCard)
     {
+        Debug.Log("CalculateDamage: " + playerCard.isPlayerCard + " " + playerCard.position + " -> " + enermyCard.isPlayerCard + " " + enermyCard.position);
         float damage = 0;
         CardEntity pEntity = playerCard.cardEntity;
         CardEntity eEntity = enermyCard.cardEntity;
         float hitRate = pEntity.accuracy - eEntity.dodge;
+
         hitRate = Mathf.Clamp(hitRate, 0, 1);
+
         bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
-        if (!isHit) return damage;
+
         float criticalMultiplier = UnityEngine.Random.Range(0f, 1f) < pEntity.critical ? pEntity.criticalDamage : 1;
         float reductionRate = CalculateDmgReductionRate(eEntity);
-        return pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate);
+        damage = pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate);
+        enermyCard.StartCoroutine(enermyCard.TakeDamage(new DamageEntity[] {
+                new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier),
+                new DamageEntity(damage * 2.5f, DamageType.DAMAGE, 2.5f),
+                new DamageEntity(0, DamageType.MISS, 1f),
+                }));
     }
+
 
     public float CalculateDmgReductionRate(CardEntity eEntity)
     {
@@ -130,6 +173,7 @@ public class BattleController : MonoBehaviour
         {
             target[index].gameObject.SetActive(true);
             target[index].isPlayerCard = isPlayer;
+            target[index].position = index + 1;
             target[index].InitCard(cardEntity);
         }
     }
@@ -152,14 +196,17 @@ public class BattleController : MonoBehaviour
 
     private IEnumerator BattleRoutine()
     {
-        BattleInfo.Instance.PlayBattleStartAnimation("Battle Start");
+        BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
         yield return new WaitForSeconds(2f);
         while (currentRound < maxRound && isBattleActive)
         {
             currentRound++;
-            Debug.Log($"Round {currentRound} started");
+            BattleInfo.Instance.PlayBattleInfoAnimation("Round " + currentRound);
+            yield return new WaitForSeconds(2f);
             // Combine and sort all alive cards by speed
             var allCards = playerCards.Concat(enermyCards)
+
+
                 .Where(card => card.IsAlive())
                 .OrderByDescending(card => card.cardEntity.speed)
                 .ToList();
@@ -169,19 +216,32 @@ public class BattleController : MonoBehaviour
             {
                 if (!card.IsAlive()) continue;
                 // Perform attack
-                card.Attack();
-                // Add delay between actions for visualization
-                yield return new WaitForSeconds(1f);
-                // Check if battle should end
-                if (!HasAliveCards(playerCards) || !HasAliveCards(enermyCards))
+                bool useGroupAttack = UnityEngine.Random.Range(0f, 1f) < 0.5f;
+                if (useGroupAttack)
                 {
-                    isBattleActive = false;
-                    Debug.Log("Battle ended - one side defeated");
+                    AttackGroupTarget(card, TargetSelection.RandomGroup, Status.DebuffType.Burning);
+                }
+                else
+                {
+                    AttackSingleTarget(card, TargetSelection.LowestHP, Status.DebuffType.Poisoned);
+                }
+                // Add delay between actions for visualization
+                yield return new WaitForSeconds(1.5f);
+                // Check if battle should end
+                if (!HasAliveCards(playerCards))
+                {
+                    BattleInfo.Instance.PlayBattleInfoAnimation("Defeated");
+                    yield break;
+                }
+                if (!HasAliveCards(enermyCards))
+                {
+                    BattleInfo.Instance.PlayBattleInfoAnimation("Victory");
                     yield break;
                 }
             }
             yield return new WaitForSeconds(0.5f);
         }
+        BattleInfo.Instance.PlayBattleInfoAnimation("Battle End");
         isBattleActive = false;
         Debug.Log("Battle ended - max rounds reached");
     }
