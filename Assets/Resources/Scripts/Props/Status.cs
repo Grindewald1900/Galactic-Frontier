@@ -32,4 +32,14 @@ public static class Status
         Vulnerable,
         None
     }
+
+    public static DebuffType GetRandomDebuff()
+    {
+        return (DebuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(DebuffType)).Length);
+    }
+
+    public static BuffType GetRandomBuff()
+    {
+        return (BuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(BuffType)).Length);
+    }
 }

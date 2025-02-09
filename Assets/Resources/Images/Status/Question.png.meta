@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ec9eccfbadd1ece4abf55a37ae90d7b2
+guid: eee5b7acca37e894b873b6a0dcd542ef
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6159772059318583677
-    second: Status_Frozen_0
+      213: 8457688128998239237
+    second: Question_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_Frozen_0
+      name: Question_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 100
-        height: 100
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 38e70faa2f7148aa0800000000000000
-      internalID: -6159772059318583677
+      spriteID: 50c6af5ea8ebf5570800000000000000
+      internalID: 8457688128998239237
       vertices: []
       indices: 
       edges: []

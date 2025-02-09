@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 95bda35640cf62c4aacb20d9a744ee48
+guid: ec9eccfbadd1ece4abf55a37ae90d7b2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8588593889036426655
-    second: Status_Radiation_0
+      213: -6159772059318583677
+    second: Status_Frozen_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_Radiation_0
+      name: Status_Frozen_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 162a4ebbc5f2fc880800000000000000
-      internalID: -8588593889036426655
+      spriteID: 38e70faa2f7148aa0800000000000000
+      internalID: -6159772059318583677
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Status_Frozen_0: -6159772059318583677
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

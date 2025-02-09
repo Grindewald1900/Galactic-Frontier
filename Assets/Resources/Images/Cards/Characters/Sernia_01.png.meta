@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5c620c1f10498ce49a360ae684ba6202
+guid: 6663c00a0e99ad941b65dbc5318f0aca
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2655086321830166368
-    second: Status_Poison_0
+      213: 9019645112342533914
+    second: Sernia_01_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_Poison_0
+      name: Sernia_01_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 94
-        height: 94
+        width: 500
+        height: 600
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0a0805bbe0d372bd0800000000000000
-      internalID: -2655086321830166368
+      spriteID: a17d34901773c2d70800000000000000
+      internalID: 9019645112342533914
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 281ee7f55c326ce41a62fbf4d40ba9b1
     internalID: 0
     vertices: []
     indices: 
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Sernia_01_0: 9019645112342533914
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

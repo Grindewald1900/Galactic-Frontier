@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: eba3444a0bde9734ea85bbbafc088c24
+guid: 75a5bb2680114b44f865750d3e6eae7d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8029283321154060633
-    second: Status_Bleeding_0
+      213: -479911955911932749
+    second: Status_Burning_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_Bleeding_0
+      name: Status_Burning_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 124
-        height: 124
+        width: 102
+        height: 102
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7aeb4a14c51429090800000000000000
-      internalID: -8029283321154060633
+      spriteID: 3b408686e920759f0800000000000000
+      internalID: -479911955911932749
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Status_Burning_0: -479911955911932749
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -32,7 +32,8 @@ public class BattleController : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
-            CardEntity demoCardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f));
+            string name = UnityEngine.Random.Range(0, 100) < 50 ? "Asra" : "Sernia";
+            CardEntity demoCardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName(name);
             SetCard(playerCards, i, demoCardEntity, true);
             SetCard(enermyCards, i, demoCardEntity, false);
         }
@@ -42,7 +43,7 @@ public class BattleController : MonoBehaviour
     // attacker 发动攻击的一方
     // selection: 目标选择策略（随机、最快、最低血量、最低防御）
     // status: 附加的异常状态（如果不需要，则传 StatusType.None）
-    public void AttackSingleTarget(Card attacker, TargetSelection selection, Status.DebuffType status = Status.DebuffType.None)
+    public void AttackSingleTarget(Card attacker, TargetSelection selection, BuffEntity buff = null, DebuffEntity debuff = null)
     {
         List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
         if (targets == null || targets.Count == 0)
@@ -71,25 +72,24 @@ public class BattleController : MonoBehaviour
         }
         if (target == null) return;
 
-        CalculateDamage(attacker, target);
         attacker.PlayAttackAnimation();
+        CalculateDamage(attacker, target);
 
-        /**       
-         * if (status != StatusType.None)
-               {
-                   target.ApplyStatus(status);
-                   Debug.Log($"[{target.cardName}] is inflicted with {status}.");
-               }
-       **/
+        if (debuff != null)
+        {
+            target.debuffManager.AddDebuff(debuff);
+            Debug.Log($"[{target.cardEntity.cardName}] is inflicted with {debuff.type.ToString()}.");
+        }
     }
 
     // 群体攻击方法
     // attacker 发动攻击的一方
     // selection: 群体目标选择策略（随机多人、攻击前排、攻击后排）
     // status: 附加的异常状态（如果不需要，则传 StatusType.None）
-    public void AttackGroupTarget(Card attacker, TargetSelection selection, Status.DebuffType status = Status.DebuffType.None)
+    public void AttackGroupTarget(Card attacker, TargetSelection selection, BuffEntity buff = null, DebuffEntity debuff = null)
     {
         List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
+
 
         if (targets == null || targets.Count == 0)
             return;
@@ -128,13 +128,14 @@ public class BattleController : MonoBehaviour
         {
             CalculateDamage(attacker, target);
             attacker.PlayAttackAnimation();
-            // if (status != StatusType.None)
-            // {
-            //     target.ApplyStatus(status);
-            //     Debug.Log($"[{target.cardName}] is inflicted with {status}.");
-            // }
+            if (debuff != null)
+            {
+                target.debuffManager.AddDebuff(debuff);
+                Debug.Log($"[{target.cardEntity.cardName}] is inflicted with {debuff.type.ToString()}.");
+            }
         }
     }
+
 
     public void CalculateDamage(Card playerCard, Card enermyCard)
     {
@@ -217,18 +218,27 @@ public class BattleController : MonoBehaviour
                 if (!card.IsAlive()) continue;
                 // Perform attack
                 bool useGroupAttack = UnityEngine.Random.Range(0f, 1f) < 0.5f;
+                // TODO:Test Only - Random Buff and Debuff
+                Status.BuffType buffType = Status.GetRandomBuff();
+                Status.DebuffType debuffType = Status.GetRandomDebuff();
+                BuffEntity buff = new BuffEntity(buffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, buffType.ToString()));
+                DebuffEntity debuff = new DebuffEntity(debuffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, debuffType.ToString()));
+
+
                 if (useGroupAttack)
                 {
-                    AttackGroupTarget(card, TargetSelection.RandomGroup, Status.DebuffType.Burning);
+                    AttackGroupTarget(card, TargetSelection.RandomGroup, buff, debuff);
                 }
                 else
+
                 {
-                    AttackSingleTarget(card, TargetSelection.LowestHP, Status.DebuffType.Poisoned);
+                    AttackSingleTarget(card, TargetSelection.LowestHP, buff, debuff);
                 }
                 // Add delay between actions for visualization
                 yield return new WaitForSeconds(1.5f);
                 // Check if battle should end
                 if (!HasAliveCards(playerCards))
+
                 {
                     BattleInfo.Instance.PlayBattleInfoAnimation("Defeated");
                     yield break;

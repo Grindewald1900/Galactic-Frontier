@@ -1,16 +1,17 @@
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
+using TMPro;
 
 public class Card : MonoBehaviour
 {
     public UnityEngine.UI.Image healthBar;
     public UnityEngine.UI.Image energyBar;
-    public Image cardImage;
+    public Image characterImage;
+    public TextMeshProUGUI nameText;
     public DamageText[] damageTexts;
-    public string cardName;
-
+    public DebuffManager debuffManager;
     public bool isPlayerCard;
     public CardEntity cardEntity;
     public float currentHealth = 100f;
@@ -18,7 +19,6 @@ public class Card : MonoBehaviour
     public float currentAttack = 0f;
 
     public int position = 0;
-
     public float moveDistance = 50f;
     public float forwardTime = 0.2f;
     private float backTime = 0.2f;
@@ -46,6 +46,11 @@ public class Card : MonoBehaviour
     public void InitCard(CardEntity cardEntity)
     {
         this.cardEntity = cardEntity;
+        Debug.Log("name: " + cardEntity.cardName);
+        Sprite image = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.cardName + "_01");
+        Debug.Log("image is null? " + (image == null));
+        SetImage(image);
+        SetName(cardEntity.cardName);
     }
 
     private void UpdateEnergyBar()
@@ -137,7 +142,18 @@ public class Card : MonoBehaviour
                  });
     }
 
+    public void SetImage(Sprite sprite)
+    {
+        characterImage.sprite = sprite;
+    }
+
+    public void SetName(string name)
+    {
+        nameText.text = name;
+    }
+
     public bool IsAlive()
+
     {
         return currentHealth > 0 && gameObject.activeSelf;
     }

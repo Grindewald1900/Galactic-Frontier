@@ -1,0 +1,25 @@
+using UnityEngine;
+
+public static class ImageUtil
+{
+    public static string imageDefaultPath = "Images/";
+    public static string statusImagePath = "Images/Status/";
+    public static string characterImagePath = "Images/Cards/Characters/";
+    private static Sprite defaultSprite = Resources.Load<Sprite>("Images/Default");
+    public static Sprite GetSpriteByName(string imagePath, string imageName)
+    {
+        Debug.Log("GetSpriteByName: " + imagePath + imageName);
+        Sprite sprite = Resources.Load<Sprite>(imagePath + imageName);
+        if (sprite != null)
+        {
+            Debug.Log("sprite: " + sprite.name);
+            return sprite;
+        }
+        else
+        {
+            Debug.Log("defaultSprite: " + defaultSprite.name);
+            return defaultSprite;
+        }
+    }
+
+}

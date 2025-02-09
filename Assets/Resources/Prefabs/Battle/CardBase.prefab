@@ -1439,6 +1439,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthBar: {fileID: 2514797685836268103}
   energyBar: {fileID: 1409616383488403067}
+  characterImage: {fileID: 7976809340189132260}
+  nameText: {fileID: 4333730518121388495}
   damageTexts:
   - {fileID: 3764094009738871416}
   - {fileID: 7905990210091441105}
@@ -1446,7 +1448,7 @@ MonoBehaviour:
   - {fileID: 4681909124490895509}
   - {fileID: 116447387613556533}
   - {fileID: 5957753529777583012}
-  cardName: 
+  debuffManager: {fileID: 2804199061393546570}
   isPlayerCard: 0
   cardEntity:
     cardName: Default
@@ -1484,7 +1486,7 @@ MonoBehaviour:
   position: 0
   moveDistance: 50
   forwardTime: 0.2
-  backTime: 0.2
+  vanishDuration: 1
 --- !u!1 &4175986706884701449
 GameObject:
   m_ObjectHideFlags: 0
@@ -3018,6 +3020,7 @@ GameObject:
   - component: {fileID: 8559913002066417696}
   - component: {fileID: 7633718226368998762}
   - component: {fileID: 4544549735608508338}
+  - component: {fileID: 2804199061393546570}
   m_Layer: 0
   m_Name: DebuffPanel
   m_TagString: Untagged
@@ -3088,6 +3091,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2804199061393546570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8493535032529277943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4be2fcde44f55940826d1fea65a6798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debuffImages:
+  - {fileID: 3678697464939051469}
+  - {fileID: 1969198789345160044}
+  - {fileID: 4253819560887553827}
+  - {fileID: 2553293425137948086}
+  - {fileID: 5274963052419837752}
+  - {fileID: 258477554377541853}
+  currentDebuffs: []
 --- !u!1 &9109800875344465418
 GameObject:
   m_ObjectHideFlags: 0

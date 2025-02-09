@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8cd34e14f27e9aa49af02cb38ce7c9e6
+guid: 5c620c1f10498ce49a360ae684ba6202
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7398760311178291837
-    second: Status_SpeedDown_0
+      213: -2655086321830166368
+    second: Status_Poison_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_SpeedDown_0
+      name: Status_Poison_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 422
-        height: 422
+        width: 94
+        height: 94
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 38595f182b2525990800000000000000
-      internalID: -7398760311178291837
+      spriteID: 0a0805bbe0d372bd0800000000000000
+      internalID: -2655086321830166368
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Status_Poison_0: -2655086321830166368
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
