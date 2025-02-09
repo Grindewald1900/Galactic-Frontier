@@ -30,10 +30,11 @@ public class BattleController : MonoBehaviour
 
     private void Init()
     {
+        CharacterSkillController.InitSkillSet();
         for (int i = 0; i < 5; i++)
         {
             string name = UnityEngine.Random.Range(0, 100) < 50 ? "Asra" : "Sernia";
-            CardEntity demoCardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName(name);
+            CardEntity demoCardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName(name).SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician);
             SetCard(playerCards, i, demoCardEntity, true);
             SetCard(enermyCards, i, demoCardEntity, false);
         }
@@ -43,6 +44,7 @@ public class BattleController : MonoBehaviour
     // attacker 发动攻击的一方
     // selection: 目标选择策略（随机、最快、最低血量、最低防御）
     // status: 附加的异常状态（如果不需要，则传 StatusType.None）
+    /**
     public void AttackSingleTarget(Card attacker, TargetSelection selection, BuffEntity buff = null, DebuffEntity debuff = null)
     {
         List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
@@ -135,30 +137,22 @@ public class BattleController : MonoBehaviour
             }
         }
     }
-
-
-    public void CalculateDamage(Card playerCard, Card enermyCard)
+    */
+    public DamageEntity CalculateDamage(Card playerCard, Card enermyCard, float attackMultiplier = 1)
     {
         Debug.Log("CalculateDamage: " + playerCard.isPlayerCard + " " + playerCard.position + " -> " + enermyCard.isPlayerCard + " " + enermyCard.position);
-        float damage = 0;
+
         CardEntity pEntity = playerCard.cardEntity;
         CardEntity eEntity = enermyCard.cardEntity;
-        float hitRate = pEntity.accuracy - eEntity.dodge;
-
-        hitRate = Mathf.Clamp(hitRate, 0, 1);
-
-        bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
-
+        float hitRate = Mathf.Clamp(pEntity.accuracy - eEntity.dodge, 0, 1);
+        float damage = 0;
         float criticalMultiplier = UnityEngine.Random.Range(0f, 1f) < pEntity.critical ? pEntity.criticalDamage : 1;
         float reductionRate = CalculateDmgReductionRate(eEntity);
-        damage = pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate);
-        enermyCard.StartCoroutine(enermyCard.TakeDamage(new DamageEntity[] {
-                new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier),
-                new DamageEntity(damage * 2.5f, DamageType.DAMAGE, 2.5f),
-                new DamageEntity(0, DamageType.MISS, 1f),
-                }));
+        bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
+        damage = pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
+        Debug.Log("CalculateDamage damage: " + damage);
+        return new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier);
     }
-
 
     public float CalculateDmgReductionRate(CardEntity eEntity)
     {
@@ -206,8 +200,6 @@ public class BattleController : MonoBehaviour
             yield return new WaitForSeconds(2f);
             // Combine and sort all alive cards by speed
             var allCards = playerCards.Concat(enermyCards)
-
-
                 .Where(card => card.IsAlive())
                 .OrderByDescending(card => card.cardEntity.speed)
                 .ToList();
@@ -216,28 +208,20 @@ public class BattleController : MonoBehaviour
             foreach (var card in allCards)
             {
                 if (!card.IsAlive()) continue;
-                // Perform attack
-                bool useGroupAttack = UnityEngine.Random.Range(0f, 1f) < 0.5f;
-                // TODO:Test Only - Random Buff and Debuff
-                Status.BuffType buffType = Status.GetRandomBuff();
-                Status.DebuffType debuffType = Status.GetRandomDebuff();
-                BuffEntity buff = new BuffEntity(buffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, buffType.ToString()));
-                DebuffEntity debuff = new DebuffEntity(debuffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, debuffType.ToString()));
 
+                List<Card> targets = card.isPlayerCard ? enermyCards : playerCards;
+                if (targets == null || targets.Count == 0)
+                    yield break;
+                SkillSet skillSet = CharacterSkillController.GetSkillSet(card.cardEntity.character);
 
-                if (useGroupAttack)
-                {
-                    AttackGroupTarget(card, TargetSelection.RandomGroup, buff, debuff);
-                }
-                else
-
-                {
-                    AttackSingleTarget(card, TargetSelection.LowestHP, buff, debuff);
-                }
+                Debug.Log("skillSet: " + skillSet.character.ToString());
+                skillSet.NormalAttack(card, targets);
                 // Add delay between actions for visualization
                 yield return new WaitForSeconds(1.5f);
                 // Check if battle should end
                 if (!HasAliveCards(playerCards))
+
+
 
                 {
                     BattleInfo.Instance.PlayBattleInfoAnimation("Defeated");

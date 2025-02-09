@@ -1449,9 +1449,12 @@ MonoBehaviour:
   - {fileID: 116447387613556533}
   - {fileID: 5957753529777583012}
   debuffManager: {fileID: 2804199061393546570}
+  buffManager: {fileID: 143727014731669466}
   isPlayerCard: 0
   cardEntity:
     cardName: Default
+    character: 0
+    archetype: 0
     id: Default
     subID: Default
     level: 1
@@ -1651,6 +1654,7 @@ GameObject:
   - component: {fileID: 7587306220966563208}
   - component: {fileID: 1276012810363567939}
   - component: {fileID: 5141389080301918670}
+  - component: {fileID: 143727014731669466}
   m_Layer: 0
   m_Name: BuffPanel
   m_TagString: Untagged
@@ -1721,6 +1725,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &143727014731669466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4641772241869399138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09111b60fc8fafa42a0cc7cdf4b8d148, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buffImages:
+  - {fileID: 5348666107968267862}
+  - {fileID: 3706442750384790813}
+  - {fileID: 741337485949394035}
+  - {fileID: 3605230173492682351}
+  - {fileID: 4799442696325548324}
+  - {fileID: 4852775937811267341}
+  currentBuffs: []
 --- !u!1 &4852741250559239720
 GameObject:
   m_ObjectHideFlags: 0

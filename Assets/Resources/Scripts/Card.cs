@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 
 public class Card : MonoBehaviour
@@ -12,6 +13,7 @@ public class Card : MonoBehaviour
     public TextMeshProUGUI nameText;
     public DamageText[] damageTexts;
     public DebuffManager debuffManager;
+    public BuffManager buffManager;
     public bool isPlayerCard;
     public CardEntity cardEntity;
     public float currentHealth = 100f;
@@ -22,7 +24,7 @@ public class Card : MonoBehaviour
     public float moveDistance = 50f;
     public float forwardTime = 0.2f;
     private float backTime = 0.2f;
-    private float attackTime = 0.2f;
+    private float attackTime = 0.3f;
     public float vanishDuration = 1f;
     private Vector3 startPos;
     private int nextIndex = 0;
@@ -67,8 +69,14 @@ public class Card : MonoBehaviour
         }
     }
 
-    public IEnumerator TakeDamage(DamageEntity[] damage)
+    public void TakeDamage(List<DamageEntity> damage)
     {
+        StartCoroutine(ApplyDamage(damage));
+    }
+
+    private IEnumerator ApplyDamage(List<DamageEntity> damage)
+    {
+        Debug.Log("ApplyDamage: " + damage.Count);
         if (damageTexts == null || damageTexts.Length == 0)
         {
             Debug.LogWarning("DamageTextManager: damageTexts is null");
@@ -76,15 +84,22 @@ public class Card : MonoBehaviour
         }
         foreach (var d in damage)
         {
-            if (d.damageType == DamageType.MISS)
-            {
-                damageTexts[nextIndex].SetDamageText("MISS", ColorUtil.missDamagelColor);
-                continue;
-            }
             DamageText dt = damageTexts[nextIndex];
             nextIndex = (nextIndex + 1) % damageTexts.Length;
-            Color textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
-            dt.SetDamageText($"-{Mathf.RoundToInt(d.damageAmount)}", textColor);
+            string text = "";
+            Color textColor = Color.white;
+            if (d.damageType == DamageType.MISS)
+            {
+                text = "MISS";
+                textColor = ColorUtil.missDamagelColor;
+            }
+            else if (d.damageType == DamageType.DAMAGE)
+            {
+                text = $"-{Mathf.RoundToInt(d.damageAmount)}";
+                textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
+            }
+
+            dt.SetDamageText(text, textColor);
             currentHealth -= d.damageAmount;
             yield return new WaitForSeconds(attackTime);
         }

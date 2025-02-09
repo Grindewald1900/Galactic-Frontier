@@ -19,8 +19,6 @@ public enum TargetSelection
     BackRow   // 攻击后排（position == 3,4,5）
 }
 
-
-
 [Serializable]
 public class DamageEntity
 {

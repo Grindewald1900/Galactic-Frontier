@@ -8,18 +8,7 @@ public static class ImageUtil
     private static Sprite defaultSprite = Resources.Load<Sprite>("Images/Default");
     public static Sprite GetSpriteByName(string imagePath, string imageName)
     {
-        Debug.Log("GetSpriteByName: " + imagePath + imageName);
         Sprite sprite = Resources.Load<Sprite>(imagePath + imageName);
-        if (sprite != null)
-        {
-            Debug.Log("sprite: " + sprite.name);
-            return sprite;
-        }
-        else
-        {
-            Debug.Log("defaultSprite: " + defaultSprite.name);
-            return defaultSprite;
-        }
+        return sprite != null ? sprite : defaultSprite;
     }
-
 }

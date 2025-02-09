@@ -16,13 +16,10 @@ public class DebuffManager : MonoBehaviour
 
     public void AddDebuff(DebuffEntity newDebuff)
     {
-        Debug.Log("AddDebuff");
-        Debug.Log("newDebuff.type: " + newDebuff.type.ToString());
         // 检查是否已存在相同类型的 debuff
         DebuffEntity existing = currentDebuffs.Find(d => d.type == newDebuff.type);
         if (existing != null)
         {
-
             existing.roundsRemaining += newDebuff.roundsRemaining;
         }
         else
