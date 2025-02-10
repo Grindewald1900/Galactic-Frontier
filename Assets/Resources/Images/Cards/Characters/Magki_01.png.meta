@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ebc87dade2b85f94fbd2a518477834e4
+guid: 1ddf1c250a55d59478075f341c1100a4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3399773529892540363
-    second: Slowed 1_0
+      213: -2059207161148214864
+    second: Magki_01 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slowed 1_0
+      name: Magki_01 1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 128
+        x: 21
+        y: 10
+        width: 432
+        height: 566
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 530baf1ccf391d0d0800000000000000
-      internalID: -3399773529892540363
+      spriteID: 0b1f1d04ff93c63e0800000000000000
+      internalID: -2059207161148214864
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Slowed 1_0: -3399773529892540363
+      Magki_01 1_0: -2059207161148214864
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

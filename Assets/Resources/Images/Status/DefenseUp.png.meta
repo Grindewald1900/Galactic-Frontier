@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e54658bece55f134694a047545cc1057
+guid: 23ecd6a92a143ae49bac708c6b8f888a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2892493589380094805
-    second: Status_SpeedUp_0
+      213: 6912197937034798485
+    second: DefenseUp_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_SpeedUp_0
+      name: DefenseUp_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 422
-        height: 422
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 55b581e2893342820800000000000000
-      internalID: 2892493589380094805
+      spriteID: 595a52eb66f0def50800000000000000
+      internalID: 6912197937034798485
       vertices: []
       indices: 
       edges: []

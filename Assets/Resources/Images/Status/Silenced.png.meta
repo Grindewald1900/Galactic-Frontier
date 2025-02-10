@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: de0dbd9af255f6643a3c57b0277b6c42
+guid: fc1697affba6cbb498506dc62ba1926e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8201486461669375384
-    second: Status_DefenseDown_0
+      213: 7178341657827451841
+    second: Silence_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_DefenseDown_0
+      name: Silence_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 101
-        height: 101
+        x: 38
+        y: 30
+        width: 436
+        height: 451
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 89d7af9cb7881d170800000000000000
-      internalID: 8201486461669375384
+      spriteID: 1c3a13f84b79e9360800000000000000
+      internalID: 7178341657827451841
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Silence_0: 7178341657827451841
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

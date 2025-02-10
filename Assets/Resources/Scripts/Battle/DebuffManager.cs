@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class DebuffManager : MonoBehaviour
 {
     public Image[] debuffImages;
+    public Image background;
     public List<DebuffEntity> currentDebuffs = new List<DebuffEntity>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -12,14 +13,18 @@ public class DebuffManager : MonoBehaviour
         {
             image.gameObject.SetActive(false);
         }
+        background.gameObject.SetActive(false);
     }
+
 
     public void AddDebuff(DebuffEntity newDebuff)
     {
         // 检查是否已存在相同类型的 debuff
+        Debug.Log("AddDebuff: " + newDebuff.type.ToString());
         DebuffEntity existing = currentDebuffs.Find(d => d.type == newDebuff.type);
         if (existing != null)
         {
+            Debug.Log("Existing Debuff Found: " + existing.type.ToString());
             existing.roundsRemaining += newDebuff.roundsRemaining;
         }
         else
@@ -48,9 +53,11 @@ public class DebuffManager : MonoBehaviour
     {
         Debug.Log("UpdateDebuffUI");
         Debug.Log("currentDebuffs.Count: " + currentDebuffs.Count);
+        background.gameObject.SetActive(currentDebuffs.Count > 0);
         // 清空所有 Image（隐藏）
         for (int i = 0; i < debuffImages.Length; i++)
         {
+
             debuffImages[i].sprite = null;
             debuffImages[i].gameObject.SetActive(false);
         }

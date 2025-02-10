@@ -4,6 +4,7 @@ using System;
 public enum DamageType
 {
     DAMAGE,
+    SPECIAL_DAMAGE,
     MISS,
     CURE,
 }

@@ -9,7 +9,10 @@ public class Card : MonoBehaviour
 {
     public UnityEngine.UI.Image healthBar;
     public UnityEngine.UI.Image energyBar;
+    public Image baseColorImage;
     public Image characterImage;
+    public Image logoImage;
+
     public TextMeshProUGUI nameText;
     public DamageText[] damageTexts;
     public DebuffManager debuffManager;
@@ -48,10 +51,7 @@ public class Card : MonoBehaviour
     public void InitCard(CardEntity cardEntity)
     {
         this.cardEntity = cardEntity;
-        Debug.Log("name: " + cardEntity.cardName);
-        Sprite image = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.cardName + "_01");
-        Debug.Log("image is null? " + (image == null));
-        SetImage(image);
+        SetImage(cardEntity);
         SetName(cardEntity.cardName);
     }
 
@@ -65,7 +65,9 @@ public class Card : MonoBehaviour
         if (progress >= 1f)
         {
             currentEnergy = 0f;
-            SuperAttack(cardEntity.attack * 2);
+            BattleController.Instance.isSpecialAttackInProgress = true;
+            SkillSet skillSet = CharacterSkillController.GetSkillSet(cardEntity.character);
+            skillSet.SpecialAttack(this, BattleController.Instance.GetAliveTargets(this));
         }
     }
 
@@ -98,6 +100,11 @@ public class Card : MonoBehaviour
                 text = $"-{Mathf.RoundToInt(d.damageAmount)}";
                 textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
             }
+            else if (d.damageType == DamageType.SPECIAL_DAMAGE)
+            {
+                text = $"-{Mathf.RoundToInt(d.damageAmount)}";
+                textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
+            }
 
             dt.SetDamageText(text, textColor);
             currentHealth -= d.damageAmount;
@@ -105,25 +112,19 @@ public class Card : MonoBehaviour
         }
         nextIndex = 0;
         healthBar.fillAmount = currentHealth / cardEntity.health;
+        if (damage[0].damageType == DamageType.SPECIAL_DAMAGE)
+        {
+            BattleController.Instance.isSpecialAttackInProgress = false;
+        }
         if (currentHealth <= 0)
         {
             Die();
         }
+
     }
 
-    private void SuperAttack(float damage)
-    {
-        // Debug.Log("SuperAttack " + damage + " triggered.");
-    }
     public void Die()
     {
-        // CanvasGroup cg = GetComponent<CanvasGroup>();
-        // if (cg == null)
-        // {
-        //     cg = gameObject.AddComponent<CanvasGroup>();
-        // }
-
-        // 创建 DOTween 动画序列，同时进行淡出和缩小效果
         Sequence seq = DOTween.Sequence();
         seq.Join(transform.DOScale(Vector3.zero, vanishDuration).SetEase(Ease.InBack));
         seq.OnComplete(() =>
@@ -157,9 +158,15 @@ public class Card : MonoBehaviour
                  });
     }
 
-    public void SetImage(Sprite sprite)
+    public void SetImage(CardEntity cardEntity)
     {
-        characterImage.sprite = sprite;
+        Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.character.ToString() + "_01");
+        Sprite baseColorSprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, cardEntity.characterTier.ToString() + "_Default");
+        // Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.logoImagePath, cardEntity.cardName + "_01");
+
+        characterImage.sprite = characterSprite;
+        baseColorImage.sprite = baseColorSprite;
+        // logoImage.sprite = logoSprite;
     }
 
     public void SetName(string name)

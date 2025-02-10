@@ -11,6 +11,7 @@ public class CardEntity
     public string subID = "Default";
     public int level = 1;
     public int exp = 0;
+    public CharacterTier characterTier = CharacterTier.TierF;
     public float health = 100f;
     public float healthCoefficient = 1f;
 
@@ -40,9 +41,10 @@ public class CardEntity
     public CardEntity() { }
 
     public CardEntity(string cardName, Character character, Archetype archetype, string id, string subID, int level, int exp,
-    float health, float healthCoefficient, float attack, float attackCoefficient, float defense,
+    CharacterTier characterTier, float health, float healthCoefficient, float attack, float attackCoefficient, float defense,
     float defenseCoefficient, float score, CardType cardType, float accuracy, float accuracyCoefficient, float dodge,
     float dodgeCoefficient, float critical, float criticalCoefficient, float criticalDamage, float criticalDamageCoefficient,
+
     float dagameReduction, float dagameReductionCoefficient, int energyGenerateRate, int energyGenerateRateCoefficient, float speed,
     float speedCoefficient, float maxEnergy, float maxAttack)
     {
@@ -105,7 +107,6 @@ public class CardEntity
         return this;
     }
 
-
     public CardEntity SetSubId(string subID)
     {
         this.subID = subID;
@@ -124,11 +125,18 @@ public class CardEntity
         return this;
     }
 
+    public CardEntity SetCharacterTier(CharacterTier characterTier)
+    {
+        this.characterTier = characterTier;
+        return this;
+    }
+
     public CardEntity SetHealth(float health)
     {
         this.health = health;
         return this;
     }
+
 
     public CardEntity SetHealthCoefficient(float healthCoefficient)
     {

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9dcfb07129058f24ea7307789e23261e
+guid: b9ab34c62abaf2b4eb3eab0e12235ef6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1034172849830635759
-    second: Asra_0
+      213: 764074430511746536
+    second: AttackDown_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Asra_0
+      name: AttackDown_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 496
-        height: 600
+        width: 128
+        height: 128
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: fe822864abe1a5e00800000000000000
-      internalID: 1034172849830635759
+      spriteID: 8ed8c9475a98a9a00800000000000000
+      internalID: 764074430511746536
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Asra_0: 1034172849830635759
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

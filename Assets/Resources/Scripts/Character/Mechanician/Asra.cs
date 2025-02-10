@@ -7,6 +7,7 @@ using System.Linq;
 public class Asra : SkillSet
 {
     private float attackMultiplier = 0.6f;
+    private int debuffRound = 3;
     public Asra()
     {
         character = Character.Asra;
@@ -38,6 +39,18 @@ public class Asra : SkillSet
 
     public override void SpecialAttack(Card player, List<Card> target)
     {
+        int count = Mathf.Min(5, target.Count);
+        List<Card> selectedTargets = target.OrderBy(x => Guid.NewGuid()).Take(count).ToList();
+        DebuffEntity debuff = new DebuffEntity(Status.DebuffType.Burning, debuffRound, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, Status.DebuffType.Burning.ToString()));
+        player.PlayAttackAnimation();
+        foreach (var enermy in selectedTargets)
+        {
+            List<DamageEntity> damageEntities = new List<DamageEntity>();
+            damageEntities.Add(BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier));
+            damageEntities[0].damageType = DamageType.SPECIAL_DAMAGE;
+            enermy.TakeDamage(damageEntities);
+            enermy.debuffManager.AddDebuff(debuff);
+        }
     }
 
     public override void PassiveSkill(Card player, List<Card> target)

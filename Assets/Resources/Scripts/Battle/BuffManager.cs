@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class BuffManager : MonoBehaviour
 {
     public Image[] buffImages;
+    public Image background;
     public List<BuffEntity> currentBuffs = new List<BuffEntity>();
 
     void Start()
@@ -12,10 +13,11 @@ public class BuffManager : MonoBehaviour
         {
             image.gameObject.SetActive(false);
         }
+        background.gameObject.SetActive(false);
     }
 
-    public void AddBuff(BuffEntity newBuff)
 
+    public void AddBuff(BuffEntity newBuff)
     {
         // 检查是否已存在相同类型的 buff
         BuffEntity existing = currentBuffs.Find(b => b.type == newBuff.type);
@@ -48,6 +50,7 @@ public class BuffManager : MonoBehaviour
     {
         Debug.Log("UpdateBuffUI");
         Debug.Log("currentBuffs.Count: " + currentBuffs.Count);
+        background.gameObject.SetActive(currentBuffs.Count > 0);
         for (int i = 0; i < buffImages.Length; i++)
         {
             buffImages[i].sprite = null;

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3305acd2c07c3494bb1eeb6a1fb5b122
+guid: fd54817cfbc4a1746930568fcb143456
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6245462794560558121
-    second: Status_Bleeding_1_0
+      213: 2381445041315806572
+    second: gradient (6)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Status_Bleeding_1_0
+      name: gradient (6)_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 146
-        height: 146
+        width: 130
+        height: 150
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7dbac40ada8a359a0800000000000000
-      internalID: -6245462794560558121
+      spriteID: c6d7ebbc5a79c0120800000000000000
+      internalID: 2381445041315806572
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      gradient (6)_0: 2381445041315806572
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

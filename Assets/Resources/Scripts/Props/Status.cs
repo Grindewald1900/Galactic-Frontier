@@ -29,7 +29,6 @@ public static class Status
         Blinded,
         DefenseDown,
         AttackDown,
-        Vulnerable,
         None
     }
 

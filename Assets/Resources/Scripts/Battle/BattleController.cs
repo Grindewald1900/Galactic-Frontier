@@ -14,6 +14,7 @@ public class BattleController : MonoBehaviour
     public BattleController enermyController;
 
     private bool isBattleActive = false;
+    public bool isSpecialAttackInProgress = false;
 
     void Awake()
     {
@@ -31,113 +32,17 @@ public class BattleController : MonoBehaviour
     private void Init()
     {
         CharacterSkillController.InitSkillSet();
+        List<CardEntity> cardEntities = new List<CardEntity>();
+        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF));
+        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
+        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
         for (int i = 0; i < 5; i++)
         {
-            string name = UnityEngine.Random.Range(0, 100) < 50 ? "Asra" : "Sernia";
-            CardEntity demoCardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName(name).SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician);
-            SetCard(playerCards, i, demoCardEntity, true);
-            SetCard(enermyCards, i, demoCardEntity, false);
+            SetCard(playerCards, i, cardEntities[UnityEngine.Random.Range(0, cardEntities.Count)], true);
+            SetCard(enermyCards, i, cardEntities[UnityEngine.Random.Range(0, cardEntities.Count)], false);
         }
     }
 
-    // 单体攻击方法
-    // attacker 发动攻击的一方
-    // selection: 目标选择策略（随机、最快、最低血量、最低防御）
-    // status: 附加的异常状态（如果不需要，则传 StatusType.None）
-    /**
-    public void AttackSingleTarget(Card attacker, TargetSelection selection, BuffEntity buff = null, DebuffEntity debuff = null)
-    {
-        List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
-        if (targets == null || targets.Count == 0)
-            return;
-
-        // 仅考虑存活的目标
-        var aliveTargets = targets.Where(t => t.IsAlive()).ToList();
-        if (aliveTargets.Count == 0) return;
-
-        Card target = null;
-        switch (selection)
-        {
-            case TargetSelection.Random:
-                target = aliveTargets[UnityEngine.Random.Range(0, aliveTargets.Count)];
-                break;
-            case TargetSelection.Fastest:
-
-                target = aliveTargets.OrderByDescending(t => t.cardEntity.speed).First();
-                break;
-            case TargetSelection.LowestHP:
-                target = aliveTargets.OrderBy(t => t.currentHealth).First();
-                break;
-            case TargetSelection.LowestDefense:
-                target = aliveTargets.OrderBy(t => t.cardEntity.defense).First();
-                break;
-        }
-        if (target == null) return;
-
-        attacker.PlayAttackAnimation();
-        CalculateDamage(attacker, target);
-
-        if (debuff != null)
-        {
-            target.debuffManager.AddDebuff(debuff);
-            Debug.Log($"[{target.cardEntity.cardName}] is inflicted with {debuff.type.ToString()}.");
-        }
-    }
-
-    // 群体攻击方法
-    // attacker 发动攻击的一方
-    // selection: 群体目标选择策略（随机多人、攻击前排、攻击后排）
-    // status: 附加的异常状态（如果不需要，则传 StatusType.None）
-    public void AttackGroupTarget(Card attacker, TargetSelection selection, BuffEntity buff = null, DebuffEntity debuff = null)
-    {
-        List<Card> targets = attacker.isPlayerCard ? enermyCards : playerCards;
-
-
-        if (targets == null || targets.Count == 0)
-            return;
-
-        // 取出存活的目标
-        var aliveTargets = targets.Where(t => t.IsAlive()).ToList();
-        if (aliveTargets.Count == 0) return;
-
-        List<Card> selectedTargets = new List<Card>();
-
-        switch (selection)
-        {
-            case TargetSelection.RandomGroup:
-                // 攻击随机 2~3 个目标（可根据需求调整数量）
-                int count = Mathf.Min(UnityEngine.Random.Range(2, 4), aliveTargets.Count);
-                selectedTargets = aliveTargets.OrderBy(x => Guid.NewGuid()).Take(count).ToList();
-                break;
-
-            case TargetSelection.FrontRow:
-                // 前排卡牌：假设 position==1或2 为前排
-                selectedTargets = aliveTargets.Where(t => t.position == 1 || t.position == 2).ToList();
-                break;
-            case TargetSelection.BackRow:
-                // 后排卡牌：假设 position==3,4,5 为后排
-                selectedTargets = aliveTargets.Where(t => t.position >= 3 && t.position <= 5).ToList();
-                break;
-        }
-
-        if (selectedTargets.Count == 0)
-        {
-            // 如果没有满足条件的目标，则降级为随机攻击所有存活目标
-            selectedTargets = aliveTargets;
-        }
-
-        foreach (var target in selectedTargets)
-        {
-            CalculateDamage(attacker, target);
-            attacker.PlayAttackAnimation();
-            if (debuff != null)
-            {
-                target.debuffManager.AddDebuff(debuff);
-                Debug.Log($"[{target.cardEntity.cardName}] is inflicted with {debuff.type.ToString()}.");
-            }
-        }
-    }
-    */
     public DamageEntity CalculateDamage(Card playerCard, Card enermyCard, float attackMultiplier = 1)
     {
         Debug.Log("CalculateDamage: " + playerCard.isPlayerCard + " " + playerCard.position + " -> " + enermyCard.isPlayerCard + " " + enermyCard.position);
@@ -209,20 +114,17 @@ public class BattleController : MonoBehaviour
             {
                 if (!card.IsAlive()) continue;
 
-                List<Card> targets = card.isPlayerCard ? enermyCards : playerCards;
+                yield return new WaitUntil(() => !isSpecialAttackInProgress);
+
+                List<Card> targets = GetAliveTargets(card);
                 if (targets == null || targets.Count == 0)
                     yield break;
                 SkillSet skillSet = CharacterSkillController.GetSkillSet(card.cardEntity.character);
-
-                Debug.Log("skillSet: " + skillSet.character.ToString());
                 skillSet.NormalAttack(card, targets);
                 // Add delay between actions for visualization
                 yield return new WaitForSeconds(1.5f);
                 // Check if battle should end
                 if (!HasAliveCards(playerCards))
-
-
-
                 {
                     BattleInfo.Instance.PlayBattleInfoAnimation("Defeated");
                     yield break;
@@ -243,5 +145,11 @@ public class BattleController : MonoBehaviour
     private bool HasAliveCards(List<Card> cards)
     {
         return cards.Any(card => card.IsAlive());
+    }
+
+    public List<Card> GetAliveTargets(Card card)
+    {
+        List<Card> targets = card.isPlayerCard ? enermyCards : playerCards;
+        return targets.Where(target => target.IsAlive()).ToList();
     }
 }
