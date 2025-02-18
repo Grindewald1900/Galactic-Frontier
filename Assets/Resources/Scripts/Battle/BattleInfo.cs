@@ -6,6 +6,7 @@ public class BattleInfo : MonoBehaviour
 {
     [SerializeField] private TMPro.TextMeshProUGUI battleInfoText; // Reference to UI text
     [SerializeField] private float animationDuration = 1.0f;
+    public bool isBattleInfoActive = false;
     private Vector3 originalScale;
     public static BattleInfo Instance { get; private set; }
 
@@ -26,6 +27,8 @@ public class BattleInfo : MonoBehaviour
     public void PlayBattleInfoAnimation(string info)
     {
         if (battleInfoText == null) return;
+        if (isBattleInfoActive) return;
+        isBattleInfoActive = true;
         battleInfoText.text = info;
         battleInfoText.gameObject.SetActive(true);
         battleInfoText.transform.localScale = Vector3.zero;
@@ -42,6 +45,7 @@ public class BattleInfo : MonoBehaviour
                     .OnComplete(() =>
                     {
                         battleInfoText.gameObject.SetActive(false);
+                        isBattleInfoActive = false;
                     });
             });
     }

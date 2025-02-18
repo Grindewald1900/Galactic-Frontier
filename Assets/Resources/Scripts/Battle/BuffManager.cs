@@ -16,18 +16,26 @@ public class BuffManager : MonoBehaviour
         background.gameObject.SetActive(false);
     }
 
-
     public void AddBuff(BuffEntity newBuff)
     {
         // 检查是否已存在相同类型的 buff
-        BuffEntity existing = currentBuffs.Find(b => b.type == newBuff.type);
+        BuffEntity existing = currentBuffs.Find(b => b.name == newBuff.name);
         if (existing != null)
         {
             existing.roundsRemaining += newBuff.roundsRemaining;
         }
         else
         {
-            currentBuffs.Add(newBuff);
+            existing = newBuff;
+            currentBuffs.Add(existing);
+        }
+        if (existing.healType != Status.HealType.None)
+        {
+            existing.heal += newBuff.heal;
+        }
+        if (existing.attributeType != Status.AttributeType.None)
+        {
+            existing.attribute += newBuff.attribute;
         }
         UpdateBuffUI();
     }
@@ -59,7 +67,7 @@ public class BuffManager : MonoBehaviour
         for (int i = 0; i < currentBuffs.Count && i < buffImages.Length; i++)
         {
             buffImages[i].gameObject.SetActive(true);
-            buffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, currentBuffs[i].type.ToString());
+            buffImages[i].sprite = currentBuffs[i].icon;
             if (buffImages[i].sprite.name.Contains("Default"))
             {
                 Debug.Log("Replace Default Sprite with Question Sprite");

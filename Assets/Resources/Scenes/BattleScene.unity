@@ -390,6 +390,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   battleInfoText: {fileID: 34126275}
   animationDuration: 1
+  isBattleInfoActive: 0
 --- !u!1 &38910319
 GameObject:
   m_ObjectHideFlags: 0
@@ -1057,6 +1058,7 @@ GameObject:
   - component: {fileID: 283164220}
   - component: {fileID: 283164219}
   - component: {fileID: 283164218}
+  - component: {fileID: 283164221}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -1071,7 +1073,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 283164217}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
   m_Name: 
@@ -1125,6 +1127,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &283164221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283164217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
 --- !u!1 &424162011
 GameObject:
   m_ObjectHideFlags: 0
@@ -2257,6 +2279,7 @@ GameObject:
   - component: {fileID: 1234228658}
   - component: {fileID: 1234228660}
   - component: {fileID: 1234228661}
+  - component: {fileID: 1234228662}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -2358,6 +2381,20 @@ MonoBehaviour:
   - {fileID: 468658706}
   - {fileID: 82780666}
   enermyController: {fileID: 0}
+  isSpecialAttackInProgress: 0
+--- !u!114 &1234228662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234228656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d363362eecd19647bf3cdf03accc3b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 1902887658}
 --- !u!1 &1347120912
 GameObject:
   m_ObjectHideFlags: 0
@@ -3377,7 +3414,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -3403,7 +3440,7 @@ Transform:
   m_GameObject: {fileID: 1902887656}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3511,7 +3548,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &1967418833
 Canvas:
   m_ObjectHideFlags: 0
@@ -3521,7 +3558,7 @@ Canvas:
   m_GameObject: {fileID: 1967418830}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 2
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -3529,7 +3566,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
+  m_VertexColorAlwaysGammaSpace: 1
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -3544,7 +3581,7 @@ RectTransform:
   m_GameObject: {fileID: 1967418830}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.022, y: 0.022, z: 0.022}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1234228657}
@@ -3558,8 +3595,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &2066091711 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1084046648618069354, guid: 9bee709fd5f87434898abce6edf718dc, type: 3}

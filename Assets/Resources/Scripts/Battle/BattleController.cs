@@ -23,6 +23,7 @@ public class BattleController : MonoBehaviour
             Instance = this;
         }
     }
+
     void Start()
     {
         Init();
@@ -96,13 +97,16 @@ public class BattleController : MonoBehaviour
 
     private IEnumerator BattleRoutine()
     {
-        BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
-        yield return new WaitForSeconds(2f);
         while (currentRound < maxRound && isBattleActive)
         {
             currentRound++;
+            if (currentRound == 1)
+            {
+                BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
+                yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
+            }
             BattleInfo.Instance.PlayBattleInfoAnimation("Round " + currentRound);
-            yield return new WaitForSeconds(2f);
+            yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
             // Combine and sort all alive cards by speed
             var allCards = playerCards.Concat(enermyCards)
                 .Where(card => card.IsAlive())
@@ -120,6 +124,11 @@ public class BattleController : MonoBehaviour
                 if (targets == null || targets.Count == 0)
                     yield break;
                 SkillSet skillSet = CharacterSkillController.GetSkillSet(card.cardEntity.character);
+                if (skillSet == null)
+                {
+                    Debug.LogError("SkillSet not found for character: " + card.cardEntity.character);
+                    yield break;
+                }
                 skillSet.NormalAttack(card, targets);
                 // Add delay between actions for visualization
                 yield return new WaitForSeconds(1.5f);

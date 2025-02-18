@@ -7,7 +7,7 @@ using System.Linq;
 public class Asra : SkillSet
 {
     private float attackMultiplier = 0.6f;
-    private int debuffRound = 3;
+    private int debuffRound = DefaultProperty.defaultDebuffRound;
     public Asra()
     {
         character = Character.Asra;
@@ -16,15 +16,9 @@ public class Asra : SkillSet
 
     public override void NormalAttack(Card player, List<Card> target)
     {
-        int count = Mathf.Min(3, target.Count);
-        List<Card> selectedTargets = target.OrderBy(x => Guid.NewGuid()).Take(count).ToList();
+        List<Card> selectedTargets = TargetSelector.GetFrontRowCards(target);
+        if (selectedTargets == null) return;
         player.PlayAttackAnimation();
-        // TODO:Test Only - Random Buff and Debuff
-        Status.BuffType buffType = Status.GetRandomBuff();
-        Status.DebuffType debuffType = Status.GetRandomDebuff();
-        BuffEntity buff = new BuffEntity(buffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, buffType.ToString()));
-        DebuffEntity debuff = new DebuffEntity(debuffType, 3, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, debuffType.ToString()));
-
         foreach (var enermy in selectedTargets)
         {
             List<DamageEntity> damageEntities = new List<DamageEntity>();
@@ -32,16 +26,14 @@ public class Asra : SkillSet
             damageEntities.Add(BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier));
             damageEntities.Add(new DamageEntity(0, DamageType.MISS, 1f));
             enermy.TakeDamage(damageEntities);
-            enermy.buffManager.AddBuff(buff);
-            enermy.debuffManager.AddDebuff(debuff);
+            enermy.debuffManager.AddDebuff(GetDebuff(player), enermy);
         }
     }
 
     public override void SpecialAttack(Card player, List<Card> target)
     {
-        int count = Mathf.Min(5, target.Count);
-        List<Card> selectedTargets = target.OrderBy(x => Guid.NewGuid()).Take(count).ToList();
-        DebuffEntity debuff = new DebuffEntity(Status.DebuffType.Burning, debuffRound, ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, Status.DebuffType.Burning.ToString()));
+        List<Card> selectedTargets = TargetSelector.GetRandomCards(target, 5);
+        if (selectedTargets == null) return;
         player.PlayAttackAnimation();
         foreach (var enermy in selectedTargets)
         {
@@ -49,7 +41,7 @@ public class Asra : SkillSet
             damageEntities.Add(BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier));
             damageEntities[0].damageType = DamageType.SPECIAL_DAMAGE;
             enermy.TakeDamage(damageEntities);
-            enermy.debuffManager.AddDebuff(debuff);
+            enermy.debuffManager.AddDebuff(GetDebuff(player), enermy);
         }
     }
 
@@ -57,4 +49,23 @@ public class Asra : SkillSet
     {
     }
 
+    private BuffEntity GetBuff(Card player)
+    {
+        return new BuffEntity().SetBuffType(Status.BuffType.AttributeUp)
+        .SetAttributeType(Status.AttributeType.Attack)
+        .SetAttribute(0.05f)
+        .ChangeRounds(debuffRound)
+        .SetIcon(ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "AttackUp"))
+        .SetName("AttackUp");
+    }
+
+    private DebuffEntity GetDebuff(Card player)
+    {
+        return new DebuffEntity().SetDebuffType(Status.DebuffType.Damage)
+        .SetDamageType(Status.DamageType.Burning)
+        .SetDamage(player.cardEntity.attack * 0.15f)
+        .ChangeRounds(debuffRound)
+        .SetIcon(ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "Burning"))
+        .SetName("Burning");
+    }
 }

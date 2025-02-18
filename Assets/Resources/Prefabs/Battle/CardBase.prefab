@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 1398494517467600169}
   - component: {fileID: 3255408584167284989}
   - component: {fileID: 5957753529777583012}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 4030131492640876897}
   - component: {fileID: 7887605081853764534}
   - component: {fileID: 4681909124490895509}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -543,7 +543,7 @@ GameObject:
   - component: {fileID: 4456389372636790167}
   - component: {fileID: 2056625019620171921}
   - component: {fileID: 7905990210091441105}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -696,7 +696,7 @@ GameObject:
   - component: {fileID: 3324308301455998667}
   - component: {fileID: 1685046302913445855}
   - component: {fileID: 3764094009738871416}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -849,7 +849,7 @@ GameObject:
   - component: {fileID: 2547343973717672482}
   - component: {fileID: 4572967318613316151}
   - component: {fileID: 6845859220720112864}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1438,7 +1438,7 @@ GameObject:
   - component: {fileID: 3249752944538070949}
   - component: {fileID: 6025238322454679359}
   - component: {fileID: 8297852093932975621}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: CardBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1536,6 +1536,7 @@ MonoBehaviour:
     subID: Default
     level: 1
     exp: 0
+    characterTier: 0
     health: 100
     healthCoefficient: 1
     attack: 10
@@ -1567,6 +1568,7 @@ MonoBehaviour:
   moveDistance: 50
   forwardTime: 0.2
   vanishDuration: 1
+  currentEffect: {fileID: 8194992990867289339, guid: b593ef4e12bddad4f8d9ebbaa5476807, type: 3}
 --- !u!1 &4175986706884701449
 GameObject:
   m_ObjectHideFlags: 0
@@ -1656,7 +1658,7 @@ GameObject:
   - component: {fileID: 5695318488722878180}
   - component: {fileID: 3298762848698961187}
   - component: {fileID: 6040062386045547949}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: BaseColor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2183,7 +2185,7 @@ GameObject:
   - component: {fileID: 992134989390014486}
   - component: {fileID: 5845023637389618274}
   - component: {fileID: 116447387613556533}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: DamageInfo5
   m_TagString: Untagged
   m_Icon: {fileID: 0}

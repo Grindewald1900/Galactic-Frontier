@@ -6,7 +6,7 @@ public class DebuffManager : MonoBehaviour
     public Image[] debuffImages;
     public Image background;
     public List<DebuffEntity> currentDebuffs = new List<DebuffEntity>();
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         foreach (Image image in debuffImages)
@@ -16,20 +16,29 @@ public class DebuffManager : MonoBehaviour
         background.gameObject.SetActive(false);
     }
 
-
-    public void AddDebuff(DebuffEntity newDebuff)
+    public void AddDebuff(DebuffEntity newDebuff, Card card)
     {
         // 检查是否已存在相同类型的 debuff
-        Debug.Log("AddDebuff: " + newDebuff.type.ToString());
-        DebuffEntity existing = currentDebuffs.Find(d => d.type == newDebuff.type);
+        Debug.Log("AddDebuff: " + newDebuff.name);
+        DebuffEntity existing = currentDebuffs.Find(d => d.name == newDebuff.name);
         if (existing != null)
         {
-            Debug.Log("Existing Debuff Found: " + existing.type.ToString());
             existing.roundsRemaining += newDebuff.roundsRemaining;
         }
         else
         {
-            currentDebuffs.Add(newDebuff);
+            existing = newDebuff;
+            currentDebuffs.Add(existing);
+        }
+
+        if (existing.damageType != Status.DamageType.None)
+        {
+            existing.damage += newDebuff.damage;
+        }
+        if (existing.attributeType != Status.AttributeType.None)
+        {
+            existing.attribute += newDebuff.attribute;
+            card.cardBattleEntity.ChangeAttribute(existing.attributeType, existing.attribute);
         }
         UpdateDebuffUI();
     }

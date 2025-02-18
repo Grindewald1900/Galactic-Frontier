@@ -47,6 +47,9 @@ TagManager:
   - name: Foreground
     uniqueID: 344428519
     locked: 0
+  - name: Effect
+    uniqueID: 3331021911
+    locked: 0
   - name: BattleInfo
     uniqueID: 2759608293
     locked: 0

@@ -21,7 +21,6 @@ public static class CharacterSkillController
         Debug.Log("skillSet: " + character.ToString());
         return skillSet.FirstOrDefault(s => s.character == character);
     }
-
 }
 
 public enum Character

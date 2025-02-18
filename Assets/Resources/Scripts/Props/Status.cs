@@ -2,17 +2,20 @@ public static class Status
 {
     public enum BuffType
     {
-        AttackUp,
-        DefenseUp,
-        SpeedUp,
-        Haste,
-        CritUp,
-        DamageUp,
+        Heal,
+        AttributeUp,
         None
     }
 
-
     public enum DebuffType
+    {
+        Damage,
+        Controll,
+        AttributeDown,
+        None
+    }
+
+    public enum DamageType
     {
         // Damage Type
         Bleeding,
@@ -20,16 +23,40 @@ public static class Status
         Electrified,
         Radiated,
         Poisoned,
+        None
+    }
+
+    public enum HealType
+    {
+        Health,
+        Shield,
+        None
+    }
+
+    public enum ControllType
+    {
         // Controll Type
         Frozen,
         Slowed,
         Stunned,
         Silenced,
-        // Other
         Blinded,
-        DefenseDown,
-        AttackDown,
         None
+    }
+
+    public enum AttributeType
+    {
+        Health,
+        Attack,
+        Defense,
+        Accuracy,
+        Dodge,
+        Critical,
+        CriticalDamage,
+        DamageReduction,
+        EnergyGenerateRate,
+        Speed,
+        None,
     }
 
     public static DebuffType GetRandomDebuff()

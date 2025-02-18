@@ -14,7 +14,6 @@ public class CardEntity
     public CharacterTier characterTier = CharacterTier.TierF;
     public float health = 100f;
     public float healthCoefficient = 1f;
-
     public float attack = 10f;
     public float attackCoefficient = 1f;
     public float defense = 10f;
