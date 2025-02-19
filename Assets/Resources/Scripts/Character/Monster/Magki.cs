@@ -14,10 +14,11 @@ public class Magki : SkillSet
         archetype = Archetype.Monster;
     }
 
-    public override void NormalAttack(Card player, List<Card> target)
+    public override IEnumerator NormalAttack(Card player, List<Card> target)
     {
         List<Card> selectedTargets = TargetSelector.GetFrontRowCards(target);
-        if (selectedTargets == null) return;
+        if (selectedTargets == null)
+            yield break;
         player.PlayAttackAnimation();
         foreach (var enermy in selectedTargets)
         {
@@ -27,12 +28,15 @@ public class Magki : SkillSet
             damageEntities.Add(new DamageEntity(0, DamageType.MISS, 1f));
             enermy.TakeDamage(damageEntities);
         }
+        yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
     }
 
-    public override void SpecialAttack(Card player, List<Card> target)
+    public override IEnumerator SpecialAttack(Card player, List<Card> target)
     {
         List<Card> selectedTargets = TargetSelector.GetFrontRowCards(target);
-        if (selectedTargets == null) return;
+        if (selectedTargets == null)
+            yield break;
+
         player.PlayAttackAnimation();
         foreach (var enermy in selectedTargets)
         {
@@ -44,6 +48,7 @@ public class Magki : SkillSet
             enermy.TakeDamage(damageEntities);
             enermy.debuffManager.AddDebuff(GetDebuff(player), enermy);
         }
+        yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
     }
 
     public override void PassiveSkill(Card player, List<Card> target)

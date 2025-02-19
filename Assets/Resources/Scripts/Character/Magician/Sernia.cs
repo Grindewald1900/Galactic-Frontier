@@ -13,10 +13,11 @@ public class Sernia : SkillSet
         archetype = Archetype.Magician;
     }
 
-    public override void NormalAttack(Card player, List<Card> target)
+    public override IEnumerator NormalAttack(Card player, List<Card> target)
     {
         List<Card> selectedTargets = TargetSelector.GetBackRowCards(target);
-        if (selectedTargets == null) return;
+        if (selectedTargets == null)
+            yield break;
         player.PlayAttackAnimation();
         foreach (var enermy in selectedTargets)
         {
@@ -27,12 +28,15 @@ public class Sernia : SkillSet
             enermy.TakeDamage(damageEntities);
             enermy.debuffManager.AddDebuff(GetDebuff(player), enermy);
         }
+        yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
     }
 
-    public override void SpecialAttack(Card player, List<Card> target)
+    public override IEnumerator SpecialAttack(Card player, List<Card> target)
     {
         List<Card> selectedTargets = TargetSelector.GetAllCards(target);
-        if (selectedTargets == null) return;
+        if (selectedTargets == null)
+            yield break;
+
         player.PlayAttackAnimation();
         foreach (var enermy in selectedTargets)
         {
@@ -42,6 +46,7 @@ public class Sernia : SkillSet
             enermy.TakeDamage(damageEntities);
             enermy.debuffManager.AddDebuff(GetDebuff(player), enermy);
         }
+        yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
     }
 
     public override void PassiveSkill(Card player, List<Card> target)

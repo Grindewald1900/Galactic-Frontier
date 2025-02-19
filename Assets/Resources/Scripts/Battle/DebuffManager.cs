@@ -60,7 +60,6 @@ public class DebuffManager : MonoBehaviour
 
     private void UpdateDebuffUI()
     {
-        Debug.Log("UpdateDebuffUI");
         Debug.Log("currentDebuffs.Count: " + currentDebuffs.Count);
         background.gameObject.SetActive(currentDebuffs.Count > 0);
         // 清空所有 Image（隐藏）
@@ -78,7 +77,6 @@ public class DebuffManager : MonoBehaviour
             debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, currentDebuffs[i].type.ToString());
             if (debuffImages[i].sprite.name.Contains("Default"))
             {
-                Debug.Log("Replace Default Sprite with Question Sprite");
                 debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "Question");
             }
         }

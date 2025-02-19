@@ -18,7 +18,6 @@ public static class CharacterSkillController
 
     public static SkillSet GetSkillSet(Character character)
     {
-        Debug.Log("skillSet: " + character.ToString());
         return skillSet.FirstOrDefault(s => s.character == character);
     }
 }

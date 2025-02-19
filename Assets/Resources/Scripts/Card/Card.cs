@@ -23,14 +23,19 @@ public class Card : MonoBehaviour
     public float currentHealth = 100f;
     public float currentEnergy = 0f;
     public float currentAttack = 0f;
+    public float progress = 0f;
     public int position = 0;
     public float moveDistance = 50f;
     public float forwardTime = 0.2f;
     private float backTime = 0.2f;
     private float attackTime = 0.3f;
     public float vanishDuration = 1f;
+    public float highlightScale = 1.1f;
+    public float animationDuration = 0.2f;
     private Vector3 startPos;
+    private Vector3 originalScale;
     private int nextIndex = 0;
+    private bool isHighlighted = false;
 
     public GameObject currentEffect;
     void Awake()
@@ -41,6 +46,7 @@ public class Card : MonoBehaviour
     void Start()
     {
         startPos = transform.localPosition;
+        originalScale = transform.localScale;
         energyBar.fillAmount = 0f;
         currentEffect.SetActive(true);
     }
@@ -63,18 +69,23 @@ public class Card : MonoBehaviour
     {
         if (BattleInfo.Instance.isBattleInfoActive) return;
         if (BattleController.Instance.isSpecialAttackInProgress) return;
-        var progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy, ref currentEnergy);
+        progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
         if (energyBar != null)
         {
             energyBar.fillAmount = progress;
         }
         if (progress >= 1f)
         {
-            currentEnergy = 0f;
-            Debug.Log("SpecialAttack: " + cardEntity.cardName);
-            BattleController.Instance.isSpecialAttackInProgress = true;
-            SkillSet skillSet = CharacterSkillController.GetSkillSet(cardEntity.character);
-            skillSet.SpecialAttack(this, BattleController.Instance.GetAliveTargets(this));
+            currentEnergy = cardEntity.maxEnergy;
+        }
+    }
+
+    public void ResetEnergyBar()
+    {
+        currentEnergy = 0f;
+        if (energyBar != null)
+        {
+            energyBar.fillAmount = 0f;
         }
     }
 
@@ -120,10 +131,6 @@ public class Card : MonoBehaviour
         }
         nextIndex = 0;
         healthBar.fillAmount = currentHealth / cardEntity.health;
-        if (damage[0].damageType == DamageType.SPECIAL_DAMAGE)
-        {
-            BattleController.Instance.isSpecialAttackInProgress = false;
-        }
         if (currentHealth <= 0)
         {
             Die();
@@ -140,18 +147,11 @@ public class Card : MonoBehaviour
         });
     }
 
-    private float CalculateProgress(float rate, float maxValue, ref float currentValue)
+    private float CalculateProgress(float rate, float maxValue)
     {
-        if (currentValue < maxValue)
-        {
-            currentValue += rate * Time.deltaTime;
-            currentValue = Mathf.Clamp(currentValue, 0, maxValue); // Ensure energy doesn't exceed max
-        }
-        else
-        {
-            currentValue = 0f;
-        }
-        return currentValue / maxValue;
+        currentEnergy += rate * Time.deltaTime;
+        currentEnergy = Mathf.Clamp(currentEnergy, 0, maxValue); // Ensure energy doesn't exceed max
+        return currentEnergy / maxValue;
     }
 
     public void PlayAttackAnimation()
@@ -164,6 +164,34 @@ public class Card : MonoBehaviour
                  });
     }
 
+    public void Highlight()
+    {
+        if (isHighlighted)
+            return;
+
+        isHighlighted = true;
+        transform.DOScale(originalScale * highlightScale, animationDuration).SetEase(Ease.OutBack);
+
+        // if (outlineComponent != null)
+        // {
+        //     outlineComponent.enabled = true;
+        // }
+    }
+
+    public void Unhighlight()
+    {
+        if (!isHighlighted)
+            return;
+
+        isHighlighted = false;
+        // 恢复原始缩放
+        transform.DOScale(originalScale, animationDuration).SetEase(Ease.InBack);
+        // 关闭 Outline 边框
+        // if (outlineComponent != null)
+        // {
+        //     outlineComponent.enabled = false;
+        // }
+    }
     public void SetImage(CardEntity cardEntity)
     {
         Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.character.ToString() + "_01");

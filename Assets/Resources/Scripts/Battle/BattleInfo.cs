@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using DG.Tweening;
 
+// Information shows up at center of screen, e.g. "Battle Start" "Round 1"
 public class BattleInfo : MonoBehaviour
 {
     [SerializeField] private TMPro.TextMeshProUGUI battleInfoText; // Reference to UI text

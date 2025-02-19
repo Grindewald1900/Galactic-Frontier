@@ -46,8 +46,6 @@ public class BattleController : MonoBehaviour
 
     public DamageEntity CalculateDamage(Card playerCard, Card enermyCard, float attackMultiplier = 1)
     {
-        Debug.Log("CalculateDamage: " + playerCard.isPlayerCard + " " + playerCard.position + " -> " + enermyCard.isPlayerCard + " " + enermyCard.position);
-
         CardEntity pEntity = playerCard.cardEntity;
         CardEntity eEntity = enermyCard.cardEntity;
         float hitRate = Mathf.Clamp(pEntity.accuracy - eEntity.dodge, 0, 1);
@@ -56,7 +54,7 @@ public class BattleController : MonoBehaviour
         float reductionRate = CalculateDmgReductionRate(eEntity);
         bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
         damage = pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
-        Debug.Log("CalculateDamage damage: " + damage);
+        // Debug.Log("CalculateDamage damage: " + damage);
         return new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier);
     }
 
@@ -122,16 +120,30 @@ public class BattleController : MonoBehaviour
 
                 List<Card> targets = GetAliveTargets(card);
                 if (targets == null || targets.Count == 0)
-                    yield break;
+                    continue;
                 SkillSet skillSet = CharacterSkillController.GetSkillSet(card.cardEntity.character);
                 if (skillSet == null)
                 {
                     Debug.LogError("SkillSet not found for character: " + card.cardEntity.character);
-                    yield break;
+                    continue;
                 }
-                skillSet.NormalAttack(card, targets);
+                card.Highlight();
+                if (card.progress >= 1f)
+                {
+                    Debug.Log("SpecialAttack:" + card.isPlayerCard + card.position);
+                    card.ResetEnergyBar();
+                    isSpecialAttackInProgress = true;
+                    yield return StartCoroutine(skillSet.SpecialAttack(card, targets));
+                    card.Unhighlight();
+                    isSpecialAttackInProgress = false;
+                }
+                else
+                {
+                    Debug.Log("NormalAttack:" + card.isPlayerCard + card.position);
+                    yield return StartCoroutine(skillSet.NormalAttack(card, targets));
+                    card.Unhighlight();
+                }
                 // Add delay between actions for visualization
-                yield return new WaitForSeconds(1.5f);
                 // Check if battle should end
                 if (!HasAliveCards(playerCards))
                 {
