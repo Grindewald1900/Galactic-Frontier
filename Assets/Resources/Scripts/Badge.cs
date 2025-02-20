@@ -27,7 +27,7 @@ public class Badge : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     private void SetImageSprite()
     {
-        Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.badgePath, badgeName);
+        Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, badgeName);
         if (LogUtil.CheckNull(sprite, "Badge sprite")) return;
         if (imageComponent != null)
         {
