@@ -4,6 +4,8 @@ public static class ImageUtil
 {
     public static string imageDefaultPath = "Images/";
     public static string statusImagePath = "Images/Status/";
+    public static string UIImagePath = "Images/UI/";
+    public static string badgePath = "Images/Badges/";
     public static string characterImagePath = "Images/Cards/Characters/";
     public static string cardBkImagePath = "Images/Cards/Background/";
     public static string debuffImagePath = "Images/Debuffs/";

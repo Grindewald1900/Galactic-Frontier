@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 2058ea4367cfe3e4eba14277f0d200a0
+guid: 74a23af0d407750479cb8d7e9f04900f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7434526918557451031
-    second: Shop 1_0
+      213: 6738405126397542683
+    second: Portrait-Asra_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Shop 1_0
+      name: Portrait-Asra_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 400
+        height: 400
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 71342b5b7debc2760800000000000000
-      internalID: 7434526918557451031
+      spriteID: b11c897c2cf938d50800000000000000
+      internalID: 6738405126397542683
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 472c3939e947a1d4782755cd2a7012c0
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Shop 1_0: 7434526918557451031
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 2058ea4367cfe3e4eba14277f0d200a0
+guid: 76a980d5fb4d6994b8c5709534f29ce5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7434526918557451031
-    second: Shop 1_0
+      213: 3867594838521495272
+    second: Battle_0
+  - first:
+      213: -407684255183689988
+    second: Battle_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +103,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Shop 1_0
+      name: Battle_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +118,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 71342b5b7debc2760800000000000000
-      internalID: 7434526918557451031
+      spriteID: 8ee3535a3057ca530800000000000000
+      internalID: 3867594838521495272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle_1
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 405
+        width: 94
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf6a145745d975af0800000000000000
+      internalID: -407684255183689988
       vertices: []
       indices: 
       edges: []
@@ -125,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 472c3939e947a1d4782755cd2a7012c0
+    spriteID: c93003c5d85b69d4680199ec3e5c2fe7
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +160,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Shop 1_0: 7434526918557451031
+      Battle_0: 3867594838521495272
+      Battle_1: -407684255183689988
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
