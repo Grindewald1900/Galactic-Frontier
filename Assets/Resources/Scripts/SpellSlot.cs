@@ -10,15 +10,6 @@ public class SpellSlot : MonoBehaviour, IPointerClickHandler
     public delegate void SpellSlotClicked(SpellSlot slot);
     public event SpellSlotClicked OnSpellSlotClicked;
 
-    void Start()
-    {
-        // if (icon != null)
-        // {
-        //     Debug.Log("Set spell icon: default on start");
-        //     icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, defaultIcon);
-        // }
-    }
-
     public void SetSpell(SpellEntity spell)
     {
         spellEntity = spell;
@@ -29,12 +20,10 @@ public class SpellSlot : MonoBehaviour, IPointerClickHandler
     {
         if (spellEntity != null && spellEntity.isActivated == true)
         {
-            Debug.Log("Set spell icon: " + spellEntity.spellName);
             icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, spellEntity.spellName);
         }
         else
         {
-            Debug.Log("Set spell icon: default");
             icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, defaultIcon);
         }
     }

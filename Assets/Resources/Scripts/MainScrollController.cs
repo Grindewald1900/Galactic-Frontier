@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 
-public class ScrollViewController : MonoBehaviour
+public class MainScrollController : MonoBehaviour
 {
     public ScrollRect scrollRect;   // 滚动组件
     public RectTransform content;   // Content 容器

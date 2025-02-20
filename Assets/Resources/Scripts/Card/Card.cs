@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IPointerClickHandler
 {
     public UnityEngine.UI.Image healthBar;
     public UnityEngine.UI.Image energyBar;
@@ -17,9 +18,12 @@ public class Card : MonoBehaviour
     public DebuffManager debuffManager;
     public BuffManager buffManager;
     public bool isPlayerCard;
+    public bool isBattleActive = true;
     public CardEntity cardEntity;
     public CardExpertiseEntity cardExpertiseEntity;
     public CardBattleEntity cardBattleEntity;
+    public delegate void CardClicked(CardEntity cardEntity);
+    public event CardClicked OnCardClicked;
     public float currentHealth = 100f;
     public float currentEnergy = 0f;
     public float currentAttack = 0f;
@@ -67,6 +71,7 @@ public class Card : MonoBehaviour
 
     private void UpdateEnergyBar()
     {
+        if (!isBattleActive) return;
         if (BattleInfo.Instance.isBattleInfoActive) return;
         if (BattleController.Instance.isSpecialAttackInProgress) return;
         progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
@@ -211,5 +216,14 @@ public class Card : MonoBehaviour
     public bool IsAlive()
     {
         return currentHealth > 0 && gameObject.activeSelf;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // 只有激活状态下才响应点击
+        if (!isBattleActive && OnCardClicked != null)
+        {
+            OnCardClicked(cardEntity);
+        }
     }
 }
