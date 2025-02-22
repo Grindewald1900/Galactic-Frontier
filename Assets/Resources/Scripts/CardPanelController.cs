@@ -5,8 +5,6 @@ using UnityEngine.EventSystems;
 public class CardPanelController : MonoBehaviour
 {
     public CardPanelController instance;
-    public List<Card> cards;
-    private Card selectedCard;
     public TMP_Dropdown dropdown;
 
     public void Awake()
@@ -19,22 +17,14 @@ public class CardPanelController : MonoBehaviour
 
     void Start()
     {
-        //TODO: Initialize card panel
-        CardEntity cardEntity = new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF);
-        ShowCardPreview(cardEntity);
         ResetDropdownOptions();
         dropdown.onValueChanged.RemoveAllListeners(); // 先清空旧的事件绑定
         dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
-    public void ShowCardPreview(CardEntity cardEntity)
-    {
-        CardPreviewController.instance.ShowCardPreview(cardEntity);
-    }
-
     public void ResetDropdownOptions()
     {
-        List<string> newOptions = new List<string> { "Name ascending", "Power", "Tier" };
+        List<string> newOptions = new List<string> { "Name ascending", "Name descending", "Power", "Tier" };
 
         dropdown.ClearOptions(); // 清空所有选项，确保不会访问旧的 `OptionData`
         dropdown.AddOptions(newOptions);
@@ -49,9 +39,10 @@ public class CardPanelController : MonoBehaviour
             switch (index)
             {
                 case 0:
-                    SortCardsByName(true);
+                    CardListController.instance.SortCardsByName(true);
                     break;
                 case 1:
+                    CardListController.instance.SortCardsByName(false);
                     break;
                 case 2:
                     break;
@@ -62,19 +53,6 @@ public class CardPanelController : MonoBehaviour
         else
         {
             Debug.LogWarning("Index out of range!");
-        }
-    }
-
-    public void SortCardsByName(bool isAscending)
-    {
-        Debug.Log("Sort cards by name isAscending: " + isAscending);
-        if (isAscending)
-        {
-            cards.Sort((a, b) => a.cardEntity.cardName.CompareTo(b.cardEntity.cardName));
-        }
-        else
-        {
-            cards.Sort((a, b) => b.cardEntity.cardName.CompareTo(a.cardEntity.cardName));
         }
     }
 }

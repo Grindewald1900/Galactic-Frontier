@@ -16,7 +16,7 @@ public class CardPreviewController : MonoBehaviour
 
     public void ShowCardPreview(CardEntity cardEntity)
     {
-        card.cardEntity = cardEntity;
+        card.InitCard(cardEntity);
         card.gameObject.SetActive(true);
     }
 }

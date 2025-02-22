@@ -1,15 +1,14 @@
 using UnityEngine;
 
 [System.Serializable]
-public class Planet
+public class PlanetEntity
 {
-    public Sprite backgroundSprite;
+    public string backgroundSprite;
     public string planetLevel;
     public string planetName;
-
     public string planetDescription;
 
-    public Planet(Sprite bgSprite, string level, string name, string info)
+    public PlanetEntity(string bgSprite, string level, string name, string info)
     {
         this.backgroundSprite = bgSprite;
         this.planetLevel = level;

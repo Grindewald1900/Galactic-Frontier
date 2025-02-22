@@ -22,7 +22,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public CardEntity cardEntity;
     public CardExpertiseEntity cardExpertiseEntity;
     public CardBattleEntity cardBattleEntity;
-    public delegate void CardClicked(CardEntity cardEntity);
+    public delegate void CardClicked(Card card);
     public event CardClicked OnCardClicked;
     public float currentHealth = 100f;
     public float currentEnergy = 0f;
@@ -223,7 +223,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         // 只有激活状态下才响应点击
         if (!isBattleActive && OnCardClicked != null)
         {
-            OnCardClicked(cardEntity);
+            OnCardClicked(this);
         }
     }
 }
