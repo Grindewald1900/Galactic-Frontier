@@ -10,7 +10,7 @@ public class PlanetItem : MonoBehaviour, IPointerClickHandler
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descriptionText;
     public bool isFocused = false;
-    private Planet currentPlanet;
+    private PlanetEntity currentPlanet;
     private Vector3 defaultScale = Vector3.one;
     private Vector3 focusedScale = new Vector3(1.05f, 1.05f, 1f);
 
@@ -27,7 +27,7 @@ public class PlanetItem : MonoBehaviour, IPointerClickHandler
 
     }
 
-    public void SetPlanet(Planet planet)
+    public void SetPlanet(PlanetEntity planet)
     {
         if (planet == null) return;
         currentPlanet = planet;
@@ -42,8 +42,9 @@ public class PlanetItem : MonoBehaviour, IPointerClickHandler
         TextUtil.SetText(descriptionText, description);
     }
 
-    public void SetPlanetItemImage(Sprite sprite)
+    public void SetPlanetItemImage(string imageName)
     {
+        Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.planetImagePath, imageName);
         if (sprite == null) return;
         image.sprite = sprite;
     }
@@ -52,17 +53,13 @@ public class PlanetItem : MonoBehaviour, IPointerClickHandler
     {
         isFocused = focus;
         transform.localScale = isFocused ? focusedScale : defaultScale;
-        if (focus)
-        {
-            MapManager.Instance.SetPlanetInfo(currentPlanet);
-        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (isFocused == false)
         {
-            MapListManager.Instance.SetCurrentFocus(this);
+            PlanetListManager.Instance.SetCurrentFocus(this);
         }
     }
 }

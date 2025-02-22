@@ -5,7 +5,7 @@ public class CardListController : MonoBehaviour
 {
     public GameObject cardPrefab;
     public Transform gridParent;
-    private int selectedIndex = 0;
+    // private int selectedIndex = 0;
     public List<Card> cards;
     public List<CardEntity> cardEntities = new List<CardEntity>();
     public static CardListController instance;

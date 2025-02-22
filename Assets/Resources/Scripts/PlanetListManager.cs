@@ -4,12 +4,13 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 
-public class MapListManager : MonoBehaviour
+public class PlanetListManager : MonoBehaviour
 {
-    public static MapListManager Instance;
+    public static PlanetListManager Instance;
     public GameObject itemPrefab;
     public Transform contentParent;
     private List<PlanetItem> items = new List<PlanetItem>();
+    private List<PlanetEntity> planetEntities = new List<PlanetEntity>();
     private int currentIndex = 0;
 
     void Awake()
@@ -18,6 +19,12 @@ public class MapListManager : MonoBehaviour
         {
             Instance = this;
         }
+    }
+
+    void Start()
+    {
+        FakeData();
+        InitFocus();
     }
 
     public void InitFocus()
@@ -37,7 +44,7 @@ public class MapListManager : MonoBehaviour
         currentIndex = items.IndexOf(newFocus);
     }
 
-    public void AddItem(Planet planet)
+    public void AddItem(PlanetEntity planet)
     {
         GameObject newItem = Instantiate(itemPrefab, contentParent);
         PlanetItem planetItem = newItem.GetComponent<PlanetItem>();
@@ -75,6 +82,22 @@ public class MapListManager : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             items[i].transform.SetSiblingIndex(i);
+        }
+    }
+
+    public void FakeData()
+    {
+        List<string> planetNames = new List<string>() { "Planet_A_1", "Planet_A_2", "Planet_A_3", "Planet_A_4", "Planet_A_5", "Planet_A_6" };
+
+        for (int i = 0; i < 10; i++)
+        {
+            PlanetEntity planetEntity = new PlanetEntity("Planet_A_1", "Level 1", "Planet", "Description 1");
+            planetEntity.planetName = planetNames[Random.Range(0, planetNames.Count)];
+            planetEntity.planetDescription = "Description " + i;
+            planetEntity.planetLevel = "Level " + i;
+            planetEntity.backgroundSprite = "planet" + i;
+            planetEntities.Add(planetEntity);
+            AddItem(planetEntity);
         }
     }
 }

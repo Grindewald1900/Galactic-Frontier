@@ -25,7 +25,6 @@ public class InputManager : MonoBehaviour
         }
         if (Input.GetButtonDown("Map"))
         {
-            MapManager.Instance.ToggleMap();
         }
     }
 }

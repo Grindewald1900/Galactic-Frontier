@@ -23,7 +23,7 @@ public class TestScript : MonoBehaviour
         for (int i = 0; i < planetNames.Count; i++)
         {
             Sprite sprite = ImageUtil.GetSpriteByName("Planets/", planetNames[i]);
-            MapListManager.Instance.AddItem(new Planet(sprite, "Lvl 5", planetNames[i], "This is a basic planet"));
+            PlanetListManager.Instance.AddItem(new PlanetEntity(planetNames[Random.Range(0, planetNames.Count)], "Lvl 5", planetNames[i], "This is a basic planet"));
         }
     }
 
