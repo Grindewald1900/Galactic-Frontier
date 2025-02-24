@@ -23,8 +23,6 @@ public class PlanetListManager : MonoBehaviour
 
     void Start()
     {
-        FakeData();
-        InitFocus();
     }
 
     public void InitFocus()
@@ -42,6 +40,8 @@ public class PlanetListManager : MonoBehaviour
             item.SetFocus(item == newFocus);
         }
         currentIndex = items.IndexOf(newFocus);
+        RadarSystem.Instance.SetRadarItemFocus(items[currentIndex].currentPlanet.planetName);
+        PlanetDetailManager.Instance.SetPlanetDetail(items[currentIndex].currentPlanet);
     }
 
     public void AddItem(PlanetEntity planet)
@@ -82,22 +82,6 @@ public class PlanetListManager : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             items[i].transform.SetSiblingIndex(i);
-        }
-    }
-
-    public void FakeData()
-    {
-        List<string> planetNames = new List<string>() { "Planet_A_1", "Planet_A_2", "Planet_A_3", "Planet_A_4", "Planet_A_5", "Planet_A_6" };
-
-        for (int i = 0; i < 10; i++)
-        {
-            PlanetEntity planetEntity = new PlanetEntity("Planet_A_1", "Level 1", "Planet", "Description 1");
-            planetEntity.planetName = planetNames[Random.Range(0, planetNames.Count)];
-            planetEntity.planetDescription = "Description " + i;
-            planetEntity.planetLevel = "Level " + i;
-            planetEntity.backgroundSprite = "planet" + i;
-            planetEntities.Add(planetEntity);
-            AddItem(planetEntity);
         }
     }
 }

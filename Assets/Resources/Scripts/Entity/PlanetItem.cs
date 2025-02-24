@@ -10,7 +10,7 @@ public class PlanetItem : MonoBehaviour, IPointerClickHandler
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descriptionText;
     public bool isFocused = false;
-    private PlanetEntity currentPlanet;
+    public PlanetEntity currentPlanet;
     private Vector3 defaultScale = Vector3.one;
     private Vector3 focusedScale = new Vector3(1.05f, 1.05f, 1f);
 

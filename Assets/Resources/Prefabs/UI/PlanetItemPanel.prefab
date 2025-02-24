@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7287977431159775377}
   - component: {fileID: 4109654575721883067}
   - component: {fileID: 5355130088256199810}
-  - component: {fileID: 1610858238757360521}
   m_Layer: 5
   m_Name: ImageMask
   m_TagString: Untagged
@@ -60,14 +59,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5272401415994956661, guid: 8bf1a3f4606ad124ba0c1a77679bf7ff, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -77,19 +76,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1610858238757360521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1541066685110320925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShowMaskGraphic: 1
 --- !u!1 &3883561050764538453
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,7 +141,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -517073635145241022, guid: 1ab58ecfaf8662548a6e8f26becccf0f, type: 3}
+  m_Sprite: {fileID: 6230005371267672450, guid: 18f64bd1e5f486f4583e5cec82faa35f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -741,7 +727,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb4029ce24f422f4b9891741a63530b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 5355130088256199810}
+  image: {fileID: 3164276117592094233}
   levelText: {fileID: 8447747821563991779}
   nameText: {fileID: 4969881568668443104}
   descriptionText: {fileID: 2567445052272070845}

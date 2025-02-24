@@ -99,6 +99,15 @@ public class MainScrollController : MonoBehaviour
 
     void ShowPanel(int index)
     {
+        //TODO: test code
+        if (index == 6)
+        {
+            GalaxyGenerator.instance.ShowGalaxies();
+        }
+        else
+        {
+            GalaxyGenerator.instance.HideGalaxies();
+        }
         HideAllPanels();
 
         if (index >= 0 && index < panels.Count)
