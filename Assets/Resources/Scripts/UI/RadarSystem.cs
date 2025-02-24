@@ -34,6 +34,7 @@ public class RadarSystem : MonoBehaviour
     {
         RotateScanLine();
     }
+
     void Start()
     {
         InitRadarSystem();

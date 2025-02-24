@@ -22,7 +22,9 @@ public class PlanetRadarItem : MonoBehaviour
     public void InitPlanet(string imageName, string name)
     {
         Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.planetImagePath, imageName);
+        float randomScale = Random.Range(0.6f, 1.4f); // **随机缩放**
         planetImage.sprite = sprite;
+        planetImage.transform.localScale = new Vector3(randomScale, randomScale, randomScale);
         planetName = name;
     }
 

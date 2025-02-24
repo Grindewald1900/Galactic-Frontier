@@ -14,6 +14,7 @@ public class PlanetDetailManager : MonoBehaviour
     public TextMeshProUGUI planetDistance;
     public Button startButton;
     private PlanetEntity planetEntity;
+    private float spinSpeed = 10f;  // 扫描速度（度/秒）
 
     void Awake()
     {
@@ -26,6 +27,11 @@ public class PlanetDetailManager : MonoBehaviour
     void Start()
     {
         Init();
+    }
+
+    void Update()
+    {
+        planetImage.rectTransform.Rotate(0, 0, -spinSpeed * Time.deltaTime);
     }
 
     private void Init()
