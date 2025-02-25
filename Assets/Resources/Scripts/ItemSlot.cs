@@ -26,6 +26,11 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
             itemImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, item.itemIcon); // Set the item image to the item's icon
             SetCount(item.quantity); // Set the count to the item's quantity
         }
+        else
+        {
+            itemImage.sprite = null;
+            SetCount(0);
+        }
     }
 
     public void SetSelected(bool isSelected)
@@ -35,12 +40,19 @@ public class ItemSlot : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (count.text == "") return; // If the count is empty, return
         if (isRemote)
         {
+            Debug.Log("Selected Name: " + RemoteItemManager.Instance.GetItems()[slotIndex].itemName);
+            Debug.Log("Selected quantity: " + RemoteItemManager.Instance.GetItems()[slotIndex].quantity);
+            ItemOperationManager.Instance.SetButtonInteractable(true, true);
+            ItemOperationManager.Instance.selectedItem = RemoteItemManager.Instance.GetItems()[slotIndex];
             RemoteItemManager.Instance.SelectItem(slotIndex);
         }
         else
         {
+            ItemOperationManager.Instance.SetButtonInteractable(false, true);
+            ItemOperationManager.Instance.selectedItem = ItemManager.Instance.GetItems()[slotIndex];
             ItemManager.Instance.SelectItem(slotIndex);
         }
     }

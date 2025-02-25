@@ -40,8 +40,9 @@ public class ItemManager : MonoBehaviour
         List<string> itemNames = new List<string> { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
         for (int i = 0; i < 20; i++)
         {
-            ItemEntity item = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemEntity.ItemType.Material);
+            ItemEntity item = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemType.Material);
             item.quantity = Random.Range(1, 111);
+            item.isRemote = false;
             items.Add(item);
         }
         DataUtil.SaveItemData(items);
@@ -67,10 +68,11 @@ public class ItemManager : MonoBehaviour
 
     public bool AddItem(ItemEntity newItem)
     {
+        bool returnValue = true;
         int index = items.FindIndex(item => item.itemName.Equals(newItem.itemName));
         if (index != -1)
         {
-            Debug.Log($"Item {newItem.itemName} already exists in the inventory. Index is " + index);
+            Debug.Log($"Item {newItem.itemName} already exists in the inventory. Index is " + index + ". Adding quantity." + newItem.quantity);
             items[index].quantity += newItem.quantity;
         }
         else
@@ -78,28 +80,37 @@ public class ItemManager : MonoBehaviour
             if (items.Count >= inventorySize)
             {
                 Debug.Log("Inventory is full.");
-                return false;
+                returnValue = false;
             }
             Debug.Log($"Adding {newItem.itemName} to the inventory.");
             items.Add(newItem);
         }
-        return true;
+        UpdateItemList(items);
+        return returnValue;
     }
 
-    public void UseItem(ItemEntity item)
+    public void UseItem(ItemEntity itemEntity, int quantity = 1)
     {
+        ItemEntity item = items.Find(item => item.itemName.Equals(itemEntity.itemName));
         if (item != null && item.quantity > 0)
         {
-            item.quantity -= item.quantity;
+            item.quantity -= quantity;
             Debug.Log($"Used 1 {item.itemName}. Remaining: {item.quantity}");
 
             if (item.quantity <= 0)
             {
                 int index = items.IndexOf(item);
-                items[index] = null;
+                items.RemoveAt(index);
+                UpdateItemList(items);
                 Debug.Log($"{item.itemName} is removed from the inventory.");
             }
         }
+        UpdateItemList(items);
+    }
+
+    public List<ItemEntity> GetItems()
+    {
+        return items;
     }
 
     public void SelectItem(int index)
@@ -118,14 +129,14 @@ public class ItemManager : MonoBehaviour
                 items = items.Where(item => item != null).OrderBy(item => item.itemName).ToList();
                 break;
             case SortType.ITEM_COST:
-                items = items.Where(item => item != null).OrderByDescending(item => item.cost).ToList();
+                items = items.Where(item => item != null).OrderByDescending(item => item.itemCost).ToList();
                 break;
         }
         UpdateItemList(items);
         Debug.Log("Inventory sorted.");
     }
 
-    public List<ItemEntity> FilterItemsByType(ItemEntity.ItemType itemType)
+    public List<ItemEntity> FilterItemsByType(ItemType itemType)
     {
         return items.Where(item => item != null && item.itemType == itemType).ToList();
     }
@@ -135,6 +146,10 @@ public class ItemManager : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             itemSlots[i].SetItem(items[i]);
+        }
+        for (int i = items.Count; i < inventorySize; i++)
+        {
+            itemSlots[i].SetItem(null);
         }
     }
 }

@@ -40,8 +40,9 @@ public class RemoteItemManager : MonoBehaviour
         List<string> itemNames = new List<string> { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
         for (int i = 0; i < 20; i++)
         {
-            ItemEntity item = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemEntity.ItemType.Material);
+            ItemEntity item = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemType.Material);
             item.quantity = Random.Range(1, 111);
+            item.isRemote = true;
             items.Add(item);
         }
         DataUtil.SaveItemData(items);
@@ -70,7 +71,7 @@ public class RemoteItemManager : MonoBehaviour
         int index = items.FindIndex(item => item.itemName.Equals(newItem.itemName));
         if (index != -1)
         {
-            Debug.Log($"Item {newItem.itemName} already exists in the inventory. Index is " + index);
+            Debug.Log($"Item {newItem.itemName} already exists in the inventory. Index is " + index + ". Adding quantity." + newItem.quantity);
             items[index].quantity += newItem.quantity;
         }
         else
@@ -82,13 +83,14 @@ public class RemoteItemManager : MonoBehaviour
             }
             Debug.Log($"Adding {newItem.itemName} to the inventory.");
             items.Add(newItem);
+            UpdateItemList(items);
         }
         return true;
     }
 
-    public void UseItem(ItemEntity item, int quantity = 1)
+    public void UseItem(ItemEntity itemEntity, int quantity = 1)
     {
-
+        ItemEntity item = items.Find(item => item.itemName.Equals(itemEntity.itemName));
         if (item != null && item.quantity > 0)
         {
             item.quantity -= quantity;
@@ -97,10 +99,17 @@ public class RemoteItemManager : MonoBehaviour
             if (item.quantity <= 0)
             {
                 int index = items.IndexOf(item);
-                items[index] = null;
+                items.RemoveAt(index);
+                UpdateItemList(items);
                 Debug.Log($"{item.itemName} is removed from the inventory.");
             }
         }
+        UpdateItemList(items);
+    }
+
+    public List<ItemEntity> GetItems()
+    {
+        return items;
     }
 
     public void SelectItem(int index)
@@ -119,14 +128,14 @@ public class RemoteItemManager : MonoBehaviour
                 items = items.Where(item => item != null).OrderBy(item => item.itemName).ToList();
                 break;
             case SortType.ITEM_COST:
-                items = items.Where(item => item != null).OrderByDescending(item => item.cost).ToList();
+                items = items.Where(item => item != null).OrderByDescending(item => item.itemCost).ToList();
                 break;
         }
         UpdateItemList(items);
         Debug.Log("Inventory sorted.");
     }
 
-    public List<ItemEntity> FilterItemsByType(ItemEntity.ItemType itemType)
+    public List<ItemEntity> FilterItemsByType(ItemType itemType)
     {
         return items.Where(item => item != null && item.itemType == itemType).ToList();
     }
@@ -136,6 +145,10 @@ public class RemoteItemManager : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             itemSlots[i].SetItem(items[i]);
+        }
+        for (int i = items.Count; i < inventorySize; i++)
+        {
+            itemSlots[i].SetItem(null);
         }
     }
 }
