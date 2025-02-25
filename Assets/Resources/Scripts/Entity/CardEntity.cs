@@ -1,7 +1,6 @@
 using System;
-using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class CardEntity
 {
     public string cardName = "Default";

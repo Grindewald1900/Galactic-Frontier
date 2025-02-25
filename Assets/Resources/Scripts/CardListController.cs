@@ -20,6 +20,7 @@ public class CardListController : MonoBehaviour
 
     void Start()
     {
+        FakeCardList();
         InitCardList();
     }
 
@@ -33,7 +34,7 @@ public class CardListController : MonoBehaviour
 
     public void InitCardList()
     {
-        FakeCardList();
+        cardEntities = DataUtil.LoadCardData();
         for (int i = 0; i < cardEntities.Count; i++)
         {
             GameObject cardGO = Instantiate(cardPrefab, gridParent);
@@ -80,14 +81,16 @@ public class CardListController : MonoBehaviour
     public void FakeCardList()
     {
         List<CardEntity> entities = new List<CardEntity>();
-        entities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF));
-        entities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
-        entities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
+        List<CardEntity> fakeEntities = new List<CardEntity>();
+        entities.Add(new CardEntity().SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF));
+        entities.Add(new CardEntity().SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
+        entities.Add(new CardEntity().SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
 
         for (int i = 0; i < 10; i++)
         {
-            CardEntity cardEntity = entities[UnityEngine.Random.Range(0, entities.Count)];
-            cardEntities.Add(cardEntity);
+            CardEntity cardEntity = entities[Random.Range(0, entities.Count)].SetSpeed(Random.Range(25f, 35f));
+            fakeEntities.Add(cardEntity);
         }
+        DataUtil.SaveCardData(fakeEntities);
     }
 }

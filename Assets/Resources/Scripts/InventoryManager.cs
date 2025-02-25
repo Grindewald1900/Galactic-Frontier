@@ -105,15 +105,6 @@ public class InventoryManager : MonoBehaviour
         basePanel.SetActive(false);
     }
 
-    public void UpdateInventory()
-    {
-        Debug.Log("UpdateInventory: size " + ItemManager.Instance.items.Count + "First item: " + ItemManager.Instance.items[0]);
-        for (int i = 0; i < ItemManager.Instance.items.Count; i++)
-        {
-            itemSlots[i].SetItem(ItemManager.Instance.items[i]);
-        }
-    }
-
     public void InitInventory()
     {
         for (int i = 0; i < Constants.defaultInventorySlots; i++)

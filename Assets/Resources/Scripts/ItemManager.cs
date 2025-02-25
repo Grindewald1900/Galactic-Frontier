@@ -11,8 +11,13 @@ using System.Linq;
 public class ItemManager : MonoBehaviour
 {
     // List all of items player has
-    public List<Item> items = new List<Item>();
-    public int inventorySize = 20;
+    private List<ItemEntity> items = new List<ItemEntity>();
+    private List<ItemEntity> filteredItems = new List<ItemEntity>();
+    private List<ItemSlot> itemSlots = new List<ItemSlot>();
+    private int selectedSlotIndex = 0;
+    public GameObject itemPrefab;
+    public Transform gridParent;
+    public int inventorySize = 60;
     public static ItemManager Instance;
 
     void Awake()
@@ -23,7 +28,44 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public bool AddItem(Item newItem)
+    void Start()
+    {
+        //TODO:Fake data for testing
+        FakeData();
+        InitItemList();
+    }
+
+    private void FakeData()
+    {
+        List<string> itemNames = new List<string> { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
+        for (int i = 0; i < 20; i++)
+        {
+            ItemEntity item = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemEntity.ItemType.Material);
+            item.quantity = Random.Range(1, 111);
+            items.Add(item);
+        }
+        DataUtil.SaveItemData(items);
+    }
+
+    private void InitItemList()
+    {
+        items = DataUtil.LoadItemData();
+        for (int i = 0; i < inventorySize; i++)
+        {
+            GameObject itemGO = Instantiate(itemPrefab, gridParent);
+            itemGO.SetActive(true);
+            ItemSlot itemSlot = itemGO.GetComponent<ItemSlot>();
+            itemSlot.slotIndex = i;
+            itemSlot.isRemote = false;
+            itemSlots.Add(itemSlot);
+        }
+        foreach (int i in Enumerable.Range(0, items.Count))
+        {
+            itemSlots[i].SetItem(items[i]);
+        }
+    }
+
+    public bool AddItem(ItemEntity newItem)
     {
         int index = items.FindIndex(item => item.itemName.Equals(newItem.itemName));
         if (index != -1)
@@ -33,21 +75,25 @@ public class ItemManager : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Item {newItem.itemName} does not exist in the inventory.");
+            if (items.Count >= inventorySize)
+            {
+                Debug.Log("Inventory is full.");
+                return false;
+            }
+            Debug.Log($"Adding {newItem.itemName} to the inventory.");
             items.Add(newItem);
         }
-        InventoryManager.Instance.UpdateInventory();
         return true;
     }
 
-    public void UseItem(Item item)
+    public void UseItem(ItemEntity item)
     {
         if (item != null && item.quantity > 0)
         {
-            item.quantity--;
+            item.quantity -= item.quantity;
             Debug.Log($"Used 1 {item.itemName}. Remaining: {item.quantity}");
 
-            if (item.quantity == 0)
+            if (item.quantity <= 0)
             {
                 int index = items.IndexOf(item);
                 items[index] = null;
@@ -56,33 +102,45 @@ public class ItemManager : MonoBehaviour
         }
     }
 
+    public void SelectItem(int index)
+    {
+        itemSlots[selectedSlotIndex].SetSelected(false);
+        itemSlots[index].SetSelected(true);
+        selectedSlotIndex = index;
+        Debug.Log($"Selected item at index {index}");
+    }
+
     public void SortItems(SortType sortType)
     {
         switch (sortType)
         {
-            case SortType.ByName:
+            case SortType.ITEM_NAME:
                 items = items.Where(item => item != null).OrderBy(item => item.itemName).ToList();
                 break;
-            case SortType.ByValue:
-                items = items.Where(item => item != null).OrderByDescending(item => item.value).ToList();
+            case SortType.ITEM_COST:
+                items = items.Where(item => item != null).OrderByDescending(item => item.cost).ToList();
                 break;
         }
-
-        while (items.Count < inventorySize)
-        {
-            items.Add(null);
-        }
+        UpdateItemList(items);
         Debug.Log("Inventory sorted.");
     }
 
-    public List<Item> FilterItemsByType(Item.ItemType itemType)
+    public List<ItemEntity> FilterItemsByType(ItemEntity.ItemType itemType)
     {
         return items.Where(item => item != null && item.itemType == itemType).ToList();
+    }
+
+    private void UpdateItemList(List<ItemEntity> items)
+    {
+        for (int i = 0; i < items.Count; i++)
+        {
+            itemSlots[i].SetItem(items[i]);
+        }
     }
 }
 
 public enum SortType
 {
-    ByName,
-    ByValue
+    ITEM_NAME,
+    ITEM_COST
 }

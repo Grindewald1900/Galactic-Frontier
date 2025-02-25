@@ -1,21 +1,20 @@
 using System;
-using UnityEngine;
 
 [Serializable]
 public class PlayerEntity
 {
-    public string playerName;  // 玩家名
-    public int playerID;  // 玩家ID
-    public int level;  // 等级
-    public int combatPower;  // 战力
-    public CharacterTier tier;  // 评级（S/A/B/C/D）
-    public int creditPoints;  // 信用点数量
-    public string[] title;  // 称号
-    public int explorationProgress;  // 探索度
-    public int skillCount;  // 技能数量
-    public string[] skills;  // 技能列表
+    public string playerName; // Player name
+    public string playerID; // Player ID
+    public int level; // Level
+    public int combatPower; // Combat Power
+    public CharacterTier tier; // Rating (S/A/B/C/D)
+    public int creditPoints; // Number of credit points
+    public string[] title; // Title
+    public int explorationProgress; // Exploration degree
+    public int skillCount; // Number of skills
+    public string[] skills; // Skill list
 
-    public PlayerEntity(string name, int id, int lvl, int power, CharacterTier playerTier, int credits, string[] playerTitle, int explore, string[] playerSkills)
+    public PlayerEntity(string name, string id, int lvl, int power, CharacterTier playerTier, int credits, string[] playerTitle, int explore, string[] playerSkills)
     {
         playerName = name;
         playerID = id;
