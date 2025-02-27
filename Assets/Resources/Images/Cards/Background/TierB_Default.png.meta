@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 44cabdf2dce2e8c47b216ab870ee3f50
+guid: 8f5c6cbc4beba7a4da1d93f9a469959b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7653448513084047858
-    second: gradient (3)_0
+      213: 4929334467948999365
+    second: Cloudy (1)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gradient (3)_0
+      name: Cloudy (1)_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 130
-        height: 150
+        width: 520
+        height: 600
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2f1cd197fd2863a60800000000000000
-      internalID: 7653448513084047858
+      spriteID: 5c27035f493886440800000000000000
+      internalID: 4929334467948999365
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gradient (3)_0: 7653448513084047858
+      Cloudy (1)_0: 4929334467948999365
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

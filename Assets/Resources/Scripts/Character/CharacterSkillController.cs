@@ -4,11 +4,11 @@ using UnityEngine;
 
 public static class CharacterSkillController
 {
-    public static List<SkillSet> skillSet;
+    public static List<Character> characters;
 
     public static void InitSkillSet()
     {
-        skillSet = new List<SkillSet>
+        characters = new List<Character>
         {
             new Asra(),
             new Magki(),
@@ -16,37 +16,16 @@ public static class CharacterSkillController
         };
     }
 
-    public static SkillSet GetSkillSet(Character character)
+    public static Character GetCharacter(CharacterName characterName)
     {
-        return skillSet.FirstOrDefault(s => s.character == character);
+        return characters.FirstOrDefault(s => s.characterName == characterName);
     }
 }
 
-public enum Character
+public enum CharacterName
 {
     Asra,
     Magki,
     Sernia,
-}
-
-public enum Archetype
-{
-    Assassin,
-    Magician,
-    Mechanician,
-    Monster,
-    Potioneer,
-    Warrior,
-}
-
-public enum CharacterTier
-{
-    TierF, // Grey
-    TierE, // Green
-    TierD, // Blue
-    TierC, // Purple
-    TierB, // Yellow
-    TierA, // Orange
-    TierS, // Red
-    TierSS, // Rainbow
+    Default
 }

@@ -79,16 +79,11 @@ public class CardListController : MonoBehaviour
 
     public void FakeCardList()
     {
-        List<CardEntity> entities = new List<CardEntity>();
         List<CardEntity> fakeEntities = new List<CardEntity>();
-        entities.Add(new CardEntity().SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF));
-        entities.Add(new CardEntity().SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
-        entities.Add(new CardEntity().SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
-
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
-            CardEntity cardEntity = entities[Random.Range(0, entities.Count)].SetSpeed(Random.Range(25f, 35f));
-            fakeEntities.Add(cardEntity);
+            Character character = CardDataManager.Instance.GetCharacter();
+            fakeEntities.Add(CardDataManager.Instance.GetCardEntity(character));
         }
         DataUtil.SaveCardData(fakeEntities);
     }

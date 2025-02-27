@@ -1,0 +1,51 @@
+Date : 2025-02-26 23:42:44
+Directory : j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts
+Total : 19 files,  522 codes, 6 comments, 56 blanks, all 584 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C#       |         19 |        522 |          6 |         56 |        584 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                        | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                           |         19 |        522 |          6 |         56 |        584 |
+| . (Files)                                                                                   |          5 |        -81 |         -2 |         -8 |        -91 |
+| Card                                                                                        |          1 |          3 |          0 |          1 |          4 |
+| Character                                                                                   |          1 |         -2 |          0 |          0 |         -2 |
+| Character\Magician                                                                          |          1 |         -2 |          0 |          0 |         -2 |
+| Entity                                                                                      |          2 |         44 |          0 |          5 |         49 |
+| Shop                                                                                        |          1 |        175 |          1 |         12 |        188 |
+| UI                                                                                          |          7 |        373 |          7 |         45 |        425 |
+| Utils                                                                                       |          2 |         10 |          0 |          1 |         11 |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                    | language | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\CardListController.cs        | C#       |         -1 |          0 |          0 |         -1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\CardPreviewController.cs     | C#       |         -1 |          0 |          0 |         -1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Card\Card.cs                 | C#       |          3 |          0 |          1 |          4 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Character\Magician\Sernia.cs | C#       |         -2 |          0 |          0 |         -2 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\EventEntity.cs        | C#       |         39 |          0 |          4 |         43 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\ItemEntity.cs         | C#       |          5 |          0 |          1 |          6 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\ItemSlot.cs                  | C#       |        -59 |          0 |         -6 |        -65 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\MainScrollController.cs      | C#       |         24 |          0 |          3 |         27 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Shop\CardDrawingManager.cs   | C#       |        175 |          1 |         12 |        188 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\SpellSlot.cs                 | C#       |        -44 |         -2 |         -5 |        -51 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\CardMaterialSlot.cs       | C#       |         27 |          0 |          3 |         30 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\CardResultManager.cs      | C#       |         85 |          2 |         10 |         97 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\EventManager.cs           | C#       |         83 |          0 |         10 |         93 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\EventSlot.cs              | C#       |         62 |          3 |          9 |         74 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\ItemSlot.cs               | C#       |         59 |          0 |          6 |         65 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\ReportSlot.cs             | C#       |         13 |          0 |          2 |         15 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\SpellSlot.cs              | C#       |         44 |          2 |          5 |         51 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Utils\DeepCopyUtil.cs        | C#       |          9 |          0 |          1 |         10 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Utils\ImageUtil.cs           | C#       |          1 |          0 |          0 |          1 |
+| Total                                                                                       |          |        522 |          6 |         56 |        584 |
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

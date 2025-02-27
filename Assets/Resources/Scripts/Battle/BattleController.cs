@@ -33,14 +33,10 @@ public class BattleController : MonoBehaviour
     private void Init()
     {
         CharacterSkillController.InitSkillSet();
-        List<CardEntity> cardEntities = new List<CardEntity>();
-        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierF));
-        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
-        cardEntities.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
         for (int i = 0; i < 5; i++)
         {
-            SetCard(playerCards, i, cardEntities[UnityEngine.Random.Range(0, cardEntities.Count)], true);
-            SetCard(enermyCards, i, cardEntities[UnityEngine.Random.Range(0, cardEntities.Count)], false);
+            SetCard(playerCards, i, FakeData(), true);
+            SetCard(enermyCards, i, FakeData(), false);
         }
     }
 
@@ -121,10 +117,10 @@ public class BattleController : MonoBehaviour
                 List<Card> targets = GetAliveTargets(card);
                 if (targets == null || targets.Count == 0)
                     continue;
-                SkillSet skillSet = CharacterSkillController.GetSkillSet(card.cardEntity.character);
-                if (skillSet == null)
+                Character character = CharacterSkillController.GetCharacter(card.cardEntity.characterName);
+                if (character == null)
                 {
-                    Debug.LogError("SkillSet not found for character: " + card.cardEntity.character);
+                    Debug.LogError("character not found for character: " + card.cardEntity.characterName);
                     continue;
                 }
                 card.Highlight();
@@ -133,14 +129,14 @@ public class BattleController : MonoBehaviour
                     Debug.Log("SpecialAttack:" + card.isPlayerCard + card.position);
                     card.ResetEnergyBar();
                     isSpecialAttackInProgress = true;
-                    yield return StartCoroutine(skillSet.SpecialAttack(card, targets));
+                    yield return StartCoroutine(character.SpecialAttack(card, targets));
                     card.Unhighlight();
                     isSpecialAttackInProgress = false;
                 }
                 else
                 {
                     Debug.Log("NormalAttack:" + card.isPlayerCard + card.position);
-                    yield return StartCoroutine(skillSet.NormalAttack(card, targets));
+                    yield return StartCoroutine(character.NormalAttack(card, targets));
                     card.Unhighlight();
                 }
                 // Add delay between actions for visualization
@@ -172,5 +168,12 @@ public class BattleController : MonoBehaviour
     {
         List<Card> targets = card.isPlayerCard ? enermyCards : playerCards;
         return targets.Where(target => target.IsAlive()).ToList();
+    }
+
+    private CardEntity FakeData()
+    {
+        Character character = CardDataManager.Instance.GetCharacter();
+        CardEntity cardEntity = CardDataManager.Instance.GetCardEntity(character);
+        return cardEntity;
     }
 }

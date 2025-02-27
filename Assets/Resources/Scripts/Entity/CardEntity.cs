@@ -4,13 +4,13 @@ using System;
 public class CardEntity
 {
     public string cardName = "Default";
-    public Character character;
+    public CharacterName characterName;
     public Archetype archetype;
     public string id = "Default";
     public string subID = "Default";
     public int level = 1;
     public int exp = 0;
-    public CharacterTier characterTier = CharacterTier.TierF;
+    public CharacterTier characterTier = CharacterTier.TierE;
     public float health = 100f;
     public float healthCoefficient = 1f;
     public float attack = 10f;
@@ -38,7 +38,7 @@ public class CardEntity
 
     public CardEntity() { }
 
-    public CardEntity(string cardName, Character character, Archetype archetype, string id, string subID, int level, int exp,
+    public CardEntity(string cardName, CharacterName character, Archetype archetype, string id, string subID, int level, int exp,
     CharacterTier characterTier, float health, float healthCoefficient, float attack, float attackCoefficient, float defense,
     float defenseCoefficient, float score, CardType cardType, float accuracy, float accuracyCoefficient, float dodge,
     float dodgeCoefficient, float critical, float criticalCoefficient, float criticalDamage, float criticalDamageCoefficient,
@@ -47,7 +47,7 @@ public class CardEntity
     float speedCoefficient, float maxEnergy, float maxAttack)
     {
         this.cardName = cardName;
-        this.character = character;
+        this.characterName = character;
         this.archetype = archetype;
         this.id = id;
         this.subID = subID;
@@ -87,9 +87,9 @@ public class CardEntity
         return this;
     }
 
-    public CardEntity SetCharacter(Character character)
+    public CardEntity SetCharacterName(CharacterName character)
     {
-        this.character = character;
+        this.characterName = character;
         return this;
     }
 

@@ -1,8 +1,10 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 using System;
-using Microsoft.Unity.VisualStudio.Editor;
+
 public class CardResultManager : MonoBehaviour
 {
     public static CardResultManager Instance;
@@ -12,8 +14,10 @@ public class CardResultManager : MonoBehaviour
     public GameObject cardPrefab;
     // Both tier and character share the same prefab
     public GameObject reportPrefab;
+    public Button confirmButton;
     public List<Card> cards = new List<Card>();
     private List<CardEntity> cardEntities = new List<CardEntity>();
+    private bool isCardDrawing = false;
 
     void Awake()
     {
@@ -21,6 +25,21 @@ public class CardResultManager : MonoBehaviour
         {
             Instance = this;
         }
+    }
+
+    void Start()
+    {
+        Init();
+    }
+
+    void OnDisable()
+    {
+        ClearCardResult();
+    }
+
+    private void Init()
+    {
+        confirmButton.onClick.AddListener(() => { ConfirmCards(); });
     }
 
     public void InitCards(int cardCount)
@@ -32,7 +51,7 @@ public class CardResultManager : MonoBehaviour
         {
             AddCard(cardEntity);
         }
-        ShowReport(cardEntities);
+        StartCoroutine(FlipAllCards());
     }
 
     private void AddCard(CardEntity cardEntity)
@@ -40,26 +59,73 @@ public class CardResultManager : MonoBehaviour
         GameObject cardGO = Instantiate(cardPrefab, cardContent);
         Card card = cardGO.GetComponent<Card>();
         card.InitCard(cardEntity);
+        card.FlipCard(true, false);
         cards.Add(card);
+    }
+
+    private void ConfirmCards()
+    {
+        //TODO: Save card data
+        MainScrollController.Instance.ShowPanel((int)MainMenuPanel.SHOP);
+    }
+
+    public void ClearCardResult()
+    {
+        confirmButton.interactable = false;
+        cards.Clear();
+        cardEntities.Clear();
+        ClearLayout(cardContent);
+        ClearLayout(tierContent);
+        ClearLayout(characterContent);
+    }
+
+    private void ClearLayout(Transform transform)
+    {
+        Debug.Log("Clearing layout of " + transform.name + "Count: " + transform.childCount);
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+        Debug.Log("Cleared " + transform.name + "Count: " + transform.childCount);
+    }
+
+    private IEnumerator FlipAllCards()
+    {
+        isCardDrawing = true;
+        yield return new WaitForSeconds(1f);
+        foreach (var card in cards)
+        {
+            card.FlipCard(false, true);
+            Debug.Log("Flipped card: " + card.cardEntity.characterName.ToString());
+            yield return new WaitForSeconds(0.5f);
+        }
+        ShowReport(cardEntities);
     }
 
     public void ShowReport(List<CardEntity> drawResults)
     {
+        isCardDrawing = false;
         Dictionary<CharacterTier, int> tierDrawCount = GetTierDrawCount(drawResults);
         foreach (var tier in tierDrawCount)
         {
             ShowTier(tier.Key, tier.Value);
         }
-        Dictionary<Character, int> characterDrawCount = GetCharacterDrawCount(drawResults);
+        Dictionary<CharacterName, int> characterDrawCount = GetCharacterDrawCount(drawResults);
         foreach (var character in characterDrawCount)
         {
             ShowCharacter(character.Key, character.Value);
         }
+        confirmButton.interactable = true;
     }
 
-    private Dictionary<Character, int> GetCharacterDrawCount(List<CardEntity> drawResults)
+    public bool IsCardDrawing()
     {
-        return drawResults.GroupBy(card => card.character)  // 按 `Character` 分组
+        return isCardDrawing;
+    }
+
+    private Dictionary<CharacterName, int> GetCharacterDrawCount(List<CardEntity> drawResults)
+    {
+        return drawResults.GroupBy(card => card.characterName)  // 按 `Character` 分组
                           .ToDictionary(group => group.Key, group => group.Count());
     }
 
@@ -69,7 +135,7 @@ public class CardResultManager : MonoBehaviour
                           .ToDictionary(group => group.Key, group => group.Count());
     }
 
-    private void ShowCharacter(Character character, int count)
+    private void ShowCharacter(CharacterName character, int count)
     {
         GameObject characterGO = Instantiate(reportPrefab, characterContent);
         characterGO.GetComponent<ReportSlot>().SetReport(character.ToString(), count);
@@ -83,14 +149,11 @@ public class CardResultManager : MonoBehaviour
 
     private List<CardEntity> FakeData(int count)
     {
-        List<CardEntity> fakeCards = new List<CardEntity>();
-        fakeCards.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Asra").SetCharacter(Character.Asra).SetArchetype(Archetype.Mechanician).SetCharacterTier(CharacterTier.TierA));
-        fakeCards.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Sernia").SetCharacter(Character.Sernia).SetArchetype(Archetype.Magician).SetCharacterTier(CharacterTier.TierE));
-        fakeCards.Add(new CardEntity().SetSpeed(UnityEngine.Random.Range(25f, 35f)).SetCardName("Magki").SetCharacter(Character.Magki).SetArchetype(Archetype.Monster).SetCharacterTier(CharacterTier.TierD));
-
         for (int i = 0; i < count; i++)
         {
-            cardEntities.Add(fakeCards[UnityEngine.Random.Range(0, fakeCards.Count)]);
+            Character character = CardDataManager.Instance.GetCharacter();
+            CardEntity cardEntity = CardDataManager.Instance.GetCardEntity(character);
+            cardEntities.Add(cardEntity);
         }
         return cardEntities;
     }

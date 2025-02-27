@@ -2,16 +2,24 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
-public class Asra : SkillSet
+public class Asra : Character
 {
     private float attackMultiplier = 0.6f;
     private int debuffRound = DefaultProperty.defaultDebuffRound;
+
     public Asra()
     {
-        character = Character.Asra;
+        characterName = CharacterName.Asra;
         archetype = Archetype.Mechanician;
+        possibleTiers = new Dictionary<CharacterTier, int>();
+        possibleTiers.Add(CharacterTier.TierSS, 10);
+        possibleTiers.Add(CharacterTier.TierS, 100);
+        possibleTiers.Add(CharacterTier.TierA, 500);
+        possibleTiers.Add(CharacterTier.TierB, 1000);
+        possibleTiers.Add(CharacterTier.TierC, 2000);
+        possibleTiers.Add(CharacterTier.TierD, 5000);
+        possibleTiers.Add(CharacterTier.TierE, 10000);
     }
 
     public override IEnumerator NormalAttack(Card player, List<Card> target)
@@ -51,6 +59,11 @@ public class Asra : SkillSet
 
     public override void PassiveSkill(Card player, List<Card> target)
     {
+    }
+
+    public override Dictionary<CharacterTier, int> GetPossibleTiers()
+    {
+        return possibleTiers;
     }
 
     private BuffEntity GetBuff(Card player)

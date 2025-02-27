@@ -31,7 +31,6 @@ public class MainScrollController : MonoBehaviour
             Destroy(gameObject);
         }
         DontDestroyOnLoad(gameObject);
-
     }
 
     void Start()
@@ -85,6 +84,8 @@ public class MainScrollController : MonoBehaviour
 
     void OnItemClick(GameObject clickedItem, int index)
     {
+        if (CardResultManager.Instance.IsCardDrawing()) return;
+
         if (selectedItem == clickedItem) return; // 如果点击的是当前选中的，不做处理
         if (selectedItem != null)
         {
@@ -137,6 +138,10 @@ public class MainScrollController : MonoBehaviour
         foreach (var panel in panels)
         {
             panel.SetActive(false);
+            if (panel.name == "DrawResultPanel")
+            {
+
+            }
         }
     }
 }

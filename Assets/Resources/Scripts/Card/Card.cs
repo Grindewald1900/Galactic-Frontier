@@ -11,14 +11,17 @@ public class Card : MonoBehaviour, IPointerClickHandler
 {
     public UnityEngine.UI.Image healthBar;
     public UnityEngine.UI.Image energyBar;
+    public GameObject baseObject;
     public Image baseColorImage;
     public Image characterImage;
     public Image logoImage;
+    public Image backImage;
     public TextMeshProUGUI nameText;
     public DamageText[] damageTexts;
     public DebuffManager debuffManager;
     public BuffManager buffManager;
     public bool isPlayerCard;
+    private bool isFlipped = false;  // **当前是否翻转**
     public CardEntity cardEntity;
     public CardExpertiseEntity cardExpertiseEntity;
     public CardBattleEntity cardBattleEntity;
@@ -66,7 +69,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
         cardExpertiseEntity = new CardExpertiseEntity();
         cardBattleEntity = new CardBattleEntity();
         SetImage(cardEntity);
-        SetName(cardEntity.cardName);
+        SetName(cardEntity.characterName.ToString());
+        FlipCard(false, false);
     }
 
     private void UpdateEnergyBar()
@@ -169,6 +173,18 @@ public class Card : MonoBehaviour, IPointerClickHandler
                  });
     }
 
+    public void FlipCard(bool isFlipped, bool isAnimated)
+    {
+        this.isFlipped = isFlipped;
+        transform.DORotate(new Vector3(0, 90, 0), isAnimated ? 0.2f : 0f).OnComplete(() =>
+        {
+            baseObject.SetActive(!isFlipped);
+            baseColorImage.gameObject.SetActive(!isFlipped);
+            backImage.gameObject.SetActive(isFlipped);
+            transform.DORotate(new Vector3(0, 180 * (isFlipped ? 1 : 0), 0), isAnimated ? 0.2f : 0f);
+        });
+    }
+
     public void Highlight()
     {
         if (isHighlighted)
@@ -199,13 +215,13 @@ public class Card : MonoBehaviour, IPointerClickHandler
     }
     public void SetImage(CardEntity cardEntity)
     {
-        Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.character.ToString() + "_01");
+        Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.characterName.ToString() + "_01");
         Sprite baseColorSprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, cardEntity.characterTier.ToString() + "_Default");
-        // Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.logoImagePath, cardEntity.cardName + "_01");
+        Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, cardEntity.characterTier.ToString());
 
         characterImage.sprite = characterSprite;
         baseColorImage.sprite = baseColorSprite;
-        // logoImage.sprite = logoSprite;
+        logoImage.sprite = logoSprite;
     }
 
     public void SetName(string name)

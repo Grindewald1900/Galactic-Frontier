@@ -1,14 +1,22 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class Sernia : SkillSet
+public class Sernia : Character
 {
     private float attackMultiplier = 0.6f;
     private int debuffRound = DefaultProperty.defaultDebuffRound;
     public Sernia()
     {
-        character = Character.Sernia;
+        characterName = CharacterName.Sernia;
         archetype = Archetype.Magician;
+        possibleTiers = new Dictionary<CharacterTier, int>();
+        possibleTiers.Add(CharacterTier.TierSS, 10);
+        possibleTiers.Add(CharacterTier.TierS, 100);
+        possibleTiers.Add(CharacterTier.TierA, 500);
+        possibleTiers.Add(CharacterTier.TierB, 1000);
+        possibleTiers.Add(CharacterTier.TierC, 2000);
+        possibleTiers.Add(CharacterTier.TierD, 5000);
+        possibleTiers.Add(CharacterTier.TierE, 10000);
     }
 
     public override IEnumerator NormalAttack(Card player, List<Card> target)
@@ -50,6 +58,11 @@ public class Sernia : SkillSet
     public override void PassiveSkill(Card player, List<Card> target)
     {
         player.PlayAttackAnimation();
+    }
+
+    public override Dictionary<CharacterTier, int> GetPossibleTiers()
+    {
+        return possibleTiers;
     }
 
     private BuffEntity GetBuff(Card player)

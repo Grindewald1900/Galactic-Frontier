@@ -1,13 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-public abstract class SkillSet
+public abstract class Character
 {
-    public Character character;
+
+    public CharacterName characterName;
+    public Dictionary<CharacterTier, int> possibleTiers;
+    public int weight = 10;
     public Archetype archetype;
     public abstract IEnumerator NormalAttack(Card player, List<Card> target);
 
     public abstract IEnumerator SpecialAttack(Card player, List<Card> target);
 
     public abstract void PassiveSkill(Card player, List<Card> target);
+    public abstract Dictionary<CharacterTier, int> GetPossibleTiers();
 }
