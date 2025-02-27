@@ -5,6 +5,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Card : MonoBehaviour, IPointerClickHandler
 {
@@ -18,7 +19,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public DebuffManager debuffManager;
     public BuffManager buffManager;
     public bool isPlayerCard;
-    public bool isBattleActive = true;
     public CardEntity cardEntity;
     public CardExpertiseEntity cardExpertiseEntity;
     public CardBattleEntity cardBattleEntity;
@@ -44,7 +44,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public GameObject currentEffect;
     void Awake()
     {
-        gameObject.SetActive(false);
+        // gameObject.SetActive(false);
     }
 
     void Start()
@@ -71,8 +71,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     private void UpdateEnergyBar()
     {
-        if (!isBattleActive) return;
-        if (BattleInfo.Instance.isBattleInfoActive) return;
+        Debug.Log("IsbattleActive: " + IsBattleActive());
+        if (!IsBattleActive()) return;
         if (BattleController.Instance.isSpecialAttackInProgress) return;
         progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
         if (energyBar != null)
@@ -218,10 +218,14 @@ public class Card : MonoBehaviour, IPointerClickHandler
         return currentHealth > 0 && gameObject.activeSelf;
     }
 
+    public bool IsBattleActive()
+    {
+        return SceneManager.GetActiveScene().name == "BattleScene";
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 只有激活状态下才响应点击
-        if (!isBattleActive && OnCardClicked != null)
+        if (!IsBattleActive() && OnCardClicked != null)
         {
             OnCardClicked(this);
         }

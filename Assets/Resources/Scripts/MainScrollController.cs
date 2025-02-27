@@ -6,6 +6,7 @@ using TMPro;
 
 public class MainScrollController : MonoBehaviour
 {
+    public static MainScrollController Instance;
     public ScrollRect scrollRect;   // 滚动组件
     public RectTransform content;   // Content 容器
     public GameObject itemPrefab;   // Item 预制体
@@ -19,13 +20,27 @@ public class MainScrollController : MonoBehaviour
     private GameObject selectedItem = null; // 当前选中的 Item
     private GameObject selectedPanel = null; // 当前显示的 Panel
 
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        DontDestroyOnLoad(gameObject);
+
+    }
+
     void Start()
     {
         HideAllPanels();
         InitializeItems();
         // 默认选中第一个 Item
         selectedItem = content.GetChild(0).gameObject;
-        ShowPanel(0);
+        ShowPanel((int)MainMenuPanel.CHARACTER);
         StartCoroutine(ScaleItem(selectedItem, scaleFactor));
     }
 
@@ -97,7 +112,7 @@ public class MainScrollController : MonoBehaviour
         item.transform.localScale = endScale;
     }
 
-    void ShowPanel(int index)
+    public void ShowPanel(int index)
     {
         //TODO: test code
         if (index == 6)
@@ -124,4 +139,16 @@ public class MainScrollController : MonoBehaviour
             panel.SetActive(false);
         }
     }
+}
+
+public enum MainMenuPanel
+{
+    CHARACTER,
+    CARDS,
+    BATTLE,
+    INVENTORY,
+    BUILDING,
+    SHOP,
+    SETTINGS,
+    DRAWCARDS
 }

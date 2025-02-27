@@ -41,7 +41,6 @@ public class CardListController : MonoBehaviour
             cardGO.SetActive(true);
             Card card = cardGO.GetComponent<Card>();
             cards.Add(card);
-            card.isBattleActive = false;
             card.OnCardClicked += OnCardClicked;
         }
         UpdateCardList();

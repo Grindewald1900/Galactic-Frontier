@@ -9,6 +9,7 @@ public static class ImageUtil
     public static string planetImagePath = "Images/Planets/";
     public static string spellImagePath = "Images/Spells/";
     public static string itemImagePath = "Images/Items/";
+    public static string eventImagePath = "Images/Events/";
     public static string characterImagePath = "Images/Cards/Characters/";
     public static string cardBkImagePath = "Images/Cards/Background/";
     public static string debuffImagePath = "Images/Debuffs/";

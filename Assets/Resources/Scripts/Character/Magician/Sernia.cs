@@ -1,8 +1,6 @@
 using UnityEngine;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 public class Sernia : SkillSet
 {
     private float attackMultiplier = 0.6f;

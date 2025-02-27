@@ -11,7 +11,6 @@ public class CardPreviewController : MonoBehaviour
         {
             instance = this;
         }
-        card.isBattleActive = false;
     }
 
     public void ShowCardPreview(CardEntity cardEntity)

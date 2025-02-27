@@ -68,6 +68,7 @@ public class CardDrawingManager : MonoBehaviour
         drawButton.onClick.AddListener(() =>
         {
             Debug.Log("Draw");
+            StartDraw();
         });
         foreach (ItemEntity item in providerItems)
         {
@@ -120,6 +121,12 @@ public class CardDrawingManager : MonoBehaviour
         UpdateQuantity();
     }
 
+    private void StartDraw()
+    {
+        MainScrollController.Instance.ShowPanel((int)MainMenuPanel.DRAWCARDS);
+        CardResultManager.Instance.InitCards(drawCount);
+    }
+
     private void HasEnoughQuantity()
     {
         bool hasOneDraw = true;
@@ -170,7 +177,7 @@ public class CardDrawingManager : MonoBehaviour
         {
             int randomCount = Random.Range(10, 20);
             ItemEntity providerItem = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemType.Material);
-            providerItem.SetQuantity(Random.Range(10, 100));
+            providerItem.SetQuantity(Random.Range(100, 500));
             ItemEntity consumerItem = DeepCopyUtil.DeepCopy<ItemEntity>(providerItem);
             consumerItem.SetQuantity(0);
             providerItems.Add(providerItem);
