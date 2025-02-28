@@ -72,7 +72,6 @@ public class CardDrawingManager : MonoBehaviour
         });
         foreach (ItemEntity item in providerItems)
         {
-            Debug.Log($"Provider Item: {item.itemName}");
             GameObject cardGO = GameObject.Instantiate(providerPrefab, providerContent);
             cardGO.SetActive(true);
             CardMaterialSlot cardSlot = cardGO.GetComponent<CardMaterialSlot>();
@@ -81,7 +80,6 @@ public class CardDrawingManager : MonoBehaviour
         }
         foreach (ItemEntity item in consumerItems)
         {
-            Debug.Log($"Consumer Item: {item.itemName}");
             GameObject cardGO = GameObject.Instantiate(consumerPrefab, consumerContent);
             cardGO.SetActive(true);
             CardMaterialSlot cardSlot = cardGO.GetComponent<CardMaterialSlot>();
@@ -95,7 +93,6 @@ public class CardDrawingManager : MonoBehaviour
         for (int i = 0; i < consumerItems.Count; i++)
         {
             ItemEntity item = consumerItems[i];
-            Debug.Log($"Provider Item: {item.itemName}");
             GameObject cardGO = GameObject.Instantiate(materialPrefab, materialContent);
             cardGO.SetActive(true);
             CardMaterialSlot cardSlot = cardGO.GetComponent<CardMaterialSlot>();

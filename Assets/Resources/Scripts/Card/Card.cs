@@ -37,7 +37,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     private float backTime = 0.2f;
     private float attackTime = 0.3f;
     public float vanishDuration = 1f;
-    public float highlightScale = 1.1f;
+    public float cardScale = 1.0f;
     public float animationDuration = 0.2f;
     private Vector3 startPos;
     private Vector3 originalScale;
@@ -75,7 +75,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     private void UpdateEnergyBar()
     {
-        Debug.Log("IsbattleActive: " + IsBattleActive());
         if (!IsBattleActive()) return;
         if (BattleController.Instance.isSpecialAttackInProgress) return;
         progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
@@ -148,6 +147,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void Die()
     {
+        Debug.Log("Die: " + cardEntity.characterName.ToString());
         Sequence seq = DOTween.Sequence();
         seq.Join(transform.DOScale(Vector3.zero, vanishDuration).SetEase(Ease.InBack));
         seq.OnComplete(() =>
@@ -185,13 +185,14 @@ public class Card : MonoBehaviour, IPointerClickHandler
         });
     }
 
-    public void Highlight()
+    public void Highlight(float cardScale)
     {
+        Debug.Log(isHighlighted + " Highlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.characterTier);
         if (isHighlighted)
             return;
 
         isHighlighted = true;
-        transform.DOScale(originalScale * highlightScale, animationDuration).SetEase(Ease.OutBack);
+        transform.DOScale(new Vector3(cardScale, cardScale, 1), animationDuration).SetEase(Ease.OutBack);
 
         // if (outlineComponent != null)
         // {
@@ -199,20 +200,27 @@ public class Card : MonoBehaviour, IPointerClickHandler
         // }
     }
 
-    public void Unhighlight()
+    public void Unhighlight(float cardScale)
     {
+        Debug.Log(isHighlighted + " Unhighlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.characterTier);
         if (!isHighlighted)
             return;
 
         isHighlighted = false;
         // 恢复原始缩放
-        transform.DOScale(originalScale, animationDuration).SetEase(Ease.InBack);
+        transform.DOScale(new Vector3(cardScale, cardScale, 1f), animationDuration).SetEase(Ease.InBack);
         // 关闭 Outline 边框
         // if (outlineComponent != null)
         // {
         //     outlineComponent.enabled = false;
         // }
     }
+    public void SetCardScale(float scale)
+    {
+        cardScale = scale;
+        transform.localScale = new Vector3(cardScale, cardScale, 1f);
+    }
+
     public void SetImage(CardEntity cardEntity)
     {
         Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.characterName.ToString() + "_01");

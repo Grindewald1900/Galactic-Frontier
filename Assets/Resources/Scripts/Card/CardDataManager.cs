@@ -24,44 +24,6 @@ public class CardDataManager : MonoBehaviour
 
     void Start()
     {
-        LoadCards();
-    }
-
-    // Add a new card to our container in memory
-    public void AddCard()
-    {
-        CardEntity newCard = new CardEntity();
-        dataContainer.cards.Add(newCard);
-    }
-
-    // Save current card data to disk in JSON format
-    public void SaveCards()
-    {
-        // Convert data (List of cards) to JSON
-        string json = JsonUtility.ToJson(dataContainer, true);
-        Debug.Log($"Cards string {json}");
-        File.WriteAllText(filePath, json);
-        Debug.Log($"Cards saved to {filePath}");
-    }
-
-    // Load card data from disk
-    public void LoadCards()
-    {
-        if (File.Exists(filePath))
-        {
-            string json = File.ReadAllText(filePath);
-            dataContainer = JsonUtility.FromJson<CardDataContainer>(json);
-
-            if (dataContainer == null)
-                dataContainer = new CardDataContainer();
-
-            Debug.Log($"Cards loaded from {filePath}. Total cards: {dataContainer.cards.Count}");
-        }
-        else
-        {
-            Debug.LogWarning("No save file found. Creating a new one.");
-            dataContainer = new CardDataContainer();
-        }
     }
 
     public CardEntity GetCardEntity(Character character)
@@ -108,6 +70,11 @@ public class CardDataManager : MonoBehaviour
     public List<CardEntity> GetAllCards()
     {
         return dataContainer.cards;
+    }
+
+    public void SetAllCards(List<CardEntity> cards)
+    {
+        dataContainer.cards = cards;
     }
 
     private void InitCharacterList()

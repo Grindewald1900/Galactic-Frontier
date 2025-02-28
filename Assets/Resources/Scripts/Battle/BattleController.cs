@@ -123,21 +123,21 @@ public class BattleController : MonoBehaviour
                     Debug.LogError("character not found for character: " + card.cardEntity.characterName);
                     continue;
                 }
-                card.Highlight();
+                card.Highlight(DefaultProperty.highlightCardScale);
                 if (card.progress >= 1f)
                 {
                     Debug.Log("SpecialAttack:" + card.isPlayerCard + card.position);
                     card.ResetEnergyBar();
                     isSpecialAttackInProgress = true;
                     yield return StartCoroutine(character.SpecialAttack(card, targets));
-                    card.Unhighlight();
+                    card.Unhighlight(DefaultProperty.defaultCardScale);
                     isSpecialAttackInProgress = false;
                 }
                 else
                 {
                     Debug.Log("NormalAttack:" + card.isPlayerCard + card.position);
                     yield return StartCoroutine(character.NormalAttack(card, targets));
-                    card.Unhighlight();
+                    card.Unhighlight(DefaultProperty.defaultCardScale);
                 }
                 // Add delay between actions for visualization
                 // Check if battle should end

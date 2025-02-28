@@ -38,7 +38,7 @@ public static class DataUtil
 
     public static void SaveCardData(List<CardEntity> cards)
     {
-        string json = JsonUtility.ToJson(new CardListWrapper { cards = cards }, true);
+        string json = JsonUtility.ToJson(new CardListWrapper { cardEntities = cards }, true);
         string encryptedJson = EncryptBase64(json);
         File.WriteAllText(playerCardPath, encryptedJson);
         Debug.Log("卡片数据已保存：" + playerCardPath + "，共" + cards.Count + "张卡片");
@@ -52,8 +52,8 @@ public static class DataUtil
             string encryptedJson = File.ReadAllText(playerCardPath);
             string json = DecryptBase64(encryptedJson);
             CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(json);
-            Debug.Log("卡片数据已加载：" + playerCardPath + "，共" + wrapper.cards.Count + "张卡片");
-            return wrapper.cards;
+            Debug.Log("卡片数据已加载：" + playerCardPath + "，共" + wrapper.cardEntities.Count + "张卡片");
+            return wrapper.cardEntities;
         }
         else
         {
@@ -61,6 +61,7 @@ public static class DataUtil
             return new List<CardEntity>();
         }
     }
+
     public static void SavePlayerData(PlayerEntity data)
     {
         string json = JsonUtility.ToJson(data, true);
@@ -106,5 +107,5 @@ public class ItemListWrapper
 [Serializable]
 public class CardListWrapper
 {
-    public List<CardEntity> cards;
+    public List<CardEntity> cardEntities;
 }

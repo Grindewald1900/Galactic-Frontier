@@ -13,6 +13,7 @@ public class CardPanelController : MonoBehaviour
         {
             instance = this;
         }
+        gameObject.SetActive(false);
     }
 
     void Start()
@@ -24,7 +25,7 @@ public class CardPanelController : MonoBehaviour
 
     public void ResetDropdownOptions()
     {
-        List<string> newOptions = new List<string> { "Name ascending", "Name descending", "Power", "Tier" };
+        List<string> newOptions = new List<string> { "Name", "Tier", "Level", "Power" };
 
         dropdown.ClearOptions(); // 清空所有选项，确保不会访问旧的 `OptionData`
         dropdown.AddOptions(newOptions);
@@ -39,10 +40,10 @@ public class CardPanelController : MonoBehaviour
             switch (index)
             {
                 case 0:
-                    CardListController.instance.SortCardsByName(true);
+                    CardListManager.Instance.SortCardsByName();
                     break;
                 case 1:
-                    CardListController.instance.SortCardsByName(false);
+                    CardListManager.Instance.SortCardsByTier();
                     break;
                 case 2:
                     break;

@@ -57,7 +57,6 @@ public class EventSlot : MonoBehaviour, IPointerClickHandler
     {
         if (eventType == MyEventType.New)
         {
-            Debug.Log("Set new tag");
             // tagImage.gameObject.SetActive(true);
             tagFrame.gameObject.SetActive(true);
             tagFrame.gameObject.SetActive(true);
@@ -66,7 +65,6 @@ public class EventSlot : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            Debug.Log("Set old tag");
             tagFrame.gameObject.SetActive(false);
             tagImage.gameObject.SetActive(false);
         }

@@ -11,13 +11,14 @@ public class MainScrollController : MonoBehaviour
     public RectTransform content;   // Content 容器
     public GameObject itemPrefab;   // Item 预制体
     public List<GameObject> panels; // 存储所有 Panel
+    public List<GameObject> mainButtons;
 
     public int totalItems = 10;  // 列表中的 UI 元素数量
     public float itemWidth = 200f; // 每个 UI 元素的宽度
     public float scaleFactor = 1.2f; // 点击后放大的大小
     public float scaleDuration = 0.2f; // 放大动画持续时间
 
-    private GameObject selectedItem = null; // 当前选中的 Item
+    private int selectedIndex = -1; // 当前选中的 Item
     private GameObject selectedPanel = null; // 当前显示的 Panel
 
     void Awake()
@@ -26,11 +27,6 @@ public class MainScrollController : MonoBehaviour
         {
             Instance = this;
         }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
@@ -38,13 +34,23 @@ public class MainScrollController : MonoBehaviour
         HideAllPanels();
         InitializeItems();
         // 默认选中第一个 Item
-        selectedItem = content.GetChild(0).gameObject;
         ShowPanel((int)MainMenuPanel.CHARACTER);
-        StartCoroutine(ScaleItem(selectedItem, scaleFactor));
+        if (LogUtil.CheckNull(mainButtons[0], "MainMenu Scroll Content is null.")) return;
+        StartCoroutine(ScaleItem(mainButtons[0].gameObject, scaleFactor));
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (CardResultManager.Instance.IsCardDrawing()) return;
+            ShowPanel((int)MainMenuPanel.SETTINGS);
+        }
     }
 
     public void InitializeItems()
     {
+        mainButtons = new List<GameObject>();
         List<string> itemText = new List<string>(){
             "Character",
             "Cards",
@@ -62,6 +68,7 @@ public class MainScrollController : MonoBehaviour
             GameObject newItem = Instantiate(itemPrefab, content);
             if (LogUtil.CheckNull(newItem, "newItem")) continue;
             newItem.transform.localPosition = new Vector3(i * itemWidth, 0, 0);  // 水平排列
+            mainButtons.Add(newItem);
 
             TextMeshProUGUI itemTextComponent = newItem.GetComponentInChildren<TextMeshProUGUI>();
             if (LogUtil.CheckNull(itemTextComponent, "itemTextComponent")) continue;
@@ -78,23 +85,13 @@ public class MainScrollController : MonoBehaviour
             Button button = newItem.GetComponent<Button>();
             if (LogUtil.CheckNull(button, "button")) continue;
             int index = i;
-            button.onClick.AddListener(() => OnItemClick(newItem, index));
+            button.onClick.AddListener(() => OnItemClick(index));
         }
     }
 
-    void OnItemClick(GameObject clickedItem, int index)
+    void OnItemClick(int index)
     {
-        if (CardResultManager.Instance.IsCardDrawing()) return;
-
-        if (selectedItem == clickedItem) return; // 如果点击的是当前选中的，不做处理
-        if (selectedItem != null)
-        {
-            StopAllCoroutines();
-            StartCoroutine(ScaleItem(selectedItem, 1f)); // 还原大小
-        }
-        selectedItem = clickedItem;
         ShowPanel(index);
-        StartCoroutine(ScaleItem(selectedItem, scaleFactor)); // 放大
     }
 
     IEnumerator ScaleItem(GameObject item, float targetScale)
@@ -115,7 +112,18 @@ public class MainScrollController : MonoBehaviour
 
     public void ShowPanel(int index)
     {
+        Debug.Log("ShowPanel: " + index);
+        if (index == selectedIndex) return; // 避免重复执行
+        if (CardResultManager.Instance.IsCardDrawing()) return;
+
+        if (selectedIndex >= 0 && selectedIndex < mainButtons.Count)
+        {
+            StopAllCoroutines();
+            StartCoroutine(ScaleItem(mainButtons[selectedIndex], 1f)); // 还原大小
+        }
+        selectedIndex = index;
         //TODO: test code
+        /**
         if (index == 6)
         {
             GalaxyGenerator.instance.ShowGalaxies();
@@ -124,12 +132,18 @@ public class MainScrollController : MonoBehaviour
         {
             GalaxyGenerator.instance.HideGalaxies();
         }
+        **/
         HideAllPanels();
-
-        if (index >= 0 && index < panels.Count)
+        // we have more panels than buttons on home screen menu, e.g. 7 buttons but totally 8 Panels (Draw cards has only one entry in shop panel)
+        if (selectedIndex >= 0 && selectedIndex < panels.Count)
         {
-            selectedPanel = panels[index];
+            selectedPanel = panels[selectedIndex];
             selectedPanel.SetActive(true);
+            if (selectedIndex < mainButtons.Count)
+            {
+                if (LogUtil.CheckNull(mainButtons[selectedIndex], "Child is null")) return;
+                StartCoroutine(ScaleItem(mainButtons[selectedIndex], scaleFactor)); // 放大
+            }
         }
     }
 
@@ -138,10 +152,6 @@ public class MainScrollController : MonoBehaviour
         foreach (var panel in panels)
         {
             panel.SetActive(false);
-            if (panel.name == "DrawResultPanel")
-            {
-
-            }
         }
     }
 }

@@ -32,6 +32,10 @@ public class CardResultManager : MonoBehaviour
         Init();
     }
 
+    void OnEnable()
+    {
+    }
+
     void OnDisable()
     {
         ClearCardResult();
@@ -81,12 +85,10 @@ public class CardResultManager : MonoBehaviour
 
     private void ClearLayout(Transform transform)
     {
-        Debug.Log("Clearing layout of " + transform.name + "Count: " + transform.childCount);
         foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
         }
-        Debug.Log("Cleared " + transform.name + "Count: " + transform.childCount);
     }
 
     private IEnumerator FlipAllCards()
@@ -116,6 +118,7 @@ public class CardResultManager : MonoBehaviour
             ShowCharacter(character.Key, character.Value);
         }
         confirmButton.interactable = true;
+        CardListManager.Instance.AddCardEntity(cardEntities);
     }
 
     public bool IsCardDrawing()
