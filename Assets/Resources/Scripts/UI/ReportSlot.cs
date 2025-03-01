@@ -1,15 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Assets.Resources.Scripts.Utils;
 
-public class ReportSlot : MonoBehaviour
+namespace Assets.Resources.Scripts.UI
 {
-    public Image reportImage;
-    public TextMeshProUGUI reportText;
-
-    public void SetReport(string imageName, int count)
+    public class ReportSlot : MonoBehaviour
     {
-        reportImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, imageName);
-        reportText.text = "x" + count.ToString();
+        public Image reportImage;
+        public TextMeshProUGUI reportText;
+
+        public void SetReport(string imageName, int count)
+        {
+            reportImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, imageName);
+            reportText.text = "x" + count.ToString();
+        }
     }
 }

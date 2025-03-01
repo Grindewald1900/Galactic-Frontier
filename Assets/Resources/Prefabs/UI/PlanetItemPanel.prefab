@@ -724,7 +724,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8218210842661170109}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb4029ce24f422f4b9891741a63530b9, type: 3}
+  m_Script: {fileID: 11500000, guid: e1331950f071f994ba6a2fec25004f33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 3164276117592094233}
@@ -732,3 +732,8 @@ MonoBehaviour:
   nameText: {fileID: 4969881568668443104}
   descriptionText: {fileID: 2567445052272070845}
   isFocused: 0
+  currentPlanet:
+    backgroundSprite: 
+    planetLevel: 
+    planetName: 
+    planetDescription: 

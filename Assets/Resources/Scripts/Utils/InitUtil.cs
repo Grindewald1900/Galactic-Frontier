@@ -1,9 +1,13 @@
+using Assets.Resources.Scripts.Inventory;
 using UnityEngine;
 
-public class InitUtil : MonoBehaviour
+namespace Assets.Resources.Scripts.Utils
 {
-    void Start()
+    public class InitUtil : MonoBehaviour
     {
-        InventoryManager.Instance.InitInventory();
+        void Start()
+        {
+            InventoryManager.Instance.InitInventory();
+        }
     }
 }

@@ -1,71 +1,74 @@
-public static class Status
+namespace Assets.Resources.Scripts.Props
 {
-    public enum BuffType
+    public static class Status
     {
-        Heal,
-        AttributeUp,
-        None
-    }
+        public enum BuffType
+        {
+            Heal,
+            AttributeUp,
+            None
+        }
 
-    public enum DebuffType
-    {
-        Damage,
-        Controll,
-        AttributeDown,
-        None
-    }
+        public enum DebuffType
+        {
+            Damage,
+            Controll,
+            AttributeDown,
+            None
+        }
 
-    public enum DamageType
-    {
-        // Damage Type
-        Bleeding,
-        Burning,
-        Electrified,
-        Radiated,
-        Poisoned,
-        None
-    }
+        public enum DamageType
+        {
+            // Damage Type
+            Bleeding,
+            Burning,
+            Electrified,
+            Radiated,
+            Poisoned,
+            None
+        }
 
-    public enum HealType
-    {
-        Health,
-        Shield,
-        None
-    }
+        public enum HealType
+        {
+            Health,
+            Shield,
+            None
+        }
 
-    public enum ControllType
-    {
-        // Controll Type
-        Frozen,
-        Slowed,
-        Stunned,
-        Silenced,
-        Blinded,
-        None
-    }
+        public enum ControllType
+        {
+            // Controll Type
+            Frozen,
+            Slowed,
+            Stunned,
+            Silenced,
+            Blinded,
+            None
+        }
 
-    public enum AttributeType
-    {
-        Health,
-        Attack,
-        Defense,
-        Accuracy,
-        Dodge,
-        Critical,
-        CriticalDamage,
-        DamageReduction,
-        EnergyGenerateRate,
-        Speed,
-        None,
-    }
+        public enum AttributeType
+        {
+            Health,
+            Attack,
+            Defense,
+            Accuracy,
+            Dodge,
+            Critical,
+            CriticalDamage,
+            DamageReduction,
+            EnergyGenerateRate,
+            Speed,
+            None,
+        }
 
-    public static DebuffType GetRandomDebuff()
-    {
-        return (DebuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(DebuffType)).Length);
-    }
+        public static DebuffType GetRandomDebuff()
+        {
+            return (DebuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(DebuffType)).Length);
+        }
 
-    public static BuffType GetRandomBuff()
-    {
-        return (BuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(BuffType)).Length);
+        public static BuffType GetRandomBuff()
+        {
+            return (BuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(BuffType)).Length);
+        }
     }
 }

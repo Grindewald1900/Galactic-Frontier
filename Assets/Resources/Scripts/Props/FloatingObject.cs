@@ -1,19 +1,22 @@
 using UnityEngine;
 
-public class FloatingObject : MonoBehaviour
+namespace Assets.Resources.Scripts.Props
 {
-    public float floatAmplitude = 0.5f;
-    public int floatSpeed = 1;
-    private Vector3 initialPosition;
-
-    void Start()
+    public class FloatingObject : MonoBehaviour
     {
-        initialPosition = transform.position;
-    }
+        public float floatAmplitude = 0.5f;
+        public int floatSpeed = 1;
+        private Vector3 initialPosition;
 
-    void Update()
-    {
-        float newY = initialPosition.y + Mathf.Sin(Time.time * Mathf.PI * floatSpeed) * floatAmplitude;
-        transform.position = new Vector3(initialPosition.x, newY, initialPosition.z);
+        void Start()
+        {
+            initialPosition = transform.position;
+        }
+
+        void Update()
+        {
+            float newY = initialPosition.y + Mathf.Sin(Time.time * Mathf.PI * floatSpeed) * floatAmplitude;
+            transform.position = new Vector3(initialPosition.x, newY, initialPosition.z);
+        }
     }
 }

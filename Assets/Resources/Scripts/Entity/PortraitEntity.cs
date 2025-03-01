@@ -1,29 +1,40 @@
+using Assets.Resources.Scripts.Cards;
 
-[System.Serializable]
-public class PortraitEntity
+namespace Assets.Resources.Scripts.Entity
 {
-    public string portraitName = "Asra";
-    public string portraitFrame = "TierE_Default";
-    public string tier = "TierE";
-    bool isShowFrame = true;
-
-    public PortraitEntity(string name, string frame, CharacterTier tier)
+    [System.Serializable]
+    public class PortraitEntity
     {
-        portraitName = name;
-        portraitFrame = frame + "_Default";
-        this.tier = tier.ToString();
-    }
+        public string portraitName = "default_portrait";
+        public string portraitFrame = "TierE_Default";
+        public CharacterTier characterTier = CharacterTier.None;
+        bool isShowFrame = true;
 
-    public PortraitEntity SetShowFrame(bool show)
-    {
-        isShowFrame = show;
-        return this;
-    }
+        public PortraitEntity(string name, string frame, CharacterTier tier)
+        {
+            portraitName = name;
+            portraitFrame = frame + "_Default";
+            characterTier = tier;
+        }
 
-    public bool IsShowFrame()
-    {
-        return isShowFrame;
-    }
+        public PortraitEntity(CardEntity cardEntity)
+        {
+            portraitName = cardEntity.characterName.ToString();
+            portraitFrame = cardEntity.characterTier.ToString() + "_Default";
+            characterTier = cardEntity.characterTier;
+        }
 
-    public PortraitEntity() { }
+        public PortraitEntity SetShowFrame(bool show)
+        {
+            isShowFrame = show;
+            return this;
+        }
+
+        public bool IsShowFrame()
+        {
+            return isShowFrame;
+        }
+
+        public PortraitEntity() { }
+    }
 }

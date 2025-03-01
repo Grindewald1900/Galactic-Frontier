@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Entity;
 using Unity.Mathematics;
 using UnityEngine;
 

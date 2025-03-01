@@ -1,14 +1,19 @@
-public class ExpertiseEntity
+using Assets.Resources.Scripts.Props;
+
+namespace Assets.Resources.Scripts.Entity
 {
-    public Status.AttributeType attributeType;
-    public float value;
-    public ExpertiseTier expertiseTier;
-
-    public ExpertiseEntity(Status.AttributeType attributeType, float value, ExpertiseTier expertiseTier)
+    public class ExpertiseEntity
     {
-        this.attributeType = attributeType;
-        this.value = value;
-        this.expertiseTier = expertiseTier;
-    }
+        public Status.AttributeType attributeType;
+        public float value;
+        public ExpertiseTier expertiseTier;
 
+        public ExpertiseEntity(Status.AttributeType attributeType, float value, ExpertiseTier expertiseTier)
+        {
+            this.attributeType = attributeType;
+            this.value = value;
+            this.expertiseTier = expertiseTier;
+        }
+
+    }
 }

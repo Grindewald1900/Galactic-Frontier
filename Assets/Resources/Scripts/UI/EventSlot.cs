@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Utils;
 
 public class EventSlot : MonoBehaviour, IPointerClickHandler
 {
@@ -14,7 +16,7 @@ public class EventSlot : MonoBehaviour, IPointerClickHandler
     public int slotIndex;
     private bool isFocused = false;
     private Vector3 defaultScale = Vector3.one;
-    private Vector3 focusedScale = new Vector3(1.1f, 1.1f, 1f);
+    private Vector3 focusedScale = new(1.1f, 1.1f, 1f);
 
     void Awake()
     {

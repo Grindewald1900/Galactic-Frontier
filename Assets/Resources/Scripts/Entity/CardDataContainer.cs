@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-[Serializable]
-public class CardDataContainer
+namespace Assets.Resources.Scripts.Entity
 {
-    public List<CardEntity> cards = new List<CardEntity>();
+    [Serializable]
+    public class CardDataContainer
+    {
+        public List<CardEntity> cards = new List<CardEntity>();
+    }
 }

@@ -1,13 +1,16 @@
-[System.Serializable]
-public class BadgeEntity
+namespace Assets.Resources.Scripts.Entity
 {
-    public string badgeName;
-    public string badgeDescription;
-
-    public BadgeEntity() { }
-    public BadgeEntity(string badgeName, string badgeDescription)
+    [System.Serializable]
+    public class BadgeEntity
     {
-        this.badgeName = badgeName;
-        this.badgeDescription = badgeDescription;
+        public string badgeName;
+        public string badgeDescription;
+
+        public BadgeEntity() { }
+        public BadgeEntity(string badgeName, string badgeDescription)
+        {
+            this.badgeName = badgeName;
+            this.badgeDescription = badgeDescription;
+        }
     }
 }

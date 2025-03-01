@@ -1,83 +1,90 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-public class DebuffManager : MonoBehaviour
+using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Utils;
+
+namespace Assets.Resources.Scripts.Battle
 {
-    public Image[] debuffImages;
-    public Image background;
-    public List<DebuffEntity> currentDebuffs = new List<DebuffEntity>();
-
-    void Start()
+    public class DebuffManager : MonoBehaviour
     {
-        foreach (Image image in debuffImages)
-        {
-            image.gameObject.SetActive(false);
-        }
-        background.gameObject.SetActive(false);
-    }
+        public Image[] debuffImages;
+        public Image background;
+        public List<DebuffEntity> currentDebuffs = new List<DebuffEntity>();
 
-    public void AddDebuff(DebuffEntity newDebuff, Card card)
-    {
-        // 检查是否已存在相同类型的 debuff
-        Debug.Log("AddDebuff: " + newDebuff.name);
-        DebuffEntity existing = currentDebuffs.Find(d => d.name == newDebuff.name);
-        if (existing != null)
+        void Start()
         {
-            existing.roundsRemaining += newDebuff.roundsRemaining;
-        }
-        else
-        {
-            existing = newDebuff;
-            currentDebuffs.Add(existing);
-        }
-
-        if (existing.damageType != Status.DamageType.None)
-        {
-            existing.damage += newDebuff.damage;
-        }
-        if (existing.attributeType != Status.AttributeType.None)
-        {
-            existing.attribute += newDebuff.attribute;
-            card.cardBattleEntity.ChangeAttribute(existing.attributeType, existing.attribute);
-        }
-        UpdateDebuffUI();
-    }
-
-    public void UpdateDebuffs()
-    {
-        // 遍历当前 debuff 列表（倒序处理删除）
-        for (int i = currentDebuffs.Count - 1; i >= 0; i--)
-        {
-            currentDebuffs[i].roundsRemaining--;
-            if (currentDebuffs[i].roundsRemaining <= 0)
+            foreach (Image image in debuffImages)
             {
-                currentDebuffs.RemoveAt(i);
+                image.gameObject.SetActive(false);
             }
+            background.gameObject.SetActive(false);
         }
-        // 更新UI，使剩余的 Debuff 向上填充空白位置
-        UpdateDebuffUI();
-    }
 
-    private void UpdateDebuffUI()
-    {
-        Debug.Log("currentDebuffs.Count: " + currentDebuffs.Count);
-        background.gameObject.SetActive(currentDebuffs.Count > 0);
-        // 清空所有 Image（隐藏）
-        for (int i = 0; i < debuffImages.Length; i++)
+        public void AddDebuff(DebuffEntity newDebuff, Card card)
         {
-
-            debuffImages[i].sprite = null;
-            debuffImages[i].gameObject.SetActive(false);
-        }
-        // 将当前 debuff 列表的图标按顺序填入 UI Image 数组中
-        for (int i = 0; i < currentDebuffs.Count && i < debuffImages.Length; i++)
-        {
-            debuffImages[i].gameObject.SetActive(true);
-
-            debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, currentDebuffs[i].type.ToString());
-            if (debuffImages[i].sprite.name.Contains("Default"))
+            // 检查是否已存在相同类型的 debuff
+            Debug.Log("AddDebuff: " + newDebuff.name);
+            DebuffEntity existing = currentDebuffs.Find(d => d.name == newDebuff.name);
+            if (existing != null)
             {
-                debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "Question");
+                existing.roundsRemaining += newDebuff.roundsRemaining;
+            }
+            else
+            {
+                existing = newDebuff;
+                currentDebuffs.Add(existing);
+            }
+
+            if (existing.damageType != Status.DamageType.None)
+            {
+                existing.damage += newDebuff.damage;
+            }
+            if (existing.attributeType != Status.AttributeType.None)
+            {
+                existing.attribute += newDebuff.attribute;
+                card.cardBattleEntity.ChangeAttribute(existing.attributeType, existing.attribute);
+            }
+            UpdateDebuffUI();
+        }
+
+        public void UpdateDebuffs()
+        {
+            // 遍历当前 debuff 列表（倒序处理删除）
+            for (int i = currentDebuffs.Count - 1; i >= 0; i--)
+            {
+                currentDebuffs[i].roundsRemaining--;
+                if (currentDebuffs[i].roundsRemaining <= 0)
+                {
+                    currentDebuffs.RemoveAt(i);
+                }
+            }
+            // 更新UI，使剩余的 Debuff 向上填充空白位置
+            UpdateDebuffUI();
+        }
+
+        private void UpdateDebuffUI()
+        {
+            Debug.Log("currentDebuffs.Count: " + currentDebuffs.Count);
+            background.gameObject.SetActive(currentDebuffs.Count > 0);
+            // 清空所有 Image（隐藏）
+            for (int i = 0; i < debuffImages.Length; i++)
+            {
+                debuffImages[i].sprite = null;
+                debuffImages[i].gameObject.SetActive(false);
+            }
+            // 将当前 debuff 列表的图标按顺序填入 UI Image 数组中
+            for (int i = 0; i < currentDebuffs.Count && i < debuffImages.Length; i++)
+            {
+                debuffImages[i].gameObject.SetActive(true);
+
+                debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, currentDebuffs[i].type.ToString());
+                if (debuffImages[i].sprite.name.Contains("Default"))
+                {
+                    debuffImages[i].sprite = ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "Question");
+                }
             }
         }
     }

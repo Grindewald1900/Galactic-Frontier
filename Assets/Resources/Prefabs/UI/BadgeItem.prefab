@@ -222,10 +222,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7849306219771445699}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 849f24436b8118446b82c1f131c4a437, type: 3}
+  m_Script: {fileID: 11500000, guid: a507d3ec123c29b4fbd3c2a73a9d916b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   badgeName: 
-  displayText: This is a badge tooltip
+  displayText: 
   textComponent: {fileID: 621396117706515830}
   imageComponent: {fileID: 197774433948188157}

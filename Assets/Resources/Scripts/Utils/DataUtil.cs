@@ -3,6 +3,8 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Cards;
 
 public static class DataUtil
 {

@@ -1,16 +1,19 @@
-[System.Serializable]
-public class PlanetEntity
+namespace Assets.Resources.Scripts.Entity
 {
-    public string backgroundSprite;
-    public string planetLevel;
-    public string planetName;
-    public string planetDescription;
-
-    public PlanetEntity(string bgSprite, string level, string name, string info)
+    [System.Serializable]
+    public class PlanetEntity
     {
-        this.backgroundSprite = bgSprite;
-        this.planetLevel = level;
-        this.planetName = name;
-        this.planetDescription = info;
+        public string backgroundSprite;
+        public string planetLevel;
+        public string planetName;
+        public string planetDescription;
+
+        public PlanetEntity(string bgSprite, string level, string name, string info)
+        {
+            backgroundSprite = bgSprite;
+            planetLevel = level;
+            planetName = name;
+            planetDescription = info;
+        }
     }
 }

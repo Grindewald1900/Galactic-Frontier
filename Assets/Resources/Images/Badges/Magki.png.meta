@@ -103,12 +103,12 @@ TextureImporter:
       name: Magki_0
       rect:
         serializedVersion: 2
-        x: 39
+        x: 0
         y: 0
-        width: 473
-        height: 456
+        width: 512
+        height: 512
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 0262ff4896f4b7f49b983ffe13bb5521
     internalID: 0
     vertices: []
     indices: 
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Magki_0: -6480185478727037940
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

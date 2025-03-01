@@ -1,51 +1,54 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Utils;
 
-public class SpellSlot : MonoBehaviour, IPointerClickHandler
+namespace Assets.Resources.Scripts.UI
 {
-    public Image icon;             // 用于显示技能图标的 Image
-    private string defaultIcon = "Spell-Default";     // 默认图标
-    public SpellEntity spellEntity;
-    public delegate void SpellSlotClicked(SpellSlot slot);
-    public event SpellSlotClicked OnSpellSlotClicked;
-
-    public void SetSpell(SpellEntity spell)
+    public class SpellSlot : MonoBehaviour, IPointerClickHandler
     {
-        spellEntity = spell;
-        SetSpellIcon();
-    }
+        public Image icon;
+        private readonly string defaultIcon = "Spell-Default";
+        public SpellEntity spellEntity;
+        public delegate void SpellSlotClicked(SpellSlot slot);
+        public event SpellSlotClicked OnSpellSlotClicked;
 
-    public void SetSpellIcon()
-    {
-        if (spellEntity != null && spellEntity.isActivated == true)
+        public void SetSpell(SpellEntity spell)
         {
-            icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, spellEntity.spellName);
+            spellEntity = spell;
+            SetSpellIcon();
         }
-        else
-        {
-            icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, defaultIcon);
-        }
-    }
 
-    public void SetActive(bool active)
-    {
-        spellEntity.isActivated = active;
-        SetSpellIcon();
-        // 如果挂有 Button 组件，可以设置 interactable 属性
-        Button btn = GetComponent<Button>();
-        if (btn != null)
+        public void SetSpellIcon()
         {
-            btn.interactable = active;
+            if (spellEntity?.isActivated == true)
+            {
+                icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, spellEntity.spellName);
+            }
+            else
+            {
+                icon.sprite = ImageUtil.GetSpriteByName(ImageUtil.spellImagePath, defaultIcon);
+            }
         }
-    }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // 只有激活状态下才响应点击
-        if (spellEntity.isActivated && OnSpellSlotClicked != null)
+        public void SetActive(bool active)
         {
-            OnSpellSlotClicked(this);
+            spellEntity.isActivated = active;
+            SetSpellIcon();
+            if (TryGetComponent<Button>(out var btn))
+            {
+                btn.interactable = active;
+            }
+        }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            // 只有激活状态下才响应点击
+            if (spellEntity.isActivated && OnSpellSlotClicked != null)
+            {
+                OnSpellSlotClicked(this);
+            }
         }
     }
 }
