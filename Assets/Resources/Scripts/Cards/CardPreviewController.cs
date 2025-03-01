@@ -33,7 +33,6 @@ namespace Assets.Resources.Scripts.Cards
         private void AddToLineup()
         {
             LineupManager.Instance.AddLineupCard(card.cardEntity);
-            CardListManager.Instance.UpdateCardList();
         }
 
         public void SetAddButtonInteractable(bool isAddable)

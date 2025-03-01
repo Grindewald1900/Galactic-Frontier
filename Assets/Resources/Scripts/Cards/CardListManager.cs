@@ -89,8 +89,9 @@ namespace Assets.Resources.Scripts.Cards
                 cards[tempIndex].InitCard(cardEntities[i]);
                 tempIndex++;
             }
-            for (int i = cardEntities.Count - 1; i > tempIndex; i--)
+            for (int i = cardEntities.Count - 1; i >= tempIndex; i--)
             {
+                Debug.Log("Hide card at index: " + i);
                 cards[i].HideCard();
             }
 

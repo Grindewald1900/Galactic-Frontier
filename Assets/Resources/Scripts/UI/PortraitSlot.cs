@@ -14,6 +14,7 @@ namespace Assets.Resources.Scripts.UI
         public Image portraitImage;
         public Image tierImage;
         public Image tierImageFrame;
+        public CardEntity cardEntity;
         public bool isSelected = false; // Flag to check if the item is selected 
         public int slotIndex;
         public float xPosition; // X position of the portrait slot
@@ -21,20 +22,21 @@ namespace Assets.Resources.Scripts.UI
         private Transform originalParent;
         private CanvasGroup canvasGroup;
         private bool isDragging = false;
+        private bool isDraggable = true;
 
         void Awake()
         {
             SetSelected(false); // Set the selected icon to false by default
             tierImageFrame.gameObject.SetActive(false);
             canvasGroup = GetComponent<CanvasGroup>(); // **确保 Prefab 上有 CanvasGroup**
-
         }
 
-        public void SetPortrait(PortraitEntity portrait)
+        public void SetPortrait(PortraitEntity portrait, CardEntity entity)
         {
             tierImageFrame.gameObject.SetActive(portrait.IsShowFrame()); // Show or hide the tier image frame based on the tier of the item
             if (portrait != null)
             {
+                cardEntity = entity;
                 frameImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, portrait.portraitFrame); // Set the item image to the item's icon
                 portraitImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, portrait.portraitName); // Set the item image to the item's icon
                 tierImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, portrait.characterTier.ToString()); // Set the item image to the item's icon
@@ -48,6 +50,16 @@ namespace Assets.Resources.Scripts.UI
             gameObject.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
+        public void SetDraggable(bool isDraggable)
+        {
+            this.isDraggable = isDraggable;
+        }
+
+        public bool IsDraggable()
+        {
+            return isDraggable;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             if (isSelected) return;
@@ -57,6 +69,7 @@ namespace Assets.Resources.Scripts.UI
         public void OnBeginDrag(PointerEventData eventData)
         {
             if (!isSelected) return;
+            if (!isDraggable) return;
             Debug.Log("Start Dragging Card");
             isDragging = true;
             originalParent = transform.parent;
@@ -67,6 +80,7 @@ namespace Assets.Resources.Scripts.UI
         public void OnDrag(PointerEventData eventData)
         {
             if (!isSelected) return;
+            if (!isDraggable) return;
             // Debug.Log("Draging Card pos: " + eventData.position);
             // Debug.Log("Screen size: " + Screen.width + ", " + Screen.height);
             transform.localPosition = TransPosition(eventData.position); // **拖拽跟随鼠标**
@@ -75,6 +89,7 @@ namespace Assets.Resources.Scripts.UI
         public void OnEndDrag(PointerEventData eventData)
         {
             if (!isSelected) return;
+            if (!isDraggable) return;
             Debug.Log("Start Dragging End");
             isDragging = false;
             canvasGroup.blocksRaycasts = true; // **重新启用射线检测**
@@ -84,7 +99,7 @@ namespace Assets.Resources.Scripts.UI
         private Vector3 TransPosition(Vector3 pos)
         {
             float xPos = pos.x - (Screen.width / 2);
-            float yPos = pos.y - (Screen.height / 2) - 176f; // 176 为 UGUI Canvas 的 y 轴偏移量
+            float yPos = pos.y - Screen.height / 2 - 176f; // 176 为 UGUI Canvas 的 y 轴偏移量
             return new Vector3(xPos, yPos, pos.z);
         }
     }

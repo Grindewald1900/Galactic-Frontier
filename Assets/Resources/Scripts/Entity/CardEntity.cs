@@ -9,6 +9,7 @@ namespace Assets.Resources.Scripts.Entity
     {
         public string cardName = "Default";
         public CharacterName characterName = CharacterName.Default;
+        public LineupPosition position = LineupPosition.None;
         public Archetype archetype;
         public string id = "";
         public int level = 1;
@@ -38,7 +39,6 @@ namespace Assets.Resources.Scripts.Entity
         public float speedCoefficient = 1f;
         public float maxEnergy = 100f;
         public float maxAttack = 100f;
-        private LineupPosition position = LineupPosition.None;
 
         public CardEntity()
         {

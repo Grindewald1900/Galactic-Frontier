@@ -14,7 +14,7 @@ namespace Assets.Resources.Scripts.Battle
         public static LineupManager Instance;
         public Transform contentParent;
         public GameObject portraitPrefab;
-        public List<CardEntity> cardEntities = new();
+        // public List<CardEntity> cardEntities = new();
         public List<PortraitSlot> portraitSlots = new();
         private int selectedIndex = -1;
 
@@ -42,11 +42,10 @@ namespace Assets.Resources.Scripts.Battle
                 //TODO:Fake data for testing
                 // Character character = CardDataManager.Instance.GetCharacter();
                 CardEntity cardEntity = new();
-                Debug.Log("CardEntity Constructor Called ID: " + cardEntity.id);
 
-                cardEntities.Add(cardEntity);
+                // cardEntities.Add(cardEntity);
                 PortraitEntity portraitEntity = new PortraitEntity().SetShowFrame(false);
-                portraitSlot.SetPortrait(portraitEntity);
+                portraitSlot.SetPortrait(portraitEntity, cardEntity);
                 portraitSlots.Add(portraitSlot);
             }
             SelectPortrait(selectedIndex);
@@ -75,35 +74,38 @@ namespace Assets.Resources.Scripts.Battle
         public void AddLineupCard(CardEntity cardEntity)
         {
             if (cardEntity == null) return;
-            if (cardEntities.Exists(c => c.id == cardEntity.id)) return;
+            if (portraitSlots.Exists(p => p.cardEntity.id == cardEntity.id)) return;
 
-            CardEntity selectedEntity = cardEntities[selectedIndex];
+            CardEntity selectedEntity = portraitSlots[selectedIndex].cardEntity;
             // If selected index is not null, set its position to None
             if (selectedEntity.characterName != CharacterName.Default)
             {
                 Debug.Log("Selected not null");
-                CardEntity currentCard = CardListManager.Instance.GetCardEntityById(cardEntities[selectedIndex].id);
-                currentCard?.SetLineupPosition(LineupPosition.None);
+                CardEntity currentEntity = CardListManager.Instance.GetCardEntityById(selectedEntity.id);
+                currentEntity?.SetLineupPosition(LineupPosition.None);
             }
-            CardEntity card = CardListManager.Instance.GetCardEntityById(cardEntity.id);
-            card?.SetLineupPosition((LineupPosition)selectedIndex);
-            Debug.Log($"AddLineupCard lineup card at position {card.GetLineupPosition()} " + selectedIndex);
+            cardEntity?.SetLineupPosition((LineupPosition)selectedIndex);
+            Debug.Log($"AddLineupCard lineup card at position {cardEntity.GetLineupPosition()} " + selectedIndex);
 
             // Update selected portrait slot
             PortraitEntity portraitEntity = new(cardEntity);
-            cardEntities[selectedIndex] = cardEntity;
-            portraitSlots.Find(p => p.slotIndex == selectedIndex).SetPortrait(portraitEntity);
+            portraitSlots.Find(p => p.slotIndex == selectedIndex).SetPortrait(portraitEntity, cardEntity);
+            // Refresh card list after adding new card to lineup or removing from lineup
+            CardListManager.Instance.UpdateCardList();
         }
 
-        public void SetLineupCardByPosition(int index, CardEntity cardEntity)
+        public List<CardEntity> GetInlineCards()
         {
-            Debug.Log($"SetLineupCardByPosition card at position {index}");
-            if (index >= portraitSlots.Count) return;
-            if (cardEntity == null) return;
-
-            PortraitEntity portraitEntity = new(cardEntity);
-            cardEntities[index] = cardEntity;
-            portraitSlots[index].SetPortrait(portraitEntity);
+            List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
+            foreach (PortraitSlot portraitSlot in portraitSlots)
+            {
+                cardEntities.Add(portraitSlot.cardEntity);
+            }
+            if (cardEntities.Count != 5)
+            {
+                Debug.LogError("GetInlineCards not 5 cards");
+            }
+            return cardEntities;
         }
 
         public int GetSelectedIndex()
