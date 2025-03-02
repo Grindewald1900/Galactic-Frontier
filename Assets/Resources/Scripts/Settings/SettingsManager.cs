@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Settings
 {

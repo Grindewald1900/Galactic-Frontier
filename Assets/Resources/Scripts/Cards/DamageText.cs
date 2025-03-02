@@ -15,7 +15,6 @@ namespace Assets.Resources.Scripts.Cards
         private Color criticalColor;
         private float criticalScaleMultiplier = 3f;
 
-
         void Start()
         {
             if (textMesh == null)
@@ -51,7 +50,6 @@ namespace Assets.Resources.Scripts.Cards
             // 计算上浮目标位置：移动距离 = floatSpeed * duration
             Vector3 targetPosition = transform.position + Vector3.up * 1f;
 
-
             // 创建 DOTween 序列
             Sequence seq = DOTween.Sequence();
 
@@ -72,11 +70,7 @@ namespace Assets.Resources.Scripts.Cards
                        .SetDelay(duration * 0.5f)
             );
             // 4. 动画结束后，将 GameObject 隐藏或销毁
-            seq.OnComplete(() =>
-            {
-                gameObject.SetActive(false);
-            });
+            seq.OnComplete(() => gameObject.SetActive(false));
         }
-
     }
 }

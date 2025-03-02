@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Characters.Monster
 {

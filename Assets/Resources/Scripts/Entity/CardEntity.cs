@@ -1,6 +1,6 @@
 using System;
 using Assets.Resources.Scripts.Cards;
-using Assets.Resources.Scripts.Characters;
+using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Entity
 {

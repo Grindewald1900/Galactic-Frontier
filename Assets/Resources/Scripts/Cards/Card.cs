@@ -193,8 +193,10 @@ namespace Assets.Resources.Scripts.Cards
         {
             Debug.Log(isHighlighted + " Highlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.characterTier);
             if (isHighlighted)
+            {
                 return;
-
+            }
+            CardListManager.Instance.UnhighlightAllCards();
             isHighlighted = true;
             transform.DOScale(new Vector3(cardScale, cardScale, 1), animationDuration).SetEase(Ease.OutBack);
 

@@ -4,6 +4,7 @@ using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Utils;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Cards
@@ -85,7 +86,7 @@ namespace Assets.Resources.Scripts.Cards
             for (int i = 0; i < cardEntities.Count; i++)
             {
                 if (cardEntities[i].GetLineupPosition() != LineupPosition.None) continue;
-                Debug.Log("Update card list, i: " + i + ", tempIndex: " + tempIndex);
+                // Debug.Log("Update card list, i: " + i + ", tempIndex: " + tempIndex);
                 cards[tempIndex].InitCard(cardEntities[i]);
                 tempIndex++;
             }
@@ -96,8 +97,8 @@ namespace Assets.Resources.Scripts.Cards
             }
 
             Debug.Log("Cards size: " + cards.Count);
-            // cards[0].Highlight(DefaultProperty.highlightCardScale);
-            // CardPreviewController.instance.ShowCardPreview(cards[0].cardEntity);
+            cards[0].Highlight(DefaultProperty.highlightCardScale);
+            CardPreviewController.Instance.ShowCardPreview(cards[0].cardEntity);
         }
 
         public void UnhighlightAllCards()

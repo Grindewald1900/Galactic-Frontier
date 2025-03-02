@@ -5,7 +5,7 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.Cards;
-using Assets.Resources.Scripts.Characters;
+using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Battle
 {

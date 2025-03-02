@@ -4,6 +4,7 @@ using TMPro;
 
 namespace Assets.Resources.Scripts.Cards
 {
+    // Script for managing the card panel filter and sorting functionality
     public class CardPanelController : MonoBehaviour
     {
         public CardPanelController instance;
@@ -15,7 +16,6 @@ namespace Assets.Resources.Scripts.Cards
             {
                 instance = this;
             }
-            gameObject.SetActive(false);
         }
 
         void Start()

@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Linq;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.UI;
+using Assets.Resources.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Inventory
 {
