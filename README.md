@@ -17,91 +17,91 @@
 ### Demo
 * **Character**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo1.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo1.png">    
 </p>  
 
 * **Cards**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo3.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo3.png">    
 </p>  
 
 * **Battle**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo4.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo4.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo7.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo7.png">    
 </p>  
 
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo8.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo8.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo9.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo9.png">    
 </p>  
 
 
 * **Inventory**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo5.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo5.png">    
 </p>  
 
 * **Shop**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo6.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo6.png">    
 </p>  
 
 * **Draw card**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo2.png">    
+  <img height="360" width="640" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Demo2.png">    
 </p>  
 
 
 ### Character Design
 <p align="center">
-  <img height="250" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra_01.png">    
-  <img height="250" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki_01.png">    
-  <img height="250" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia_01.png">    
-  <img height="250" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon.png">    
+  <img width="200" height="240" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra_01.png">    
+  <img width="200" height="240" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki_01.png">    
+  <img width="200" height="240" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia_01.png">    
+  <img width="200" height="240" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon.png">    
   
 </p>  
 
 * **Asra**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra1.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra1.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra2.png">    
+  <img  height="300" width="720"src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Asra2.png">    
 </p>  
 
 
 * **Magki**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki1.png">    
+  <img  height="300" width="720"src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki1.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki2.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Magki2.png">    
 </p>  
 
 * **Sernia**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia1.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia1.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia2.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Sernia2.png">    
 </p>  
 
 * **Ibalon**
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon1.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon1.png">    
 </p>  
 
 <p align="center">
-  <img height="400" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon2.png">    
+  <img  height="300" width="720" src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/Ibalon2.png">    
 </p>  
