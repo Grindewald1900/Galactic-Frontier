@@ -52,12 +52,12 @@ namespace Assets.Resources.Scripts.Inventory
                 };
                 items.Add(item);
             }
-            DataUtil.SaveItemData(items);
+            DataUtil.Instance.SaveItemData(items);
         }
 
         private void InitItemList()
         {
-            items = DataUtil.LoadItemData();
+            items = DataUtil.Instance.LoadItemData();
             for (int i = 0; i < inventorySize; i++)
             {
                 GameObject itemGO = Instantiate(itemPrefab, gridParent);

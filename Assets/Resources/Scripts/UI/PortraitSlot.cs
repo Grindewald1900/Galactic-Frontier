@@ -21,7 +21,6 @@ namespace Assets.Resources.Scripts.UI
 
         private Transform originalParent;
         private CanvasGroup canvasGroup;
-        private bool isDragging = false;
         private bool isDraggable = true;
 
         void Awake()
@@ -71,7 +70,6 @@ namespace Assets.Resources.Scripts.UI
             if (!isSelected) return;
             if (!isDraggable) return;
             Debug.Log("Start Dragging Card");
-            isDragging = true;
             originalParent = transform.parent;
             //canvasGroup.blocksRaycasts = false; // **让拖拽中的卡牌不会阻挡射线**
             transform.SetParent(originalParent.parent); // **脱离 LayoutGroup**
@@ -91,7 +89,6 @@ namespace Assets.Resources.Scripts.UI
             if (!isSelected) return;
             if (!isDraggable) return;
             Debug.Log("Start Dragging End");
-            isDragging = false;
             canvasGroup.blocksRaycasts = true; // **重新启用射线检测**
             DropZoneHandler.Instance.DropCard(GetComponent<PortraitSlot>(), transform.localPosition);
         }

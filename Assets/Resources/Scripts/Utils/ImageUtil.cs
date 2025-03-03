@@ -1,4 +1,5 @@
 using System.IO;
+using Assets.Resources.Scripts.Props;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,15 +48,13 @@ namespace Assets.Resources.Scripts.Utils
             byte[] imageData = texture.EncodeToPNG(); // **转换为 PNG**
 
             File.WriteAllBytes(savePath, imageData); // **保存到本地**
-            PlayerPrefs.SetString("AvatarPath", savePath); // **记录路径**
-            PlayerPrefs.Save();
-
             Debug.Log($"Avatar stored at {savePath}");
         }
 
         // Get sprite from local file
         public static void LoadSprite(Image targetImage, string filePath)
         {
+            Debug.Log("Loading sprite from: " + filePath);
             if (File.Exists(filePath))
             {
                 byte[] imageData = File.ReadAllBytes(filePath);
@@ -68,7 +67,7 @@ namespace Assets.Resources.Scripts.Utils
             }
             else
             {
-                Debug.LogError("Sprite file not found.");
+                Debug.Log("Sprite file not found.");
             }
         }
     }

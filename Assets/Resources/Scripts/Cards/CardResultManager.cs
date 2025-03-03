@@ -23,7 +23,6 @@ namespace Assets.Resources.Scripts.Cards
         public Button confirmButton;
         public List<Card> cards = new();
         private List<CardEntity> cardEntities = new();
-        private bool isCardDrawing = false;
 
         void Awake()
         {
@@ -95,7 +94,7 @@ namespace Assets.Resources.Scripts.Cards
 
         private IEnumerator FlipAllCards()
         {
-            isCardDrawing = true;
+            GameStatusManager.Instance.isDrawingCard = true;
             yield return new WaitForSeconds(1f);
             foreach (var card in cards)
             {
@@ -108,7 +107,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void ShowReport(List<CardEntity> drawResults)
         {
-            isCardDrawing = false;
+            GameStatusManager.Instance.isDrawingCard = false;
             Dictionary<CharacterTier, int> tierDrawCount = GetTierDrawCount(drawResults);
             foreach (var tier in tierDrawCount)
             {
@@ -120,11 +119,6 @@ namespace Assets.Resources.Scripts.Cards
             }
             confirmButton.interactable = true;
             CardListManager.Instance.AddCardEntity(cardEntities);
-        }
-
-        public bool IsCardDrawing()
-        {
-            return isCardDrawing;
         }
 
         private Dictionary<CharacterName, int> GetCharacterDrawCount(List<CardEntity> drawResults)

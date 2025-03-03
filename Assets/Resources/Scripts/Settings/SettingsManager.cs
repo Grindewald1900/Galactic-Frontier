@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Utils;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Settings
 {
@@ -14,7 +15,6 @@ namespace Assets.Resources.Scripts.Settings
         public Button loadButton;
         public Button saveButton;
         public Button clearCardsButton;
-
 
         void Awake()
         {
@@ -44,14 +44,15 @@ namespace Assets.Resources.Scripts.Settings
         public void SaveGame()
         {
             List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
+            SceneManager.LoadScene("MainMenuScene");
         }
 
         public void ClearCards()
         {
             CardListManager.Instance.ClearCardEntities();
             List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
     }
 }

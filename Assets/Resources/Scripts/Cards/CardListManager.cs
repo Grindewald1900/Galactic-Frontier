@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.Resources.Scripts.Cards
 {
-    // List of card in Card Panel
+    // List of card in Card Panel, should be attached to CardPanel(parent)
     public class CardListManager : MonoBehaviour
     {
         public GameObject cardPrefab;
@@ -51,7 +51,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void InitCardList()
         {
-            cardEntities = DataUtil.LoadCardData();
+            cardEntities = DataUtil.Instance.LoadCardData();
             CheckCardCount();
 
             for (int i = 0; i < cardEntities.Count; i++)
@@ -77,8 +77,10 @@ namespace Assets.Resources.Scripts.Cards
             card.OnCardClicked += OnCardClicked;
         }
 
+        [System.Obsolete]
         public void UpdateCardList()
         {
+            if (!gameObject.active) return;
             if (cardEntities.Count == 0) return;
             int tempIndex = 0;
             CheckCardCount();
@@ -98,7 +100,7 @@ namespace Assets.Resources.Scripts.Cards
 
             Debug.Log("Cards size: " + cards.Count);
             cards[0].Highlight(DefaultProperty.highlightCardScale);
-            CardPreviewController.Instance.ShowCardPreview(cards[0].cardEntity);
+            CardPreviewController.Instance?.ShowCardPreview(cards[0].cardEntity);
         }
 
         public void UnhighlightAllCards()
@@ -150,7 +152,7 @@ namespace Assets.Resources.Scripts.Cards
             }
             cardEntities.Add(cardEntity);
             UpdateCardList();
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
 
         public void AddCardEntity(List<CardEntity> mCardEntities)
@@ -167,13 +169,13 @@ namespace Assets.Resources.Scripts.Cards
             Debug.Log("Add card entities: " + cardEntities.Count);
 
             UpdateCardList();
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
 
         public void RemoveCardEntity(CardEntity cardEntity)
         {
             cardEntities.RemoveAll(card => card.id == cardEntity.id);
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
 
         public void ClearCardEntities()
@@ -181,7 +183,7 @@ namespace Assets.Resources.Scripts.Cards
             Debug.Log("Clear card entities");
             cardEntities.Clear();
             UpdateCardList();
-            DataUtil.SaveCardData(cardEntities);
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
 
         public List<CardEntity> GetCardEntities()

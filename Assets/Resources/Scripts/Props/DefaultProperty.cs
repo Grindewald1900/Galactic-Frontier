@@ -16,5 +16,18 @@ namespace Assets.Resources.Scripts.Props
         public const int defaultControllRound = 1;
         public const float defaultCardScale = 1.2f;
         public const float highlightCardScale = 1.4f;
+
+        //Strings
+        public const string AVATAR_PATH = "AvatarPath";
+        public const string PLAYER_ID = "PlayerID";
+
+        public const string PLAYER_ENTITIES = "/playerEntities.json";
+        public const string AVATER = "/avatar.png";
+        public const string PLAYER_DATA = "/playerData.json";
+        public const string PLAYER_CARDS_DATA = "/playerCards.json";
+        public const string ITEM_DATA = "/itemData.json";
+
+        // Configs
+        public static bool isDebug = true;
     }
 }

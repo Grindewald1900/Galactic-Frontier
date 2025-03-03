@@ -30,6 +30,7 @@ namespace Assets.Resources.Scripts.Main
             {
                 Instance = this;
             }
+            HideAllPanels();
         }
 
         void Start()
@@ -46,8 +47,11 @@ namespace Assets.Resources.Scripts.Main
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (CardResultManager.Instance.IsCardDrawing()) return;
-                ShowPanel((int)MainMenuPanel.SETTINGS);
+                if (GameStatusManager.Instance.isDrawingCard) return;
+                if (selectedIndex == (int)MainMenuPanel.DRAWCARDS)
+                {
+                    ShowPanel((int)MainMenuPanel.SETTINGS);
+                }
             }
         }
 
@@ -117,7 +121,7 @@ namespace Assets.Resources.Scripts.Main
         {
             Debug.Log("ShowPanel: " + index);
             if (index == selectedIndex) return; // 避免重复执行
-            if (CardResultManager.Instance.IsCardDrawing()) return;
+            if (GameStatusManager.Instance.isDrawingCard) return;
 
             if (selectedIndex >= 0 && selectedIndex < mainButtons.Count)
             {

@@ -5,35 +5,115 @@ using System.IO;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Props;
 
 namespace Assets.Resources.Scripts.Utils
 {
-    public static class DataUtil
+    public class DataUtil : MonoBehaviour
     {
-        private static readonly string dataPath = Application.persistentDataPath + "/data";
-        private static readonly string playerDataPath = dataPath + "/playerData.json";
-        private static readonly string playerCardPath = dataPath + "/playerCards.json";
-        private static readonly string itemDataPath = dataPath + "/itemData.json";
-        public static readonly string playerAvatarPath = dataPath + "/avatar.png";
+        public static DataUtil Instance { get; private set; }
+        public PlayerEntity currentPlayer;
+        private List<PlayerEntity> playerEntities = new();
 
-        public static void SaveItemData(List<ItemEntity> items)
+        // e.g C:/Users/.../Galactic Frontier/saves
+        private string savePath;
+        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a
+        private string playerSavePath;
+        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/playerData.json
+        private string playerDataPath;
+        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/playerCards.json
+        private string playerCardPath;
+        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/itemData.json
+        private string itemDataPath;
+        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/avatar.png
+        public string playerAvatarPath;
+        private void Awake()
         {
-            CheckIfPathExist(dataPath);
-            string json = JsonUtility.ToJson(new ItemListWrapper { items = items }, true);
-            string encryptedJson = EncryptBase64(json);
-            File.WriteAllText(itemDataPath, encryptedJson);
-            Debug.Log("物品数据已保存：" + itemDataPath + "，共" + items.Count + "个物品");
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject); // 场景切换时不销毁
+            }
+            else
+            {
+                Destroy(gameObject); // 如果已有实例，销毁新创建的对象
+            }
         }
 
-        public static List<ItemEntity> LoadItemData()
+        void Start()
         {
-            CheckIfPathExist(dataPath);
+            InitPaths();
+        }
 
+        public void InitPlayerInfo()
+        {
+            if (!File.Exists(savePath + DefaultProperty.PLAYER_ENTITIES))
+            {
+                File.WriteAllText(savePath + DefaultProperty.PLAYER_ENTITIES, "");
+            }
+        }
+
+        private void InitPaths()
+        {
+            savePath = Application.persistentDataPath + "/saves";
+            CheckIfPathExist(savePath);
+        }
+
+        public void UpdatePaths()
+        {
+            playerSavePath = GetPlayerSavePath(currentPlayer.playerID);
+            playerDataPath = GetPlayerDataPath(currentPlayer.playerID);
+            playerCardPath = GetPlayerCardPath(currentPlayer.playerID);
+            itemDataPath = GetPlayerItemDataPath(currentPlayer.playerID);
+            playerAvatarPath = GetPlayerAvatarPath(currentPlayer.playerID);
+
+            Debug.Log("数据路径已初始化：");
+            Debug.Log("savePath: " + savePath);
+            Debug.Log("playerSavePath: " + playerSavePath);
+            Debug.Log("playerDataPath: " + playerDataPath);
+            Debug.Log("playerCardPath: " + playerCardPath);
+            Debug.Log("itemDataPath: " + itemDataPath);
+            Debug.Log("playerAvatarPath: " + playerAvatarPath);
+        }
+
+        public bool CreatePlayerData()
+        {
+            currentPlayer = new PlayerEntity();
+            UpdatePaths();
+            return SavePlayerData(currentPlayer);
+        }
+
+        public void SaveItemData(List<ItemEntity> items)
+        {
+            SaveData(new ItemListWrapper { items = items, count = items.Count }, playerSavePath, DefaultProperty.ITEM_DATA);
+        }
+
+        public void SaveCardData(List<CardEntity> cards)
+        {
+            SaveData(new CardListWrapper { cardEntities = cards, count = cards.Count }, playerSavePath, DefaultProperty.PLAYER_CARDS_DATA);
+        }
+
+        // Save player data in its individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
+        public bool SavePlayerData(PlayerEntity playerEntity)
+        {
+            SaveData(playerEntity, playerSavePath, DefaultProperty.PLAYER_DATA);
+            LoadPlayerEntities();
+            return true;
+        }
+
+        // Save playerEntities in root directory e.g, e.g. saves/playerEntities.json
+        public void SavePlayerEntities()
+        {
+            SaveData(new PlayerListWrapper { playerEntities = playerEntities, count = playerEntities.Count }, savePath, DefaultProperty.PLAYER_ENTITIES);
+        }
+
+        public List<ItemEntity> LoadItemData()
+        {
             if (File.Exists(itemDataPath))
             {
-                string encryptedJson = File.ReadAllText(itemDataPath);
-                string json = DecryptBase64(encryptedJson);
-                ItemListWrapper wrapper = JsonUtility.FromJson<ItemListWrapper>(json);
+                string json = File.ReadAllText(itemDataPath);
+                string encryptedJson = DecryptBase64(json);
+                ItemListWrapper wrapper = JsonUtility.FromJson<ItemListWrapper>(encryptedJson);
                 Debug.Log("物品数据已加载：" + itemDataPath + "，共" + wrapper.items.Count + "个物品");
                 return wrapper.items;
             }
@@ -44,24 +124,13 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
-        public static void SaveCardData(List<CardEntity> cards)
+        public List<CardEntity> LoadCardData()
         {
-            CheckIfPathExist(dataPath);
-            string json = JsonUtility.ToJson(new CardListWrapper { cardEntities = cards }, true);
-            string encryptedJson = EncryptBase64(json);
-            File.WriteAllText(playerCardPath, encryptedJson);
-            Debug.Log("卡片数据已保存：" + playerCardPath + "，共" + cards.Count + "张卡片");
-        }
-
-        // **读取 List<CardEntity>（Base64 解密）**
-        public static List<CardEntity> LoadCardData()
-        {
-            CheckIfPathExist(dataPath);
             if (File.Exists(playerCardPath))
             {
-                string encryptedJson = File.ReadAllText(playerCardPath);
-                string json = DecryptBase64(encryptedJson);
-                CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(json);
+                string json = File.ReadAllText(playerCardPath);
+                string encryptedJson = DecryptBase64(json);
+                CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(encryptedJson);
                 Debug.Log("卡片数据已加载：" + playerCardPath + "，共" + wrapper.cardEntities.Count + "张卡片");
                 return wrapper.cardEntities;
             }
@@ -72,44 +141,120 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
-        public static void SavePlayerData(PlayerEntity data)
+        public PlayerEntity LoadPlayerData(string dataPath)
         {
-            CheckIfPathExist(dataPath);
-            string json = JsonUtility.ToJson(data, true);
-            string encryptedJson = EncryptBase64(json);
-            File.WriteAllText(playerDataPath, encryptedJson);
-            Debug.Log("数据已加密并保存：" + playerDataPath);
-        }
-
-        public static PlayerEntity LoadPlayerData()
-        {
-            CheckIfPathExist(dataPath);
-            if (File.Exists(playerDataPath))
+            if (File.Exists(dataPath))
             {
-                string encryptedJson = File.ReadAllText(playerDataPath);
-                string json = DecryptBase64(encryptedJson);
-                return JsonUtility.FromJson<PlayerEntity>(json);
+                string json = File.ReadAllText(dataPath);
+                string encryptedJson = DecryptBase64(json);
+                return JsonUtility.FromJson<PlayerEntity>(encryptedJson);
             }
             else
             {
-                Debug.LogWarning("未找到存档文件，返回默认数据");
-                return new PlayerEntity("Player", "00000", 1, 100, CharacterTier.TierA, 1000, new string[] { "Newbie" }, 0, new string[] { "Basic Attack" });
+                Debug.LogWarning("No player data found, returning default player data");
+            }
+            return currentPlayer;
+        }
+
+        public List<PlayerEntity> LoadPlayerEntities()
+        {
+            playerEntities.Clear();
+
+            // Load all player data from individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
+            foreach (string id in GetAllPlayerIDs())
+            {
+                string path = savePath + "/" + id + DefaultProperty.PLAYER_DATA;
+                playerEntities.Add(LoadPlayerData(path));
+            }
+            Debug.Log("已加载存档数据：共" + playerEntities.Count + "个存档");
+            return playerEntities;
+        }
+
+        // Get all player IDs from file name in saves directory 
+        public List<string> GetAllPlayerIDs()
+        {
+            List<string> ids = new();
+            foreach (string p in Directory.GetDirectories(savePath))
+            {
+                Debug.Log("存在的存档：" + Path.GetFileName(p));
+                ids.Add(Path.GetFileName(p));
+            }
+            return ids;
+        }
+
+        public PlayerEntity GetCurrentPlayer()
+        {
+            return currentPlayer;
+        }
+
+        public void SetCurrentPlayer(PlayerEntity player)
+        {
+            currentPlayer = player;
+            UpdatePaths();
+        }
+
+        public string GetPlayerSavePath(string playerID)
+        {
+            return savePath + "/" + playerID;
+        }
+
+        public string GetPlayerDataPath(string playerID)
+        {
+            return savePath + "/" + playerID + DefaultProperty.PLAYER_DATA;
+        }
+
+        public string GetPlayerCardPath(string playerID)
+        {
+            return savePath + "/" + playerID + DefaultProperty.PLAYER_CARDS_DATA;
+        }
+
+        public string GetPlayerItemDataPath(string playerID)
+        {
+            return savePath + "/" + playerID + DefaultProperty.ITEM_DATA;
+        }
+
+        public string GetPlayerAvatarPath(string playerID)
+        {
+            return savePath + "/" + playerID + DefaultProperty.AVATER;
+        }
+
+        public string EncryptBase64(string plainText)
+        {
+            if (DefaultProperty.isDebug)
+            {
+                return plainText;
+            }
+            else
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(plainText);
+                return Convert.ToBase64String(bytes);
             }
         }
 
-        public static string EncryptBase64(string plainText)
+        public string DecryptBase64(string encryptedText)
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(plainText);
-            return Convert.ToBase64String(bytes);
+            if (DefaultProperty.isDebug)
+            {
+                return encryptedText;
+            }
+            else
+            {
+                byte[] bytes = Convert.FromBase64String(encryptedText);
+                return Encoding.UTF8.GetString(bytes);
+            }
         }
 
-        public static string DecryptBase64(string encryptedText)
+        public void SaveData(object data, string filePath, string fileName)
         {
-            byte[] bytes = Convert.FromBase64String(encryptedText);
-            return Encoding.UTF8.GetString(bytes);
+            CheckIfPathExist(filePath);
+
+            string json = JsonUtility.ToJson(data, true);
+            string outputJson = DefaultProperty.isDebug ? json : EncryptBase64(json); ;
+            File.WriteAllText(filePath + fileName, outputJson);
+            Debug.Log("SaveData:" + fileName + " saved at " + filePath);
         }
 
-        public static void CheckIfPathExist(string directoryPath)
+        public void CheckIfPathExist(string directoryPath)
         {
             if (!Directory.Exists(directoryPath)) // **如果文件夹不存在**
             {
@@ -121,13 +266,22 @@ namespace Assets.Resources.Scripts.Utils
         [Serializable]
         public class ItemListWrapper
         {
+            public int count = 0;
             public List<ItemEntity> items;
         }
 
         [Serializable]
         public class CardListWrapper
         {
+            public int count = 0;
             public List<CardEntity> cardEntities;
+        }
+
+        [Serializable]
+        public class PlayerListWrapper
+        {
+            public int count = 0;
+            public List<PlayerEntity> playerEntities;
         }
     }
 }

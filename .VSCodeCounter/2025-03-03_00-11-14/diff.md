@@ -1,30 +1,25 @@
 # Diff Summary
 
-Date : 2025-02-28 02:38:52
+Date : 2025-03-03 00:11:14
 
 Directory j:\\Unity3d\\Projects\\Galactic Frontier\\Assets\\Resources\\Scripts
 
-Total : 17 files,  253 codes, 12 comments, 41 blanks, all 306 lines
+Total : 5 files,  95 codes, 9 comments, 7 blanks, all 111 lines
 
 [Summary](results.md) / [Details](details.md) / Diff Summary / [Diff Details](diff-details.md)
 
 ## Languages
 | language | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| C# | 17 | 253 | 12 | 41 | 306 |
+| C# | 5 | 95 | 9 | 7 | 111 |
 
 ## Directories
 | path | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| . | 17 | 253 | 12 | 41 | 306 |
-| . (Files) | 4 | 70 | 13 | 8 | 91 |
-| Battle | 1 | 50 | 0 | 9 | 59 |
-| Card | 2 | -18 | -4 | -3 | -25 |
-| Entity | 1 | 14 | 0 | 3 | 17 |
-| Props | 1 | 3 | 0 | 0 | 3 |
-| Settings | 1 | 42 | 1 | 8 | 51 |
-| Shop | 1 | -3 | 0 | 0 | -3 |
-| UI | 3 | 36 | 2 | 7 | 45 |
-| Utils | 3 | 59 | 0 | 9 | 68 |
+| . | 5 | 95 | 9 | 7 | 111 |
+| CharacterPanel | 1 | 18 | -1 | -2 | 15 |
+| Entity | 1 | 15 | 0 | 1 | 16 |
+| Props | 1 | 7 | 1 | 2 | 10 |
+| Utils | 2 | 55 | 9 | 6 | 70 |
 
 [Summary](results.md) / [Details](details.md) / Diff Summary / [Diff Details](diff-details.md)
