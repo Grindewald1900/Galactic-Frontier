@@ -77,10 +77,9 @@ namespace Assets.Resources.Scripts.Cards
             card.OnCardClicked += OnCardClicked;
         }
 
-        [System.Obsolete]
         public void UpdateCardList()
         {
-            if (!gameObject.active) return;
+            if (!gameObject.activeSelf) return;
             if (cardEntities.Count == 0) return;
             int tempIndex = 0;
             CheckCardCount();

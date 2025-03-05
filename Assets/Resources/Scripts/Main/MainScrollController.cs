@@ -162,6 +162,7 @@ namespace Assets.Resources.Scripts.Main
             }
         }
     }
+
     public enum MainMenuPanel
     {
         CHARACTER,

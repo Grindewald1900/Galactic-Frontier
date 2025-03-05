@@ -46,6 +46,7 @@ namespace Assets.Resources.Scripts.Props
             None
         }
 
+        // Define Enums attributes that can be affected by Buffs, Debuffs and Expertise or skills
         public enum AttributeType
         {
             Health,
@@ -58,7 +59,7 @@ namespace Assets.Resources.Scripts.Props
             DamageReduction,
             EnergyGenerateRate,
             Speed,
-            None,
+            None
         }
 
         public static DebuffType GetRandomDebuff()

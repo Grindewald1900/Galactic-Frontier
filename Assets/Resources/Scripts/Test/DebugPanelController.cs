@@ -4,26 +4,45 @@ using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
-namespace Assets.Resources.Scripts.Main
+namespace Assets.Resources.Scripts.Test
 {
-    public class LunaController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+    public class DebugPanelController : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
-        public Image lunaPanel;
+        public static DebugPanelController Instance;
+        public GameObject debugPanel; // 调试面板
+        public Button closeButton; // 关闭按钮
         private RectTransform rectTransform;
         private Canvas canvas;
         private Vector2 originalPosition;
         private Vector3 originalScale;
+
+        void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+        }
 
         private void Start()
         {
             rectTransform = GetComponent<RectTransform>();
             originalScale = rectTransform.localScale;
             canvas = GetComponentInParent<Canvas>();
+            debugPanel?.SetActive(false);
+            closeButton.onClick.AddListener(HideDebugPanel);
+        }
 
-            if (canvas == null)
-            {
-                Debug.LogError("Canvas not found! Ensure this script is attached to a UI element inside a Canvas.");
-            }
+        public void ShowDebugPanel()
+        {
+            Debug.Log("Show debug panel");
+            debugPanel?.SetActive(true);
+        }
+
+        public void HideDebugPanel()
+        {
+            Debug.Log("Hide debug panel");
+            debugPanel?.SetActive(false);
         }
 
         public void OnPointerDown(PointerEventData eventData)

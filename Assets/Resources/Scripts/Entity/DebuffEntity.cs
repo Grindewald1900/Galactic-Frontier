@@ -12,8 +12,8 @@ namespace Assets.Resources.Scripts.Entity
         public Status.ControllType controllType;
         public Status.AttributeType attributeType;
         public int roundsRemaining;
-        public float damage;
-        public float attribute;
+        public float damage; // damage or health for each round
+        public float attribute; // attribute changes in battle
         public Sprite icon;
         public string name;
 

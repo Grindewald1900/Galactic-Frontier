@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.UI;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -10,6 +11,8 @@ namespace Assets.Resources.Scripts.Cards
         public static CardPreviewController Instance;
         public Button addButton;
         public Button removeButton;
+        public Button upgradeButton;
+        public Button dismissButton;
         public Card card;
 
         public void Awake()
@@ -28,6 +31,7 @@ namespace Assets.Resources.Scripts.Cards
         private void Init()
         {
             addButton.onClick.AddListener(() => AddToLineup());
+            SetUpgradeButtonInteractable(false);
         }
 
         private void AddToLineup()
@@ -45,10 +49,22 @@ namespace Assets.Resources.Scripts.Cards
             removeButton.interactable = isRemovable;
         }
 
+        public void SetUpgradeButtonInteractable(bool isUpgradeable)
+        {
+            upgradeButton.interactable = isUpgradeable;
+        }
+
+        public void SetDismissButtonInteractable(bool isDismissable)
+        {
+            dismissButton.interactable = isDismissable;
+        }
+
         public void ShowCardPreview(CardEntity cardEntity)
         {
             card.InitCard(cardEntity);
             card.gameObject.SetActive(true);
+            SetUpgradeButtonInteractable(cardEntity.evolutionPending);
+            HoverShowDetailPanel.Instance.SetDetailPanel(cardEntity);
         }
     }
 }

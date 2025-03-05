@@ -26,8 +26,12 @@ namespace Assets.Resources.Scripts.Props
         public const string PLAYER_DATA = "/playerData.json";
         public const string PLAYER_CARDS_DATA = "/playerCards.json";
         public const string ITEM_DATA = "/itemData.json";
+        public const string EXPERT_DATA = "/expertData.json";
 
         // Configs
         public static bool isDebug = true;
+
+        // Gift code
+        public static string CODE_DEBUG_BOARD = "000";
     }
 }

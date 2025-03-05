@@ -1,20 +1,29 @@
 using System;
+using UnityEngine;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Props;
+using Assets.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Entity
 {
     [Serializable]
     public class CardEntity
     {
-        public string cardName = "Default";
+        public string cardName = "";
         public CharacterName characterName = CharacterName.Default;
         public LineupPosition position = LineupPosition.None;
         public Archetype archetype;
         public string id = "";
-        public int level = 1;
-        public int exp = 0;
-        public CharacterTier characterTier = CharacterTier.None;
+        public int level = 1; // shown on main panel
+        public int levelStepForEvolution = 20;
+        public bool evolutionPending = false;
+        public float currentExp = 0f; // shown on main panel
+        public float expToLevelUp = 0f;
+        public float power = 0f; // shown on main panel
+        public CharacterTier characterTier = CharacterTier.None; // shown on main panel
         public float health = 100f;
         public float healthCoefficient = 1f;
         public float attack = 10f;
@@ -22,7 +31,7 @@ namespace Assets.Resources.Scripts.Entity
         public float defense = 10f;
         public float defenseCoefficient = 1f;
         public float score = 5f;
-        public CardType cardType;
+        public CardType cardType; // shown on main panel
         public float accuracy = 0.8f;
         public float accuracyCoefficient = 1f;
         public float dodge = 0.1f;
@@ -39,53 +48,102 @@ namespace Assets.Resources.Scripts.Entity
         public float speedCoefficient = 1f;
         public float maxEnergy = 100f;
         public float maxAttack = 100f;
+        /// <summary>
+        /// All the card attributes and expertises are stored here.
+        /// </summary>
+        ///<remarks>
+        /// All expertises for a card, should be applied to <see cref="CardPreviewController"/>
+        /// battleAttributes should be applied to <see cref="BattleController"/>
+        /// </remarks>
+        public List<ExpertiseEntity> expertises = new();
+        // Attributes for the card panel e.g. <Attack, 1.5f>
+        Dictionary<Status.AttributeType, float> panelAttributes = new();
+        Dictionary<Status.AttributeType, float> battleAttributes = new();
 
         public CardEntity()
         {
             id = Guid.NewGuid().ToString();
+            InitAttributes();
+            UpdateExpertises();
         }
 
-        public CardEntity(string cardName, CharacterName character, Archetype archetype, string id, int level, int exp,
-        CharacterTier characterTier, float health, float healthCoefficient, float attack, float attackCoefficient, float defense,
-        float defenseCoefficient, float score, CardType cardType, float accuracy, float accuracyCoefficient, float dodge,
-        float dodgeCoefficient, float critical, float criticalCoefficient, float criticalDamage, float criticalDamageCoefficient,
-
-        float dagameReduction, float dagameReductionCoefficient, int energyGenerateRate, int energyGenerateRateCoefficient, float speed,
-        float speedCoefficient, float maxEnergy, float maxAttack)
+        private void InitAttributes()
         {
-            this.cardName = cardName;
-            characterName = character;
-            this.archetype = archetype;
-            this.id = Guid.NewGuid().ToString();
-            this.level = level;
-            this.exp = exp;
-            this.health = health;
-            this.healthCoefficient = healthCoefficient;
-
-            this.attack = attack;
-            this.attackCoefficient = attackCoefficient;
-            this.defense = defense;
-            this.defenseCoefficient = defenseCoefficient;
-            this.score = score;
-            this.cardType = cardType;
-            this.accuracy = accuracy;
-            this.accuracyCoefficient = accuracyCoefficient;
-            this.dodge = dodge;
-            this.dodgeCoefficient = dodgeCoefficient;
-            this.critical = critical;
-            this.criticalCoefficient = criticalCoefficient;
-            this.criticalDamage = criticalDamage;
-            this.criticalDamageCoefficient = criticalDamageCoefficient;
-            this.dagameReduction = dagameReduction;
-            this.dagameReductionCoefficient = dagameReductionCoefficient;
-            this.energyGenerateRate = energyGenerateRate;
-            this.energyGenerateRateCoefficient = energyGenerateRateCoefficient;
-            this.speed = speed;
-            this.speedCoefficient = speedCoefficient;
-            this.maxEnergy = maxEnergy;
-            this.maxAttack = maxAttack;
+            foreach (Status.AttributeType attribute in Enum.GetValues(typeof(Status.AttributeType)))
+            {
+                panelAttributes[attribute] = 1f;
+                battleAttributes[attribute] = 1f;
+            }
         }
 
+        private void UpdateExpertises()
+        {
+            foreach (ExpertiseEntity expertise in expertises)
+            {
+                panelAttributes[expertise.attributeType] += expertise.value;
+            }
+        }
+
+        public void ChangeBattleAttribute(Status.AttributeType attributeType, float value)
+        {
+            battleAttributes[attributeType] += value;
+        }
+
+        public void AddExpertise(ExpertiseEntity expertise)
+        {
+            if (expertises.Contains(expertise))
+            {
+                return;
+            }
+            expertises.Add(expertise);
+            UpdateExpertises();
+        }
+
+        public void RemoveExpertise(ExpertiseEntity expertise)
+        {
+            if (!expertises.Contains(expertise))
+            {
+                return;
+            }
+            expertises.Remove(expertise);
+            UpdateExpertises();
+        }
+
+        // 模拟每场战斗后获得经验（在 BattleController 中调用）
+        public void AddExperience(float exp)
+        {
+            if (evolutionPending)
+            {
+                UnityEngine.Debug.Log($"{cardName} 已达到进阶等级，进阶前无法获得经验。");
+                return;
+            }
+
+            currentExp += exp;
+            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {currentExp}/{expToLevelUp}");
+            // 多段升级判断：当经验超过升级需求时，进行多次升级处理
+            while (currentExp >= expToLevelUp)
+            {
+                currentExp -= expToLevelUp;
+                LevelUp();
+            }
+        }
+
+        private void LevelUp()
+        {
+            level++;
+            UnityEngine.Debug.Log($"{cardName} 升级到 {level} 级！");
+            // 升级后重置经验和升级需求
+            expToLevelUp = LevelUtil.GetNextLevelExp(level);
+
+            // 每达到levelStepForEvolution的倍数，要求进阶（例如20级、40级……）
+            if (level % levelStepForEvolution == 0)
+            {
+                evolutionPending = true;
+                UnityEngine.Debug.Log($"{cardName} 达到 {level} 级，需要进阶才能继续获得经验！");
+            }
+        }
+
+        // Other Setters and Getters
         public CardEntity SetCardName(string cardName)
         {
             this.cardName = cardName;
@@ -116,9 +174,9 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetExp(int exp)
+        public CardEntity SetExp(float exp)
         {
-            this.exp = exp;
+            this.currentExp = exp;
             return this;
         }
 

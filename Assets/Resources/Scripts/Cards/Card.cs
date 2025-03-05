@@ -16,6 +16,10 @@ namespace Assets.Resources.Scripts.Cards
     {
         public Image healthBar;
         public Image energyBar;
+        public Image expBar;
+        public GameObject healthBarBackground;
+        public GameObject energyBarBackground;
+        public GameObject expBarBackground;
         public GameObject baseObject;
         public Image baseColorImage;
         public Image characterImage;
@@ -28,8 +32,6 @@ namespace Assets.Resources.Scripts.Cards
         public bool isPlayerCard;
         private bool isFlipped = false;  // **当前是否翻转**
         public CardEntity cardEntity;
-        public CardExpertiseEntity cardExpertiseEntity;
-        public CardBattleEntity cardBattleEntity;
         public delegate void CardClicked(Card card);
         public event CardClicked OnCardClicked;
         public float currentHealth = 100f;
@@ -65,22 +67,25 @@ namespace Assets.Resources.Scripts.Cards
 
         void Update()
         {
+            if (!IsBattleActive()) return;
             UpdateEnergyBar();
         }
 
         public void InitCard(CardEntity cardEntity)
         {
             this.cardEntity = cardEntity;
-            cardExpertiseEntity = new CardExpertiseEntity();
-            cardBattleEntity = new CardBattleEntity();
             SetImage(cardEntity);
             SetName(cardEntity.characterName.ToString());
             FlipCard(false, false);
+
+            healthBarBackground.SetActive(IsBattleActive());
+            energyBarBackground.SetActive(IsBattleActive());
+            expBarBackground.SetActive(!IsBattleActive());
+            UpdateExpBar();
         }
 
         private void UpdateEnergyBar()
         {
-            if (!IsBattleActive()) return;
             if (BattleController.Instance.isSpecialAttackInProgress) return;
             progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
             if (energyBar != null)
@@ -100,6 +105,12 @@ namespace Assets.Resources.Scripts.Cards
             {
                 energyBar.fillAmount = 0f;
             }
+        }
+
+        public void UpdateExpBar()
+        {
+            if (IsBattleActive()) return;
+            expBar.fillAmount = cardEntity.currentExp / cardEntity.expToLevelUp;
         }
 
         public void TakeDamage(List<DamageEntity> damage)

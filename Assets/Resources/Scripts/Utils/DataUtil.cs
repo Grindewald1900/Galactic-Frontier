@@ -14,6 +14,7 @@ namespace Assets.Resources.Scripts.Utils
         public static DataUtil Instance { get; private set; }
         public PlayerEntity currentPlayer;
         private List<PlayerEntity> playerEntities = new();
+        private List<ExpertiseEntity> expertiseEntities = new();
 
         // e.g C:/Users/.../Galactic Frontier/saves
         private string savePath;
@@ -93,6 +94,11 @@ namespace Assets.Resources.Scripts.Utils
             SaveData(new CardListWrapper { cardEntities = cards, count = cards.Count }, playerSavePath, DefaultProperty.PLAYER_CARDS_DATA);
         }
 
+        public void SaveExpertiseData(List<ExpertiseEntity> expertiseEntities)
+        {
+            SaveData(new ExpertiseListWrapper { expertiseEntities = expertiseEntities, count = expertiseEntities.Count }, playerSavePath, DefaultProperty.EXPERT_DATA);
+        }
+
         // Save player data in its individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
         public bool SavePlayerData(PlayerEntity playerEntity)
         {
@@ -139,6 +145,23 @@ namespace Assets.Resources.Scripts.Utils
                 Debug.LogWarning("未找到存档，返回默认卡片列表");
                 return new List<CardEntity>();
             }
+        }
+
+        public List<ExpertiseEntity> LoadExpertiseData()
+        {
+            if (File.Exists(playerSavePath + DefaultProperty.EXPERT_DATA))
+            {
+                string json = File.ReadAllText(playerSavePath + DefaultProperty.EXPERT_DATA);
+                string encryptedJson = DecryptBase64(json);
+                ExpertiseListWrapper wrapper = JsonUtility.FromJson<ExpertiseListWrapper>(encryptedJson);
+                Debug.Log("专长数据已加载：" + playerSavePath + DefaultProperty.EXPERT_DATA + "，共" + wrapper.expertiseEntities.Count + "个专长");
+                expertiseEntities = wrapper.expertiseEntities;
+            }
+            else
+            {
+                Debug.LogWarning("未找到存档，返回默认专长列表");
+            }
+            return expertiseEntities;
         }
 
         public PlayerEntity LoadPlayerData(string dataPath)
@@ -282,6 +305,13 @@ namespace Assets.Resources.Scripts.Utils
         {
             public int count = 0;
             public List<PlayerEntity> playerEntities;
+        }
+
+        [Serializable]
+        public class ExpertiseListWrapper
+        {
+            public int count = 0;
+            public List<ExpertiseEntity> expertiseEntities;
         }
     }
 }

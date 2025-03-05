@@ -1,20 +1,27 @@
 using UnityEngine;
-using System;
 using UnityEngine.UI;
+using TMPro;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Utils;
 using UnityEngine.SceneManagement;
+using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Test;
 
 namespace Assets.Resources.Scripts.Settings
 {
     public class SettingsManager : MonoBehaviour
     {
         public static SettingsManager Instance;
+        public Button generalButton;
+        public Button graphicButton;
+        public Button giftCodeButton;
+        public Button clearCardsButton;
         public Button loadButton;
         public Button saveButton;
-        public Button clearCardsButton;
+        public TMP_InputField inputField; // PY输入框
+        public List<GameObject> panels;
 
         void Awake()
         {
@@ -31,14 +38,19 @@ namespace Assets.Resources.Scripts.Settings
 
         public void Init()
         {
+            HideAllPanels();
+            generalButton.onClick.AddListener(() => ShowPanel(0));
+            graphicButton.onClick.AddListener(() => ShowPanel(1));
+            giftCodeButton.onClick.AddListener(ShowGiftCode);
+            clearCardsButton.onClick.AddListener(ClearCards);
             loadButton.onClick.AddListener(LoadGame);
             saveButton.onClick.AddListener(SaveGame);
-            clearCardsButton.onClick.AddListener(ClearCards);
         }
 
         public void LoadGame()
         {
             // Load settings from PlayerPrefs
+            ShowPanel(0); // 跳转到 SettingsPanel
         }
 
         public void SaveGame()
@@ -53,6 +65,42 @@ namespace Assets.Resources.Scripts.Settings
             CardListManager.Instance.ClearCardEntities();
             List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
             DataUtil.Instance.SaveCardData(cardEntities);
+        }
+
+        public void ShowGiftCode()
+        {
+            ShowPanel(2);
+            if (inputField != null)
+            {
+                inputField.onEndEdit.AddListener(OnEndEdit);
+            }
+        }
+
+        void HideAllPanels()
+        {
+            foreach (var panel in panels)
+            {
+                panel.SetActive(false);
+            }
+        }
+
+        void ShowPanel(int index)
+        {
+            Debug.Log("ShowPanel: " + index);
+            if (index == -1) return; // 避免重复执行
+            for (int i = 0; i < panels.Count; i++)
+            {
+                panels[i].SetActive(i == index); // 关闭所有面板
+            }
+        }
+
+        void OnEndEdit(string input)
+        {
+            Debug.Log("Input: " + input);
+            if (input.Equals(DefaultProperty.CODE_DEBUG_BOARD))
+            {
+                DebugPanelController.Instance.ShowDebugPanel();
+            }
         }
     }
 }

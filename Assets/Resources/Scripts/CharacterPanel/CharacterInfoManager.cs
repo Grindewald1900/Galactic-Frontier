@@ -5,6 +5,7 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Scripts.Utils;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Props;
+using UnityEngine.EventSystems;
 
 namespace Assets.Resources.Scripts.CharacterPanel
 {

@@ -27,25 +27,27 @@ namespace Assets.Resources.Scripts.Battle
         {
             // 检查是否已存在相同类型的 debuff
             Debug.Log("AddDebuff: " + newDebuff.name);
-            DebuffEntity existing = currentDebuffs.Find(d => d.name == newDebuff.name);
-            if (existing != null)
+            DebuffEntity debuffEntity = currentDebuffs.Find(d => d.name == newDebuff.name);
+            if (debuffEntity != null)
             {
-                existing.roundsRemaining += newDebuff.roundsRemaining;
+                debuffEntity.roundsRemaining += newDebuff.roundsRemaining;
             }
             else
             {
-                existing = newDebuff;
-                currentDebuffs.Add(existing);
+                debuffEntity = newDebuff;
+                currentDebuffs.Add(debuffEntity);
             }
 
-            if (existing.damageType != Status.DamageType.None)
+            // e.g. damageType = Bleeding, damage = 20 + 10 = 30, for each round, reduce card's health by 30
+            if (debuffEntity.damageType != Status.DamageType.None)
             {
-                existing.damage += newDebuff.damage;
+                debuffEntity.damage += newDebuff.damage;
             }
-            if (existing.attributeType != Status.AttributeType.None)
+            // e.g. attributeType = health, attribute = 0.1, change card's health by 10%
+            if (debuffEntity.attributeType != Status.AttributeType.None)
             {
-                existing.attribute += newDebuff.attribute;
-                card.cardBattleEntity.ChangeAttribute(existing.attributeType, existing.attribute);
+                debuffEntity.attribute += newDebuff.attribute;
+                card.cardEntity.ChangeBattleAttribute(debuffEntity.attributeType, debuffEntity.attribute);
             }
             UpdateDebuffUI();
         }
