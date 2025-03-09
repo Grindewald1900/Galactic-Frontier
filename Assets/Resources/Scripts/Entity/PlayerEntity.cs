@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using static Assets.Resources.Scripts.Cards.CardDataManager;
 
 namespace Assets.Resources.Scripts.Entity
 {

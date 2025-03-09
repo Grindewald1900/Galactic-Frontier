@@ -8,6 +8,7 @@ using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.CharacterPanel;
+using static Assets.Resources.Scripts.Cards.CardDataManager;
 
 namespace Assets.Resources.Scripts.Cards
 {

@@ -3,6 +3,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
+using Assets.Resources.Scripts.Cards;
+using TMPro;
+using Assets.Resources.Scripts.Entity;
 
 namespace Assets.Resources.Scripts.Test
 {
@@ -10,7 +13,14 @@ namespace Assets.Resources.Scripts.Test
     {
         public static DebugPanelController Instance;
         public GameObject debugPanel; // 调试面板
+        public TMP_InputField expInputField; // 经验输入框
         public Button closeButton; // 关闭按钮
+        public Button levelUp;
+        public Button levelDown;
+        public Button addExp;
+        public Button removeCard;
+        public Button upgradeCard;
+        public Button addExpertise;
         private RectTransform rectTransform;
         private Canvas canvas;
         private Vector2 originalPosition;
@@ -29,8 +39,13 @@ namespace Assets.Resources.Scripts.Test
             rectTransform = GetComponent<RectTransform>();
             originalScale = rectTransform.localScale;
             canvas = GetComponentInParent<Canvas>();
-            debugPanel?.SetActive(false);
+            // debugPanel?.SetActive(false);
             closeButton.onClick.AddListener(HideDebugPanel);
+            levelUp.onClick.AddListener(LevelUp);
+            addExp.onClick.AddListener(AddExp);
+            removeCard.onClick.AddListener(RemoveCard);
+            upgradeCard.onClick.AddListener(UpgradeCard);
+            addExpertise.onClick.AddListener(AddExpertise);
         }
 
         public void ShowDebugPanel()
@@ -43,6 +58,49 @@ namespace Assets.Resources.Scripts.Test
         {
             Debug.Log("Hide debug panel");
             debugPanel?.SetActive(false);
+        }
+
+        public void LevelUp()
+        {
+            Debug.Log("Level up");
+            float exp = GetCurrentSelectedCard().expToLevelUp;
+            GetCurrentSelectedCard().AddExperience(exp);
+        }
+
+        public void LevelDown()
+        {
+            Debug.Log("Level down");
+            // TODO: 等级降低代码
+        }
+
+        public void AddExp()
+        {
+            Debug.Log("Add exp");
+            float exp = float.Parse(expInputField.text);
+            GetCurrentSelectedCard().AddExperience(exp);
+        }
+
+        public void RemoveCard()
+        {
+            Debug.Log("Remove card");
+            // TODO: 移除卡牌代码
+        }
+
+        public void UpgradeCard()
+        {
+            Debug.Log("Upgrade card");
+            // TODO: 卡牌进阶代码
+        }
+
+        public void AddExpertise()
+        {
+            Debug.Log("Add expertise");
+            // TODO: 增加特长代码
+        }
+
+        private CardEntity GetCurrentSelectedCard()
+        {
+            return CardPreviewController.Instance.card.cardEntity;
         }
 
         public void OnPointerDown(PointerEventData eventData)

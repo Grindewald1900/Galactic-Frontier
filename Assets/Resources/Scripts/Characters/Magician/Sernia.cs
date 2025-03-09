@@ -7,6 +7,7 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.CharacterPanel;
+using static Assets.Resources.Scripts.Cards.CardDataManager;
 
 namespace Assets.Resources.Scripts.Characters.Magician
 {

@@ -59,16 +59,23 @@ namespace Assets.Resources.Scripts.Cards
 
         void Start()
         {
+            if (cardEntity == null) return;
             startPos = transform.localPosition;
             originalScale = transform.localScale;
             energyBar.fillAmount = 0f;
             currentEffect.SetActive(true);
+            cardEntity.OnDataChanged += RefreshUI;
         }
 
         void Update()
         {
             if (!IsBattleActive()) return;
             UpdateEnergyBar();
+        }
+
+        void OnDestroy()
+        {
+            cardEntity.OnDataChanged -= RefreshUI;
         }
 
         public void InitCard(CardEntity cardEntity)
@@ -110,7 +117,7 @@ namespace Assets.Resources.Scripts.Cards
         public void UpdateExpBar()
         {
             if (IsBattleActive()) return;
-            expBar.fillAmount = cardEntity.currentExp / cardEntity.expToLevelUp;
+            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.expToLevelUp;
         }
 
         public void TakeDamage(List<DamageEntity> damage)
@@ -262,6 +269,11 @@ namespace Assets.Resources.Scripts.Cards
         public bool IsBattleActive()
         {
             return SceneManager.GetActiveScene().name == "BattleScene";
+        }
+
+        public void RefreshUI()
+        {
+            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.expToLevelUp;
         }
 
         public void OnPointerClick(PointerEventData eventData)

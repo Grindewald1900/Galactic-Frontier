@@ -46,8 +46,8 @@ namespace Assets.Resources.Scripts.UI
         public void SetDetailPanel(CardEntity cardEntity)
         {
             cardType.text = "Type: " + cardEntity.cardType.ToString();
-            level.text = "Level: " + cardEntity.level.ToString();
-            exp.text = "Exp: " + cardEntity.currentExp.ToString() + "/" + cardEntity.expToLevelUp.ToString();
+            level.text = "Level: " + cardEntity.Level.ToString();
+            exp.text = "Exp: " + cardEntity.CurrentExp.ToString() + "/" + cardEntity.expToLevelUp.ToString();
             power.text = "Power: " + cardEntity.power.ToString();
             score.text = "Score: " + cardEntity.score.ToString();
             tier.text = "Tier: " + cardEntity.characterTier.ToString();

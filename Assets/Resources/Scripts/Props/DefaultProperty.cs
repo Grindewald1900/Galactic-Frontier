@@ -17,6 +17,9 @@ namespace Assets.Resources.Scripts.Props
         public const float defaultCardScale = 1.2f;
         public const float highlightCardScale = 1.4f;
 
+        // Characters
+        public const int MAX_LEVEL = 200; // Current max Level
+
         //Strings
         public const string AVATAR_PATH = "AvatarPath";
         public const string PLAYER_ID = "PlayerID";

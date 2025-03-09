@@ -7,6 +7,8 @@ using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Characters.Mechanician;
 using Assets.Resources.Scripts.Characters.Monster;
 using Assets.Resources.Scripts.Characters.Magician;
+using static Assets.Resources.Scripts.Props.Status;
+using Assets.Resources.Scripts.Props;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -16,6 +18,8 @@ namespace Assets.Resources.Scripts.Cards
         private string filePath;          // Where we store the JSON file
         private CardDataContainer dataContainer;   // Holds our list of cards
         private List<Character> characterList;    // A list that holds all the designed characters for the game
+        public static Dictionary<Archetype, Dictionary<AttributeType, float>> baseAttributeProbabilities;
+        public static Dictionary<CharacterTier, float> baseTierProbabilities;
 
         void Awake()
         {
@@ -27,6 +31,8 @@ namespace Assets.Resources.Scripts.Cards
             filePath = Path.Combine(Application.persistentDataPath, "Cards.json");
             dataContainer = new CardDataContainer();
             InitCharacterList();
+            InitBaseAttributeProbabilities();
+            InitExpertiseTierProbabilities();
         }
 
         public CardEntity GetCardEntity(Character character)
@@ -34,7 +40,7 @@ namespace Assets.Resources.Scripts.Cards
             CharacterTier tier = GetCardTier(character);
             CardEntity cardEntity = new CardEntity().SetCharacterName(character.characterName).SetCharacterTier(tier).SetArchetype(character.archetype)
             .SetSpeed(Random.Range(15, 25)).SetAttack(Random.Range(10, 20)).SetDefense(Random.Range(10, 20))
-            .SetLevel(Random.Range(1, 10)).SetExp(Random.Range(0, 10000));
+            .SetLevel(Random.Range(1, 10)).SetExp(0f);
             return cardEntity;
         }
 
@@ -67,6 +73,61 @@ namespace Assets.Resources.Scripts.Cards
             return characterList[0]; // 兜底返回（理论上不会执行）
         }
 
+        public ExpertiseEntity GetExpertise(CardEntity cardEntity)
+        {
+            ExpertiseEntity entity = new();
+            // Get expertise according to the character's archetype and level
+            var attributeProbabilities = baseAttributeProbabilities[cardEntity.archetype];
+            AttributeType selectedAttribute = WeightedRandom(attributeProbabilities);
+            var adjustedTierProbabilities = GetAdjustedTierProbabilities(cardEntity.Level);
+            CharacterTier selectedTier = WeightedRandom(adjustedTierProbabilities);
+            entity.attributeType = selectedAttribute;
+            entity.expertiseTier = selectedTier;
+            entity.value = GetExpertiseValue(selectedTier);
+            return entity;
+        }
+
+        public Dictionary<CharacterTier, float> GetAdjustedTierProbabilities(int characterLevel)
+        {
+            float levelFactor = characterLevel / DefaultProperty.MAX_LEVEL;
+            return new Dictionary<CharacterTier, float>
+            {
+                { CharacterTier.TierSS, baseTierProbabilities[CharacterTier.TierSS] + (levelFactor * 0.01f) },
+                { CharacterTier.TierS, baseTierProbabilities[CharacterTier.TierS] + (levelFactor * 0.04f) },
+                { CharacterTier.TierA, baseTierProbabilities[CharacterTier.TierA] + levelFactor * 0.15f },
+                { CharacterTier.TierB, baseTierProbabilities[CharacterTier.TierB]},
+                { CharacterTier.TierC, baseTierProbabilities[CharacterTier.TierC] - levelFactor * 0.01f },
+                { CharacterTier.TierD, baseTierProbabilities[CharacterTier.TierD] - levelFactor * 0.04f },
+                { CharacterTier.TierE, baseTierProbabilities[CharacterTier.TierE] - levelFactor * 0.15f }
+            };
+        }
+
+        public float GetExpertiseValue(CharacterTier tier)
+        {
+            switch (tier)
+            {
+                case CharacterTier.TierSS:
+                    return 1f;
+                case CharacterTier.TierS:
+                    return 0.5f;
+                case CharacterTier.TierA:
+                    return 0.3f;
+                case CharacterTier.TierB:
+                    return 0.2f;
+                case CharacterTier.TierC:
+                    return 0.12f;
+                case CharacterTier.TierD:
+                    return 0.08f;
+                case CharacterTier.TierE:
+                    return 0.05f;
+                case CharacterTier.None:
+                    break;
+                default:
+                    return 1f;
+            }
+            return 0;
+        }
+
         // Accessor method to get card list
         public List<CardEntity> GetAllCards()
         {
@@ -87,27 +148,153 @@ namespace Assets.Resources.Scripts.Cards
                 new Sernia()
             };
         }
-    }
 
-    public enum CharacterTier
-    {
-        None,
-        TierE, // Grey
-        TierD, // Green
-        TierC, // Blue
-        TierB, // Purple
-        TierA, // Yellow
-        TierS, // Rainbow
-        TierSS, // Rainbow
-    }
+        private void InitBaseAttributeProbabilities()
+        {
+            baseAttributeProbabilities = new Dictionary<Archetype, Dictionary<AttributeType, float>>
+            {
+                {
+                    Archetype.Assassin, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.Speed, 0.25f },
+                            { AttributeType.Critical, 0.15f },
+                            { AttributeType.CriticalDamage, 0.1f },
+                            { AttributeType.Attack, 0.1f },
+                            { AttributeType.Accuracy, 0.1f },
+                            { AttributeType.Dodge, 0.1f },
+                            { AttributeType.EnergyGenerateRate, 0.05f },
+                            { AttributeType.Health, 0.05f },
+                            { AttributeType.Defense, 0.05f },
+                            { AttributeType.DamageReduction, 0.05f },
+                    }
+                },
+                {
+                    Archetype.Magician, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.Attack, 0.3f },
+                            { AttributeType.Critical, 0.15f },
+                            { AttributeType.CriticalDamage, 0.15f },
+                            { AttributeType.Health, 0.1f },
+                            { AttributeType.Accuracy, 0.05f },
+                            { AttributeType.Dodge, 0.05f },
+                            { AttributeType.Speed, 0.05f },
+                            { AttributeType.EnergyGenerateRate, 0.05f },
+                            { AttributeType.Defense, 0.05f },
+                            { AttributeType.DamageReduction, 0.05f },
+                    }
+                },
+                {
+                    Archetype.Mechanician, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.EnergyGenerateRate, 0.25f },
+                            { AttributeType.Accuracy, 0.15f },
+                            { AttributeType.Health, 0.1f },
+                            { AttributeType.Defense, 0.1f },
+                            { AttributeType.DamageReduction, 0.1f },
+                            { AttributeType.Attack, 0.1f },
+                            { AttributeType.Critical, 0.05f },
+                            { AttributeType.CriticalDamage, 0.05f},
+                            { AttributeType.Dodge, 0.05f },
+                            { AttributeType.Speed, 0.05f },
+                    }
+                },
+                {
+                    Archetype.Monster, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.Health, 0.35f },
+                            { AttributeType.Defense, 0.15f },
+                            { AttributeType.DamageReduction, 0.1f },
+                            { AttributeType.Attack, 0.1f },
+                            { AttributeType.Critical, 0.05f },
+                            { AttributeType.CriticalDamage, 0.05f },
+                            { AttributeType.Accuracy, 0.05f },
+                            { AttributeType.Dodge, 0.05f },
+                            { AttributeType.Speed, 0.05f },
+                            { AttributeType.EnergyGenerateRate, 0.05f },
+                    }
+                },
+                {
+                    Archetype.Potioneer, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.EnergyGenerateRate, 0.25f },
+                            { AttributeType.Dodge, 0.15f },
+                            { AttributeType.Health, 0.1f },
+                            { AttributeType.Accuracy, 0.1f },
+                            { AttributeType.Speed, 0.1f },
+                            { AttributeType.DamageReduction, 0.1f },
+                            { AttributeType.Critical, 0.05f },
+                            { AttributeType.CriticalDamage, 0.05f },
+                            { AttributeType.Attack, 0.05f },
+                            { AttributeType.Defense, 0.05f },
+                    }
+                },
+                {
+                    Archetype.Warrior, new Dictionary<AttributeType, float>
+                    {
+                            { AttributeType.DamageReduction, 0.3f },
+                            { AttributeType.Defense, 0.2f },
+                            { AttributeType.Health, 0.2f },
+                            { AttributeType.Dodge, 0.1f },
+                            { AttributeType.Attack, 0.04f },
+                            { AttributeType.EnergyGenerateRate, 0.04f },
+                            { AttributeType.Critical, 0.03f },
+                            { AttributeType.CriticalDamage, 0.03f },
+                            { AttributeType.Accuracy, 0.03f },
+                            { AttributeType.Speed, 0.03f },
+                    }
+                }
+            };
+        }
 
-    public enum Archetype
-    {
-        Assassin,
-        Magician,
-        Mechanician,
-        Monster,
-        Potioneer,
-        Warrior,
+        private void InitExpertiseTierProbabilities()
+        {
+            baseTierProbabilities = new Dictionary<CharacterTier, float>
+            {
+                { CharacterTier.TierE, 0.5f },
+                { CharacterTier.TierD, 0.2f },
+                { CharacterTier.TierC, 0.14f },
+                { CharacterTier.TierB, 0.1f },
+                { CharacterTier.TierA, 0.05f },
+                { CharacterTier.TierS, 0.008f },
+                { CharacterTier.TierSS, 0.002f },
+            };
+        }
+
+        private T WeightedRandom<T>(Dictionary<T, float> probabilities)
+        {
+            float total = probabilities.Values.Sum();
+            float randomPoint = Random.value * total;
+
+            foreach (var kvp in probabilities)
+            {
+                if (randomPoint < kvp.Value)
+                    return kvp.Key;
+                else
+                    randomPoint -= kvp.Value;
+            }
+            return default;
+        }
+
+        public enum CharacterTier
+        {
+            None,
+            TierE, // Grey
+            TierD, // Green
+            TierC, // Blue
+            TierB, // Purple
+            TierA, // Yellow
+            TierS, // Rainbow
+            TierSS, // Rainbow
+        }
+
+        public enum Archetype
+        {
+            Assassin,
+            Magician,
+            Mechanician,
+            Monster,
+            Potioneer,
+            Warrior,
+        }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
+using static Assets.Resources.Scripts.Cards.CardDataManager;
 
 namespace Assets.Resources.Scripts.Characters
 {

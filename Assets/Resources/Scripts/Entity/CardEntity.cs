@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Props;
 using Assets.Scripts.Utils;
+using static Assets.Resources.Scripts.Cards.CardDataManager;
 
 namespace Assets.Resources.Scripts.Entity
 {
@@ -17,10 +18,34 @@ namespace Assets.Resources.Scripts.Entity
         public LineupPosition position = LineupPosition.None;
         public Archetype archetype;
         public string id = "";
-        public int level = 1; // shown on main panel
+        public int Level
+        {
+            get => level;
+            set
+            {
+                level = value;
+                OnDataChanged?.Invoke();
+            }
+        } // shown on main panel
         public int levelStepForEvolution = 20;
-        public bool evolutionPending = false;
-        public float currentExp = 0f; // shown on main panel
+        public bool EvolutionPending
+        {
+            get => evolutionPending;
+            set
+            {
+                evolutionPending = value;
+                OnDataChanged?.Invoke();
+            }
+        }
+        public float CurrentExp
+        {
+            get => currentExp;
+            set
+            {
+                currentExp = value;
+                OnDataChanged?.Invoke();
+            }
+        } // shown on main panel
         public float expToLevelUp = 0f;
         public float power = 0f; // shown on main panel
         public CharacterTier characterTier = CharacterTier.None; // shown on main panel
@@ -48,6 +73,9 @@ namespace Assets.Resources.Scripts.Entity
         public float speedCoefficient = 1f;
         public float maxEnergy = 100f;
         public float maxAttack = 100f;
+        private float currentExp; // Backing field
+        private int level; // Backing field
+        private bool evolutionPending; // Backing field
         /// <summary>
         /// All the card attributes and expertises are stored here.
         /// </summary>
@@ -59,6 +87,8 @@ namespace Assets.Resources.Scripts.Entity
         // Attributes for the card panel e.g. <Attack, 1.5f>
         Dictionary<Status.AttributeType, float> panelAttributes = new();
         Dictionary<Status.AttributeType, float> battleAttributes = new();
+
+        public event Action OnDataChanged;
 
         public CardEntity()
         {
@@ -112,35 +142,43 @@ namespace Assets.Resources.Scripts.Entity
         // 模拟每场战斗后获得经验（在 BattleController 中调用）
         public void AddExperience(float exp)
         {
-            if (evolutionPending)
+            if (EvolutionPending)
             {
                 UnityEngine.Debug.Log($"{cardName} 已达到进阶等级，进阶前无法获得经验。");
                 return;
             }
 
-            currentExp += exp;
-            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {currentExp}/{expToLevelUp}");
+            CurrentExp += exp;
+            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {CurrentExp}/{expToLevelUp}");
             // 多段升级判断：当经验超过升级需求时，进行多次升级处理
-            while (currentExp >= expToLevelUp)
+            while (CurrentExp >= expToLevelUp)
             {
-                currentExp -= expToLevelUp;
+                CurrentExp -= expToLevelUp;
                 LevelUp();
             }
         }
 
         private void LevelUp()
         {
-            level++;
-            UnityEngine.Debug.Log($"{cardName} 升级到 {level} 级！");
+            Level++;
+            UnityEngine.Debug.Log($"{cardName} 升级到 {Level} 级！");
             // 升级后重置经验和升级需求
-            expToLevelUp = LevelUtil.GetNextLevelExp(level);
+            expToLevelUp = LevelUtil.GetNextLevelExp(Level);
 
             // 每达到levelStepForEvolution的倍数，要求进阶（例如20级、40级……）
-            if (level % levelStepForEvolution == 0)
+            if (Level % levelStepForEvolution == 0)
             {
-                evolutionPending = true;
-                UnityEngine.Debug.Log($"{cardName} 达到 {level} 级，需要进阶才能继续获得经验！");
+                EvolutionPending = true;
+                UnityEngine.Debug.Log($"{cardName} 达到 {Level} 级，需要进阶才能继续获得经验！");
             }
+        }
+
+        public void UpgradeCard()
+        {
+            ExpertiseEntity expertise = CardDataManager.Instance.GetExpertise(this);
+            AddExpertise(expertise);
+            EvolutionPending = false;
+            UnityEngine.Debug.Log($"{cardName} 已进阶！expertise：{expertise.attributeType} {expertise.expertiseTier} {expertise.value}");
         }
 
         // Other Setters and Getters
@@ -170,13 +208,13 @@ namespace Assets.Resources.Scripts.Entity
 
         public CardEntity SetLevel(int level)
         {
-            this.level = level;
+            this.Level = level;
             return this;
         }
 
         public CardEntity SetExp(float exp)
         {
-            this.currentExp = exp;
+            this.CurrentExp = exp;
             return this;
         }
 
