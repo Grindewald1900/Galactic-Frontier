@@ -28,10 +28,10 @@ namespace Assets.Resources.Scripts.CharacterPanel
     }
     public enum CharacterName
     {
+        Default,
         Asra,
         Magki,
         Sernia,
         Ibalon,
-        Default
     }
 }

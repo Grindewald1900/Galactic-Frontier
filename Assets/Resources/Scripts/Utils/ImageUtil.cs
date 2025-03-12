@@ -13,6 +13,7 @@ namespace Assets.Resources.Scripts.Utils
         public static string badgeImagePath = "Images/Badges/";
         public static string planetImagePath = "Images/Planets/";
         public static string spellImagePath = "Images/Spells/";
+        public static string skillImagePath = "Images/Skills/";
         public static string itemImagePath = "Images/Items/";
         public static string eventImagePath = "Images/Events/";
         public static string characterImagePath = "Images/Cards/Characters/";

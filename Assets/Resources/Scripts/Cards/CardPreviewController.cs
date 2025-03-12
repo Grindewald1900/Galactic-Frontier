@@ -14,6 +14,9 @@ namespace Assets.Resources.Scripts.Cards
         public Button removeButton;
         public Button upgradeButton;
         public Button dismissButton;
+        public GameObject expertiseItem;
+        public SkillItemSlot[] skillItemSlots;
+        public Transform expertiseContent;
         public TextMeshProUGUI cardLevelText;
         public TextMeshProUGUI cardExpText;
         public TextMeshProUGUI cardPowerText;
@@ -41,6 +44,7 @@ namespace Assets.Resources.Scripts.Cards
             upgradeButton.onClick.AddListener(() => UpgradeCard());
             SetUpgradeButtonInteractable(false);
             card.cardEntity.OnDataChanged += RefreshUI;
+            card.cardEntity.OnCardUpgraded += UpdateExpertise;
         }
 
         private void AddToLineup()
@@ -51,7 +55,6 @@ namespace Assets.Resources.Scripts.Cards
         private void UpgradeCard()
         {
             card.cardEntity.UpgradeCard();
-            RefreshUI();
         }
 
         private void RefreshUI()
@@ -86,6 +89,7 @@ namespace Assets.Resources.Scripts.Cards
             SetUpgradeButtonInteractable(cardEntity.EvolutionPending);
             HoverShowDetailPanel.Instance.SetDetailPanel(cardEntity);
             UpdateCardInfo();
+            UpdateSkills();
         }
 
         private void UpdateCardInfo()
@@ -96,6 +100,40 @@ namespace Assets.Resources.Scripts.Cards
             cardTierText.text = "Tier: " + card.cardEntity.characterTier.ToString();
             cardTypeText.text = "Type: " + card.cardEntity.cardType.ToString();
             SetUpgradeButtonInteractable(card.cardEntity.EvolutionPending);
+        }
+
+        private void UpdateSkills()
+        {
+            var skillEntities = CardDataManager.Instance.GetSkillsByCharacter(card.cardEntity.characterName);
+            Debug.Log("UpdateSkills " + card.cardEntity.characterName + "Count: " + skillEntities.Count + " skills");
+            if (skillEntities.Count == 3)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Debug.Log("UpdateSkills " + skillEntities[i].skillName.en);
+                    skillItemSlots[i].SetSkillItem(skillEntities[i]);
+                }
+            }
+        }
+
+        private void UpdateExpertise()
+        {
+            int expertiseCount = card.cardEntity.expertises.Count;
+            int childCount = expertiseContent.childCount;
+            if (childCount > 0)
+            {
+                for (int i = 0; i < childCount; i++)
+                {
+                    Destroy(expertiseContent.GetChild(i).gameObject);
+                }
+            }
+            for (int i = 0; i < expertiseCount; i++)
+            {
+                GameObject expertiseGO = Instantiate(expertiseItem, expertiseContent);
+                SkillItemSlot expertiseSlot = expertiseGO.GetComponent<SkillItemSlot>();
+                expertiseSlot.SetExpertiseItem(card.cardEntity.expertises[i]);
+                Debug.Log("Update Expertise " + card.cardEntity.expertises[i].attributeType);
+            }
         }
     }
 }

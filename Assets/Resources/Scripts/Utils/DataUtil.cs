@@ -292,26 +292,5 @@ namespace Assets.Resources.Scripts.Utils
             public int count = 0;
             public List<ItemEntity> items;
         }
-
-        [Serializable]
-        public class CardListWrapper
-        {
-            public int count = 0;
-            public List<CardEntity> cardEntities;
-        }
-
-        [Serializable]
-        public class PlayerListWrapper
-        {
-            public int count = 0;
-            public List<PlayerEntity> playerEntities;
-        }
-
-        [Serializable]
-        public class ExpertiseListWrapper
-        {
-            public int count = 0;
-            public List<ExpertiseEntity> expertiseEntities;
-        }
     }
 }

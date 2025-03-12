@@ -1,44 +1,53 @@
+using System;
 using System.Collections.Generic;
+using System.Text;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Planet;
 using Assets.Resources.Scripts.Utils;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Test
 {
     public class TestScript : MonoBehaviour
     {
-        public GameObject cloudPrefab;
-        public float spawnInterval = 2f;
-        public Vector2 spawnAreaMin;
-        public Vector2 spawnAreaMax;
-
+        private const string dataPath = "J:/Unity3d/Projects/Galactic Frontier/Assets/Resources/Data";
+        private readonly string skillDataJsonPath = dataPath + "/SkillData.json";
+        private readonly string skillDataOutputPath = dataPath + "/SkillData_encrypted.bytes";
+        private readonly string skillDataDecryptPath = "data/SkillData_encrypted";
+        public List<SkillEntity> skillEntities = new();
+        public SkillEntity firstSkillEntity;
         void Start()
         {
-            // spawnAreaMin = new Vector2(-15f, -2.5f);
-            // spawnAreaMax = new Vector2(0f, -1f);
-            // InvokeRepeating("SpawnObject", 0f, spawnInterval);
-            // LoadMap(); 
+            // EncryptSkillData();
+            // DecryptSkillData();
         }
 
-        private void LoadMap()
+        private void EncryptSkillData()
         {
-            List<string> planetNames = new List<string>() { "Planet_A_1", "Planet_A_2", "Planet_A_3", "Planet_A_4", "Planet_A_5", "Planet_A_6" };
-            for (int i = 0; i < planetNames.Count; i++)
+            Debug.Log("Encrypting skill data...");
+            EncryptionUtil.EncryptAndSaveFile(skillDataJsonPath, skillDataOutputPath);
+        }
+
+        private void DecryptSkillData()
+        {
+            Debug.Log("Decrypting skill data...");
+            byte[] decryptedData = EncryptionUtil.LoadAndDecryptFile(skillDataDecryptPath);
+            if (decryptedData != null)
             {
-                _ = ImageUtil.GetSpriteByName("Planets/", planetNames[i]);
-                PlanetListManager.Instance.AddItem(new PlanetEntity(planetNames[Random.Range(0, planetNames.Count)], "Lvl 5", planetNames[i], "This is a basic planet"));
+                string jsonContent = Encoding.UTF8.GetString(decryptedData);
+                Debug.Log("Decrypted skill data: " + jsonContent);
+                // 处理解密后的JSON内容，例如反序列化为对象
+                SkillListWrapper wrapper = JsonUtility.FromJson<SkillListWrapper>(jsonContent);
+                Debug.Log("Skill count: " + wrapper.skillEntities.Count + "个技能");
+                firstSkillEntity = wrapper.skillEntities[0];
+                Debug.Log("First skill: " + firstSkillEntity.characterName + ", name: " + firstSkillEntity.skillName.en);
+                skillEntities = wrapper.skillEntities;
+                foreach (var skillEntity in wrapper.skillEntities)
+                {
+                    Debug.Log("Skill: " + skillEntity.GetCharacterName() + ", name: " + skillEntity.GetSkillName());
+                }
             }
-        }
-
-        private void SpawnObject()
-        {
-            Vector2 spawnPosition = new(
-                Random.Range(spawnAreaMin.x, spawnAreaMax.x),
-                Random.Range(spawnAreaMin.y, spawnAreaMax.y)
-            );
-
-            Instantiate(cloudPrefab, spawnPosition, Quaternion.identity);
         }
     }
 }

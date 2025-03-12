@@ -84,11 +84,13 @@ namespace Assets.Resources.Scripts.Entity
         /// battleAttributes should be applied to <see cref="BattleController"/>
         /// </remarks>
         public List<ExpertiseEntity> expertises = new();
+        public List<SkillEntity> skills = new();
         // Attributes for the card panel e.g. <Attack, 1.5f>
         Dictionary<Status.AttributeType, float> panelAttributes = new();
         Dictionary<Status.AttributeType, float> battleAttributes = new();
 
         public event Action OnDataChanged;
+        public event Action OnCardUpgraded;
 
         public CardEntity()
         {
@@ -126,6 +128,8 @@ namespace Assets.Resources.Scripts.Entity
                 return;
             }
             expertises.Add(expertise);
+            // Sort the expertises by tier
+            expertises.Sort((a, b) => b.expertiseTier.CompareTo(a.expertiseTier));
             UpdateExpertises();
         }
 
@@ -178,6 +182,7 @@ namespace Assets.Resources.Scripts.Entity
             ExpertiseEntity expertise = CardDataManager.Instance.GetExpertise(this);
             AddExpertise(expertise);
             EvolutionPending = false;
+            OnCardUpgraded?.Invoke();
             UnityEngine.Debug.Log($"{cardName} 已进阶！expertise：{expertise.attributeType} {expertise.expertiseTier} {expertise.value}");
         }
 

@@ -89,7 +89,7 @@ namespace Assets.Resources.Scripts.Test
         public void UpgradeCard()
         {
             Debug.Log("Upgrade card");
-            // TODO: 卡牌进阶代码
+            GetCurrentSelectedCard().UpgradeCard();
         }
 
         public void AddExpertise()

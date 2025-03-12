@@ -31,6 +31,9 @@ namespace Assets.Resources.Scripts.Props
         public const string ITEM_DATA = "/itemData.json";
         public const string EXPERT_DATA = "/expertData.json";
 
+        // Paths
+        public static readonly string SKILL_DATA_PATH = "data/SkillData_encrypted";
+
         // Configs
         public static bool isDebug = true;
 

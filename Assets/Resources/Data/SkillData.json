@@ -1,0 +1,121 @@
+{
+    "skillEntities": [
+        {
+            "characterName": 1,
+            "skillImage": "Asra_1",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 1,
+            "skillImage": "Asra_2",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 1,
+            "skillImage": "Asra_3",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 2,
+            "skillImage": "Magki_1",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 2,
+            "skillImage": "Magki_2",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 2,
+            "skillImage": "Magki_3",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 3,
+            "skillImage": "Sernia_1",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 3,
+            "skillImage": "Sernia_2",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        },
+        {
+            "characterName": 3,
+            "skillImage": "Sernia_3",
+            "skillName": {
+                "en": "Fire ball",
+                "zh": "火球"
+            },
+            "skillDescription": {
+                "en": "Casts a fiery ball that deals damage.",
+                "zh": "施放一个火球，造成伤害。"
+            },
+            "skillTier": 0
+        }
+    ]
+}

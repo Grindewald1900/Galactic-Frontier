@@ -9,6 +9,8 @@ using Assets.Resources.Scripts.Characters.Monster;
 using Assets.Resources.Scripts.Characters.Magician;
 using static Assets.Resources.Scripts.Props.Status;
 using Assets.Resources.Scripts.Props;
+using System.Text;
+using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -18,6 +20,7 @@ namespace Assets.Resources.Scripts.Cards
         private string filePath;          // Where we store the JSON file
         private CardDataContainer dataContainer;   // Holds our list of cards
         private List<Character> characterList;    // A list that holds all the designed characters for the game
+        public List<SkillEntity> skillEntities; // A list that holds all the skills for the game
         public static Dictionary<Archetype, Dictionary<AttributeType, float>> baseAttributeProbabilities;
         public static Dictionary<CharacterTier, float> baseTierProbabilities;
 
@@ -31,6 +34,7 @@ namespace Assets.Resources.Scripts.Cards
             filePath = Path.Combine(Application.persistentDataPath, "Cards.json");
             dataContainer = new CardDataContainer();
             InitCharacterList();
+            InitSkillList();
             InitBaseAttributeProbabilities();
             InitExpertiseTierProbabilities();
         }
@@ -128,6 +132,11 @@ namespace Assets.Resources.Scripts.Cards
             return 0;
         }
 
+        public List<SkillEntity> GetSkillsByCharacter(CharacterName name)
+        {
+            return skillEntities.Where(skill => skill.characterName == name).ToList();
+        }
+
         // Accessor method to get card list
         public List<CardEntity> GetAllCards()
         {
@@ -147,6 +156,21 @@ namespace Assets.Resources.Scripts.Cards
                 new Magki(),
                 new Sernia()
             };
+        }
+
+        private void InitSkillList()
+        {
+            Debug.Log("Decrypting skill data...");
+            byte[] decryptedData = EncryptionUtil.LoadAndDecryptFile(DefaultProperty.SKILL_DATA_PATH);
+            if (decryptedData != null)
+            {
+                string jsonContent = Encoding.UTF8.GetString(decryptedData);
+                Debug.Log("Decrypted skill data: " + jsonContent);
+                // 处理解密后的JSON内容，例如反序列化为对象
+                SkillListWrapper wrapper = JsonUtility.FromJson<SkillListWrapper>(jsonContent);
+                Debug.Log("Skill count: " + wrapper.skillEntities.Count + "个技能");
+                skillEntities = wrapper.skillEntities;
+            }
         }
 
         private void InitBaseAttributeProbabilities()
@@ -274,27 +298,27 @@ namespace Assets.Resources.Scripts.Cards
             }
             return default;
         }
+    }
 
-        public enum CharacterTier
-        {
-            None,
-            TierE, // Grey
-            TierD, // Green
-            TierC, // Blue
-            TierB, // Purple
-            TierA, // Yellow
-            TierS, // Rainbow
-            TierSS, // Rainbow
-        }
+    public enum CharacterTier
+    {
+        None,
+        TierE, // Grey
+        TierD, // Green
+        TierC, // Blue
+        TierB, // Purple
+        TierA, // Yellow
+        TierS, // Rainbow
+        TierSS, // Rainbow
+    }
 
-        public enum Archetype
-        {
-            Assassin,
-            Magician,
-            Mechanician,
-            Monster,
-            Potioneer,
-            Warrior,
-        }
+    public enum Archetype
+    {
+        Assassin,
+        Magician,
+        Mechanician,
+        Monster,
+        Potioneer,
+        Warrior,
     }
 }
