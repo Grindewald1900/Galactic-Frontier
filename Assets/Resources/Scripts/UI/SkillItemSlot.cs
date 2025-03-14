@@ -13,6 +13,7 @@ namespace Assets.Resources.Scripts.UI
     {
         public Image itemImage;
         public Image backgroundImage;
+        public Image descriptionImage;
         public TextMeshProUGUI descriptionText;
         public SkillItemType itemType;
         public int slotIndex;
@@ -20,7 +21,6 @@ namespace Assets.Resources.Scripts.UI
         void Awake()
         {
             SetSelected(false); // Set the selected icon to false by default
-            descriptionText.gameObject.SetActive(false); // Hide the description text by default
         }
 
         public void SetExpertiseItem(ExpertiseEntity expertise)

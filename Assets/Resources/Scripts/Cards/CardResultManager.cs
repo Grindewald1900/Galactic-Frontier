@@ -130,7 +130,7 @@ namespace Assets.Resources.Scripts.Cards
 
         private Dictionary<CharacterTier, int> GetTierDrawCount(List<CardEntity> drawResults)
         {
-            return drawResults.GroupBy(card => card.characterTier)  // 按 `Tier` 分组
+            return drawResults.GroupBy(card => card.CharacterTier)  // 按 `Tier` 分组
                               .ToDictionary(group => group.Key, group => group.Count());
         }
 

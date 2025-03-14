@@ -12,8 +12,9 @@ namespace Assets.Resources.Scripts.Entity
     [Serializable]
     public class CardDataContainer
     {
-        public List<CardEntity> cards = new List<CardEntity>();
+        public List<CardEntity> cards;
     }
+
     [Serializable]
     public class CardListWrapper
     {
@@ -33,5 +34,11 @@ namespace Assets.Resources.Scripts.Entity
     {
         public int count = 0;
         public List<ExpertiseEntity> expertiseEntities;
+    }
+
+    [Serializable]
+    public class BaseAttrEntityWrapper
+    {
+        public List<BaseAttrEntity> baseAttrEntities;
     }
 }

@@ -63,7 +63,7 @@ namespace Assets.Resources.Scripts.Test
         public void LevelUp()
         {
             Debug.Log("Level up");
-            float exp = GetCurrentSelectedCard().expToLevelUp;
+            float exp = GetCurrentSelectedCard().ExpToNextLevel;
             GetCurrentSelectedCard().AddExperience(exp);
         }
 

@@ -45,22 +45,22 @@ namespace Assets.Resources.Scripts.UI
 
         public void SetDetailPanel(CardEntity cardEntity)
         {
-            cardType.text = "Type: " + cardEntity.cardType.ToString();
+            cardType.text = "Type: " + cardEntity.archetype.ToString();
             level.text = "Level: " + cardEntity.Level.ToString();
-            exp.text = "Exp: " + cardEntity.CurrentExp.ToString() + "/" + cardEntity.expToLevelUp.ToString();
+            exp.text = "Exp: " + cardEntity.CurrentExp.ToString() + "/" + cardEntity.ExpToNextLevel.ToString();
             power.text = "Power: " + cardEntity.power.ToString();
             score.text = "Score: " + cardEntity.score.ToString();
-            tier.text = "Tier: " + cardEntity.characterTier.ToString();
-            health.text = "Health: " + cardEntity.health.ToString();
-            attack.text = "Attack: " + cardEntity.attack.ToString();
-            defense.text = "Defense: " + cardEntity.defense.ToString();
-            accuracy.text = "Accuracy: " + cardEntity.accuracy.ToString();
-            dodge.text = "Dodge: " + cardEntity.dodge.ToString();
-            critical.text = "Crit Rate: " + cardEntity.critical.ToString();
-            criticalDamage.text = "Crit Damage: " + cardEntity.criticalDamage.ToString();
-            damageReduction.text = "Damage reduction: " + cardEntity.dagameReduction.ToString();
-            energyGenerate.text = "Energy Generate: " + cardEntity.energyGenerateRate.ToString();
-            speed.text = "Speed: " + cardEntity.speed.ToString();
+            tier.text = "Tier: " + cardEntity.CharacterTier.ToString();
+            health.text = "Health: " + cardEntity.Health.ToString();
+            attack.text = "Attack: " + cardEntity.Attack.ToString();
+            defense.text = "Defense: " + cardEntity.Defense.ToString();
+            accuracy.text = "Accuracy: " + cardEntity.Accuracy.ToString();
+            dodge.text = "Dodge: " + cardEntity.Dodge.ToString();
+            critical.text = "Crit Rate: " + cardEntity.Critical.ToString();
+            criticalDamage.text = "Crit Damage: " + cardEntity.CriticalDamage.ToString();
+            damageReduction.text = "Damage reduction: " + cardEntity.DamageReduction.ToString();
+            energyGenerate.text = "Energy Generate: " + cardEntity.EnergyGenerateRate.ToString();
+            speed.text = "Speed: " + cardEntity.Speed.ToString();
         }
 
         public void ShowCardDetailPanel()

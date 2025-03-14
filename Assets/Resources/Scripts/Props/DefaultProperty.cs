@@ -33,6 +33,7 @@ namespace Assets.Resources.Scripts.Props
 
         // Paths
         public static readonly string SKILL_DATA_PATH = "data/SkillData_encrypted";
+        public static readonly string BASE_ATTR_PATH = "data/BaseAttributes";
 
         // Configs
         public static bool isDebug = true;

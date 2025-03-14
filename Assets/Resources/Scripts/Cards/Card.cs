@@ -94,7 +94,7 @@ namespace Assets.Resources.Scripts.Cards
         private void UpdateEnergyBar()
         {
             if (BattleController.Instance.isSpecialAttackInProgress) return;
-            progress = CalculateProgress(cardEntity.energyGenerateRate, cardEntity.maxEnergy);
+            progress = CalculateProgress(cardEntity.EnergyGenerateRate, cardEntity.maxEnergy);
             if (energyBar != null)
             {
                 energyBar.fillAmount = progress;
@@ -117,7 +117,7 @@ namespace Assets.Resources.Scripts.Cards
         public void UpdateExpBar()
         {
             if (IsBattleActive()) return;
-            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.expToLevelUp;
+            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.ExpToNextLevel;
         }
 
         public void TakeDamage(List<DamageEntity> damage)
@@ -161,7 +161,7 @@ namespace Assets.Resources.Scripts.Cards
                 yield return new WaitForSeconds(attackTime);
             }
             nextIndex = 0;
-            healthBar.fillAmount = currentHealth / cardEntity.health;
+            healthBar.fillAmount = currentHealth / cardEntity.Health;
             if (currentHealth <= 0)
             {
                 Die();
@@ -209,7 +209,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void Highlight(float cardScale)
         {
-            Debug.Log(isHighlighted + " Highlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.characterTier);
+            Debug.Log(isHighlighted + " Highlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.CharacterTier);
             if (isHighlighted)
             {
                 return;
@@ -226,7 +226,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void Unhighlight(float cardScale)
         {
-            Debug.Log(isHighlighted + " Unhighlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.characterTier);
+            Debug.Log(isHighlighted + " Unhighlight Card: " + cardEntity.characterName + " Tier: " + cardEntity.CharacterTier);
             if (!isHighlighted)
                 return;
 
@@ -247,9 +247,10 @@ namespace Assets.Resources.Scripts.Cards
 
         public void SetImage(CardEntity cardEntity)
         {
+            Debug.Log("Tier Image: " + cardEntity.CharacterTier.ToString());
             Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.characterName.ToString() + "_01");
-            Sprite baseColorSprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, cardEntity.characterTier.ToString() + "_Default");
-            Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, cardEntity.characterTier.ToString());
+            Sprite baseColorSprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, cardEntity.CharacterTier.ToString() + "_Default");
+            Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, cardEntity.CharacterTier.ToString());
 
             characterImage.sprite = characterSprite;
             baseColorImage.sprite = baseColorSprite;
@@ -273,7 +274,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void RefreshUI()
         {
-            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.expToLevelUp;
+            expBar.fillAmount = cardEntity.CurrentExp / cardEntity.ExpToNextLevel;
         }
 
         public void OnPointerClick(PointerEventData eventData)

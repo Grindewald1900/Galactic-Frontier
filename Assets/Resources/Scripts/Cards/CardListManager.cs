@@ -117,11 +117,11 @@ namespace Assets.Resources.Scripts.Cards
             Debug.Log("Sort cards by name isAscending: " + isNameAscending);
             if (isNameAscending)
             {
-                sortedEntities = cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.characterTier).ToList();
+                sortedEntities = cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
             }
             else
             {
-                sortedEntities = cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.characterTier).ToList();
+                sortedEntities = cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
             }
             cardEntities = sortedEntities;
             UpdateCardList();
@@ -133,11 +133,11 @@ namespace Assets.Resources.Scripts.Cards
             Debug.Log("Sort cards by tier isAscending: " + isTierAscending);
             if (isTierAscending)
             {
-                cardEntities.Sort((a, b) => a.characterTier.CompareTo(b.characterTier));
+                cardEntities.Sort((a, b) => a.CharacterTier.CompareTo(b.CharacterTier));
             }
             else
             {
-                cardEntities.Sort((a, b) => b.characterTier.CompareTo(a.characterTier));
+                cardEntities.Sort((a, b) => b.CharacterTier.CompareTo(a.CharacterTier));
             }
             UpdateCardList();
         }

@@ -878,7 +878,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0.14117648, g: 0.15686275, b: 0.27058825, a: 0.5882353}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -912,10 +912,9 @@ MonoBehaviour:
   levelText: {fileID: 8447747821563991779}
   nameText: {fileID: 2567445052272070845}
   dateText: {fileID: 4969881568668443104}
-  isFocused: 0
-  currentPlayer:
+  playerEntity:
     playerName: Player
-    playerID: d872a3bd-766a-4327-88c0-e8b4ef347517
+    playerID: 3a320c9e-469e-4bea-a3c0-dc7e689a747a
     selectedTitle: 
     saveDate: 
     level: 0
@@ -926,3 +925,4 @@ MonoBehaviour:
     tier: 0
     titles: []
     skills: []
+  isFocused: 0

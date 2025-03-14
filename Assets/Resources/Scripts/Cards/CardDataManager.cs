@@ -21,6 +21,7 @@ namespace Assets.Resources.Scripts.Cards
         private CardDataContainer dataContainer;   // Holds our list of cards
         private List<Character> characterList;    // A list that holds all the designed characters for the game
         public List<SkillEntity> skillEntities; // A list that holds all the skills for the game
+        public List<BaseAttrEntity> baseAttrEntities; // A list that holds all the base attributes for each level
         public static Dictionary<Archetype, Dictionary<AttributeType, float>> baseAttributeProbabilities;
         public static Dictionary<CharacterTier, float> baseTierProbabilities;
 
@@ -35,6 +36,7 @@ namespace Assets.Resources.Scripts.Cards
             dataContainer = new CardDataContainer();
             InitCharacterList();
             InitSkillList();
+            InitBaseAttrList();
             InitBaseAttributeProbabilities();
             InitExpertiseTierProbabilities();
         }
@@ -111,30 +113,61 @@ namespace Assets.Resources.Scripts.Cards
             switch (tier)
             {
                 case CharacterTier.TierSS:
-                    return 1f;
+                    return Random.Range(0.8f, 1.1f);
                 case CharacterTier.TierS:
-                    return 0.5f;
+                    return Random.Range(0.5f, 0.7f);
                 case CharacterTier.TierA:
-                    return 0.3f;
+                    return Random.Range(0.3f, 0.5f);
                 case CharacterTier.TierB:
-                    return 0.2f;
+                    return Random.Range(0.16f, 0.25f);
                 case CharacterTier.TierC:
-                    return 0.12f;
+                    return Random.Range(0.08f, 0.16f);
                 case CharacterTier.TierD:
-                    return 0.08f;
+                    return Random.Range(0.06f, 0.08f);
                 case CharacterTier.TierE:
-                    return 0.05f;
+                    return Random.Range(0.4f, 0.06f);
                 case CharacterTier.None:
                     break;
                 default:
-                    return 1f;
+                    return 0f;
             }
-            return 0;
+            return 0f;
         }
 
         public List<SkillEntity> GetSkillsByCharacter(CharacterName name)
         {
             return skillEntities.Where(skill => skill.characterName == name).ToList();
+        }
+
+        public BaseAttrEntity GetBaseAttrEntitiy(int level)
+        {
+            return baseAttrEntities.FirstOrDefault(entity => entity.level == level);
+        }
+
+        public List<ExpertiseEntity> GetCharacterExpertises(CharacterName name)
+        {
+            List<ExpertiseEntity> ret = new();
+            switch (name)
+            {
+                case CharacterName.Asra:
+                    ret.Add(new ExpertiseEntity(AttributeType.EnergyGenerateRate, GetExpertiseValue(CharacterTier.TierA), CharacterTier.TierA));
+                    ret.Add(new ExpertiseEntity(AttributeType.Accuracy, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
+                    ret.Add(new ExpertiseEntity(AttributeType.Health, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
+                    break;
+                case CharacterName.Magki:
+                    ret.Add(new ExpertiseEntity(AttributeType.Health, GetExpertiseValue(CharacterTier.TierB), CharacterTier.TierB));
+                    ret.Add(new ExpertiseEntity(AttributeType.Defense, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
+                    ret.Add(new ExpertiseEntity(AttributeType.DamageReduction, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
+                    break;
+                case CharacterName.Sernia:
+                    ret.Add(new ExpertiseEntity(AttributeType.Attack, GetExpertiseValue(CharacterTier.TierB), CharacterTier.TierB));
+                    ret.Add(new ExpertiseEntity(AttributeType.Critical, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
+                    ret.Add(new ExpertiseEntity(AttributeType.CriticalDamage, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
+                    break;
+                default:
+                    break;
+            }
+            return ret;
         }
 
         // Accessor method to get card list
@@ -170,6 +203,18 @@ namespace Assets.Resources.Scripts.Cards
                 SkillListWrapper wrapper = JsonUtility.FromJson<SkillListWrapper>(jsonContent);
                 Debug.Log("Skill count: " + wrapper.skillEntities.Count + "个技能");
                 skillEntities = wrapper.skillEntities;
+            }
+        }
+
+        private void InitBaseAttrList()
+        {
+            Debug.Log("InitBaseAttrList...");
+            TextAsset jsonContent = UnityEngine.Resources.Load<TextAsset>(DefaultProperty.BASE_ATTR_PATH);
+            if (jsonContent != null)
+            {
+                BaseAttrEntityWrapper wrapper = JsonUtility.FromJson<BaseAttrEntityWrapper>(jsonContent.text);
+                baseAttrEntities = wrapper.baseAttrEntities;
+                Debug.Log("InitBaseAttrList count: " + baseAttrEntities.Count);
             }
         }
 

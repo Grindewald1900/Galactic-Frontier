@@ -1,10 +1,11 @@
-namespace Assets.Scripts.Utils
+namespace Assets.Resources.Scripts.Utils
 {
     public static class LevelUtil
     {
         public static float GetNextLevelExp(int currentLevel)
         {
             if (currentLevel < 0) return 0f;
+            if (currentLevel == 0) return 50f;
             if (currentLevel <= 20)
             {
                 return currentLevel * 100f;

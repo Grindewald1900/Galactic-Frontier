@@ -1,12 +1,9 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Props;
-using Assets.Scripts.Utils;
-using static Assets.Resources.Scripts.Cards.CardDataManager;
+using Assets.Resources.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Entity
 {
@@ -18,23 +15,24 @@ namespace Assets.Resources.Scripts.Entity
         public LineupPosition position = LineupPosition.None;
         public Archetype archetype;
         public string id = "";
+        public float power = 0f; // shown on main panel
+
         public int Level
         {
             get => level;
             set
             {
                 level = value;
-                OnDataChanged?.Invoke();
+                CalculatePower();
             }
         } // shown on main panel
-        public int levelStepForEvolution = 20;
         public bool EvolutionPending
         {
             get => evolutionPending;
             set
             {
                 evolutionPending = value;
-                OnDataChanged?.Invoke();
+                CalculatePower();
             }
         }
         public float CurrentExp
@@ -43,39 +41,135 @@ namespace Assets.Resources.Scripts.Entity
             set
             {
                 currentExp = value;
-                OnDataChanged?.Invoke();
+                CalculatePower();
             }
-        } // shown on main panel
-        public float expToLevelUp = 0f;
-        public float power = 0f; // shown on main panel
+        }
+        public float ExpToNextLevel
+        {
+            get => expToLevelUp;
+            set
+            {
+                expToLevelUp = value;
+                CalculatePower();
+            }
+        }
+        public CharacterTier CharacterTier
+        {
+            get => characterTier;
+            set
+            {
+                characterTier = value;
+                CalculatePower();
+            }
+        }
+        public float Health
+        {
+            get => health;
+            set
+            {
+                health = value;
+                CalculatePower();
+            }
+        }
+        public float Attack
+        {
+            get => attack;
+            set
+            {
+                attack = value;
+                CalculatePower();
+            }
+        }
+        public float Defense
+        {
+            get => defense;
+            set
+            {
+                defense = value;
+                CalculatePower();
+            }
+        }
+        public float Accuracy
+        {
+            get => accuracy;
+            set
+            {
+                accuracy = value;
+                CalculatePower();
+            }
+        }
+        public float Dodge
+        {
+            get => dodge;
+            set
+            {
+                dodge = value;
+                CalculatePower();
+            }
+        }
+        public float Critical
+        {
+            get => critical;
+            set
+            {
+                critical = value;
+                CalculatePower();
+            }
+        }
+        public float CriticalDamage
+        {
+            get => criticalDamage;
+            set
+            {
+                criticalDamage = value;
+                CalculatePower();
+            }
+        }
+        public float DamageReduction
+        {
+            get => damageReduction;
+            set
+            {
+                damageReduction = value;
+                CalculatePower();
+            }
+        }
+        public float EnergyGenerateRate
+        {
+            get => energyGenerateRate;
+            set
+            {
+                energyGenerateRate = value;
+                CalculatePower();
+            }
+        }
+        public float Speed
+        {
+            get => speed;
+            set
+            {
+                speed = value;
+                CalculatePower();
+            }
+        }
+        public float expToLevelUp = 50f;
         public CharacterTier characterTier = CharacterTier.None; // shown on main panel
         public float health = 100f;
-        public float healthCoefficient = 1f;
         public float attack = 10f;
-        public float attackCoefficient = 1f;
         public float defense = 10f;
-        public float defenseCoefficient = 1f;
-        public float score = 5f;
-        public CardType cardType; // shown on main panel
         public float accuracy = 0.8f;
-        public float accuracyCoefficient = 1f;
         public float dodge = 0.1f;
-        public float dodgeCoefficient = 1f;
         public float critical = 0.1f;
-        public float criticalCoefficient = 1f;
-        public float criticalDamage = 1.5f;
-        public float criticalDamageCoefficient = 1f;
-        public float dagameReduction = 0f;
-        public float dagameReductionCoefficient = 1f;
+        public float criticalDamage = 1.2f;
+        public float damageReduction = 0f;
         public float energyGenerateRate = 10f;
-        public float energyGenerateRateCoefficient = 1f;
         public float speed = 30f;
-        public float speedCoefficient = 1f;
+        public float currentExp; // Backing field
+        public int level; // Backing field
+        public bool evolutionPending; // Backing field
         public float maxEnergy = 100f;
         public float maxAttack = 100f;
-        private float currentExp; // Backing field
-        private int level; // Backing field
-        private bool evolutionPending; // Backing field
+        public float score = 5f;
         /// <summary>
         /// All the card attributes and expertises are stored here.
         /// </summary>
@@ -84,11 +178,14 @@ namespace Assets.Resources.Scripts.Entity
         /// battleAttributes should be applied to <see cref="BattleController"/>
         /// </remarks>
         public List<ExpertiseEntity> expertises = new();
+        // Each archetype should have its own specialization
+        public List<ExpertiseEntity> characterExpertises = new();
         public List<SkillEntity> skills = new();
-        // Attributes for the card panel e.g. <Attack, 1.5f>
-        Dictionary<Status.AttributeType, float> panelAttributes = new();
-        Dictionary<Status.AttributeType, float> battleAttributes = new();
-
+        // Attributes in panel = base value * characterAttrs * panelAttrs
+        Dictionary<Status.AttributeType, float> characterAttrs = new();
+        Dictionary<Status.AttributeType, float> panelAttrs = new();
+        Dictionary<Status.AttributeType, float> battleAttrs = new();
+        private readonly int levelStepForEvolution = 20;
         public event Action OnDataChanged;
         public event Action OnCardUpgraded;
 
@@ -103,8 +200,13 @@ namespace Assets.Resources.Scripts.Entity
         {
             foreach (Status.AttributeType attribute in Enum.GetValues(typeof(Status.AttributeType)))
             {
-                panelAttributes[attribute] = 1f;
-                battleAttributes[attribute] = 1f;
+                characterAttrs[attribute] = 1f;
+                panelAttrs[attribute] = 1f;
+                battleAttrs[attribute] = 1f;
+            }
+            if (characterName != CharacterName.Default)
+            {
+                characterExpertises = CardDataManager.Instance.GetCharacterExpertises(characterName);
             }
         }
 
@@ -112,13 +214,21 @@ namespace Assets.Resources.Scripts.Entity
         {
             foreach (ExpertiseEntity expertise in expertises)
             {
-                panelAttributes[expertise.attributeType] += expertise.value;
+                panelAttrs[expertise.attributeType] += expertise.value;
+            }
+        }
+
+        private void UpdateCharacterExpertises()
+        {
+            foreach (ExpertiseEntity expertise in characterExpertises)
+            {
+                characterAttrs[expertise.attributeType] += expertise.value;
             }
         }
 
         public void ChangeBattleAttribute(Status.AttributeType attributeType, float value)
         {
-            battleAttributes[attributeType] += value;
+            battleAttrs[attributeType] += value;
         }
 
         public void AddExpertise(ExpertiseEntity expertise)
@@ -153,11 +263,11 @@ namespace Assets.Resources.Scripts.Entity
             }
 
             CurrentExp += exp;
-            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {CurrentExp}/{expToLevelUp}");
+            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {CurrentExp}/{ExpToNextLevel}");
             // 多段升级判断：当经验超过升级需求时，进行多次升级处理
-            while (CurrentExp >= expToLevelUp)
+            while (CurrentExp >= ExpToNextLevel)
             {
-                CurrentExp -= expToLevelUp;
+                CurrentExp -= ExpToNextLevel;
                 LevelUp();
             }
         }
@@ -167,7 +277,8 @@ namespace Assets.Resources.Scripts.Entity
             Level++;
             UnityEngine.Debug.Log($"{cardName} 升级到 {Level} 级！");
             // 升级后重置经验和升级需求
-            expToLevelUp = LevelUtil.GetNextLevelExp(Level);
+            ExpToNextLevel = LevelUtil.GetNextLevelExp(Level);
+            UpdateAttributes();
 
             // 每达到levelStepForEvolution的倍数，要求进阶（例如20级、40级……）
             if (Level % levelStepForEvolution == 0)
@@ -175,6 +286,32 @@ namespace Assets.Resources.Scripts.Entity
                 EvolutionPending = true;
                 UnityEngine.Debug.Log($"{cardName} 达到 {Level} 级，需要进阶才能继续获得经验！");
             }
+        }
+
+        // Update base attributes according to level
+        private void UpdateAttributes()
+        {
+            BaseAttrEntity attrEntity = CardDataManager.Instance.GetBaseAttrEntitiy(Level);
+            health = attrEntity.health;
+            attack = attrEntity.attack;
+            defense = attrEntity.defense;
+            accuracy = attrEntity.accuracy;
+            dodge = attrEntity.dodge;
+            critical = attrEntity.critical;
+            criticalDamage = attrEntity.criticalDamage;
+            damageReduction = attrEntity.damageReduction;
+            energyGenerateRate = attrEntity.energyGenerateRate;
+            speed = attrEntity.speed;
+            CalculatePower();
+        }
+
+        private void CalculatePower()
+        {
+            power = (GetPanelHealth() * 1f) + (GetPanelAttack() * 5f) + (GetPanelDefense() * 5f)
+            + (GetPanelAccuracy() * 1f) + (GetPanelDodge() * 1f) + (GetPanelCritical() * 1f)
+            + (GetPanelCritialDamage() * 1f) + (GetPanelDMGReduction() * 1f) + (GetPanelEnergyRate() * 1f)
+            + (GetPanelSpeed() * 1f);
+            OnDataChanged?.Invoke();
         }
 
         public void UpgradeCard()
@@ -235,12 +372,6 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetHealthCoefficient(float healthCoefficient)
-        {
-            this.healthCoefficient = healthCoefficient;
-            return this;
-        }
-
         public CardEntity SetAttack(float attack)
         {
             this.attack = attack;
@@ -259,9 +390,9 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetCardType(CardType cardType)
+        public CardEntity SetCardType(Archetype archetype)
         {
-            this.cardType = cardType;
+            this.archetype = archetype;
             return this;
         }
 
@@ -271,21 +402,9 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetAccuracyCoefficient(float accuracyCoefficient)
-        {
-            this.accuracyCoefficient = accuracyCoefficient;
-            return this;
-        }
-
         public CardEntity SetDodge(float dodge)
         {
             this.dodge = dodge;
-            return this;
-        }
-
-        public CardEntity SetDodgeCoefficient(float dodgeCoefficient)
-        {
-            this.dodgeCoefficient = dodgeCoefficient;
             return this;
         }
 
@@ -295,33 +414,15 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetCriticalCoefficient(float criticalCoefficient)
-        {
-            this.criticalCoefficient = criticalCoefficient;
-            return this;
-        }
-
         public CardEntity SetCriticalDamage(float criticalDamage)
         {
             this.criticalDamage = criticalDamage;
             return this;
         }
 
-        public CardEntity SetCriticalDamageCoefficient(float criticalDamageCoefficient)
-        {
-            this.criticalDamageCoefficient = criticalDamageCoefficient;
-            return this;
-        }
-
         public CardEntity SetDagameReduction(float dagameReduction)
         {
-            this.dagameReduction = dagameReduction;
-            return this;
-        }
-
-        public CardEntity SetDagameReductionCoefficient(float dagameReductionCoefficient)
-        {
-            this.dagameReductionCoefficient = dagameReductionCoefficient;
+            this.damageReduction = dagameReduction;
             return this;
         }
 
@@ -331,21 +432,9 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
-        public CardEntity SetEnergyGenerateRateCoefficient(int energyGenerateRateCoefficient)
-        {
-            this.energyGenerateRateCoefficient = energyGenerateRateCoefficient;
-            return this;
-        }
-
         public CardEntity SetSpeed(float speed)
         {
             this.speed = speed;
-            return this;
-        }
-
-        public CardEntity SetSpeedCoefficient(float speedCoefficient)
-        {
-            this.speedCoefficient = speedCoefficient;
             return this;
         }
 
@@ -372,14 +461,104 @@ namespace Assets.Resources.Scripts.Entity
             return position;
         }
 
-        public enum CardType
+        public float GetPanelHealth()
         {
-            Mechanician,
-            Magician,
-            Monster,
-            Potioneer,
-            Warrior,
-            Assassin
+            return health * characterAttrs[Status.AttributeType.Health] * panelAttrs[Status.AttributeType.Health];
+        }
+
+        public float GetPanelAttack()
+        {
+            return attack * characterAttrs[Status.AttributeType.Attack] * panelAttrs[Status.AttributeType.Attack];
+        }
+
+        public float GetPanelDefense()
+        {
+            return defense * characterAttrs[Status.AttributeType.Defense] * panelAttrs[Status.AttributeType.Defense];
+        }
+
+        public float GetPanelAccuracy()
+        {
+            return accuracy * characterAttrs[Status.AttributeType.Accuracy] * panelAttrs[Status.AttributeType.Accuracy];
+        }
+
+        public float GetPanelDodge()
+        {
+            return dodge * characterAttrs[Status.AttributeType.Dodge] * panelAttrs[Status.AttributeType.Dodge];
+        }
+
+        public float GetPanelCritical()
+        {
+            return critical * characterAttrs[Status.AttributeType.Critical] * panelAttrs[Status.AttributeType.Critical];
+        }
+
+        public float GetPanelCritialDamage()
+        {
+            return criticalDamage * characterAttrs[Status.AttributeType.CriticalDamage] * panelAttrs[Status.AttributeType.CriticalDamage];
+        }
+
+        public float GetPanelDMGReduction()
+        {
+            return damageReduction * characterAttrs[Status.AttributeType.DamageReduction] * panelAttrs[Status.AttributeType.DamageReduction];
+        }
+
+        public float GetPanelEnergyRate()
+        {
+            return energyGenerateRate * characterAttrs[Status.AttributeType.EnergyGenerateRate] * panelAttrs[Status.AttributeType.EnergyGenerateRate];
+        }
+
+        public float GetPanelSpeed()
+        {
+            return speed * characterAttrs[Status.AttributeType.Speed] * panelAttrs[Status.AttributeType.Speed];
+        }
+
+        public float GetBattleHealth()
+        {
+            return GetPanelHealth() * battleAttrs[Status.AttributeType.Health];
+        }
+
+        public float GetBattleAttack()
+        {
+            return GetPanelAttack() * battleAttrs[Status.AttributeType.Attack];
+        }
+
+        public float GetBattleDefense()
+        {
+            return GetPanelDefense() * battleAttrs[Status.AttributeType.Defense];
+        }
+
+        public float GetBattleAccuracy()
+        {
+            return GetPanelAccuracy() * battleAttrs[Status.AttributeType.Accuracy];
+        }
+
+        public float GetBattleDodge()
+        {
+            return GetPanelDodge() * battleAttrs[Status.AttributeType.Dodge];
+        }
+
+        public float GetBattleCritical()
+        {
+            return GetPanelCritical() * battleAttrs[Status.AttributeType.Critical];
+        }
+
+        public float GetBattleCriticalDamage()
+        {
+            return GetPanelCritialDamage() * battleAttrs[Status.AttributeType.CriticalDamage];
+        }
+
+        public float GetBattleDMGReduction()
+        {
+            return GetPanelDMGReduction() * battleAttrs[Status.AttributeType.DamageReduction];
+        }
+
+        public float GetBattleEnergyRate()
+        {
+            return GetPanelEnergyRate() * battleAttrs[Status.AttributeType.EnergyGenerateRate];
+        }
+
+        public float GetBattleSpeed()
+        {
+            return GetPanelSpeed() * battleAttrs[Status.AttributeType.Speed];
         }
     }
 

@@ -51,20 +51,20 @@ namespace Assets.Resources.Scripts.Battle
         {
             CardEntity pEntity = playerCard.cardEntity;
             CardEntity eEntity = enermyCard.cardEntity;
-            float hitRate = Mathf.Clamp(pEntity.accuracy - eEntity.dodge, 0, 1);
+            float hitRate = Mathf.Clamp(pEntity.Accuracy - eEntity.Dodge, 0, 1);
             float damage = 0;
-            float criticalMultiplier = UnityEngine.Random.Range(0f, 1f) < pEntity.critical ? pEntity.criticalDamage : 1;
+            float criticalMultiplier = UnityEngine.Random.Range(0f, 1f) < pEntity.Critical ? pEntity.CriticalDamage : 1;
             float reductionRate = CalculateDmgReductionRate(eEntity);
             bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
-            damage = pEntity.attack * pEntity.attackCoefficient * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
+            damage = pEntity.GetBattleAttack() * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
             // Debug.Log("CalculateDamage damage: " + damage);
             return new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier);
         }
 
         public float CalculateDmgReductionRate(CardEntity eEntity)
         {
-            double logBase1Point4 = Math.Log(eEntity.defense * eEntity.defenseCoefficient) / Math.Log(1.4);
-            float reductionRate = (float)(logBase1Point4 * 0.01f + eEntity.dagameReduction);
+            double logBase1Point4 = Math.Log(eEntity.GetBattleDefense()) / Math.Log(1.4);
+            float reductionRate = (float)(logBase1Point4 * 0.01f + eEntity.DamageReduction);
             return Mathf.Clamp(reductionRate, 0, 1);
         }
 
@@ -111,7 +111,7 @@ namespace Assets.Resources.Scripts.Battle
                 // Combine and sort all alive cards by speed
                 var allCards = playerCards.Concat(enermyCards)
                     .Where(card => card.IsAlive())
-                    .OrderByDescending(card => card.cardEntity.speed)
+                    .OrderByDescending(card => card.cardEntity.Speed)
                     .ToList();
                 Debug.Log("allCards: " + allCards.Count);
                 // Each card takes their turn

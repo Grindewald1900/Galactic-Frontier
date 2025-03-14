@@ -60,6 +60,7 @@ namespace Assets.Resources.Scripts.Cards
         private void RefreshUI()
         {
             UpdateCardInfo();
+            HoverShowDetailPanel.Instance.SetDetailPanel(card.cardEntity);
         }
 
         public void SetAddButtonInteractable(bool isAddable)
@@ -95,10 +96,10 @@ namespace Assets.Resources.Scripts.Cards
         private void UpdateCardInfo()
         {
             cardLevelText.text = "Level: " + card.cardEntity.Level.ToString();
-            cardExpText.text = "Exp: " + card.cardEntity.CurrentExp.ToString() + "/" + card.cardEntity.expToLevelUp.ToString();
+            cardExpText.text = "Exp: " + card.cardEntity.CurrentExp.ToString() + "/" + card.cardEntity.ExpToNextLevel.ToString();
             cardPowerText.text = "Power: " + card.cardEntity.power.ToString();
-            cardTierText.text = "Tier: " + card.cardEntity.characterTier.ToString();
-            cardTypeText.text = "Type: " + card.cardEntity.cardType.ToString();
+            cardTierText.text = "Tier: " + card.cardEntity.CharacterTier.ToString();
+            cardTypeText.text = "Type: " + card.cardEntity.archetype.ToString();
             SetUpgradeButtonInteractable(card.cardEntity.EvolutionPending);
         }
 

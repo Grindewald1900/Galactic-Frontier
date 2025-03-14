@@ -21,8 +21,8 @@ namespace Assets.Resources.Scripts.Entity
         public PortraitEntity(CardEntity cardEntity)
         {
             portraitName = cardEntity.characterName.ToString();
-            portraitFrame = cardEntity.characterTier.ToString() + "_Default";
-            characterTier = cardEntity.characterTier;
+            portraitFrame = cardEntity.CharacterTier.ToString() + "_Default";
+            characterTier = cardEntity.CharacterTier;
         }
 
         public PortraitEntity SetShowFrame(bool show)

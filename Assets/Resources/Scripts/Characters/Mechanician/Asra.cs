@@ -92,7 +92,7 @@ namespace Assets.Resources.Scripts.Characters.Mechanician
         {
             return new DebuffEntity().SetDebuffType(Status.DebuffType.Damage)
             .SetDamageType(Status.DamageType.Burning)
-            .SetDamage(player.cardEntity.attack * 0.15f)
+            .SetDamage(player.cardEntity.Attack * 0.15f)
             .ChangeRounds(debuffRound)
             .SetIcon(ImageUtil.GetSpriteByName(ImageUtil.statusImagePath, "Burning"))
             .SetName("Burning");
