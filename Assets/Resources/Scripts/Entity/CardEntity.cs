@@ -312,6 +312,7 @@ namespace Assets.Resources.Scripts.Entity
             + (GetPanelCritialDamage() * 1f) + (GetPanelDMGReduction() * 1f) + (GetPanelEnergyRate() * 1f)
             + (GetPanelSpeed() * 1f);
             OnDataChanged?.Invoke();
+            DataUtil.Instance.SaveCardData(CardListManager.Instance.cardEntities);
         }
 
         public void UpgradeCard()

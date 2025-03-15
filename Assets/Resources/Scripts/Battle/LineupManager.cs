@@ -91,7 +91,7 @@ namespace Assets.Resources.Scripts.Battle
             PortraitEntity portraitEntity = new(cardEntity);
             portraitSlots.Find(p => p.slotIndex == selectedIndex).SetPortrait(portraitEntity, cardEntity);
             // Refresh card list after adding new card to lineup or removing from lineup
-            CardListManager.Instance.UpdateCardList();
+            CardListManager.Instance.UpdateCardList(CardListManager.Instance.cardEntities);
         }
 
         public List<CardEntity> GetInlineCards()

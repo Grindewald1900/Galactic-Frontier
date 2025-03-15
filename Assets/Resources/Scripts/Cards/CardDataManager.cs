@@ -18,7 +18,7 @@ namespace Assets.Resources.Scripts.Cards
     {
         public static CardDataManager Instance { get; private set; }
         private string filePath;          // Where we store the JSON file
-        private CardDataContainer dataContainer;   // Holds our list of cards
+        private CardListWrapper dataContainer;   // Holds our list of cards
         private List<Character> characterList;    // A list that holds all the designed characters for the game
         public List<SkillEntity> skillEntities; // A list that holds all the skills for the game
         public List<BaseAttrEntity> baseAttrEntities; // A list that holds all the base attributes for each level
@@ -33,7 +33,7 @@ namespace Assets.Resources.Scripts.Cards
             }
             // On most platforms, Application.persistentDataPath is a good location for data
             filePath = Path.Combine(Application.persistentDataPath, "Cards.json");
-            dataContainer = new CardDataContainer();
+            dataContainer = new CardListWrapper();
             InitCharacterList();
             InitSkillList();
             InitBaseAttrList();
@@ -173,12 +173,12 @@ namespace Assets.Resources.Scripts.Cards
         // Accessor method to get card list
         public List<CardEntity> GetAllCards()
         {
-            return dataContainer.cards;
+            return dataContainer.cardEntities;
         }
 
         public void SetAllCards(List<CardEntity> cards)
         {
-            dataContainer.cards = cards;
+            dataContainer.cardEntities = cards;
         }
 
         private void InitCharacterList()
@@ -359,6 +359,7 @@ namespace Assets.Resources.Scripts.Cards
 
     public enum Archetype
     {
+        Default,
         Assassin,
         Magician,
         Mechanician,

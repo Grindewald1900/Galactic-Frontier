@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Utils
 {
@@ -111,6 +112,12 @@ namespace Assets.Resources.Scripts.Utils
         public void SavePlayerEntities()
         {
             SaveData(new PlayerListWrapper { playerEntities = playerEntities, count = playerEntities.Count }, savePath, DefaultProperty.PLAYER_ENTITIES);
+        }
+
+        public void SaveGameData()
+        {
+            SavePlayerData(CharacterInfoManager.Instance.playerData);
+            SaveCardData(CardListManager.Instance.cardEntities);
         }
 
         public List<ItemEntity> LoadItemData()

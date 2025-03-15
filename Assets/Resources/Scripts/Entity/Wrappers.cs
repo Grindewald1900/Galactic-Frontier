@@ -10,12 +10,6 @@ namespace Assets.Resources.Scripts.Entity
     }
 
     [Serializable]
-    public class CardDataContainer
-    {
-        public List<CardEntity> cards;
-    }
-
-    [Serializable]
     public class CardListWrapper
     {
         public int count = 0;

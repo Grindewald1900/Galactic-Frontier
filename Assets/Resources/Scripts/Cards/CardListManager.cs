@@ -18,9 +18,7 @@ namespace Assets.Resources.Scripts.Cards
         public List<Card> cards;
         public List<CardEntity> cardEntities = new();
         public static CardListManager Instance;
-
-        private bool isNameAscending = false;
-        private bool isTierAscending = false;
+        public CardSortOrder order = CardSortOrder.Default;
 
         void Awake()
         {
@@ -52,7 +50,7 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCardList()
         {
             cardEntities = DataUtil.Instance.LoadCardData();
-            CheckCardCount();
+            CheckCardCount(cardEntities);
 
             for (int i = 0; i < cardEntities.Count; i++)
             {
@@ -64,7 +62,7 @@ namespace Assets.Resources.Scripts.Cards
 
             Debug.Log("cardEntities size: " + cardEntities.Count);
             Debug.Log("cards size: " + cards.Count);
-            SortCardsByName();
+            SortCards();
         }
 
         private void InitCard()
@@ -77,21 +75,24 @@ namespace Assets.Resources.Scripts.Cards
             card.OnCardClicked += OnCardClicked;
         }
 
-        public void UpdateCardList()
+        public void UpdateCardList(List<CardEntity> entities)
         {
             if (!gameObject.activeSelf) return;
-            if (cardEntities.Count == 0) return;
-            int tempIndex = 0;
-            CheckCardCount();
-
-            for (int i = 0; i < cardEntities.Count; i++)
+            if (entities.Count == 0)
             {
-                if (cardEntities[i].GetLineupPosition() != LineupPosition.None) continue;
+                CardPreviewController.Instance.HideCardPreview();
+            }
+            int tempIndex = 0;
+            CheckCardCount(entities);
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                if (entities[i].GetLineupPosition() != LineupPosition.None) continue;
                 // Debug.Log("Update card list, i: " + i + ", tempIndex: " + tempIndex);
-                cards[tempIndex].InitCard(cardEntities[i]);
+                cards[tempIndex].InitCard(entities[i]);
                 tempIndex++;
             }
-            for (int i = cardEntities.Count - 1; i >= tempIndex; i--)
+            for (int i = entities.Count - 1; i >= tempIndex; i--)
             {
                 Debug.Log("Hide card at index: " + i);
                 cards[i].HideCard();
@@ -110,36 +111,58 @@ namespace Assets.Resources.Scripts.Cards
             }
         }
 
-        public void SortCardsByName()
+        public void SortCards(CardSortOrder sortOrder = CardSortOrder.Default)
         {
-            isNameAscending = !isNameAscending;
             List<CardEntity> sortedEntities = new();
-            Debug.Log("Sort cards by name isAscending: " + isNameAscending);
-            if (isNameAscending)
+            order = sortOrder;
+            Debug.Log("Sort cards by: " + order);
+            if (order == CardSortOrder.NameAscending || order == CardSortOrder.Default)
             {
-                sortedEntities = cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
+                cardEntities = cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
             }
-            else
+            if (order == CardSortOrder.NameDescending)
             {
-                sortedEntities = cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
+                cardEntities = cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
             }
-            cardEntities = sortedEntities;
-            UpdateCardList();
-        }
-
-        public void SortCardsByTier()
-        {
-            isTierAscending = !isTierAscending;
-            Debug.Log("Sort cards by tier isAscending: " + isTierAscending);
-            if (isTierAscending)
+            if (order == CardSortOrder.TierAscending)
             {
                 cardEntities.Sort((a, b) => a.CharacterTier.CompareTo(b.CharacterTier));
             }
-            else
+            if (order == CardSortOrder.TierDescending)
             {
                 cardEntities.Sort((a, b) => b.CharacterTier.CompareTo(a.CharacterTier));
             }
-            UpdateCardList();
+            if (order == CardSortOrder.LevelAscending)
+            {
+                cardEntities.Sort((a, b) => a.level.CompareTo(b.Level));
+            }
+            if (order == CardSortOrder.LevelDesending)
+            {
+                cardEntities.Sort((a, b) => b.level.CompareTo(a.Level));
+            }
+            if (order == CardSortOrder.PowerAscending)
+            {
+                cardEntities.Sort((a, b) => a.power.CompareTo(b.power));
+            }
+            if (order == CardSortOrder.PowerDesending)
+            {
+                cardEntities.Sort((a, b) => b.power.CompareTo(a.power));
+            }
+            CardPanelController.Instance.typeDropdown.value = 0;
+            UpdateCardList(cardEntities);
+        }
+
+        public void FilterCardsByType(Archetype cardType)
+        {
+            Debug.Log("Filter cards by: " + cardType);
+            if (cardType == Archetype.Default)
+            {
+                SortCards();
+            }
+            else
+            {
+                UpdateCardList(cardEntities.FindAll(c => c.archetype == cardType));
+            }
         }
 
         public void AddCardEntity(CardEntity cardEntity)
@@ -150,7 +173,7 @@ namespace Assets.Resources.Scripts.Cards
                 return;
             }
             cardEntities.Add(cardEntity);
-            UpdateCardList();
+            UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
 
@@ -167,7 +190,7 @@ namespace Assets.Resources.Scripts.Cards
             }
             Debug.Log("Add card entities: " + cardEntities.Count);
 
-            UpdateCardList();
+            UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
 
@@ -181,7 +204,7 @@ namespace Assets.Resources.Scripts.Cards
         {
             Debug.Log("Clear card entities");
             cardEntities.Clear();
-            UpdateCardList();
+            UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
 
@@ -196,18 +219,18 @@ namespace Assets.Resources.Scripts.Cards
         }
 
         // Make sure there are enough cards in the card panel to display all the cards
-        private void CheckCardCount()
+        private void CheckCardCount(List<CardEntity> entities)
         {
-            if (cards.Count < cardEntities.Count)
+            if (cards.Count < entities.Count)
             {
-                for (int i = cards.Count; i < cardEntities.Count; i++)
+                for (int i = cards.Count; i < entities.Count; i++)
                 {
                     InitCard();
                 }
             }
             else
             {
-                for (int i = cards.Count - 1; i >= cardEntities.Count; i--)
+                for (int i = cards.Count - 1; i >= entities.Count; i--)
                 {
                     Destroy(cards[i].gameObject);
                     cards.RemoveAt(i);
@@ -224,5 +247,18 @@ namespace Assets.Resources.Scripts.Cards
                 fakeEntities.Add(CardDataManager.Instance.GetCardEntity(character));
             }
         }
+    }
+
+    public enum CardSortOrder
+    {
+        Default,
+        NameAscending,
+        NameDescending,
+        TierAscending,
+        TierDescending,
+        LevelAscending,
+        LevelDesending,
+        PowerAscending,
+        PowerDesending
     }
 }
