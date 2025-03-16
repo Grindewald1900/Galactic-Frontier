@@ -48,6 +48,14 @@ namespace Assets.Resources.Scripts.Battle
                 portraitSlot.SetPortrait(portraitEntity, cardEntity);
                 portraitSlots.Add(portraitSlot);
             }
+            for (int i = 0; i < CardListManager.Instance.GetCardEntities().Count; i++)
+            {
+                var entity = CardListManager.Instance.GetCardEntities()[i];
+                if (entity.GetLineupPosition() != LineupPosition.None)
+                {
+                    Instance.AddLineupCard(entity, (int)entity.GetLineupPosition());
+                }
+            }
             SelectPortrait(selectedIndex);
         }
 
@@ -71,41 +79,31 @@ namespace Assets.Resources.Scripts.Battle
         }
 
         // Add to current selected position
-        public void AddLineupCard(CardEntity cardEntity)
+        public void AddLineupCard(CardEntity cardEntity, int index)
         {
+            Debug.Log(GetType().Name + "portraitSlots size: " + portraitSlots.Count);
+            Debug.Log(GetType().Name + "index: " + index);
             if (cardEntity == null) return;
+            if (index < 0 || index >= portraitSlots.Count) return;
             if (portraitSlots.Exists(p => p.cardEntity.id == cardEntity.id)) return;
 
-            CardEntity selectedEntity = portraitSlots[selectedIndex].cardEntity;
+            CardEntity selectedEntity = portraitSlots[index].cardEntity;
             // If selected index is not null, set its position to None
             if (selectedEntity.characterName != CharacterName.Default)
             {
                 Debug.Log("Selected not null");
-                CardEntity currentEntity = CardListManager.Instance.GetCardEntityById(selectedEntity.id);
-                currentEntity?.SetLineupPosition(LineupPosition.None);
+                selectedEntity.SetLineupPosition(LineupPosition.None);
+                // CardEntity currentEntity = CardListManager.Instance.GetCardEntityById(selectedEntity.id);
+                // currentEntity?.SetLineupPosition(LineupPosition.None);
             }
-            cardEntity?.SetLineupPosition((LineupPosition)selectedIndex);
-            Debug.Log($"AddLineupCard lineup card at position {cardEntity.GetLineupPosition()} " + selectedIndex);
+            cardEntity?.SetLineupPosition((LineupPosition)index);
+            Debug.Log($"AddLineupCard lineup card at position {cardEntity.GetLineupPosition()} " + index);
 
             // Update selected portrait slot
             PortraitEntity portraitEntity = new(cardEntity);
-            portraitSlots.Find(p => p.slotIndex == selectedIndex).SetPortrait(portraitEntity, cardEntity);
+            portraitSlots.Find(p => p.slotIndex == index).SetPortrait(portraitEntity, cardEntity);
             // Refresh card list after adding new card to lineup or removing from lineup
             CardListManager.Instance.UpdateCardList(CardListManager.Instance.cardEntities);
-        }
-
-        public List<CardEntity> GetInlineCards()
-        {
-            List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
-            foreach (PortraitSlot portraitSlot in portraitSlots)
-            {
-                cardEntities.Add(portraitSlot.cardEntity);
-            }
-            if (cardEntities.Count != 5)
-            {
-                Debug.LogError("GetInlineCards not 5 cards");
-            }
-            return cardEntities;
         }
 
         public int GetSelectedIndex()

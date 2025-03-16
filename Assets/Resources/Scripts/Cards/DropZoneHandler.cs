@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.UI;
+using Assets.Resources.Scripts.Utils;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Cards
@@ -80,8 +81,10 @@ namespace Assets.Resources.Scripts.Cards
             for (int i = 0; i < transform.childCount; i++)
             {
                 PortraitSlot slot = transform.GetChild(i).GetComponent<PortraitSlot>();
+                slot.cardEntity.SetLineupPosition(slot.slotIndex);
                 slot.transform.localPosition = initialPositions[slot.slotIndex];
             }
+            DataUtil.Instance.SaveCardData(CardListManager.Instance.cardEntities);
         }
 
         private float CorrectPosition(float position)

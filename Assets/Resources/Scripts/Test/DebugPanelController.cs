@@ -129,9 +129,7 @@ namespace Assets.Resources.Scripts.Test
             float screenHeight = Screen.height;
             float minValue = (rectTransform.rect.height - screenHeight) / 2;
             float maxValue = (screenHeight - rectTransform.rect.height) / 2;
-            Debug.Log("Min Value: " + minValue + ", Max Value: " + maxValue);
             Vector2 worldPos = rectTransform.anchoredPosition;
-            Debug.Log("Pointer drag Up position: " + worldPos);
 
             // 计算是否移动到左侧还是右侧
             bool moveToLeft = worldPos.x < 0;

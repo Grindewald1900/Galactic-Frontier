@@ -49,7 +49,8 @@ namespace Assets.Resources.Scripts.Cards
 
         private void AddToLineup()
         {
-            LineupManager.Instance.AddLineupCard(card.cardEntity);
+            var index = LineupManager.Instance.GetSelectedIndex();
+            LineupManager.Instance.AddLineupCard(card.cardEntity, index);
         }
 
         private void UpgradeCard()

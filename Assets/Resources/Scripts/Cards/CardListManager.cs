@@ -52,14 +52,6 @@ namespace Assets.Resources.Scripts.Cards
             cardEntities = DataUtil.Instance.LoadCardData();
             CheckCardCount(cardEntities);
 
-            for (int i = 0; i < cardEntities.Count; i++)
-            {
-                if (cardEntities[i].GetLineupPosition() != LineupPosition.None)
-                {
-                    LineupManager.Instance.AddLineupCard(cardEntities[i]);
-                }
-            }
-
             Debug.Log("cardEntities size: " + cardEntities.Count);
             Debug.Log("cards size: " + cards.Count);
             SortCards();
@@ -101,6 +93,7 @@ namespace Assets.Resources.Scripts.Cards
             Debug.Log("Cards size: " + cards.Count);
             cards[0].Highlight(DefaultProperty.highlightCardScale);
             CardPreviewController.Instance?.ShowCardPreview(cards[0].cardEntity);
+            DataUtil.Instance.SaveCardData(CardListManager.Instance.cardEntities);
         }
 
         public void UnhighlightAllCards()

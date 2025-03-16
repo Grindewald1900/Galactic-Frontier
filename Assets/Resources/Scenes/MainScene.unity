@@ -10280,7 +10280,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ae7a69c5c67c1b43b6e3e22005496c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  instance: {fileID: 0}
   orderDropdown: {fileID: 1921358616}
   typeDropdown: {fileID: 2139485172}
 --- !u!1 &496254348
@@ -43004,6 +43003,7 @@ MonoBehaviour:
   - {fileID: 1730457791}
   - {fileID: 285897888}
   expertiseContent: {fileID: 1938116230}
+  cardInfoPanel: {fileID: 804268149}
   cardLevelText: {fileID: 411890260}
   cardExpText: {fileID: 221684382}
   cardPowerText: {fileID: 1256288474}

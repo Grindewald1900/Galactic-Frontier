@@ -457,6 +457,12 @@ namespace Assets.Resources.Scripts.Entity
             return this;
         }
 
+        public CardEntity SetLineupPosition(int position)
+        {
+            this.position = (LineupPosition)position;
+            return this;
+        }
+
         public LineupPosition GetLineupPosition()
         {
             return position;
@@ -565,11 +571,11 @@ namespace Assets.Resources.Scripts.Entity
 
     public enum LineupPosition
     {
-        One,
+        ZERO,
+        ONE,
         Two,
         Three,
         Four,
-        Five,
         None
     }
 }

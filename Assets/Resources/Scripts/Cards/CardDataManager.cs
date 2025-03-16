@@ -44,7 +44,7 @@ namespace Assets.Resources.Scripts.Cards
         public CardEntity GetCardEntity(Character character)
         {
             CharacterTier tier = GetCardTier(character);
-            CardEntity cardEntity = new CardEntity().SetCharacterName(character.characterName).SetCharacterTier(tier).SetArchetype(character.archetype)
+            CardEntity cardEntity = new CardEntity().SetCardName(character.characterName.ToString()).SetCharacterName(character.characterName).SetCharacterTier(tier).SetArchetype(character.archetype)
             .SetSpeed(Random.Range(15, 25)).SetAttack(Random.Range(10, 20)).SetDefense(Random.Range(10, 20))
             .SetLevel(Random.Range(1, 10)).SetExp(0f);
             return cardEntity;

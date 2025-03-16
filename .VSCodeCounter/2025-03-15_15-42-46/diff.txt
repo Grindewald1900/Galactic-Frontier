@@ -1,0 +1,39 @@
+Date : 2025-03-15 15:42:46
+Directory : j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts
+Total : 11 files,  292 codes, 1 comments, 9 blanks, all 302 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C#       |         11 |        292 |          1 |          9 |        302 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                          | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                             |         11 |        292 |          1 |          9 |        302 |
+| Cards                                                                                         |          5 |        142 |          0 |          4 |        146 |
+| Entity                                                                                        |          3 |        142 |          1 |          4 |        147 |
+| Props                                                                                         |          1 |          1 |          0 |          0 |          1 |
+| Utils                                                                                         |          2 |          7 |          0 |          1 |          8 |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                      | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\Card.cs                  | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardDataManager.cs       | C#       |         18 |          0 |          2 |         20 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardListManager.cs       | C#       |         36 |          0 |          0 |         36 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardPanelController.cs   | C#       |         58 |          0 |          0 |         58 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardPreviewController.cs | C#       |         29 |          0 |          2 |         31 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\BaseAttrEntity.cs       | C#       |         19 |          0 |          1 |         20 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\CardEntity.cs           | C#       |        123 |          1 |          2 |        126 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\Wrappers.cs             | C#       |          0 |          0 |          1 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Props\DefaultProperty.cs       | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Utils\DataUtil.cs              | C#       |          6 |          0 |          1 |          7 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Utils\LevelUtil.cs             | C#       |          1 |          0 |          0 |          1 |
+| Total                                                                                         |          |        292 |          1 |          9 |        302 |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
