@@ -9,6 +9,7 @@ using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.CharacterPanel;
 using static Assets.Resources.Scripts.Cards.CardDataManager;
+using static Assets.Resources.Scripts.Main.GameStatusManager;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -72,7 +73,7 @@ namespace Assets.Resources.Scripts.Cards
         private void ConfirmCards()
         {
             //TODO: Save card data
-            MainScrollController.Instance.ShowPanel((int)MainMenuPanel.SHOP);
+            MainScrollController.Instance.ShowPanel(CurrentScene.SHOP_MENU);
         }
 
         public void ClearCardResult()

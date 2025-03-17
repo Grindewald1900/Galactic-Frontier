@@ -5,6 +5,7 @@ using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
+using static Assets.Resources.Scripts.Main.GameStatusManager;
 
 namespace Assets.Resources.Scripts.Shop
 {
@@ -124,7 +125,7 @@ namespace Assets.Resources.Scripts.Shop
 
         private void StartDraw()
         {
-            MainScrollController.Instance.ShowPanel((int)MainMenuPanel.DRAWCARDS);
+            MainScrollController.Instance.ShowPanel(CurrentScene.DRAWCARDS_MENU);
             CardResultManager.Instance.InitCards(drawCount);
         }
 

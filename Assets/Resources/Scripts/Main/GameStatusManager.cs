@@ -1,20 +1,40 @@
 using UnityEngine;
 
-public class GameStatusManager : MonoBehaviour
+namespace Assets.Resources.Scripts.Main
 {
-    public static GameStatusManager Instance;
-    public bool isBattle = false;
-    public bool isDrawingCard = false;
-    private void Awake()
+    public class GameStatusManager : MonoBehaviour
     {
-        if (Instance == null)
+        public static GameStatusManager Instance;
+        public CurrentScene currentScene = CurrentScene.MAIN_MENU_SCENE;
+        public bool isBattle = false;
+        public bool isDrawingCard = false;
+        private void Awake()
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
-        else
+
+        public enum CurrentScene
         {
-            Destroy(gameObject);
+            // Scene -> Menu -> SubMenu
+            CHARACTER_MENU,
+            CARDS_MENU,
+            BATTLE_MENU,
+            INVENTORY_MENU,
+            BUILDING_MENU,
+            SHOP_MENU,
+            SETTINGS_MENU,
+            DRAWCARDS_MENU,
+            MAIN_MENU_SCENE,
+            MAIN_SCENE,
+            BATTLE_SCENE
         }
     }
 }

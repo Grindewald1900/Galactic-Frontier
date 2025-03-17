@@ -14,8 +14,8 @@ namespace Assets.Resources.Scripts.Props
         public const int defaultBuffRound = 3;
         public const int defaultDebuffRound = 3;
         public const int defaultControllRound = 1;
-        public const float defaultCardScale = 1.2f;
-        public const float highlightCardScale = 1.4f;
+        public const float defaultCardScale = 1.1f;
+        public const float highlightCardScale = 1.2f;
 
         // Characters
         public const int MAX_LEVEL = 200; // Current max Level

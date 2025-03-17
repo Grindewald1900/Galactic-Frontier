@@ -25,6 +25,11 @@ namespace Assets.Resources.Scripts.Cards
             if (Instance == null)
             {
                 Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
             }
         }
 
@@ -73,6 +78,7 @@ namespace Assets.Resources.Scripts.Cards
             if (entities.Count == 0)
             {
                 CardPreviewController.Instance.HideCardPreview();
+                return;
             }
             int tempIndex = 0;
             CheckCardCount(entities);
@@ -199,6 +205,19 @@ namespace Assets.Resources.Scripts.Cards
             cardEntities.Clear();
             UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
+        }
+
+        public List<CardEntity> GetInLineCardEntities()
+        {
+            List<CardEntity> inLineCardEntities = new();
+            foreach (CardEntity entity in cardEntities)
+            {
+                if (entity.GetLineupPosition() != LineupPosition.None)
+                {
+                    inLineCardEntities.Add(entity);
+                }
+            }
+            return inLineCardEntities;
         }
 
         public List<CardEntity> GetCardEntities()

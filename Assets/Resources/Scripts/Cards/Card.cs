@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Main;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -214,7 +215,11 @@ namespace Assets.Resources.Scripts.Cards
             {
                 return;
             }
-            CardListManager.Instance.UnhighlightAllCards();
+            if (GameStatusManager.Instance.currentScene == GameStatusManager.CurrentScene.CARDS_MENU)
+            {
+                // Unhighlight all cards currently in Card Menu
+                CardListManager.Instance.UnhighlightAllCards();
+            }
             isHighlighted = true;
             transform.DOScale(new Vector3(cardScale, cardScale, 1), animationDuration).SetEase(Ease.OutBack);
 

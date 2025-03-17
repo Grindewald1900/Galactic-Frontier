@@ -8,6 +8,8 @@ using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Main;
 
 namespace Assets.Resources.Scripts.Battle
 {
@@ -18,6 +20,7 @@ namespace Assets.Resources.Scripts.Battle
         public static BattleController Instance { get; private set; }
         public List<Card> playerCards;
         public List<Card> enermyCards;
+        private List<CardEntity> inlineEntities = new();
         public BattleController enermyController;
 
         private bool isBattleActive = false;
@@ -37,13 +40,25 @@ namespace Assets.Resources.Scripts.Battle
             StartBattle();
         }
 
+        void OnEnable()
+        {
+            GameStatusManager.Instance.currentScene = GameStatusManager.CurrentScene.BATTLE_SCENE;
+        }
+
         private void Init()
         {
             CharacterSkillController.InitSkillSet();
+            inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(CardListManager.Instance.GetInLineCardEntities());
+            HideAllPlayers();
+            HideAllEnemies();
+            // TODO: Fake enemy cards
             for (int i = 0; i < 5; i++)
             {
-                SetCard(playerCards, i, FakeData(), true);
                 SetCard(enermyCards, i, FakeData(), false);
+            }
+            foreach (CardEntity entity in inlineEntities)
+            {
+                SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
             }
         }
 
@@ -77,6 +92,22 @@ namespace Assets.Resources.Scripts.Battle
                 target[index].isPlayerCard = isPlayer;
                 target[index].position = index + 1;
                 target[index].InitCard(cardEntity);
+            }
+        }
+
+        public void HideAllPlayers()
+        {
+            foreach (var card in playerCards)
+            {
+                card.gameObject.SetActive(false);
+            }
+        }
+
+        public void HideAllEnemies()
+        {
+            foreach (var card in enermyCards)
+            {
+                card.gameObject.SetActive(false);
             }
         }
 

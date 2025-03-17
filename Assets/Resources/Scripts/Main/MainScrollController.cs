@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Utils;
+using static Assets.Resources.Scripts.Main.GameStatusManager;
 
 namespace Assets.Resources.Scripts.Main
 {
@@ -38,9 +38,14 @@ namespace Assets.Resources.Scripts.Main
             HideAllPanels();
             InitializeItems();
             // 默认选中第一个 Item
-            ShowPanel((int)MainMenuPanel.CHARACTER);
+            ShowPanel((int)CurrentScene.CHARACTER_MENU);
             if (LogUtil.CheckNull(mainButtons[0], "MainMenu Scroll Content is null.")) return;
             StartCoroutine(ScaleItem(mainButtons[0], scaleFactor));
+        }
+
+        void OnEnable()
+        {
+            GameStatusManager.Instance.currentScene = CurrentScene.MAIN_SCENE;
         }
 
         void Update()
@@ -48,9 +53,9 @@ namespace Assets.Resources.Scripts.Main
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (GameStatusManager.Instance.isDrawingCard) return;
-                if (selectedIndex == (int)MainMenuPanel.DRAWCARDS)
+                if (selectedIndex == (int)CurrentScene.DRAWCARDS_MENU)
                 {
-                    ShowPanel((int)MainMenuPanel.SETTINGS);
+                    ShowPanel(CurrentScene.SETTINGS_MENU);
                 }
             }
         }
@@ -98,7 +103,7 @@ namespace Assets.Resources.Scripts.Main
 
         void OnItemClick(int index)
         {
-            ShowPanel(index);
+            ShowPanel((CurrentScene)index);
         }
 
         IEnumerator ScaleItem(GameObject item, float targetScale)
@@ -117,12 +122,14 @@ namespace Assets.Resources.Scripts.Main
             item.transform.localScale = endScale;
         }
 
-        public void ShowPanel(int index)
+        public void ShowPanel(CurrentScene scene)
         {
-            Debug.Log("ShowPanel: " + index);
+            Debug.Log("ShowPanel: " + scene.ToString());
+            var index = (int)scene;
             if (index == selectedIndex) return; // 避免重复执行
             if (GameStatusManager.Instance.isDrawingCard) return;
 
+            GameStatusManager.Instance.currentScene = scene;
             if (selectedIndex >= 0 && selectedIndex < mainButtons.Count)
             {
                 StopAllCoroutines();
@@ -161,17 +168,5 @@ namespace Assets.Resources.Scripts.Main
                 panel.SetActive(false);
             }
         }
-    }
-
-    public enum MainMenuPanel
-    {
-        CHARACTER,
-        CARDS,
-        BATTLE,
-        INVENTORY,
-        BUILDING,
-        SHOP,
-        SETTINGS,
-        DRAWCARDS
     }
 }
