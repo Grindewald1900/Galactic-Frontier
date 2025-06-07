@@ -33,6 +33,7 @@ namespace Assets.Resources.Scripts.Cards
         public bool isPlayerCard;
         private bool isFlipped = false;  // **当前是否翻转**
         public CardEntity cardEntity;
+        public CardBattleInfoEntity cardBattleInfoEntity;
         public delegate void CardClicked(Card card);
         public event CardClicked OnCardClicked;
         public float currentHealth = 100f;
@@ -150,11 +151,13 @@ namespace Assets.Resources.Scripts.Cards
                 {
                     text = $"-{Mathf.RoundToInt(d.damageAmount)}";
                     textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
+                    cardBattleInfoEntity.injury += d.damageAmount;
                 }
                 else if (d.damageType == DamageType.SPECIAL_DAMAGE)
                 {
                     text = $"-{Mathf.RoundToInt(d.damageAmount)}";
                     textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
+                    cardBattleInfoEntity.injury += d.damageAmount;
                 }
 
                 dt.SetDamageText(text, textColor);

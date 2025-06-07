@@ -1,10 +1,8 @@
 using UnityEngine;
-using TMPro;
 using DG.Tweening;
 
 namespace Assets.Resources.Scripts.Battle
 {
-
     // Information shows up at center of screen, e.g. "Battle Start" "Round 1"
     public class BattleInfo : MonoBehaviour
     {

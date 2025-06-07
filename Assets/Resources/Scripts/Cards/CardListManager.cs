@@ -210,6 +210,8 @@ namespace Assets.Resources.Scripts.Cards
         public List<CardEntity> GetInLineCardEntities()
         {
             List<CardEntity> inLineCardEntities = new();
+            Debug.Log("cardEntities counts" + cardEntities.Count);
+
             foreach (CardEntity entity in cardEntities)
             {
                 if (entity.GetLineupPosition() != LineupPosition.None)

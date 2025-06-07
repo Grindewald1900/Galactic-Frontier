@@ -1,0 +1,52 @@
+Date : 2025-03-17 14:51:49
+Directory : j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts
+Total : 19 files,  141 codes, 19 comments, 26 blanks, all 186 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C#       |         19 |        141 |         19 |         26 |        186 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                          | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                             |         19 |        141 |         19 |         26 |        186 |
+| Battle                                                                                        |          3 |         37 |          5 |         19 |         61 |
+| Cards                                                                                         |          5 |         24 |          1 |          0 |         25 |
+| Entity                                                                                        |          3 |        -10 |          0 |         -1 |        -11 |
+| Main                                                                                          |          3 |         14 |          1 |          1 |         16 |
+| Props                                                                                         |          1 |          8 |          0 |          1 |          9 |
+| Shop                                                                                          |          1 |          1 |          0 |          0 |          1 |
+| Test                                                                                          |          1 |         -2 |          0 |          0 |         -2 |
+| UI                                                                                            |          1 |         39 |          0 |          2 |         41 |
+| Utils                                                                                         |          1 |         30 |         12 |          4 |         46 |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                      | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Battle\BattleController.cs     | C#       |         41 |          3 |         21 |         65 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Battle\BattleInfo.cs           | C#       |         -1 |          0 |         -1 |         -2 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Battle\LineupManager.cs        | C#       |         -3 |          2 |         -1 |         -2 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\Card.cs                  | C#       |          7 |          1 |          0 |          8 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardListManager.cs       | C#       |         12 |          0 |          0 |         12 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardPreviewController.cs | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\CardResultManager.cs     | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Cards\DropZoneHandler.cs       | C#       |          3 |          0 |          0 |          3 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\CardBattleEntity.cs     | C#       |        -26 |          0 |         -3 |        -29 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\CardBattleInfoEntity.cs | C#       |         11 |          0 |          1 |         12 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Entity\CardEntity.cs           | C#       |          5 |          0 |          1 |          6 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Main\GameStatusManager.cs      | C#       |         18 |          1 |          1 |         20 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Main\MainMenu.cs               | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Main\MainScrollController.cs   | C#       |         -5 |          0 |          0 |         -5 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Props\Status.cs                | C#       |          8 |          0 |          1 |          9 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Shop\CardDrawingManager.cs     | C#       |          1 |          0 |          0 |          1 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Test\DebugPanelController.cs   | C#       |         -2 |          0 |          0 |         -2 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\UI\BattleReportSlot.cs         | C#       |         39 |          0 |          2 |         41 |
+| j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Scripts\Utils\ListDeepCopyUtil.cs      | C#       |         30 |         12 |          4 |         46 |
+| Total                                                                                         |          |        141 |         19 |         26 |        186 |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

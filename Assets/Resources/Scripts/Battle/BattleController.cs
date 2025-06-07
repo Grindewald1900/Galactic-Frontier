@@ -10,115 +10,138 @@ using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Main;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Battle
 {
+    /// <summary>
+    /// Manages battle flow, damage calculations, and card entities.
+    /// </summary>
     public class BattleController : MonoBehaviour
     {
-        private const int maxRound = 15;
+        private const int MaxRound = 15;
         private int currentRound = 0;
+
+        /// <summary>
+        /// Singleton instance.
+        /// </summary>
         public static BattleController Instance { get; private set; }
-        public List<Card> playerCards;
-        public List<Card> enermyCards;
+        [SerializeField] private List<Card> playerCards;
+        [SerializeField] private List<Card> enemyCards;
         private List<CardEntity> inlineEntities = new();
-        public BattleController enermyController;
+        [SerializeField] private BattleController enemyController;
 
         private bool isBattleActive = false;
         public bool isSpecialAttackInProgress = false;
 
-        void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-        }
+        public GameObject reportPanel;
 
-        void Start()
+        private void Awake()
+        {
+            if (Instance == null) Instance = this;
+        }
+        private void Start()
         {
             Init();
             StartBattle();
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
-            GameStatusManager.Instance.currentScene = GameStatusManager.CurrentScene.BATTLE_SCENE;
+            if (GameStatusManager.Instance != null)
+                GameStatusManager.Instance.currentScene = GameStatusManager.CurrentScene.BATTLE_SCENE;
+            reportPanel.SetActive(false);
         }
 
         private void Init()
         {
             CharacterSkillController.InitSkillSet();
-            inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(CardListManager.Instance.GetInLineCardEntities());
-            HideAllPlayers();
-            HideAllEnemies();
-            // TODO: Fake enemy cards
-            for (int i = 0; i < 5; i++)
+            var cardListMgr = CardListManager.Instance;
+            Debug.Log("inLine counts cardListMgr " + cardListMgr != null);
+            inlineEntities = cardListMgr != null
+                ? ListDeepCopyUtil.DeepCopyViaJson(cardListMgr.GetInLineCardEntities())
+                : new List<CardEntity>();
+            HideCards(playerCards);
+            HideCards(enemyCards);
+
+            for (var i = 0; i < enemyCards.Count && i < 5; i++)
+                SetCard(enemyCards, i, FakeData(), false);
+
+            if (inlineEntities != null)
             {
-                SetCard(enermyCards, i, FakeData(), false);
-            }
-            foreach (CardEntity entity in inlineEntities)
-            {
-                SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
+                Debug.Log("inLine counts" + inlineEntities.Count);
+                foreach (var entity in inlineEntities)
+                    SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
             }
         }
 
-        public DamageEntity CalculateDamage(Card playerCard, Card enermyCard, float attackMultiplier = 1)
+        /// <summary>
+        /// Calculates damage entity between attacker and defender.
+        /// </summary>
+        public DamageEntity CalculateDamage(Card playerCard, Card enemyCard, float attackMultiplier = 1)
         {
-            CardEntity pEntity = playerCard.cardEntity;
-            CardEntity eEntity = enermyCard.cardEntity;
+            if (playerCard?.cardEntity == null || enemyCard?.cardEntity == null)
+                return new DamageEntity(0, DamageType.DAMAGE, 1);
+            var pEntity = playerCard.cardEntity;
+            var eEntity = enemyCard.cardEntity;
             float hitRate = Mathf.Clamp(pEntity.Accuracy - eEntity.Dodge, 0, 1);
-            float damage = 0;
-            float criticalMultiplier = UnityEngine.Random.Range(0f, 1f) < pEntity.Critical ? pEntity.CriticalDamage : 1;
+            if (UnityEngine.Random.value >= hitRate)
+                return new DamageEntity(0, DamageType.DAMAGE, 1);
+            float criticalMultiplier = UnityEngine.Random.value < pEntity.Critical ? pEntity.CriticalDamage : 1;
             float reductionRate = CalculateDmgReductionRate(eEntity);
-            bool isHit = UnityEngine.Random.Range(0f, 1f) < hitRate;
-            damage = pEntity.GetBattleAttack() * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
-            // Debug.Log("CalculateDamage damage: " + damage);
+            float damage = pEntity.GetBattleAttack() * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
             return new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier);
         }
 
+        /// <summary>
+        /// Calculates defender's damage reduction rate.
+        /// </summary>
         public float CalculateDmgReductionRate(CardEntity eEntity)
         {
-            double logBase1Point4 = Math.Log(eEntity.GetBattleDefense()) / Math.Log(1.4);
+            if (eEntity == null) return 0;
+            double logBase1Point4 = Math.Log(Mathf.Max(eEntity.GetBattleDefense(), 1)) / Math.Log(1.4);
             float reductionRate = (float)(logBase1Point4 * 0.01f + eEntity.DamageReduction);
             return Mathf.Clamp(reductionRate, 0, 1);
         }
 
-        // Setup initial state of card
+        /// <summary>
+        /// Initializes a card in the specified list at the given index.
+        /// </summary>
         public void SetCard(List<Card> target, int index, CardEntity cardEntity, bool isPlayer)
         {
-            if (target[index] == null) return;
-            {
-                target[index].gameObject.SetActive(true);
-                target[index].isPlayerCard = isPlayer;
-                target[index].position = index + 1;
-                target[index].InitCard(cardEntity);
-            }
+            if (target == null || index < 0 || index >= target.Count || target[index] == null || cardEntity == null) return;
+            var card = target[index];
+            card.gameObject.SetActive(true);
+            card.isPlayerCard = isPlayer;
+            card.position = index + 1;
+            card.InitCard(cardEntity);
         }
 
-        public void HideAllPlayers()
+        private void HideCards(List<Card> cards)
         {
-            foreach (var card in playerCards)
+            if (cards == null) return;
+            foreach (var card in cards)
             {
-                card.gameObject.SetActive(false);
+                if (card != null && card.gameObject != null)
+                    card.gameObject.SetActive(false);
             }
         }
 
-        public void HideAllEnemies()
-        {
-            foreach (var card in enermyCards)
-            {
-                card.gameObject.SetActive(false);
-            }
-        }
-
+        /// <summary>
+        /// Deactivates and removes a card from a target list.
+        /// </summary>
+        /// <param name="target">List the card belongs to.</param>
+        /// <param name="card">The card to remove.</param>
         public void RemoveCard(List<Card> target, Card card)
         {
-            if (target.Any(c => c.position == card.position))
-            {
-                card.gameObject.SetActive(false);
-            }
+            if (target == null || card == null) return;
+            if (target.Remove(card))
+                card.gameObject?.SetActive(false);
         }
 
+        /// <summary>
+        /// Starts the battle if not already active.
+        /// </summary>
         public void StartBattle()
         {
             if (isBattleActive) return;
@@ -127,92 +150,136 @@ namespace Assets.Resources.Scripts.Battle
             StartCoroutine(BattleRoutine());
         }
 
+        /// <summary>
+        /// Main battle sequence coroutine.
+        /// </summary>
         private IEnumerator BattleRoutine()
         {
-            while (currentRound < maxRound && isBattleActive)
+            while (currentRound < MaxRound && isBattleActive)
             {
                 currentRound++;
+
+                // Start of battle
                 if (currentRound == 1)
                 {
-                    BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
+                    if (BattleInfo.Instance != null)
+                    {
+                        BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
+                        yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
+                    }
+                }
+
+                if (BattleInfo.Instance != null)
+                {
+                    BattleInfo.Instance.PlayBattleInfoAnimation($"Round {currentRound}");
                     yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
                 }
-                BattleInfo.Instance.PlayBattleInfoAnimation("Round " + currentRound);
-                yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
-                // Combine and sort all alive cards by speed
-                var allCards = playerCards.Concat(enermyCards)
-                    .Where(card => card.IsAlive())
+
+                var allCards = playerCards.Concat(enemyCards)
+                    .Where(card => card != null && card.IsAlive())
                     .OrderByDescending(card => card.cardEntity.Speed)
                     .ToList();
-                Debug.Log("allCards: " + allCards.Count);
-                // Each card takes their turn
+
                 foreach (var card in allCards)
                 {
                     if (!card.IsAlive()) continue;
-
                     yield return new WaitUntil(() => !isSpecialAttackInProgress);
 
-                    List<Card> targets = GetAliveTargets(card);
-                    if (targets == null || targets.Count == 0)
-                        continue;
-                    Character character = CharacterSkillController.GetCharacter(card.cardEntity.characterName);
+                    var targets = GetAliveTargets(card);
+                    if (targets.Count == 0) continue;
+
+                    var character = CharacterSkillController.GetCharacter(card.cardEntity.characterName);
                     if (character == null)
                     {
-                        Debug.LogError("character not found for character: " + card.cardEntity.characterName);
+                        Debug.LogError($"character not found for character: {card.cardEntity.characterName}");
                         continue;
                     }
+
                     card.Highlight(DefaultProperty.highlightCardScale);
+
                     if (card.progress >= 1f)
                     {
-                        Debug.Log("SpecialAttack:" + card.isPlayerCard + card.position);
                         card.ResetEnergyBar();
                         isSpecialAttackInProgress = true;
-                        yield return StartCoroutine(character.SpecialAttack(card, targets));
-                        card.Unhighlight(DefaultProperty.defaultCardScale);
+                        yield return character.SpecialAttack(card, targets);
                         isSpecialAttackInProgress = false;
                     }
                     else
                     {
-                        Debug.Log("NormalAttack:" + card.isPlayerCard + card.position);
-                        yield return StartCoroutine(character.NormalAttack(card, targets));
-                        card.Unhighlight(DefaultProperty.defaultCardScale);
+                        yield return character.NormalAttack(card, targets);
                     }
-                    // Add delay between actions for visualization
-                    // Check if battle should end
-                    if (!HasAliveCards(playerCards))
+
+                    card.Unhighlight(DefaultProperty.defaultCardScale);
+
+                    if (!HasAliveCards(playerCards) || !HasAliveCards(enemyCards))
                     {
-                        BattleInfo.Instance.PlayBattleInfoAnimation("Defeated");
-                        yield break;
-                    }
-                    if (!HasAliveCards(enermyCards))
-                    {
-                        BattleInfo.Instance.PlayBattleInfoAnimation("Victory");
-                        yield break;
+                        if (BattleInfo.Instance != null)
+                        {
+                            BattleInfo.Instance.PlayBattleInfoAnimation(!HasAliveCards(playerCards) ? "Defeated" : "Victory");
+                        }
+                        isBattleActive = false;
+                        break;
                     }
                 }
+
                 yield return new WaitForSeconds(0.5f);
+
+                if (!isBattleActive) break;
             }
-            BattleInfo.Instance.PlayBattleInfoAnimation("Battle End");
+
+            if (isBattleActive && BattleInfo.Instance != null)
+                BattleInfo.Instance.PlayBattleInfoAnimation("Max Rounds Reached");
+
+            if (BattleInfo.Instance != null)
+            {
+                BattleInfo.Instance.PlayBattleInfoAnimation("Battle End");
+                yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
+            }
             isBattleActive = false;
-            Debug.Log("Battle ended - max rounds reached");
+            yield return new WaitForSeconds(0.5f);
+
+            // ShowBattleReport();
         }
 
+        /// <summary>
+        /// Checks if any card in list is alive.
+        /// </summary>
         private bool HasAliveCards(List<Card> cards)
         {
-            return cards.Any(card => card.IsAlive());
+            return cards != null && cards.Any(card => card != null && card.IsAlive());
         }
 
+        /// <summary>
+        /// Gets all alive enemy targets for a given card.
+        /// </summary>
         public List<Card> GetAliveTargets(Card card)
         {
-            List<Card> targets = card.isPlayerCard ? enermyCards : playerCards;
-            return targets.Where(target => target.IsAlive()).ToList();
+            if (card == null) return new List<Card>();
+            var targets = card.isPlayerCard ? enemyCards : playerCards;
+            if (targets == null) return new List<Card>();
+            var result = new List<Card>();
+            foreach (var target in targets) if (target != null && target.IsAlive()) result.Add(target);
+            return result;
         }
 
+        /// <summary>
+        /// Shows result and returns to main scene.
+        /// </summary>
+        private void ShowBattleReport()
+        {
+            Debug.Log($"{GetType().Name} ShowBattleReport");
+            SceneManager.LoadScene("MainScene");
+        }
+
+        /// <summary>
+        /// Generates fake card entity data.
+        /// </summary>
         private CardEntity FakeData()
         {
-            Character character = CardDataManager.Instance.GetCharacter();
-            CardEntity cardEntity = CardDataManager.Instance.GetCardEntity(character);
-            return cardEntity;
+            var cardDataMgr = CardDataManager.Instance;
+            if (cardDataMgr == null) return null;
+            var character = cardDataMgr.GetCharacter();
+            return character == null ? null : cardDataMgr.GetCardEntity(character);
         }
     }
 }

@@ -62,6 +62,15 @@ namespace Assets.Resources.Scripts.Props
             None
         }
 
+        public enum BattleReportType
+        {
+            Damage,
+            Injury,
+            Heal,
+            Shield,
+            None
+        }
+
         public static DebuffType GetRandomDebuff()
         {
             return (DebuffType)UnityEngine.Random.Range(0, System.Enum.GetValues(typeof(DebuffType)).Length);
