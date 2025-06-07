@@ -245,7 +245,7 @@ namespace Assets.Resources.Scripts.Utils
 
         public string GetPlayerAvatarPath(string playerID)
         {
-            return savePath + "/" + playerID + DefaultProperty.AVATER;
+            return savePath + "/" + playerID + DefaultProperty.AVATAR;
         }
 
         public string EncryptBase64(string plainText)

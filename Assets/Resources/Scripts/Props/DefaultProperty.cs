@@ -25,7 +25,7 @@ namespace Assets.Resources.Scripts.Props
         public const string PLAYER_ID = "PlayerID";
 
         public const string PLAYER_ENTITIES = "/playerEntities.json";
-        public const string AVATER = "/avatar.png";
+        public const string AVATAR = "/avatar.png";
         public const string PLAYER_DATA = "/playerData.json";
         public const string PLAYER_CARDS_DATA = "/playerCards.json";
         public const string ITEM_DATA = "/itemData.json";
