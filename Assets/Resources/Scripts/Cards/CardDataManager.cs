@@ -124,8 +124,13 @@ namespace Assets.Resources.Scripts.Cards
                     return Random.Range(0.08f, 0.16f);
                 case CharacterTier.TierD:
                     return Random.Range(0.06f, 0.08f);
-                case CharacterTier.TierE:
-                    return Random.Range(0.4f, 0.06f);
+               case CharacterTier.TierE:
+                    // TierE should have the lowest expertise value range. The
+                    // original code accidentally used `0.4f` which breaks the
+                    // ascending order of tiers and results in an invalid range
+                    // where the minimum is larger than the maximum. This
+                    // produces incorrect random values. Use `0.04f` instead.
+                    return Random.Range(0.04f, 0.06f);
                 case CharacterTier.None:
                     break;
                 default:
