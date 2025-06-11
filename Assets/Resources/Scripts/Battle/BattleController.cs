@@ -296,7 +296,9 @@ namespace Assets.Resources.Scripts.Battle
         {
             Debug.Log($"{GetType().Name} ShowBattleReport");
             reportPanel.SetActive(true);
-            BattleReportManager.Instance.RefreshChart(ChartType.PlayerDamage, playerCards);
+            BattleReportManager.Instance.RefreshChart(ChartType.pDamageChart, playerCards);
+            BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
+            BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
             //SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainScene));
         }
 

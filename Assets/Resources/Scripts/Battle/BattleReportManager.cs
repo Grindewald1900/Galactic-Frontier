@@ -20,7 +20,7 @@ namespace Assets.Resources.Scripts.Battle
         }
         private static BattleReportManager instance;
         [SerializeField] private BarChart pDmgChart, pInjuryChart, pHealChart, eDmgChart, eInjuryChart, eHealChart;
-        public List<BarChart> barCharts = new List<BarChart>();
+        public List<BarChart> barCharts = new();
 
         private void Awake()
         {
@@ -38,21 +38,41 @@ namespace Assets.Resources.Scripts.Battle
 
         private void Init()
         {
-            SetSeries(pDmgChart);
-            // SetSeries(pInjuryChart);
-            // SetSeries(pHealChart);
+            SetSeries(pDmgChart, Color.red);
+            SetSeries(pInjuryChart, Color.cyan);
+            SetSeries(pHealChart, Color.green);
             // SetSeries(eDmgChart);
             // SetSeries(eInjuryChart);
             // SetSeries(eHealChart);
-            var serie = pDmgChart?.series[0];
-            Debug.Log(serie == null ? "null" : "not null");
-            serie.itemStyle.color = Color.red;
         }
 
         public void RefreshChart(ChartType type, List<Card> playerCards)
         {
-            List<float> damages = playerCards.OrderBy(card => card.cardBattleInfoEntity.damage).ToList().ConvertAll(card => card.cardBattleInfoEntity.damage);
-            List<string> cardNames = playerCards.OrderBy(card => card.cardBattleInfoEntity.damage).ToList().ConvertAll(card => card.cardEntity.cardName);
+            List<float> values = new();
+            List<string> cardNames = new();
+            switch (type)
+            {
+                case ChartType.pDamageChart:
+                case ChartType.eDmgChart:
+                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.damage)
+                                         .ToList()
+                                         .ConvertAll(card => card.cardBattleInfoEntity.damage);
+                    break;
+                case ChartType.pInjuryChart:
+                case ChartType.eInjuryChart:
+                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.injury)
+                                        .ToList()
+                                        .ConvertAll(card => card.cardBattleInfoEntity.injury);
+                    break;
+                case ChartType.pHealChart:
+                case ChartType.eHealChart:
+                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.healing)
+                                        .ToList()
+                                        .ConvertAll(card => card.cardBattleInfoEntity.healing);
+                    break;
+            }
+
+            playerCards.OrderBy(card => card.cardBattleInfoEntity.damage).ToList().ConvertAll(card => card.cardEntity.cardName);
             var chart = barCharts[(int)type];
             chart.ClearData();
             foreach (var cardName in cardNames)
@@ -60,29 +80,31 @@ namespace Assets.Resources.Scripts.Battle
                 Debug.Log("Adding card name: " + cardName);
                 chart.AddXAxisData(cardName);
             }
-            chart.AddSerie<Bar>("Damage");
-            foreach (var damage in damages)
+            foreach (var value in values)
             {
-                Debug.Log("Adding damage:  " + damage);
-                chart.AddData(0, damage);
+                Debug.Log("Adding value:  " + value);
+                chart.AddData(0, value);
             }
+            Debug.Log("Refreshing chart..");
             chart.RefreshChart();
         }
 
-        private void SetSeries(BarChart chart)
+        private void SetSeries(BarChart chart, Color color)
         {
             chart.Init();
+            var serie = chart?.series[0];
+            serie.itemStyle.color = color;
             barCharts.Add(chart);
         }
     }
 
     public enum ChartType
     {
-        PlayerDamage,
-        PlayerInjury,
-        PlayerHeal,
-        EnermyDamage,
-        EnermyInjury,
-        EnermyHeal,
+        pDamageChart,
+        pInjuryChart,
+        pHealChart,
+        eDmgChart,
+        eInjuryChart,
+        eHealChart
     }
 }
