@@ -69,12 +69,6 @@ namespace Assets.Resources.Scripts.Cards
             cardEntity.OnDataChanged += RefreshUI;
         }
 
-        void Update()
-        {
-            if (!IsBattleActive()) return;
-            UpdateEnergyBar();
-        }
-
         void OnDestroy()
         {
             cardEntity.OnDataChanged -= RefreshUI;
@@ -93,17 +87,13 @@ namespace Assets.Resources.Scripts.Cards
             UpdateExpBar();
         }
 
-        private void UpdateEnergyBar()
+        public void UpdateEnergyBar(float energy)
         {
-            if (BattleController.Instance.isSpecialAttackInProgress) return;
-            progress = CalculateProgress(cardEntity.EnergyGenerateRate, cardEntity.maxEnergy);
+            currentEnergy = Mathf.Min(currentEnergy + energy, cardEntity.maxEnergy);
+
             if (energyBar != null)
             {
-                energyBar.fillAmount = progress;
-            }
-            if (progress >= 1f)
-            {
-                currentEnergy = cardEntity.maxEnergy;
+                energyBar.fillAmount = currentEnergy / cardEntity.maxEnergy;
             }
         }
 
@@ -122,13 +112,13 @@ namespace Assets.Resources.Scripts.Cards
             expBar.fillAmount = cardEntity.CurrentExp / cardEntity.ExpToNextLevel;
         }
 
-        public void TakeDamage(List<DamageEntity> damage)
+        public void TakeDamage(Card player, List<DamageEntity> damage)
         {
-            StartCoroutine(ApplyDamage(damage));
+            StartCoroutine(ApplyDamage(player, damage));
             CardEffectManager.Instance.SpawnHitEffect(this);
         }
 
-        private IEnumerator ApplyDamage(List<DamageEntity> damage)
+        private IEnumerator ApplyDamage(Card player, List<DamageEntity> damage)
         {
             Debug.Log("ApplyDamage: " + damage.Count);
             if (damageTexts == null || damageTexts.Length == 0)
@@ -152,6 +142,7 @@ namespace Assets.Resources.Scripts.Cards
                     text = $"-{Mathf.RoundToInt(d.damageAmount)}";
                     textColor = d.criticalMultiplier > 1 ? ColorUtil.criticalDamagelColor : ColorUtil.plainDamagelColor;
                     cardBattleInfoEntity.injury += d.damageAmount;
+                    player.cardBattleInfoEntity.damage += d.damageAmount;
                 }
                 else if (d.damageType == DamageType.SPECIAL_DAMAGE)
                 {
@@ -185,13 +176,6 @@ namespace Assets.Resources.Scripts.Cards
             gameObject.SetActive(false);
         }
 
-        private float CalculateProgress(float rate, float maxValue)
-        {
-            currentEnergy += rate * Time.deltaTime;
-            currentEnergy = Mathf.Clamp(currentEnergy, 0, maxValue); // Ensure energy doesn't exceed max
-            return currentEnergy / maxValue;
-        }
-
         public void PlayAttackAnimation()
         {
             Vector3 attackPos = isPlayerCard ? startPos + new Vector3(moveDistance, 0, 0) : startPos - new Vector3(moveDistance, 0, 0);
@@ -218,7 +202,7 @@ namespace Assets.Resources.Scripts.Cards
             {
                 return;
             }
-            if (GameStatusManager.Instance.currentScene == GameStatusManager.CurrentScene.CARDS_MENU)
+            if (GameStatusManager.Instance.CurrentScene == CurrentScene.CARDS_MENU)
             {
                 // Unhighlight all cards currently in Card Menu
                 CardListManager.Instance.UnhighlightAllCards();
@@ -273,6 +257,11 @@ namespace Assets.Resources.Scripts.Cards
         public bool IsAlive()
         {
             return currentHealth > 0 && gameObject.activeSelf;
+        }
+
+        public bool IsMaxEnergy()
+        {
+            return currentEnergy >= cardEntity.maxEnergy;
         }
 
         public bool IsBattleActive()

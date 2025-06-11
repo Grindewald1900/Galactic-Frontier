@@ -61,7 +61,7 @@ namespace Assets.Resources.Scripts.Cards
         private void DismissCard()
         {
             CardListManager.Instance.RemoveCardEntity(card.cardEntity);
-            CardListManager.Instance.SortCards(CardListManager.Instance.order);
+            CardListManager.Instance.SortCards(CardListManager.Instance.Order);
         }
 
         private void RefreshUI()

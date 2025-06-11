@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Resources.Scripts.Battle;
@@ -9,18 +10,17 @@ using UnityEngine;
 
 namespace Assets.Resources.Scripts.Cards
 {
-    // List of card in Card Panel, should be attached to CardPanel(parent)
     public class CardListManager : MonoBehaviour
     {
-        public GameObject cardPrefab;
-        public Transform gridParent;
-        // private int selectedIndex = 0;
-        public List<Card> cards;
-        public List<CardEntity> cardEntities = new();
-        public static CardListManager Instance;
-        public CardSortOrder order = CardSortOrder.Default;
+        [SerializeField] private GameObject cardPrefab;
+        [SerializeField] private Transform gridParent;
 
-        void Awake()
+        public readonly List<Card> cards = new();
+        public List<CardEntity> cardEntities = new();
+        public static CardListManager Instance { get; private set; }
+        public CardSortOrder Order { get; private set; } = CardSortOrder.Default;
+        public IReadOnlyList<CardEntity> CardEntities => cardEntities;
+        private void Awake()
         {
             if (Instance == null)
             {
@@ -33,231 +33,152 @@ namespace Assets.Resources.Scripts.Cards
             }
         }
 
-        void Start()
+        private void OnEnable()
         {
-            // FakeCardList();
-        }
-
-        void OnEnable()
-        {
-            Debug.Log("Init Card List");
             InitCardList();
         }
 
         private void OnCardClicked(Card card)
         {
-            Debug.Log("Card clicked: " + card.cardEntity.cardName);
-            CardPreviewController.Instance.ShowCardPreview(card.cardEntity);
+            if (card?.cardEntity == null) return;
+            CardPreviewController.Instance?.ShowCardPreview(card.cardEntity);
             UnhighlightAllCards();
             card.Highlight(DefaultProperty.highlightCardScale);
         }
-
         public void InitCardList()
         {
-            cardEntities = DataUtil.Instance.LoadCardData();
-            CheckCardCount(cardEntities);
-
-            Debug.Log("cardEntities size: " + cardEntities.Count);
-            Debug.Log("cards size: " + cards.Count);
-            SortCards();
+            cardEntities = DataUtil.Instance.LoadCardData() ?? new List<CardEntity>();
+            UpdateCardObjects(cardEntities.Count);
+            SortCards(Order);
         }
 
         private void InitCard()
         {
-            GameObject cardGO = Instantiate(cardPrefab, gridParent);
+            var cardGO = Instantiate(cardPrefab, gridParent);
             cardGO.SetActive(true);
-            Card card = cardGO.GetComponent<Card>();
+            var card = cardGO.GetComponent<Card>();
             card.SetCardScale(DefaultProperty.defaultCardScale);
             cards.Add(card);
             card.OnCardClicked += OnCardClicked;
         }
-
         public void UpdateCardList(List<CardEntity> entities)
         {
             if (!gameObject.activeSelf) return;
-            if (entities.Count == 0)
+            if (entities == null || entities.Count == 0)
             {
-                CardPreviewController.Instance.HideCardPreview();
+                CardPreviewController.Instance?.HideCardPreview();
                 return;
             }
+            UpdateCardObjects(entities.Count);
             int tempIndex = 0;
-            CheckCardCount(entities);
-
             for (int i = 0; i < entities.Count; i++)
             {
                 if (entities[i].GetLineupPosition() != LineupPosition.None) continue;
-                // Debug.Log("Update card list, i: " + i + ", tempIndex: " + tempIndex);
                 cards[tempIndex].InitCard(entities[i]);
                 tempIndex++;
             }
             for (int i = entities.Count - 1; i >= tempIndex; i--)
             {
-                Debug.Log("Hide card at index: " + i);
                 cards[i].HideCard();
             }
-
-            Debug.Log("Cards size: " + cards.Count);
-            cards[0].Highlight(DefaultProperty.highlightCardScale);
-            CardPreviewController.Instance?.ShowCardPreview(cards[0].cardEntity);
-            DataUtil.Instance.SaveCardData(CardListManager.Instance.cardEntities);
+            if (cards.Count > 0)
+            {
+                cards[0].Highlight(DefaultProperty.highlightCardScale);
+                CardPreviewController.Instance?.ShowCardPreview(cards[0].cardEntity);
+            }
+            DataUtil.Instance.SaveCardData(cardEntities);
         }
-
         public void UnhighlightAllCards()
         {
-            foreach (Card card in cards)
-            {
-                card.Unhighlight(DefaultProperty.defaultCardScale);
-            }
+            foreach (var card in cards) card.Unhighlight(DefaultProperty.defaultCardScale);
         }
-
         public void SortCards(CardSortOrder sortOrder = CardSortOrder.Default)
         {
-            List<CardEntity> sortedEntities = new();
-            order = sortOrder;
-            Debug.Log("Sort cards by: " + order);
-            if (order == CardSortOrder.NameAscending || order == CardSortOrder.Default)
+            Order = sortOrder;
+            cardEntities = sortOrder switch
             {
-                cardEntities = cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
-            }
-            if (order == CardSortOrder.NameDescending)
-            {
-                cardEntities = cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList();
-            }
-            if (order == CardSortOrder.TierAscending)
-            {
-                cardEntities.Sort((a, b) => a.CharacterTier.CompareTo(b.CharacterTier));
-            }
-            if (order == CardSortOrder.TierDescending)
-            {
-                cardEntities.Sort((a, b) => b.CharacterTier.CompareTo(a.CharacterTier));
-            }
-            if (order == CardSortOrder.LevelAscending)
-            {
-                cardEntities.Sort((a, b) => a.level.CompareTo(b.Level));
-            }
-            if (order == CardSortOrder.LevelDesending)
-            {
-                cardEntities.Sort((a, b) => b.level.CompareTo(a.Level));
-            }
-            if (order == CardSortOrder.PowerAscending)
-            {
-                cardEntities.Sort((a, b) => a.power.CompareTo(b.power));
-            }
-            if (order == CardSortOrder.PowerDesending)
-            {
-                cardEntities.Sort((a, b) => b.power.CompareTo(a.power));
-            }
+                CardSortOrder.NameAscending or CardSortOrder.Default => cardEntities.OrderBy(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList(),
+                CardSortOrder.NameDescending => cardEntities.OrderByDescending(card => card.characterName).ThenByDescending(card => card.CharacterTier).ToList(),
+                CardSortOrder.TierAscending => cardEntities.OrderBy(card => card.CharacterTier).ToList(),
+                CardSortOrder.TierDescending => cardEntities.OrderByDescending(card => card.CharacterTier).ToList(),
+                CardSortOrder.LevelAscending => cardEntities.OrderBy(card => card.Level).ToList(),
+                CardSortOrder.LevelDesending => cardEntities.OrderByDescending(card => card.Level).ToList(),
+                CardSortOrder.PowerAscending => cardEntities.OrderBy(card => card.power).ToList(),
+                CardSortOrder.PowerDesending => cardEntities.OrderByDescending(card => card.power).ToList(),
+                _ => cardEntities
+            };
             CardPanelController.Instance.typeDropdown.value = 0;
             UpdateCardList(cardEntities);
         }
-
         public void FilterCardsByType(Archetype cardType)
         {
-            Debug.Log("Filter cards by: " + cardType);
             if (cardType == Archetype.Default)
             {
-                SortCards();
+                SortCards(Order);
             }
             else
             {
-                UpdateCardList(cardEntities.FindAll(c => c.archetype == cardType));
+                UpdateCardList(cardEntities.Where(c => c.archetype == cardType).ToList());
             }
         }
-
         public void AddCardEntity(CardEntity cardEntity)
         {
-            Debug.Log("Add card entity: " + cardEntities.Count);
-            if (cardEntities.Exists(c => c.id == cardEntity.id))
-            {
-                return;
-            }
+            if (cardEntity == null || cardEntities.Exists(c => c.id == cardEntity.id)) return;
             cardEntities.Add(cardEntity);
             UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
-
         public void AddCardEntity(List<CardEntity> mCardEntities)
         {
-            Debug.Log("Add card entities: " + cardEntities.Count);
-            foreach (CardEntity cardEntity in mCardEntities)
+            if (mCardEntities == null) return;
+            foreach (var cardEntity in mCardEntities)
             {
-                if (cardEntities.Exists(c => c.id == cardEntity.id))
-                {
-                    continue;
-                }
+                if (cardEntities.Exists(c => c.id == cardEntity.id)) continue;
                 cardEntities.Add(cardEntity);
             }
-            Debug.Log("Add card entities: " + cardEntities.Count);
-
             UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
-
         public void RemoveCardEntity(CardEntity cardEntity)
         {
+            if (cardEntity == null) return;
             cardEntities.RemoveAll(card => card.id == cardEntity.id);
             DataUtil.Instance.SaveCardData(cardEntities);
         }
-
         public void ClearCardEntities()
         {
-            Debug.Log("Clear card entities");
             cardEntities.Clear();
             UpdateCardList(cardEntities);
             DataUtil.Instance.SaveCardData(cardEntities);
-        }
-
-        public List<CardEntity> GetInLineCardEntities()
-        {
-            List<CardEntity> inLineCardEntities = new();
-            Debug.Log("cardEntities counts" + cardEntities.Count);
-
-            foreach (CardEntity entity in cardEntities)
-            {
-                if (entity.GetLineupPosition() != LineupPosition.None)
-                {
-                    inLineCardEntities.Add(entity);
-                }
-            }
-            return inLineCardEntities;
         }
 
         public List<CardEntity> GetCardEntities()
         {
             return cardEntities;
         }
-
+        public List<CardEntity> GetInLineCardEntities()
+        {
+            return cardEntities.Where(entity => entity.GetLineupPosition() != LineupPosition.None).ToList();
+        }
         public CardEntity GetCardEntityById(string id)
         {
-            return cardEntities.Find(cardEntities => cardEntities.id == id);
+            return cardEntities.Find(cards => cards.id == id);
         }
-
-        // Make sure there are enough cards in the card panel to display all the cards
-        private void CheckCardCount(List<CardEntity> entities)
+        private void UpdateCardObjects(int expectedCount)
         {
-            if (cards.Count < entities.Count)
+            while (cards.Count < expectedCount) InitCard();
+            for (int i = cards.Count - 1; i >= expectedCount; i--)
             {
-                for (int i = cards.Count; i < entities.Count; i++)
-                {
-                    InitCard();
-                }
-            }
-            else
-            {
-                for (int i = cards.Count - 1; i >= entities.Count; i--)
-                {
-                    Destroy(cards[i].gameObject);
-                    cards.RemoveAt(i);
-                }
+                Destroy(cards[i].gameObject);
+                cards.RemoveAt(i);
             }
         }
-
         public void FakeCardList()
         {
-            List<CardEntity> fakeEntities = new();
+            var fakeEntities = new List<CardEntity>();
             for (int i = 0; i < 30; i++)
             {
-                Character character = CardDataManager.Instance.GetCharacter();
+                var character = CardDataManager.Instance.GetCharacter();
                 fakeEntities.Add(CardDataManager.Instance.GetCardEntity(character));
             }
         }

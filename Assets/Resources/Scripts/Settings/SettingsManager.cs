@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Utils;
-using UnityEngine.SceneManagement;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Test;
+using Assets.Resources.Scripts.Scene;
 
 namespace Assets.Resources.Scripts.Settings
 {
@@ -57,7 +57,7 @@ namespace Assets.Resources.Scripts.Settings
         {
             List<CardEntity> cardEntities = CardListManager.Instance.GetCardEntities();
             DataUtil.Instance.SaveCardData(cardEntities);
-            SceneManager.LoadScene("MainMenuScene");
+            SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainScene));
         }
 
         public void ClearCards()

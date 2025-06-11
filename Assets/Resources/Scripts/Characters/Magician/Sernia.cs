@@ -43,7 +43,7 @@ namespace Assets.Resources.Scripts.Characters.Magician
                 damageEntities.Add(BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier));
                 damageEntities.Add(BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier));
                 damageEntities.Add(new DamageEntity(0, DamageType.MISS, 1f));
-                enermy.TakeDamage(damageEntities);
+                enermy.TakeDamage(player, damageEntities);
                 enermy.debuffManager.AddDebuff(GetDebuff(), enermy);
             }
             yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
@@ -63,7 +63,7 @@ namespace Assets.Resources.Scripts.Characters.Magician
                     BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier)
                 };
                 damageEntities[0].damageType = DamageType.SPECIAL_DAMAGE;
-                enermy.TakeDamage(damageEntities);
+                enermy.TakeDamage(player, damageEntities);
                 enermy.debuffManager.AddDebuff(GetDebuff(), enermy);
             }
             yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);

@@ -45,14 +45,14 @@ namespace Assets.Resources.Scripts.Main
 
         void OnEnable()
         {
-            GameStatusManager.Instance.currentScene = CurrentScene.MAIN_SCENE;
+            GameStatusManager.Instance.CurrentScene = CurrentScene.MAIN_SCENE;
         }
 
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (GameStatusManager.Instance.isDrawingCard) return;
+                if (GameStatusManager.Instance.IsDrawingCard) return;
                 if (selectedIndex == (int)CurrentScene.DRAWCARDS_MENU)
                 {
                     ShowPanel(CurrentScene.SETTINGS_MENU);
@@ -127,9 +127,9 @@ namespace Assets.Resources.Scripts.Main
             Debug.Log("ShowPanel: " + scene.ToString());
             var index = (int)scene;
             if (index == selectedIndex) return; // 避免重复执行
-            if (GameStatusManager.Instance.isDrawingCard) return;
+            if (GameStatusManager.Instance.IsDrawingCard) return;
 
-            GameStatusManager.Instance.currentScene = scene;
+            GameStatusManager.Instance.CurrentScene = scene;
             if (selectedIndex >= 0 && selectedIndex < mainButtons.Count)
             {
                 StopAllCoroutines();

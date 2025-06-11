@@ -4,12 +4,12 @@ using System;
 using UnityEngine;
 using System.Collections;
 using Assets.Resources.Scripts.Cards;
-using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Main;
+using Assets.Resources.Scripts.Scene;
 using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Battle
@@ -19,9 +19,9 @@ namespace Assets.Resources.Scripts.Battle
     /// </summary>
     public class BattleController : MonoBehaviour
     {
+        #region Variables
         private const int MaxRound = 15;
         private int currentRound = 0;
-
         /// <summary>
         /// Singleton instance.
         /// </summary>
@@ -31,10 +31,11 @@ namespace Assets.Resources.Scripts.Battle
         private List<CardEntity> inlineEntities = new();
         [SerializeField] private BattleController enemyController;
 
-        private bool isBattleActive = false;
-        public bool isSpecialAttackInProgress = false;
+        //private bool isBattleActive = false;
+        // public bool isSpecialAttackInProgress = false;
 
         public GameObject reportPanel;
+        #endregion
 
         private void Awake()
         {
@@ -49,18 +50,30 @@ namespace Assets.Resources.Scripts.Battle
         private void OnEnable()
         {
             if (GameStatusManager.Instance != null)
-                GameStatusManager.Instance.currentScene = GameStatusManager.CurrentScene.BATTLE_SCENE;
+                GameStatusManager.Instance.CurrentScene = CurrentScene.BATTLE_SCENE;
             reportPanel.SetActive(false);
         }
 
+        #region Initialization 🚀 
         private void Init()
         {
             CharacterSkillController.InitSkillSet();
             var cardListMgr = CardListManager.Instance;
-            Debug.Log("inLine counts cardListMgr " + cardListMgr != null);
-            inlineEntities = cardListMgr != null
-                ? ListDeepCopyUtil.DeepCopyViaJson(cardListMgr.GetInLineCardEntities())
-                : new List<CardEntity>();
+            Debug.Log("inLine counts cardListMgr " + (cardListMgr != null));
+            if (cardListMgr != null)
+            {
+                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(cardListMgr.GetInLineCardEntities());
+            }
+            else if (DataUtil.Instance != null)
+            {
+                var loaded = DataUtil.Instance.LoadCardData();
+                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(
+                    loaded.FindAll(e => e.GetLineupPosition() != LineupPosition.None));
+            }
+            else
+            {
+                inlineEntities = new List<CardEntity>();
+            }
             HideCards(playerCards);
             HideCards(enemyCards);
 
@@ -74,6 +87,7 @@ namespace Assets.Resources.Scripts.Battle
                     SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
             }
         }
+        #endregion
 
         /// <summary>
         /// Calculates damage entity between attacker and defender.
@@ -109,6 +123,8 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         public void SetCard(List<Card> target, int index, CardEntity cardEntity, bool isPlayer)
         {
+            Debug.Log("Setting Card: " + index + ", CardEntity: " + cardEntity?.cardName + " isPlayer: " + isPlayer);
+
             if (target == null || index < 0 || index >= target.Count || target[index] == null || cardEntity == null) return;
             var card = target[index];
             card.gameObject.SetActive(true);
@@ -144,8 +160,8 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         public void StartBattle()
         {
-            if (isBattleActive) return;
-            isBattleActive = true;
+            if (GameStatusManager.Instance.IsBattle) return;
+            GameStatusManager.Instance.IsBattle = true;
             currentRound = 0;
             StartCoroutine(BattleRoutine());
         }
@@ -155,7 +171,7 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         private IEnumerator BattleRoutine()
         {
-            while (currentRound < MaxRound && isBattleActive)
+            while (currentRound < MaxRound && GameStatusManager.Instance.IsBattle)
             {
                 currentRound++;
 
@@ -182,11 +198,12 @@ namespace Assets.Resources.Scripts.Battle
 
                 foreach (var card in allCards)
                 {
+                    Debug.Log($"Card: {card.name} isAlive: {card.IsAlive()}");
                     if (!card.IsAlive()) continue;
-                    yield return new WaitUntil(() => !isSpecialAttackInProgress);
 
                     var targets = GetAliveTargets(card);
-                    if (targets.Count == 0) continue;
+                    Debug.Log("target count: " + targets.Count);
+                    if (targets.Count == 0) break;
 
                     var character = CharacterSkillController.GetCharacter(card.cardEntity.characterName);
                     if (character == null)
@@ -197,15 +214,16 @@ namespace Assets.Resources.Scripts.Battle
 
                     card.Highlight(DefaultProperty.highlightCardScale);
 
-                    if (card.progress >= 1f)
+                    if (card.IsMaxEnergy())
                     {
+                        Debug.Log("Max energy, using special attack.");
                         card.ResetEnergyBar();
-                        isSpecialAttackInProgress = true;
                         yield return character.SpecialAttack(card, targets);
-                        isSpecialAttackInProgress = false;
                     }
                     else
                     {
+                        Debug.Log("Using normal attack.");
+                        card.UpdateEnergyBar(30f);
                         yield return character.NormalAttack(card, targets);
                     }
 
@@ -213,21 +231,18 @@ namespace Assets.Resources.Scripts.Battle
 
                     if (!HasAliveCards(playerCards) || !HasAliveCards(enemyCards))
                     {
-                        if (BattleInfo.Instance != null)
-                        {
-                            BattleInfo.Instance.PlayBattleInfoAnimation(!HasAliveCards(playerCards) ? "Defeated" : "Victory");
-                        }
-                        isBattleActive = false;
+                        BattleInfo.Instance?.PlayBattleInfoAnimation(!HasAliveCards(playerCards) ? "Defeated" : "Victory");
+                        GameStatusManager.Instance.IsBattle = false;
                         break;
                     }
                 }
 
                 yield return new WaitForSeconds(0.5f);
 
-                if (!isBattleActive) break;
+                if (!GameStatusManager.Instance.IsBattle) break;
             }
 
-            if (isBattleActive && BattleInfo.Instance != null)
+            if (GameStatusManager.Instance.IsBattle && BattleInfo.Instance != null)
                 BattleInfo.Instance.PlayBattleInfoAnimation("Max Rounds Reached");
 
             if (BattleInfo.Instance != null)
@@ -235,10 +250,10 @@ namespace Assets.Resources.Scripts.Battle
                 BattleInfo.Instance.PlayBattleInfoAnimation("Battle End");
                 yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
             }
-            isBattleActive = false;
+            GameStatusManager.Instance.IsBattle = false;
             yield return new WaitForSeconds(0.5f);
 
-            // ShowBattleReport();
+            ShowBattleReport();
         }
 
         /// <summary>
@@ -254,12 +269,24 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         public List<Card> GetAliveTargets(Card card)
         {
-            if (card == null) return new List<Card>();
+            Debug.Log("Getting alive targets for card: " + card?.name ?? "null");
+            Debug.Log("player cards count: " + playerCards?.Count);
+            Debug.Log("enemy cards count: " + enemyCards?.Count);
+
+            if (card == null || !card.IsAlive())
+            {
+                Debug.LogWarning($"{GetType().Name} GetAliveTargets: Invalid or dead card");
+                return new List<Card>();
+            }
+
             var targets = card.isPlayerCard ? enemyCards : playerCards;
-            if (targets == null) return new List<Card>();
-            var result = new List<Card>();
-            foreach (var target in targets) if (target != null && target.IsAlive()) result.Add(target);
-            return result;
+            if (targets == null)
+            {
+                Debug.LogWarning($"{GetType().Name} GetAliveTargets: Invalid targets");
+                return new List<Card>();
+            }
+            Debug.Log("Returning alive targets: " + targets.Count() + " cards: " + targets.Select(t => t?.name ?? "null").ToArray() + "\n");
+            return targets.Where(t => t != null && t.IsAlive()).ToList();
         }
 
         /// <summary>
@@ -268,7 +295,9 @@ namespace Assets.Resources.Scripts.Battle
         private void ShowBattleReport()
         {
             Debug.Log($"{GetType().Name} ShowBattleReport");
-            SceneManager.LoadScene("MainScene");
+            reportPanel.SetActive(true);
+            BattleReportManager.Instance.RefreshChart(ChartType.PlayerDamage, playerCards);
+            //SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainScene));
         }
 
         /// <summary>
@@ -277,6 +306,7 @@ namespace Assets.Resources.Scripts.Battle
         private CardEntity FakeData()
         {
             var cardDataMgr = CardDataManager.Instance;
+            Debug.Log("CardDataMgr is null: " + (cardDataMgr == null));
             if (cardDataMgr == null) return null;
             var character = cardDataMgr.GetCharacter();
             return character == null ? null : cardDataMgr.GetCardEntity(character);

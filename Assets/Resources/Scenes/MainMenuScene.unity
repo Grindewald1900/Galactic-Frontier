@@ -629,6 +629,7 @@ GameObject:
   - component: {fileID: 582822716}
   - component: {fileID: 582822715}
   - component: {fileID: 582822714}
+  - component: {fileID: 582822717}
   m_Layer: 0
   m_Name: GameInstances
   m_TagString: Untagged
@@ -648,8 +649,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2bd20203a0c879478d6093fb4761d0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isBattle: 0
-  isDrawingCard: 0
+  <CurrentScene>k__BackingField: 8
+  <IsBattle>k__BackingField: 0
+  <IsDrawingCard>k__BackingField: 0
 --- !u!114 &582822715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -691,6 +693,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &582822717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582822713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a552e8f9059c7344ca56c9b13fb18614, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transitionAnimator: {fileID: 0}
+  transitionTime: 1
 --- !u!1 &606280014
 GameObject:
   m_ObjectHideFlags: 0

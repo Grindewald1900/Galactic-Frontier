@@ -96,7 +96,7 @@ namespace Assets.Resources.Scripts.Cards
 
         private IEnumerator FlipAllCards()
         {
-            GameStatusManager.Instance.isDrawingCard = true;
+            GameStatusManager.Instance.IsDrawingCard = true;
             yield return new WaitForSeconds(1f);
             foreach (var card in cards)
             {
@@ -109,7 +109,7 @@ namespace Assets.Resources.Scripts.Cards
 
         public void ShowReport(List<CardEntity> drawResults)
         {
-            GameStatusManager.Instance.isDrawingCard = false;
+            GameStatusManager.Instance.IsDrawingCard = false;
             Dictionary<CharacterTier, int> tierDrawCount = GetTierDrawCount(drawResults);
             foreach (var tier in tierDrawCount)
             {

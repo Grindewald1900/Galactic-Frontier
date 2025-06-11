@@ -24,7 +24,7 @@ namespace Assets.Resources.Scripts.Main
         void OnEnable()
         {
             loadPanel.SetActive(false);
-            GameStatusManager.Instance.currentScene = GameStatusManager.CurrentScene.MAIN_MENU_SCENE;
+            GameStatusManager.Instance.CurrentScene = CurrentScene.MAIN_MENU_SCENE;
         }
 
         void OnDisable()

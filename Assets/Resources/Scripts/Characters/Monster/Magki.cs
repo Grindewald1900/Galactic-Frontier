@@ -44,7 +44,7 @@ namespace Assets.Resources.Scripts.Characters.Monster
                     BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier),
                     new DamageEntity(0, DamageType.MISS, 1f)
                 };
-                enermy.TakeDamage(damageEntities);
+                enermy.TakeDamage(player, damageEntities);
             }
             yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
         }
@@ -65,7 +65,7 @@ namespace Assets.Resources.Scripts.Characters.Monster
                     BattleController.Instance.CalculateDamage(player, enermy, attackMultiplier)
                 };
                 damageEntities[0].damageType = DamageType.SPECIAL_DAMAGE;
-                enermy.TakeDamage(damageEntities);
+                enermy.TakeDamage(player, damageEntities);
                 enermy.debuffManager.AddDebuff(GetDebuff(), enermy);
             }
             yield return new WaitForSeconds(DefaultProperty.defaultAttackTime);
