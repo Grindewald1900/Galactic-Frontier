@@ -50,6 +50,14 @@ docs:
   - uses: genomagames/unity-docs
   - uses: genomagames/c-sharp
 ```
+### Stable Diffusion and Control Net
+
+<p align="center">
+  <img  height="450" width="720"src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/StableDiffusion.png">    
+</p>  
+<p align="center">
+  <img  height="450" width="720"src="https://github.com/Grindewald1900/Notebook/blob/master/Image/Galactic/forward_first.png">    
+</p>  
 
 ### Demo
 * **Main Menu**
