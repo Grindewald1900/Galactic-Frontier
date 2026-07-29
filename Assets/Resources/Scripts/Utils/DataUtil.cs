@@ -34,6 +34,7 @@ namespace Assets.Resources.Scripts.Utils
             if (Instance == null)
             {
                 Instance = this;
+                InitPaths();
                 DontDestroyOnLoad(gameObject); // 场景切换时不销毁
             }
             else
@@ -42,27 +43,28 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
-        void Start()
-        {
-            InitPaths();
-        }
-
         public void InitPlayerInfo()
         {
-            if (!File.Exists(savePath + DefaultProperty.PLAYER_ENTITIES))
+            string playerEntitiesPath = CombinePath(savePath, DefaultProperty.PLAYER_ENTITIES);
+            if (!File.Exists(playerEntitiesPath))
             {
-                File.WriteAllText(savePath + DefaultProperty.PLAYER_ENTITIES, "");
+                File.WriteAllText(playerEntitiesPath, string.Empty);
             }
         }
 
         private void InitPaths()
         {
-            savePath = Application.persistentDataPath + "/saves";
+            savePath = Path.Combine(Application.persistentDataPath, "saves");
             CheckIfPathExist(savePath);
         }
 
         public void UpdatePaths()
         {
+            if (currentPlayer == null)
+                throw new InvalidOperationException("A current player must be selected before updating save paths.");
+            if (string.IsNullOrWhiteSpace(currentPlayer.playerID))
+                throw new InvalidOperationException("The current player must have a valid ID.");
+
             playerSavePath = GetPlayerSavePath(currentPlayer.playerID);
             playerDataPath = GetPlayerDataPath(currentPlayer.playerID);
             playerCardPath = GetPlayerCardPath(currentPlayer.playerID);
@@ -156,12 +158,13 @@ namespace Assets.Resources.Scripts.Utils
 
         public List<ExpertiseEntity> LoadExpertiseData()
         {
-            if (File.Exists(playerSavePath + DefaultProperty.EXPERT_DATA))
+            string expertiseDataPath = CombinePath(playerSavePath, DefaultProperty.EXPERT_DATA);
+            if (File.Exists(expertiseDataPath))
             {
-                string json = File.ReadAllText(playerSavePath + DefaultProperty.EXPERT_DATA);
+                string json = File.ReadAllText(expertiseDataPath);
                 string encryptedJson = DecryptBase64(json);
                 ExpertiseListWrapper wrapper = JsonUtility.FromJson<ExpertiseListWrapper>(encryptedJson);
-                Debug.Log("专长数据已加载：" + playerSavePath + DefaultProperty.EXPERT_DATA + "，共" + wrapper.expertiseEntities.Count + "个专长");
+                Debug.Log($"专长数据已加载：{expertiseDataPath}，共{wrapper.expertiseEntities.Count}个专长");
                 expertiseEntities = wrapper.expertiseEntities;
             }
             else
@@ -193,8 +196,9 @@ namespace Assets.Resources.Scripts.Utils
             // Load all player data from individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
             foreach (string id in GetAllPlayerIDs())
             {
-                string path = savePath + "/" + id + DefaultProperty.PLAYER_DATA;
-                playerEntities.Add(LoadPlayerData(path));
+                PlayerEntity player = LoadPlayerData(GetPlayerDataPath(id));
+                if (player != null)
+                    playerEntities.Add(player);
             }
             Debug.Log("已加载存档数据：共" + playerEntities.Count + "个存档");
             return playerEntities;
@@ -225,27 +229,28 @@ namespace Assets.Resources.Scripts.Utils
 
         public string GetPlayerSavePath(string playerID)
         {
-            return savePath + "/" + playerID;
+            ValidatePlayerId(playerID);
+            return Path.Combine(savePath, playerID);
         }
 
         public string GetPlayerDataPath(string playerID)
         {
-            return savePath + "/" + playerID + DefaultProperty.PLAYER_DATA;
+            return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.PLAYER_DATA);
         }
 
         public string GetPlayerCardPath(string playerID)
         {
-            return savePath + "/" + playerID + DefaultProperty.PLAYER_CARDS_DATA;
+            return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.PLAYER_CARDS_DATA);
         }
 
         public string GetPlayerItemDataPath(string playerID)
         {
-            return savePath + "/" + playerID + DefaultProperty.ITEM_DATA;
+            return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.ITEM_DATA);
         }
 
         public string GetPlayerAvatarPath(string playerID)
         {
-            return savePath + "/" + playerID + DefaultProperty.AVATAR;
+            return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.AVATAR);
         }
 
         public string EncryptBase64(string plainText)
@@ -276,21 +281,46 @@ namespace Assets.Resources.Scripts.Utils
 
         public void SaveData(object data, string filePath, string fileName)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException("A save directory is required.", nameof(filePath));
+
             CheckIfPathExist(filePath);
 
             string json = JsonUtility.ToJson(data, true);
-            string outputJson = DefaultProperty.isDebug ? json : EncryptBase64(json); ;
-            File.WriteAllText(filePath + fileName, outputJson);
-            Debug.Log("SaveData:" + fileName + " saved at " + filePath);
+            string outputJson = EncryptBase64(json);
+            string outputPath = CombinePath(filePath, fileName);
+            File.WriteAllText(outputPath, outputJson);
+            Debug.Log($"Saved {fileName} at {outputPath}.");
         }
 
         public void CheckIfPathExist(string directoryPath)
         {
+            if (string.IsNullOrWhiteSpace(directoryPath))
+                throw new ArgumentException("A directory path is required.", nameof(directoryPath));
+
             if (!Directory.Exists(directoryPath)) // **如果文件夹不存在**
             {
                 Directory.CreateDirectory(directoryPath); // **创建文件夹**
                 Debug.Log($"Path created: {directoryPath}");
             }
+        }
+
+        private static string CombinePath(string directory, string fileName)
+        {
+            string relativeFileName = fileName.TrimStart(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
+            return Path.Combine(directory, relativeFileName);
+        }
+
+        private static void ValidatePlayerId(string playerID)
+        {
+            if (string.IsNullOrWhiteSpace(playerID))
+                throw new ArgumentException("A player ID is required.", nameof(playerID));
+            if (playerID.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                throw new ArgumentException("The player ID contains invalid path characters.", nameof(playerID));
         }
 
         [Serializable]

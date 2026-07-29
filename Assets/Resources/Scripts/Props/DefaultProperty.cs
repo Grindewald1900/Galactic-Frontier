@@ -4,11 +4,11 @@ namespace Assets.Resources.Scripts.Props
 {
     public static class DefaultProperty
     {
-        public static float defaultCanvasScale = 0.0093f;
-        public static Vector2 screenSize = new Vector2(1920, 1080);
-        public static float defaultHealth = 100f;
-        public static float defaultAttack = 10f;
-        public static float defaultDefense = 10f;
+        public const float defaultCanvasScale = 0.0093f;
+        public static readonly Vector2 screenSize = new Vector2(1920, 1080);
+        public const float defaultHealth = 100f;
+        public const float defaultAttack = 10f;
+        public const float defaultDefense = 10f;
         public const int defaultLineupSize = 5;
         public const float defaultAttackTime = 1.5f;
         public const int defaultBuffRound = 3;
@@ -32,13 +32,13 @@ namespace Assets.Resources.Scripts.Props
         public const string EXPERT_DATA = "/expertData.json";
 
         // Paths
-        public static readonly string SKILL_DATA_PATH = "data/SkillData_encrypted";
-        public static readonly string BASE_ATTR_PATH = "data/BaseAttributes";
+        public const string SKILL_DATA_PATH = "data/SkillData_encrypted";
+        public const string BASE_ATTR_PATH = "data/BaseAttributes";
 
         // Configs
         public static bool isDebug = true;
 
         // Gift code
-        public static string CODE_DEBUG_BOARD = "000";
+        public const string CODE_DEBUG_BOARD = "000";
     }
 }

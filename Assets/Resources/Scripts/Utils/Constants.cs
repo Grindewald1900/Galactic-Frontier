@@ -1,9 +1,7 @@
-using System;
-
 public static class Constants
 {
-    public static String version = "0.0.1";
-    public static String sceneHome = "HomeScene";
-    public static int maxItemCountPerSlot = 99; // max item count per slot
-    public static int defaultInventorySlots = 30; // max inventory slots
+    public const string version = "0.0.1";
+    public const string sceneHome = "HomeScene";
+    public const int maxItemCountPerSlot = 99;
+    public const int defaultInventorySlots = 30;
 }
