@@ -1,4 +1,9 @@
 ## About this project
+
+### Development Documentation
+
+* [中文开发文档](Documentation/zh-CN/README.md)
+
 * A cross-platform video game for Android and PC based on **[Unity3D](https://www.unity.com
 )**.
 * Streamlined the development process by integrating **[OpenAI APIs](https://platform.openai.com/docs/overview)** with the **[Continue.dev](https://docs.continue.dev/)** plugin.
