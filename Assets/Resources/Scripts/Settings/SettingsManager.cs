@@ -43,14 +43,13 @@ namespace Assets.Resources.Scripts.Settings
             graphicButton.onClick.AddListener(() => ShowPanel(1));
             giftCodeButton.onClick.AddListener(ShowGiftCode);
             clearCardsButton.onClick.AddListener(ClearCards);
-            loadButton.onClick.AddListener(LoadGame);
+            loadButton.onClick.AddListener(ShowGeneralSettings);
             saveButton.onClick.AddListener(SaveGame);
         }
 
-        public void LoadGame()
+        public void ShowGeneralSettings()
         {
-            // Load settings from PlayerPrefs
-            ShowPanel(0); // 跳转到 SettingsPanel
+            ShowPanel(0);
         }
 
         public void SaveGame()

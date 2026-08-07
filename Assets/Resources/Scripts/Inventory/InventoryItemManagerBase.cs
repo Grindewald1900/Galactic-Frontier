@@ -11,6 +11,11 @@ namespace Assets.Resources.Scripts.Inventory
     /// <summary>
     /// Shared item collection and slot presentation logic for local and remote inventories.
     /// </summary>
+    /// <remarks>
+    /// Derived managers only define inventory ownership through IsRemote. Items are copied during
+    /// transfer so the local and remote inventories never share the same mutable ItemEntity instance.
+    /// Current startup still seeds prototype data and both inventories use DataUtil item storage.
+    /// </remarks>
     public abstract class InventoryItemManagerBase : MonoBehaviour
     {
         private readonly List<ItemSlot> itemSlots = new();
@@ -69,6 +74,8 @@ namespace Assets.Resources.Scripts.Inventory
             UpdateItemList();
         }
 
+        /// <summary>Adds or stacks an item and refreshes the slot projection.</summary>
+        /// <returns>False only when a new stack cannot fit in the inventory.</returns>
         public bool AddItem(ItemEntity newItem)
         {
             if (newItem == null)
@@ -100,6 +107,7 @@ namespace Assets.Resources.Scripts.Inventory
             return true;
         }
 
+        /// <summary>Consumes up to the requested quantity and removes empty stacks.</summary>
         public void UseItem(ItemEntity itemEntity, int quantity = 1)
         {
             if (itemEntity == null || quantity <= 0)
@@ -174,6 +182,7 @@ namespace Assets.Resources.Scripts.Inventory
                 .ToList();
         }
 
+        /// <summary>Creates an ownership-specific copy for safe transfer between inventories.</summary>
         private ItemEntity CopyForThisInventory(ItemEntity source)
         {
             return new ItemEntity(

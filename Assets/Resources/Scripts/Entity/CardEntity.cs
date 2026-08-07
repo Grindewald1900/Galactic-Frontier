@@ -7,6 +7,15 @@ using Assets.Resources.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Entity
 {
+    /// <summary>
+    /// Serializable source of truth for a collectible character card.
+    /// It contains persistent identity and progression data plus transient battle multipliers.
+    /// Card MonoBehaviours render and animate this model but do not own its gameplay state.
+    /// </summary>
+    /// <remarks>
+    /// JsonUtility serializes fields rather than properties. Keep the public backing fields compatible
+    /// with existing saves, and avoid reordering persisted enums without a migration.
+    /// </remarks>
     [Serializable]
     public class CardEntity
     {
@@ -181,12 +190,16 @@ namespace Assets.Resources.Scripts.Entity
         // Each archetype should have its own specialization
         public List<ExpertiseEntity> characterExpertises = new();
         public List<SkillEntity> skills = new();
-        // Attributes in panel = base value * characterAttrs * panelAttrs
+        // Displayed attributes = base value * characterAttrs * panelAttrs.
+        // Battle attributes add battleAttrs as a final transient multiplier layer.
         Dictionary<Status.AttributeType, float> characterAttrs = new();
         Dictionary<Status.AttributeType, float> panelAttrs = new();
         Dictionary<Status.AttributeType, float> battleAttrs = new();
         private readonly int levelStepForEvolution = 20;
+        /// <summary>Raised whenever a derived value changes and views should refresh.</summary>
         public event Action OnDataChanged;
+
+        /// <summary>Raised after an evolution applies a new expertise.</summary>
         public event Action OnCardUpgraded;
 
         public CardEntity()
@@ -226,6 +239,7 @@ namespace Assets.Resources.Scripts.Entity
             }
         }
 
+        /// <summary>Applies a battle-only multiplier delta without changing persisted base stats.</summary>
         public void ChangeBattleAttribute(Status.AttributeType attributeType, float value)
         {
             battleAttrs[attributeType] += value;
@@ -253,7 +267,7 @@ namespace Assets.Resources.Scripts.Entity
             UpdateExpertises();
         }
 
-        // 模拟每场战斗后获得经验（在 BattleController 中调用）
+        /// <summary>Adds battle experience, performs chained level-ups, and stops at evolution gates.</summary>
         public void AddExperience(float exp)
         {
             if (EvolutionPending)
@@ -305,6 +319,10 @@ namespace Assets.Resources.Scripts.Entity
             CalculatePower();
         }
 
+        /// <summary>
+        /// Recomputes the score shown by collection and formation UI, then notifies listeners.
+        /// Current implementation also persists the complete collection through CardListManager.
+        /// </summary>
         private void CalculatePower()
         {
             power = (GetPanelHealth() * 1f) + (GetPanelAttack() * 5f) + (GetPanelDefense() * 5f)

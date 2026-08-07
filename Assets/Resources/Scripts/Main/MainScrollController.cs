@@ -3,26 +3,41 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Assets.Resources.Scripts.UI.Nexus;
 using Assets.Resources.Scripts.Utils;
 using static Assets.Resources.Scripts.Main.GameStatusManager;
 
 namespace Assets.Resources.Scripts.Main
 {
+    /// <summary>
+    /// Coordinates the legacy MainScene navigation strip and its ordered panel collection.
+    /// NexusShell delegates existing gameplay screens to this controller so their serialized
+    /// references and business logic remain intact.
+    /// </summary>
+    /// <remarks>
+    /// The indices of <see cref="panels"/> and <see cref="mainButtons"/> must match
+    /// <see cref="CurrentScene"/> values for menu entries.
+    /// When <see cref="NexusShell"/> is present, legacy navigation buttons are skipped.
+    /// </remarks>
     public class MainScrollController : MonoBehaviour
     {
         public static MainScrollController Instance;
-        public RectTransform content;   // Content 容器
-        public GameObject itemPrefab;   // Item 预制体
-        public List<GameObject> panels; // 存储所有 Panel
+        public RectTransform content;
+        public GameObject itemPrefab;
+        public List<GameObject> panels;
         public List<GameObject> mainButtons;
 
-        public int totalItems = 10;  // 列表中的 UI 元素数量
-        public float itemWidth = 200f; // 每个 UI 元素的宽度
-        public float scaleFactor = 1.2f; // 点击后放大的大小
-        public float scaleDuration = 0.2f; // 放大动画持续时间
+        public int totalItems = 10;
+        public float itemWidth = 200f;
+        public float scaleFactor = 1.2f;
+        public float scaleDuration = 0.2f;
 
-        private int selectedIndex = -1; // 当前选中的 Item
-        private GameObject selectedPanel = null; // 当前显示的 Panel
+        private int selectedIndex = -1;
+        private GameObject selectedPanel;
+        private bool? usesLegacyNavigation;
+
+        private bool UsesLegacyNavigation =>
+            usesLegacyNavigation ??= FindFirstObjectByType<NexusShell>() == null;
 
         void Awake()
         {
@@ -30,17 +45,21 @@ namespace Assets.Resources.Scripts.Main
             {
                 Instance = this;
             }
+
             HideAllPanels();
         }
 
         void Start()
         {
             HideAllPanels();
-            InitializeItems();
-            // 默认选中第一个 Item
-            ShowPanel((int)CurrentScene.CHARACTER_MENU);
-            if (LogUtil.CheckNull(mainButtons[0], "MainMenu Scroll Content is null.")) return;
-            StartCoroutine(ScaleItem(mainButtons[0], scaleFactor));
+
+            if (UsesLegacyNavigation)
+            {
+                InitializeItems();
+                ShowPanel(CurrentScene.CHARACTER_MENU);
+                if (LogUtil.CheckNull(mainButtons[0], "MainMenu Scroll Content is null.")) return;
+                StartCoroutine(ScaleItem(mainButtons[0], scaleFactor));
+            }
         }
 
         void OnEnable()
@@ -60,6 +79,7 @@ namespace Assets.Resources.Scripts.Main
             }
         }
 
+        /// <summary>Builds the legacy navigation buttons and binds each button to its panel index.</summary>
         public void InitializeItems()
         {
             mainButtons = new List<GameObject>();
@@ -79,7 +99,7 @@ namespace Assets.Resources.Scripts.Main
             {
                 GameObject newItem = Instantiate(itemPrefab, content);
                 if (LogUtil.CheckNull(newItem, "newItem")) continue;
-                newItem.transform.localPosition = new Vector3(i * itemWidth, 0, 0);  // 水平排列
+                newItem.transform.localPosition = new Vector3(i * itemWidth, 0, 0);
                 mainButtons.Add(newItem);
 
                 TextMeshProUGUI itemTextComponent = newItem.GetComponentInChildren<TextMeshProUGUI>();
@@ -122,50 +142,48 @@ namespace Assets.Resources.Scripts.Main
             item.transform.localScale = endScale;
         }
 
+        /// <summary>
+        /// Activates one MainScene panel and updates global navigation state.
+        /// Legacy button scaling runs only when Nexus navigation is not active.
+        /// </summary>
+        /// <param name="scene">A menu-valued CurrentScene whose numeric value indexes panels.</param>
         public void ShowPanel(CurrentScene scene)
         {
-            Debug.Log("ShowPanel: " + scene.ToString());
             var index = (int)scene;
-            if (index == selectedIndex) return; // 避免重复执行
+            if (index == selectedIndex) return;
             if (GameStatusManager.Instance.IsDrawingCard) return;
 
             GameStatusManager.Instance.CurrentScene = scene;
-            if (selectedIndex >= 0 && selectedIndex < mainButtons.Count)
+
+            if (UsesLegacyNavigation && selectedIndex >= 0 && mainButtons != null && selectedIndex < mainButtons.Count)
             {
                 StopAllCoroutines();
-                StartCoroutine(ScaleItem(mainButtons[selectedIndex], 1f)); // 还原大小
+                StartCoroutine(ScaleItem(mainButtons[selectedIndex], 1f));
             }
+
             selectedIndex = index;
-            //TODO: test code
-            /**
-            if (index == 6)
-            {
-                GalaxyGenerator.instance.ShowGalaxies();
-            }
-            else
-            {
-                GalaxyGenerator.instance.HideGalaxies();
-            }
-            **/
             HideAllPanels();
-            // we have more panels than buttons on home screen menu, e.g. 7 buttons but totally 8 Panels (Draw cards has only one entry in shop panel)
+
             if (selectedIndex >= 0 && selectedIndex < panels.Count)
             {
                 selectedPanel = panels[selectedIndex];
                 selectedPanel.SetActive(true);
-                if (selectedIndex < mainButtons.Count)
+
+                if (UsesLegacyNavigation && mainButtons != null && selectedIndex < mainButtons.Count)
                 {
                     if (LogUtil.CheckNull(mainButtons[selectedIndex], "Child is null")) return;
-                    StartCoroutine(ScaleItem(mainButtons[selectedIndex], scaleFactor)); // 放大
+                    StartCoroutine(ScaleItem(mainButtons[selectedIndex], scaleFactor));
                 }
             }
         }
 
-        void HideAllPanels()
+        /// <summary>Hides every legacy MainScene panel without changing navigation state.</summary>
+        public void HideAllPanels()
         {
             foreach (var panel in panels)
             {
-                panel.SetActive(false);
+                if (panel != null)
+                    panel.SetActive(false);
             }
         }
     }

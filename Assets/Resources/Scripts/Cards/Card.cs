@@ -13,6 +13,15 @@ using Assets.Resources.Scripts.Main;
 
 namespace Assets.Resources.Scripts.Cards
 {
+    /// <summary>
+    /// Scene view and combat runtime wrapper for a CardEntity.
+    /// It renders card identity and bars, owns transient health/energy, plays animations and effects,
+    /// and forwards clicks to collection controllers.
+    /// </summary>
+    /// <remarks>
+    /// Call InitCard before combat or collection use. Persistent progression remains on CardEntity;
+    /// transient battle report values remain on CardBattleInfoEntity.
+    /// </remarks>
     public class Card : MonoBehaviour, IPointerClickHandler
     {
         public Image healthBar;
@@ -74,6 +83,7 @@ namespace Assets.Resources.Scripts.Cards
             cardEntity.OnDataChanged -= RefreshUI;
         }
 
+        /// <summary>Binds a domain card to this reusable view and configures scene-specific bars.</summary>
         public void InitCard(CardEntity cardEntity)
         {
             this.cardEntity = cardEntity;
@@ -112,6 +122,7 @@ namespace Assets.Resources.Scripts.Cards
             expBar.fillAmount = cardEntity.CurrentExp / cardEntity.ExpToNextLevel;
         }
 
+        /// <summary>Queues damage presentation and applies battle state changes asynchronously.</summary>
         public void TakeDamage(Card player, List<DamageEntity> damage)
         {
             StartCoroutine(ApplyDamage(player, damage));

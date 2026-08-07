@@ -4,10 +4,12 @@ namespace Assets.Scripts.Utils
 {
     public static class LocalizationUtil
     {
+        public static SystemLanguage CurrentLanguage { get; set; } = SystemLanguage.English;
+
         public static string GetLocalizedText(LocalizedText localizedText)
         {
             UnityEngine.Debug.Log($"Get Skill localized text: {localizedText}");
-            switch (Application.systemLanguage)
+            switch (CurrentLanguage)
             {
                 case SystemLanguage.Chinese:
                     return localizedText.zh;
@@ -15,9 +17,8 @@ namespace Assets.Scripts.Utils
                     return localizedText.zh;
                 case SystemLanguage.English:
                     return localizedText.en;
-                // 添加其他语言支持
                 default:
-                    return localizedText.en; // 默认返回英文
+                    return localizedText.en;
             }
         }
     }

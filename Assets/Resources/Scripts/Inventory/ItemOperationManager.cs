@@ -6,6 +6,10 @@ using Assets.Resources.Scripts.Entity;
 
 namespace Assets.Resources.Scripts.Inventory
 {
+    /// <summary>
+    /// Coordinates user-facing remove and delayed transfer operations for the selected inventory item.
+    /// Collection ownership remains in ItemManager and RemoteItemManager.
+    /// </summary>
     public class ItemOperationManager : MonoBehaviour
     {
         public static ItemOperationManager Instance;
@@ -40,6 +44,7 @@ namespace Assets.Resources.Scripts.Inventory
             removeButton.interactable = isRemovable;
         }
 
+        /// <summary>Starts the simulated remote-to-local transfer and progress display.</summary>
         public void TransferItem(bool isRemote = true, float teleportTime = 3f)
         {
             StartCoroutine(TransferAfterDelay(teleportTime));

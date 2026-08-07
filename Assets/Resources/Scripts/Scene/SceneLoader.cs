@@ -4,6 +4,10 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Scene
 {
+    /// <summary>
+    /// Persistent scene-loading gateway with an optional Animator-driven transition.
+    /// Gameplay code may call the direct path when no transition is required.
+    /// </summary>
     public class SceneLoader : MonoBehaviour
     {
         /// <summary>

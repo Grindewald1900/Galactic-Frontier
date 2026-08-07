@@ -10,9 +10,20 @@ using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Utils
 {
+    /// <summary>
+    /// Owns the active player save context and serializes player, card, expertise, and item data.
+    /// This component survives scene changes; callers must select <see cref="currentPlayer"/>
+    /// before using any player-scoped load or save method.
+    /// </summary>
+    /// <remarks>
+    /// Save files live under Application.persistentDataPath/saves/{playerId}. Base64 encoding is
+    /// an optional storage format controlled by DefaultProperty.isDebug, not a security boundary.
+    /// </remarks>
     public class DataUtil : MonoBehaviour
     {
         public static DataUtil Instance { get; private set; }
+
+        /// <summary>The player whose directory is currently bound to the cached save paths.</summary>
         public PlayerEntity currentPlayer;
         private List<PlayerEntity> playerEntities = new();
         private List<ExpertiseEntity> expertiseEntities = new();
@@ -35,11 +46,11 @@ namespace Assets.Resources.Scripts.Utils
             {
                 Instance = this;
                 InitPaths();
-                DontDestroyOnLoad(gameObject); // 场景切换时不销毁
+                DontDestroyOnLoad(gameObject);
             }
             else
             {
-                Destroy(gameObject); // 如果已有实例，销毁新创建的对象
+                Destroy(gameObject);
             }
         }
 
@@ -58,6 +69,9 @@ namespace Assets.Resources.Scripts.Utils
             CheckIfPathExist(savePath);
         }
 
+        /// <summary>
+        /// Rebinds all cached player-scoped paths after creating or selecting a player.
+        /// </summary>
         public void UpdatePaths()
         {
             if (currentPlayer == null)
@@ -80,6 +94,7 @@ namespace Assets.Resources.Scripts.Utils
             Debug.Log("playerAvatarPath: " + playerAvatarPath);
         }
 
+        /// <summary>Creates a new player identity, binds its save directory, and writes its profile.</summary>
         public bool CreatePlayerData()
         {
             currentPlayer = new PlayerEntity();
@@ -116,6 +131,10 @@ namespace Assets.Resources.Scripts.Utils
             SaveData(new PlayerListWrapper { playerEntities = playerEntities, count = playerEntities.Count }, savePath, DefaultProperty.PLAYER_ENTITIES);
         }
 
+        /// <summary>
+        /// Saves the high-level player state and the current card collection as one checkpoint.
+        /// </summary>
+        /// <remarks>Both scene managers must already be initialized when this method is called.</remarks>
         public void SaveGameData()
         {
             SavePlayerData(CharacterInfoManager.Instance.playerData);
@@ -139,6 +158,7 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
+        /// <summary>Loads the active player's persisted card collection, or an empty list when absent.</summary>
         public List<CardEntity> LoadCardData()
         {
             if (File.Exists(playerCardPath))
@@ -221,6 +241,7 @@ namespace Assets.Resources.Scripts.Utils
             return currentPlayer;
         }
 
+        /// <summary>Selects the active player and updates every path used by player-scoped operations.</summary>
         public void SetCurrentPlayer(PlayerEntity player)
         {
             currentPlayer = player;
@@ -279,6 +300,9 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
+        /// <summary>
+        /// Serializes an object with JsonUtility and writes it into the requested save directory.
+        /// </summary>
         public void SaveData(object data, string filePath, string fileName)
         {
             if (data == null)

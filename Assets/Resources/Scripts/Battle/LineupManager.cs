@@ -9,6 +9,10 @@ using Assets.Resources.Scripts.CharacterPanel;
 
 namespace Assets.Resources.Scripts.Battle
 {
+    /// <summary>
+    /// Binds the formation UI slots to CardEntity.position and refreshes CardListManager after edits.
+    /// The slot index is also the battle placement index consumed by BattleController.
+    /// </summary>
     public class LineupManager : MonoBehaviour
     {
         public static LineupManager Instance;
@@ -31,6 +35,9 @@ namespace Assets.Resources.Scripts.Battle
             Init();
         }
 
+        /// <summary>
+        /// Creates the fixed formation slots, then restores assignments from persisted card positions.
+        /// </summary>
         private void Init()
         {
             for (int i = 0; i < DefaultProperty.defaultLineupSize; i++)
@@ -59,6 +66,7 @@ namespace Assets.Resources.Scripts.Battle
             SelectPortrait(selectedIndex);
         }
 
+        /// <summary>Selects the target formation slot used by add/remove controls.</summary>
         public void SelectPortrait(int index)
         {
             if (index >= portraitSlots.Count || index < 0)
@@ -78,7 +86,9 @@ namespace Assets.Resources.Scripts.Battle
             }
         }
 
-        // Add to current selected position
+        /// <summary>
+        /// Assigns a card to a slot, releases the previous occupant, and persists the collection.
+        /// </summary>
         public void AddLineupCard(CardEntity cardEntity, int index)
         {
             Debug.Log(GetType().Name + "portraitSlots size: " + portraitSlots.Count);

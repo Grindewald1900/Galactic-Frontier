@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.Main
 {
+    /// <summary>
+    /// Main-menu entry point for creating a player, opening the save selector, and entering MainScene.
+    /// Persistent state is delegated to DataUtil and save-list presentation to GameLoadManager.
+    /// </summary>
     public class MainMenu : MonoBehaviour
     {
         public Button buttonLoad;
@@ -17,7 +21,8 @@ namespace Assets.Resources.Scripts.Main
         {
             buttonLoad.onClick.AddListener(OnLoadButtonClick);
             buttonNewGame.onClick.AddListener(OnNewButtonClick);
-            buttonSettings.onClick.AddListener(OnSettingsButtonClick);
+            if (buttonSettings != null)
+                buttonSettings.onClick.AddListener(OnSettingsButtonClick);
             buttonCloseLoadPanel.onClick.AddListener(OnCloseLoadPanelClick);
         }
 
@@ -58,6 +63,8 @@ namespace Assets.Resources.Scripts.Main
         }
 
         void OnSettingsButtonClick()
-        { }
+        {
+            Debug.Log("Main menu settings are available after entering the game.");
+        }
     }
 }

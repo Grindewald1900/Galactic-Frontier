@@ -12,12 +12,18 @@ using static Assets.Resources.Scripts.Props.Status;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
 
-/// <summary>
-/// Manages card, character, skill, and expertise data for the game.
-/// </summary>
 namespace Assets.Resources.Scripts.Cards
 {
     using UnityEngine;
+
+    /// <summary>
+    /// Builds randomized CardEntity instances from character strategies and static Resources data.
+    /// It owns the runtime catalogs for characters, skills, level attributes, and expertise weights.
+    /// </summary>
+    /// <remarks>
+    /// Awake must finish before CardEntity progression or draw-card flows request generated data.
+    /// This manager creates domain models; CardListManager owns the player's persisted collection.
+    /// </remarks>
     public class CardDataManager : MonoBehaviour
     {
         /// <summary>Singleton instance.</summary>
@@ -42,7 +48,10 @@ namespace Assets.Resources.Scripts.Cards
             InitExpertiseTierProbabilities();
         }
 
-        /// <summary>Creates a randomized <see cref="CardEntity"/> for a <see cref="Character"/>.</summary>
+        /// <summary>
+        /// Creates a randomized CardEntity whose identity comes from the supplied character strategy.
+        /// The returned entity is not added to the player's collection automatically.
+        /// </summary>
         public CardEntity GetCardEntity(Character character)
         {
             var tier = GetCardTier(character);
@@ -72,7 +81,7 @@ namespace Assets.Resources.Scripts.Cards
             return CharacterTier.TierE;
         }
 
-        /// <summary>Weighted random select a <see cref="Character"/> by weight.</summary>
+        /// <summary>Selects a character strategy using each character's spawn weight.</summary>
         public Character GetCharacter()
         {
             int rollRange = characterList.Sum(c => c.weight);
@@ -221,7 +230,9 @@ namespace Assets.Resources.Scripts.Cards
             };
         }
 
-        /// <summary>Weighted random selection from a dictionary of probabilities.</summary>
+        /// <summary>
+        /// Selects one key from arbitrary non-normalized weights. Negative weights are not supported.
+        /// </summary>
         private static T WeightedRandom<T>(Dictionary<T, float> probabilities)
         {
             if (probabilities == null || probabilities.Count == 0) return default;

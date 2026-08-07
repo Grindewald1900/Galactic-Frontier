@@ -15,8 +15,14 @@ using UnityEngine.SceneManagement;
 namespace Assets.Resources.Scripts.Battle
 {
     /// <summary>
-    /// Manages battle flow, damage calculations, and card entities.
+    /// Orchestrates battle initialization, initiative order, attacks, victory checks, and reporting.
+    /// Player formation entities are deep-copied before combat so transient health and modifiers do
+    /// not mutate the persistent collection owned by CardListManager.
     /// </summary>
+    /// <remarks>
+    /// Character implementations perform individual attacks; this controller owns round ordering
+    /// and selects whether a normal or energy-gated special attack runs.
+    /// </remarks>
     public class BattleController : MonoBehaviour
     {
         #region Variables
@@ -57,6 +63,7 @@ namespace Assets.Resources.Scripts.Battle
         #region Initialization 🚀 
         private void Init()
         {
+            // Prefer the cross-scene collection, but support direct BattleScene entry from a save.
             CharacterSkillController.InitSkillSet();
             var cardListMgr = CardListManager.Instance;
             Debug.Log("inLine counts cardListMgr " + (cardListMgr != null));
@@ -167,7 +174,8 @@ namespace Assets.Resources.Scripts.Battle
         }
 
         /// <summary>
-        /// Main battle sequence coroutine.
+        /// Runs the battle state machine until one side is defeated or MaxRound is reached.
+        /// Initiative is rebuilt every round from living cards and ordered by speed.
         /// </summary>
         private IEnumerator BattleRoutine()
         {

@@ -10,6 +10,14 @@ using UnityEngine;
 
 namespace Assets.Resources.Scripts.Cards
 {
+    /// <summary>
+    /// Owns the active player's in-memory card collection and synchronizes it with card view objects.
+    /// Sorting and filtering change presentation order; add/remove operations persist through DataUtil.
+    /// </summary>
+    /// <remarks>
+    /// This object survives scene changes so BattleController can consume the selected formation.
+    /// CardEntity is the model, while Card is the reusable MonoBehaviour view bound to gridParent.
+    /// </remarks>
     public class CardListManager : MonoBehaviour
     {
         [SerializeField] private GameObject cardPrefab;
@@ -45,6 +53,7 @@ namespace Assets.Resources.Scripts.Cards
             UnhighlightAllCards();
             card.Highlight(DefaultProperty.highlightCardScale);
         }
+        /// <summary>Loads the active player's cards and builds enough Card views to display them.</summary>
         public void InitCardList()
         {
             cardEntities = DataUtil.Instance.LoadCardData() ?? new List<CardEntity>();
@@ -61,6 +70,10 @@ namespace Assets.Resources.Scripts.Cards
             cards.Add(card);
             card.OnCardClicked += OnCardClicked;
         }
+        /// <summary>
+        /// Rebinds visible Card views to the supplied projection and persists the owned collection.
+        /// Cards assigned to a formation are intentionally omitted from the collection grid.
+        /// </summary>
         public void UpdateCardList(List<CardEntity> entities)
         {
             if (!gameObject.activeSelf) return;
@@ -156,6 +169,7 @@ namespace Assets.Resources.Scripts.Cards
         {
             return cardEntities;
         }
+        /// <summary>Returns the persistent collection entries currently assigned to formation slots.</summary>
         public List<CardEntity> GetInLineCardEntities()
         {
             return cardEntities.Where(entity => entity.GetLineupPosition() != LineupPosition.None).ToList();
