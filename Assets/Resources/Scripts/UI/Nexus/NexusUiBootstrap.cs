@@ -4,7 +4,8 @@ using UnityEngine.SceneManagement;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Installs the Figma-derived UI theme without requiring scene GUID changes.
+    /// Installs the rewritten AppShell on hub scenes and BattleChrome on BattleScene.
+    /// Does not theme or mutate legacy Prefab hierarchies globally.
     /// </summary>
     internal static class NexusUiBootstrap
     {
@@ -29,18 +30,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static void Install(UnityEngine.SceneManagement.Scene scene)
         {
-            if (scene.name != "MainMenuScene" &&
-                scene.name != "MainScene" &&
-                scene.name != "BattleScene")
+            switch (scene.name)
             {
-                return;
+                case "MainMenuScene":
+                case "MainScene":
+                    if (Object.FindFirstObjectByType<AppShell>() == null)
+                    {
+                        var shell = new GameObject("App Shell");
+                        shell.AddComponent<AppShell>();
+                    }
+                    break;
+                case "BattleScene":
+                    if (Object.FindFirstObjectByType<BattleChrome>() == null)
+                    {
+                        var chrome = new GameObject("Battle Chrome");
+                        chrome.AddComponent<BattleChrome>();
+                    }
+                    break;
             }
-
-            if (Object.FindFirstObjectByType<NexusShell>() != null)
-                return;
-
-            var shellObject = new GameObject("Nexus UI Shell");
-            shellObject.AddComponent<NexusShell>();
         }
     }
 }

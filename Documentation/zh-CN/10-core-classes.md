@@ -25,10 +25,11 @@ flowchart TB
     Inventory["InventoryItemManagerBase"] --> ItemModel
     ItemOps["ItemOperationManager"] --> Inventory
 
-    Nexus["NexusShell"] --> MainScroll["MainScrollController"]
+    Nexus["AppShell"] --> MainScroll["MainScrollController\n(legacy adapter only)"]
     MainScroll --> Status["GameStatusManager"]
     Battle --> Status
     Loader["SceneLoader"] --> UnityScenes["Unity SceneManager"]
+    BattleChrome["BattleChrome"] --> Battle
 ```
 
 图中的箭头表示主要调用或数据依赖，不代表对象一定由上游创建。大量组件仍由场景或 Prefab 通过 Inspector 装配。
@@ -41,8 +42,9 @@ flowchart TB
 | `GameStatusManager` | 全局状态 | 当前页面、是否战斗、是否抽卡 | `MainScrollController`、`BattleController` | 跨场景保留；不直接切换页面或场景 |
 | `MainMenu` | 入口 UI | 无持久数据 | `DataUtil`、`GameLoadManager` | 新游戏成功后进入 `MainScene` |
 | `GameLoadManager` | 入口协调 | 存档列表 UI 与当前焦点 | `DataUtil`、`GameLoadSlot` | 选中 Slot 时必须同步 `DataUtil.currentPlayer` |
-| `MainScrollController` | 主界面协调 | 当前激活的旧版面板 | `GameStatusManager`、`NexusShell` | `panels` 顺序与 `CurrentScene` 数值绑定 |
-| `NexusShell` | UI 外壳 | 全局导航、舰桥、任务页、跨场景目标页 | `MainScrollController`、`SceneManager` | 新页面自己渲染；旧玩法页面委托给原控制器 |
+| `MainScrollController` | 主界面协调 | 当前激活的旧版面板 | `GameStatusManager`、`AppShell` / `LegacyPanelAdapter` | `panels` 顺序与 `CurrentScene` 数值绑定；有 AppShell 时不建旧导航 |
+| `AppShell` | UI 外壳 | 全局导航、Bridge/Formation/Settings/Missions 原生页、跨场景目标页 | `LegacyPanelAdapter`、`SceneManager` | 新页面自己渲染；未重写页委托旧面板 |
+| `BattleChrome` | 战斗外壳 | 无战斗数据 | `BattleController.CurrentRound` | Option A：只改 chrome，不改手牌战斗 |
 | `CardEntity` | 领域模型 | 卡牌身份、成长、基础属性、专长、编队位置 | `CardDataManager`、`DataUtil`、`Card` | 字段参与 JSON；属性变化可能触发整组卡牌保存 |
 | `CardDataManager` | 领域服务 | 角色目录、技能、等级属性、概率表 | `Character`、`Resources`、`CardEntity` | 负责“生成”，不自动把卡加入玩家集合 |
 | `CardListManager` | 集合协调 | 当前玩家的卡牌列表及 Card 视图池 | `DataUtil`、`Card`、`CardPreviewController` | 跨场景保留；编队卡不会显示在普通卡牌网格中 |
@@ -150,19 +152,20 @@ sequenceDiagram
 
 `Character` 负责某个角色一次行动中的具体行为，包括目标选择、动画等待、伤害和状态效果。`Card` 负责显示与临时生命/能量。不要把角色特有逻辑继续堆入 `BattleController`。
 
-## 5. 主界面与 NEXUS UI
+## 5. 主界面与 AppShell UI
 
 ```mermaid
 flowchart LR
-    Bootstrap["NexusUiBootstrap"] --> Shell["NexusShell"]
-    Shell -->|Bridge / Missions| NewViews["运行时新页面"]
-    Shell -->|Characters / Inventory / Crafting...| MainScroll["MainScrollController"]
-    MainScroll --> Panels["场景内现有 Panels"]
-    MainScroll --> Status["GameStatusManager"]
-    Shell -->|Battle| BattleScene["BattleScene"]
+    Bootstrap["NexusUiBootstrap"] --> Shell["AppShell"]
+    Shell -->|Bridge / Formation / Settings / Missions| NewViews["原生重建页面"]
+    Shell -->|Characters / Cards / Inventory...| Adapter["LegacyPanelAdapter"]
+    Adapter --> MSC["MainScrollController"]
+    MSC --> Panels["场景内现有 Panels"]
+    MSC --> Status["GameStatusManager"]
+    Shell -->|Battle| BattleScene["BattleScene + BattleChrome"]
 ```
 
-`NexusShell` 是表现层适配器，不应成为卡牌、物品或经济数据的新所有者。新增业务页时，应先创建对应业务 Controller，再由 Shell 负责导航和布局组合。
+`AppShell` 是表现层宿主，不是卡牌/物品数据所有者。战斗采用 Option A：保留 `BattleController` 自动战斗，仅由 `BattleChrome` 提供 Figma 风格边框与 HUD。
 
 ## 6. 物品系统
 
@@ -195,7 +198,7 @@ flowchart LR
 | 修改编队规模 | `LineupPosition` | `LineupManager`、`BattleController` | `PortraitSlot`、战斗槽位 |
 | 修改战斗回合 | `Card` 临时状态 | `BattleController`、具体 `Character` | `BattleInfo`、战报 |
 | 修改物品存档 | `ItemEntity`、`DataUtil` | 本地/远程 Item Manager | `ItemSlot` |
-| 新增主导航页 | 对应业务模型 | 对应业务 Controller | `NexusShell`、`MainScrollController` |
+| 新增主导航页 | 对应业务模型 | 对应业务 Controller | `AppShell`、必要时 `LegacyPanelAdapter` |
 
 ## 面向 Codex 的检查清单
 

@@ -28,6 +28,9 @@ namespace Assets.Resources.Scripts.Battle
         #region Variables
         private const int MaxRound = 15;
         private int currentRound = 0;
+
+        /// <summary>Current auto-battle round; exposed for BattleChrome HUD (Option A).</summary>
+        public int CurrentRound => currentRound;
         /// <summary>
         /// Singleton instance.
         /// </summary>

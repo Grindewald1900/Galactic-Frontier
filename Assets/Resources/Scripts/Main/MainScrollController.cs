@@ -10,15 +10,9 @@ using static Assets.Resources.Scripts.Main.GameStatusManager;
 namespace Assets.Resources.Scripts.Main
 {
     /// <summary>
-    /// Coordinates the legacy MainScene navigation strip and its ordered panel collection.
-    /// NexusShell delegates existing gameplay screens to this controller so their serialized
-    /// references and business logic remain intact.
+    /// Legacy MainScene panel host. When <see cref="AppShell"/> is present it skips building
+    /// the old nav strip and only activates panels requested by <see cref="LegacyPanelAdapter"/>.
     /// </summary>
-    /// <remarks>
-    /// The indices of <see cref="panels"/> and <see cref="mainButtons"/> must match
-    /// <see cref="CurrentScene"/> values for menu entries.
-    /// When <see cref="NexusShell"/> is present, legacy navigation buttons are skipped.
-    /// </remarks>
     public class MainScrollController : MonoBehaviour
     {
         public static MainScrollController Instance;
@@ -37,14 +31,12 @@ namespace Assets.Resources.Scripts.Main
         private bool? usesLegacyNavigation;
 
         private bool UsesLegacyNavigation =>
-            usesLegacyNavigation ??= FindFirstObjectByType<NexusShell>() == null;
+            usesLegacyNavigation ??= FindFirstObjectByType<AppShell>() == null;
 
         void Awake()
         {
             if (Instance == null)
-            {
                 Instance = this;
-            }
 
             HideAllPanels();
         }
@@ -73,25 +65,23 @@ namespace Assets.Resources.Scripts.Main
             {
                 if (GameStatusManager.Instance.IsDrawingCard) return;
                 if (selectedIndex == (int)CurrentScene.DRAWCARDS_MENU)
-                {
                     ShowPanel(CurrentScene.SETTINGS_MENU);
-                }
             }
         }
 
-        /// <summary>Builds the legacy navigation buttons and binds each button to its panel index.</summary>
         public void InitializeItems()
         {
             mainButtons = new List<GameObject>();
-            List<string> itemText = new(){
-            "Character",
-            "Cards",
-            "Battle",
-            "Inventory",
-            "Building",
-            "Shop",
-            "Setting"
-        };
+            List<string> itemText = new()
+            {
+                "Character",
+                "Cards",
+                "Battle",
+                "Inventory",
+                "Building",
+                "Shop",
+                "Setting"
+            };
             if (LogUtil.CheckNull(itemPrefab, "itemPrefab")) return;
             if (LogUtil.CheckNull(content, "content")) return;
 
@@ -142,11 +132,6 @@ namespace Assets.Resources.Scripts.Main
             item.transform.localScale = endScale;
         }
 
-        /// <summary>
-        /// Activates one MainScene panel and updates global navigation state.
-        /// Legacy button scaling runs only when Nexus navigation is not active.
-        /// </summary>
-        /// <param name="scene">A menu-valued CurrentScene whose numeric value indexes panels.</param>
         public void ShowPanel(CurrentScene scene)
         {
             var index = (int)scene;
@@ -163,6 +148,7 @@ namespace Assets.Resources.Scripts.Main
 
             selectedIndex = index;
             HideAllPanels();
+            selectedIndex = index;
 
             if (selectedIndex >= 0 && selectedIndex < panels.Count)
             {
@@ -177,14 +163,17 @@ namespace Assets.Resources.Scripts.Main
             }
         }
 
-        /// <summary>Hides every legacy MainScene panel without changing navigation state.</summary>
         public void HideAllPanels()
         {
+            if (panels == null) return;
             foreach (var panel in panels)
             {
                 if (panel != null)
                     panel.SetActive(false);
             }
+
+            selectedIndex = -1;
+            selectedPanel = null;
         }
     }
 }
