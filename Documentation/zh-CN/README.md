@@ -14,6 +14,25 @@
 8. [已知问题与技术债](08-known-issues.md)：原型数据、耦合点和后续重构方向。
 9. [Figma UI 重构](09-figma-ui.md)：NEXUS 视觉系统、页面映射、运行时装配和扩展方式。
 10. [核心类职责与关系](10-core-classes.md)：核心类的数据所有权、依赖方向、生命周期和主要调用链。
+11. [MVP 进度与 Cursor 开发计划](11-mvp-development-plan.md)：对照核心设计的实现进度、分阶段路线图与 Cursor 任务方法。
+
+### 系统规则文档
+
+在实现对应玩法前阅读；用于关闭核心设计 §21 的待定项。
+
+| 文档 | 阶段 | 状态 |
+| --- | --- | --- |
+| [卡组与角色占用](systems/01-deck-and-occupation.md) | P1 | MVP 规则已拍板 |
+| [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
+| [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | MVP 规则已拍板 |
+| `systems/04-idle-and-offline.md` | P2/P3 | 待补齐 |
+| `systems/05-production-and-quality.md` | P3 | 待补齐 |
+| `systems/06-durability-and-repair.md` | P3 | 待补齐 |
+| `systems/07-market-and-card-trade.md` | P4 | 待补齐 |
+
+产品设计真相源（仓库根文档）：
+
+- [核心产品设计 v0.3](../01-core-product-design.md)
 
 ## 项目一句话说明
 
@@ -31,5 +50,6 @@
 | 主要代码目录 | `Assets/Resources/Scripts` |
 | 主要场景目录 | `Assets/Resources/Scenes` |
 | 运行时配置目录 | `Assets/Resources/data` |
+| 相对 MVP 进度 | 约 25%–35%（战斗/壳层较强，经济循环未开工） |
 
-> 注意：项目仍处于原型阶段。战斗敌人、抽卡材料、物品和部分星球/事件数据仍由 `FakeData()` 生成。
+> 注意：项目仍处于原型阶段。战斗敌人、抽卡材料、物品和部分星球/事件数据仍由 `FakeData()` 生成。详细进度与后续计划见 [11-mvp-development-plan.md](11-mvp-development-plan.md)。
