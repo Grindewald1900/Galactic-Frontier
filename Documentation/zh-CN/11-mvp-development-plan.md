@@ -319,9 +319,9 @@ flowchart LR
 | 2 | [systems/02-auto-battle.md](systems/02-auto-battle.md) | P0/P2 | **已拍板 v1.0** |
 | 3 | [systems/03-region-and-ship.md](systems/03-region-and-ship.md) | P2 | **已拍板 v1.0** |
 | 4 | [systems/04-idle-and-offline.md](systems/04-idle-and-offline.md) | P2/P3 | **已拍板 v1.0** |
-| 5 | `systems/05-production-and-quality.md` | P3 | 待补齐 |
-| 6 | `systems/06-durability-and-repair.md` | P3 | 待补齐 |
-| 7 | `systems/07-market-and-card-trade.md` | P4 | 待补齐 |
+| 5 | [systems/05-production-and-quality.md](systems/05-production-and-quality.md) | P3 | **已拍板 v1.0** |
+| 6 | [systems/06-durability-and-repair.md](systems/06-durability-and-repair.md) | P3 | **已拍板 v1.0** |
+| 7 | [systems/07-market-and-card-trade.md](systems/07-market-and-card-trade.md) | P4 | **已拍板 v1.0** |
 
 规则未写入上述文档前，Cursor 实现应使用**明显可配置的默认常量**，并在 PR/提交说明中标注「待数值文档确认」。已拍板文档中的语义默认值可直接实现；纯数值阈值仍以配置表为准。
 
