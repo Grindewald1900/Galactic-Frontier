@@ -25,7 +25,7 @@
 | [卡组与角色占用](systems/01-deck-and-occupation.md) | P1 | MVP 规则已拍板 |
 | [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
 | [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | MVP 规则已拍板 |
-| `systems/04-idle-and-offline.md` | P2/P3 | 待补齐 |
+| [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | MVP 规则已拍板 |
 | `systems/05-production-and-quality.md` | P3 | 待补齐 |
 | `systems/06-durability-and-repair.md` | P3 | 待补齐 |
 | `systems/07-market-and-card-trade.md` | P4 | 待补齐 |

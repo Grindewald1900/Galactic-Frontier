@@ -318,7 +318,7 @@ flowchart LR
 | 1 | [systems/01-deck-and-occupation.md](systems/01-deck-and-occupation.md) | P1 | **已拍板 v1.0** |
 | 2 | [systems/02-auto-battle.md](systems/02-auto-battle.md) | P0/P2 | **已拍板 v1.0** |
 | 3 | [systems/03-region-and-ship.md](systems/03-region-and-ship.md) | P2 | **已拍板 v1.0** |
-| 4 | `systems/04-idle-and-offline.md` | P2/P3 | 待补齐 |
+| 4 | [systems/04-idle-and-offline.md](systems/04-idle-and-offline.md) | P2/P3 | **已拍板 v1.0** |
 | 5 | `systems/05-production-and-quality.md` | P3 | 待补齐 |
 | 6 | `systems/06-durability-and-repair.md` | P3 | 待补齐 |
 | 7 | `systems/07-market-and-card-trade.md` | P4 | 待补齐 |
