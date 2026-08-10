@@ -58,4 +58,4 @@
 | 运行时配置目录 | `Assets/Resources/data` |
 | 相对 MVP 进度 | 约 25%–35%（战斗/壳层较强，经济循环未开工） |
 
-> 注意：项目仍处于原型阶段。战斗敌人、抽卡材料、物品和部分星球/事件数据仍由 `FakeData()` 生成。详细进度与后续计划见 [11-mvp-development-plan.md](11-mvp-development-plan.md)。
+> 注意：项目仍处于原型阶段。样例 / FakeData 已隔离到 Dev Data Mode（默认关闭，见 `systems/08-save-and-seed-data.md`）；正式流程不再启动覆写背包。详细进度见 [11-mvp-development-plan.md](11-mvp-development-plan.md)。

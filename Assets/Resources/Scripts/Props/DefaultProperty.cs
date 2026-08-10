@@ -35,10 +35,12 @@ namespace Assets.Resources.Scripts.Props
         public const string SKILL_DATA_PATH = "data/SkillData_encrypted";
         public const string BASE_ATTR_PATH = "data/BaseAttributes";
 
-        // Configs
+        // Configs — isDebug only toggles plaintext vs Base64 save encoding; it does NOT enable FakeData.
         public static bool isDebug = true;
 
-        // Gift code
+        // Gift codes
         public const string CODE_DEBUG_BOARD = "000";
+        /// <summary>Toggles Dev Data Mode for the current session (FakeData / sample providers).</summary>
+        public const string CODE_DEV_DATA = "001";
     }
 }

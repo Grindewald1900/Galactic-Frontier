@@ -80,14 +80,14 @@ flowchart LR
 1. `CardDrawingManager` 选择 1 次或 10 次抽取，预扣材料；
 2. `CardResultManager.InitCards(drawCount)` 调用 `CardDataManager` 生成结果并展示统计。
 
-`CardDrawingManager` 当前材料来自 `FakeData()`，尚未与真实背包和经济系统连接。确认抽卡后，生成的卡牌应进入 `CardListManager` 并保存。
+`CardDrawingManager` 材料仅在 **Dev Data Mode** 下由 `IDevDataProvider.FillSampleGachaMaterials` 注入（内存，不写档）；正式模式材料列表为空，待接真实背包。确认抽卡后，生成的卡牌仍会进入 `CardListManager` 并保存（Dev 样例结果同理，日志前缀 `[DEV-DATA]`）。
 
 ## 6. 战斗
 
 `BattleController` 的主要流程：
 
 1. 从持久化的 `CardListManager` 或存档读取玩家编队；
-2. 为敌方生成最多 5 张临时卡牌；
+2. 敌方：仅 Dev Data Mode 下由 `IDevDataProvider.CreateSampleEnemyParty` 生成最多 5 张；正式模式空槽，待 P2.3 遭遇表；
 3. 隐藏未使用位置并初始化双方 `Card`；
 4. 每回合按 `Speed` 降序行动；
 5. 能量满时使用 `SpecialAttack`，否则使用 `NormalAttack`；

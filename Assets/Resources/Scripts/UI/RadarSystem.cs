@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Planet;
+using Assets.Resources.Scripts.Utils.Save;
 
 namespace Assets.Resources.Scripts.UI
 {
@@ -70,15 +71,22 @@ namespace Assets.Resources.Scripts.UI
                 DrawCircle(radius);
             }
 
-            // **生成星球**
-            foreach (float radius in circleRadii)
+            // Sample planets require Dev Data Mode; production waits on region/static planet tables.
+            if (DevData.IsActive)
             {
-                int planetsInRing = Random.Range(1, 4); // **每个圆环 1-3 颗星球**
-                Debug.Log("Planets in ring: " + planetsInRing + " at radius: " + radius);
-                for (int i = 0; i < planetsInRing; i++)
+                foreach (float radius in circleRadii)
                 {
-                    GeneratePlanetsOnRing(radius);
+                    int planetsInRing = Random.Range(1, 4); // **每个圆环 1-3 颗星球**
+                    Debug.Log("Planets in ring: " + planetsInRing + " at radius: " + radius);
+                    for (int i = 0; i < planetsInRing; i++)
+                    {
+                        GeneratePlanetsOnRing(radius);
+                    }
                 }
+            }
+            else
+            {
+                DevData.LogSkipped(nameof(RadarSystem) + ".CreateSamplePlanet");
             }
 
             // **生成中心恒星**
@@ -163,9 +171,10 @@ namespace Assets.Resources.Scripts.UI
             GameObject planet = Instantiate(planetPrefab, transform);
             RectTransform planetRect = planet.GetComponent<RectTransform>();
             PlanetRadarItem planetRadarItem = planet.GetComponent<PlanetRadarItem>();
-            PlanetEntity planetEntity = FakeData();
-
             currentIndex++;
+            PlanetEntity planetEntity = DevData.Current.CreateSamplePlanet(currentIndex);
+            if (planetEntity == null)
+                return;
 
             planetRect.anchoredPosition = new Vector2(x, y);
             planetEntities.Add(planetEntity);
@@ -205,19 +214,5 @@ namespace Assets.Resources.Scripts.UI
             }
         }
 
-        //TODO:Faking data
-        public PlanetEntity FakeData()
-        {
-            List<string> planetNames = new() { "Planet_1", "Planet_2", "Planet_3", "Planet_4", "Planet_5", "Planet_6" };
-            int randomIndex = Random.Range(0, planetNames.Count);
-            PlanetEntity planetEntity = new("Planet_1", "Level 1", "Planet", "Description 1")
-            {
-                planetName = "Planet " + currentIndex,
-                planetDescription = "Description " + randomIndex,
-                planetLevel = "Level " + randomIndex,
-                backgroundSprite = "Planet_" + randomIndex
-            };
-            return planetEntity;
-        }
     }
 }

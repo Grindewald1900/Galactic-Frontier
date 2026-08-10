@@ -8,6 +8,7 @@ using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Utils.Save;
 using static Assets.Resources.Scripts.Cards.CardDataManager;
 using static Assets.Resources.Scripts.Main.GameStatusManager;
 
@@ -52,8 +53,22 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCards(int cardCount)
         {
             cards.Clear();
-            // TODO: Replace with actual data fetching logic
-            FakeData(cardCount);
+            cardEntities.Clear();
+
+            if (DevData.IsActive)
+            {
+                var samples = DevData.Current.CreateSampleGachaResults(cardCount);
+                cardEntities.AddRange(samples);
+                Debug.Log($"[DEV-DATA] Created {cardEntities.Count} sample gacha results.");
+            }
+            else
+            {
+                DevData.LogSkipped(nameof(CardResultManager) + ".CreateSampleGachaResults");
+            }
+
+            if (cardEntities.Count == 0)
+                return;
+
             foreach (var cardEntity in cardEntities)
             {
                 AddCard(cardEntity);
@@ -147,15 +162,5 @@ namespace Assets.Resources.Scripts.Cards
             tierGO.GetComponent<ReportSlot>().SetReport(tier.ToString(), count);
         }
 
-        private List<CardEntity> FakeData(int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Character character = CardDataManager.Instance.GetCharacter();
-                CardEntity cardEntity = CardDataManager.Instance.GetCardEntity(character);
-                cardEntities.Add(cardEntity);
-            }
-            return cardEntities;
-        }
     }
 }

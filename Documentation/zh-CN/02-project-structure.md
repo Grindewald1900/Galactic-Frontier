@@ -37,6 +37,7 @@ Galactic Frontier/
 | `Shop` | 抽卡材料选择 | `CardDrawingManager` |
 | `UI` | 可复用 Slot、交互和面板控制器 | `ItemSlot`, `PortraitSlot`, `RadarSystem` |
 | `Utils` | 存档、图片、加密、定位和选择工具 | `DataUtil`, `ImageUtil`, `TargetSelector` |
+| `Utils/Save` | Dev Data 开关与样例数据提供器（P0.1） | `DevDataSettings`, `IDevDataProvider`, `DevData` |
 
 ## Resources 约定
 

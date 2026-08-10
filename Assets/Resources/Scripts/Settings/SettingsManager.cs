@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Test;
 using Assets.Resources.Scripts.Scene;
@@ -99,6 +100,12 @@ namespace Assets.Resources.Scripts.Settings
             if (input.Equals(DefaultProperty.CODE_DEBUG_BOARD))
             {
                 DebugPanelController.Instance.ShowDebugPanel();
+            }
+            else if (input.Equals(DefaultProperty.CODE_DEV_DATA))
+            {
+                var next = !DevDataSettings.Enabled;
+                DevDataSettings.SetSessionEnabled(next);
+                Debug.Log($"[DEV-DATA] Gift code toggled Dev Data Mode to {next}. Reload scenes to apply sample providers.");
             }
         }
     }

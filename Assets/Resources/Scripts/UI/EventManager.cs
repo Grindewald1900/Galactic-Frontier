@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Utils.Save;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -22,8 +23,20 @@ public class EventManager : MonoBehaviour
 
     void Start()
     {
-        FakeData();
+        TryLoadSampleEvents();
         Init();
+    }
+
+    private void TryLoadSampleEvents()
+    {
+        if (!DevData.IsActive)
+        {
+            DevData.LogSkipped(nameof(EventManager) + ".CreateSampleEvents");
+            return;
+        }
+
+        events.AddRange(DevData.Current.CreateSampleEvents(10));
+        Debug.Log($"[DEV-DATA] Loaded {events.Count} sample events (memory only).");
     }
 
     private void Init()
@@ -83,12 +96,4 @@ public class EventManager : MonoBehaviour
         return events[slotIndex];
     }
 
-    private void FakeData()
-    {
-        List<MyEventType> types = new List<MyEventType>() { MyEventType.None, MyEventType.New };
-        for (int i = 0; i < 10; i++)
-        {
-            events.Add(new EventEntity("Event_" + i, "Event " + i + " Description", new System.DateTime(2025, 1, 1).ToString("yyyy-MM-dd"), new System.DateTime(2025, 2, 1).ToString("yyyy-MM-dd")).SetEventType(MyEventType.New).SetActivationStatus(true));
-        }
-    }
 }

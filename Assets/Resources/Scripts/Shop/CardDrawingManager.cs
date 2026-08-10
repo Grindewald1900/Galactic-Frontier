@@ -3,6 +3,7 @@ using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
+using Assets.Resources.Scripts.Utils.Save;
 using UnityEngine;
 using UnityEngine.UI;
 using static Assets.Resources.Scripts.Main.GameStatusManager;
@@ -39,8 +40,20 @@ namespace Assets.Resources.Scripts.Shop
 
         void Start()
         {
-            FakeData();
+            TryLoadSampleMaterials();
             Init();
+        }
+
+        private void TryLoadSampleMaterials()
+        {
+            if (!DevData.IsActive)
+            {
+                DevData.LogSkipped(nameof(CardDrawingManager) + ".FillSampleGachaMaterials");
+                return;
+            }
+
+            DevData.Current.FillSampleGachaMaterials(providerItems, consumerItems, itemQuantities);
+            Debug.Log($"[DEV-DATA] Loaded {providerItems.Count} sample gacha materials (memory only).");
         }
 
         private void Init()
@@ -131,6 +144,12 @@ namespace Assets.Resources.Scripts.Shop
 
         private void HasEnoughQuantity()
         {
+            if (providerItems.Count == 0 || consumerItems.Count == 0)
+            {
+                UpdateButtonState(false, false, false, false);
+                return;
+            }
+
             bool hasOneDraw = true;
             bool hasTenDraw = true;
             bool hasReset = true;
@@ -171,21 +190,5 @@ namespace Assets.Resources.Scripts.Shop
             drawButton.interactable = drawState;
         }
 
-        private void FakeData()
-        {
-            int randomItemCounts = Random.Range(3, 6);
-            List<string> itemNames = new List<string> { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
-            for (int i = 0; i < randomItemCounts; i++)
-            {
-                int randomCount = Random.Range(10, 20);
-                ItemEntity providerItem = new ItemEntity("Item " + i, "Description " + i, itemNames[Random.Range(0, itemNames.Count)], 10 * i, ItemType.Material);
-                providerItem.SetQuantity(Random.Range(100, 500));
-                ItemEntity consumerItem = DeepCopyUtil.DeepCopy<ItemEntity>(providerItem);
-                consumerItem.SetQuantity(0);
-                providerItems.Add(providerItem);
-                consumerItems.Add(consumerItem);
-                itemQuantities.Add(randomCount);
-            }
-        }
     }
 }

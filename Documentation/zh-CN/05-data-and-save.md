@@ -1,7 +1,22 @@
 # 数据与存档
 
 > 契约与 FakeData / 版本迁移规则见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。  
-> 本文保留**当前代码路径与序列化现状**；P0 落地后应把下方 `itemData.json` 更新为 `inventory_local.json` / `inventory_remote.json` 并补充 `meta.json`。
+> 本文保留**当前代码路径与序列化现状**；P0.2 落地后应把下方 `itemData.json` 更新为 `inventory_local.json` / `inventory_remote.json` 并补充 `meta.json`。
+
+## Dev Data Mode（P0.1）
+
+正式流程默认关闭样例 / FakeData，避免启动覆写玩家档：
+
+| 开关 | 说明 |
+| --- | --- |
+| `DevDataSettings.Enabled` | 总开关；默认 `false` |
+| EditorPrefs | `GalacticFrontier.DevData.enabled`（仅 Editor） |
+| 启动参数 | `-devData` |
+| 礼品码 | `001`（会话内切换；需重进相关界面才看到样例 UI） |
+| `DefaultProperty.isDebug` | **只**控制明文 JSON / Base64，**不**打开 FakeData |
+
+入口代码：`Assets/Resources/Scripts/Utils/Save/`（`DevDataSettings`、`IDevDataProvider`、`DefaultDevDataProvider`、`DevData`）。  
+库存启动路径：`Load` → 按 `isRemote` 投影；不再无条件 `CreateFakeData` + `SaveItemData`。显式注入：`InventoryItemManagerBase.TryInjectSampleInventory`（须 Dev Data Mode）。
 
 ## 存档位置
 
@@ -14,7 +29,7 @@ Application.persistentDataPath/
    └─ <player-guid>/
       ├─ playerData.json
       ├─ playerCards.json
-      ├─ itemData.json
+      ├─ itemData.json          // P0.2 将拆为 inventory_local / inventory_remote
       ├─ expertData.json
       └─ avatar.png
 ```

@@ -4,16 +4,14 @@
 
 ## 高优先级
 
-### 原型数据覆盖真实数据
+### 原型数据覆盖真实数据 — **P0.1 已隔离**
 
-- `InventoryItemManagerBase` 启动时生成并保存随机物品。
-- `CardDrawingManager` 使用随机材料。
-- `BattleController` 为敌方生成随机卡牌。
-- `RadarSystem`、成就、事件等系统也包含模拟数据。
+- ~~`InventoryItemManagerBase` 启动时生成并保存随机物品。~~ → 启动只 `Load`；样例注入需 Dev Data Mode + `TryInjectSampleInventory`。
+- 抽卡材料 / 战斗敌人 / 雷达星球 / 事件 Fake 已迁入 `IDevDataProvider`，默认关闭。
+- 开启方式：EditorPrefs `GalacticFrontier.DevData.enabled`、启动参数 `-devData`、或礼品码 `001`（会话开关）。
+- **未完成**：Starter Seed（P0.2）、遭遇表替换敌人（P2.3）、`saves/_dev` 隔离写档。
 
-在接入真实数据前，需要定义开发模式开关和可重复的测试数据来源，避免每次启动污染存档。
-
-> 规则已拍板：见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)（P0.1 / P0.2）。本条在代码落地前仍视为未修复。
+> 契约：见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。`DefaultProperty.isDebug` 仍只控制明文/Base64，不打开 FakeData。
 
 ### 本地与远程物品共用存档
 
@@ -64,8 +62,8 @@
 
 ## 推荐演进顺序
 
-1. 将所有 `FakeData()` 放入明确的开发数据提供器。
-2. 为存档增加版本、备份和迁移。
+1. ~~将所有 `FakeData()` 放入明确的开发数据提供器。~~（P0.1 完成：`Utils/Save/*`）
+2. 为存档增加版本、备份和迁移（P0.2）。
 3. 为伤害、属性、抽取概率和背包集合增加 EditMode 测试。
 4. 引入第一方 `.asmdef`，隔离领域逻辑和 Unity 表现层。
 5. 统一 Singleton/场景生命周期。

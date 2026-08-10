@@ -8,6 +8,7 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Scene;
 using UnityEngine.SceneManagement;
@@ -87,8 +88,17 @@ namespace Assets.Resources.Scripts.Battle
             HideCards(playerCards);
             HideCards(enemyCards);
 
-            for (var i = 0; i < enemyCards.Count && i < 5; i++)
-                SetCard(enemyCards, i, FakeData(), false);
+            if (DevData.IsActive)
+            {
+                var enemies = DevData.Current.CreateSampleEnemyParty(Mathf.Min(enemyCards.Count, 5));
+                for (var i = 0; i < enemies.Count && i < enemyCards.Count; i++)
+                    SetCard(enemyCards, i, enemies[i], false);
+            }
+            else
+            {
+                DevData.LogSkipped(nameof(BattleController) + ".CreateSampleEnemyParty");
+                // EncounterConfig (P2.3) replaces FakeData; leave enemy slots empty until then.
+            }
 
             if (inlineEntities != null)
             {
@@ -313,16 +323,5 @@ namespace Assets.Resources.Scripts.Battle
             //SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainScene));
         }
 
-        /// <summary>
-        /// Generates fake card entity data.
-        /// </summary>
-        private CardEntity FakeData()
-        {
-            var cardDataMgr = CardDataManager.Instance;
-            Debug.Log("CardDataMgr is null: " + (cardDataMgr == null));
-            if (cardDataMgr == null) return null;
-            var character = cardDataMgr.GetCharacter();
-            return character == null ? null : cardDataMgr.GetCardEntity(character);
-        }
     }
 }

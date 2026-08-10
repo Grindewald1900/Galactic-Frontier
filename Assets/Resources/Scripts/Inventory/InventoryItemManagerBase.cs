@@ -4,6 +4,7 @@ using System.Linq;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.Save;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Inventory
@@ -14,7 +15,7 @@ namespace Assets.Resources.Scripts.Inventory
     /// <remarks>
     /// Derived managers only define inventory ownership through IsRemote. Items are copied during
     /// transfer so the local and remote inventories never share the same mutable ItemEntity instance.
-    /// Current startup still seeds prototype data and both inventories use DataUtil item storage.
+    /// Startup loads the save only; FakeData injection requires Dev Data Mode and an explicit call.
     /// </remarks>
     public abstract class InventoryItemManagerBase : MonoBehaviour
     {
@@ -30,34 +31,41 @@ namespace Assets.Resources.Scripts.Inventory
 
         protected virtual void Start()
         {
-            CreateFakeData();
             InitializeItemList();
         }
 
-        private void CreateFakeData()
+        /// <summary>
+        /// Replaces the in-memory inventory with Dev sample items and persists them.
+        /// No-op when Dev Data Mode is off. Prefer Starter Seed for new saves (P0.2).
+        /// </summary>
+        public bool TryInjectSampleInventory(bool persist = true)
         {
-            var itemNames = new[] { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
-            for (var i = 0; i < 20; i++)
+            if (!DevData.IsActive)
             {
-                var item = new ItemEntity(
-                    $"Item {i}",
-                    $"Description {i}",
-                    itemNames[UnityEngine.Random.Range(0, itemNames.Length)],
-                    10 * i,
-                    ItemType.Material)
-                {
-                    quantity = UnityEngine.Random.Range(1, 111),
-                    isRemote = IsRemote
-                };
-                items.Add(item);
+                DevData.LogSkipped(nameof(InventoryItemManagerBase) + ".TryInjectSampleInventory");
+                return false;
             }
 
-            DataUtil.Instance.SaveItemData(items);
+            var samples = DevData.Current.CreateSampleInventory(IsRemote);
+            items = new List<ItemEntity>(samples);
+            Debug.Log($"[DEV-DATA] Injected {items.Count} sample items (isRemote={IsRemote}, persist={persist}).");
+
+            if (persist && DataUtil.Instance != null)
+                DataUtil.Instance.SaveItemData(items);
+
+            UpdateItemList();
+            return true;
         }
 
         private void InitializeItemList()
         {
-            items = DataUtil.Instance.LoadItemData() ?? new List<ItemEntity>();
+            var loaded = DataUtil.Instance != null
+                ? DataUtil.Instance.LoadItemData() ?? new List<ItemEntity>()
+                : new List<ItemEntity>();
+            // Shared itemData.json still holds both sides (P0.2 will split files); project by ownership.
+            items = loaded
+                .Where(item => item != null && item.isRemote == IsRemote)
+                .ToList();
             itemSlots.Clear();
 
             for (var i = 0; i < inventorySize; i++)

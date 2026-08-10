@@ -286,13 +286,13 @@ flowchart TD
 
 | 现状 | 目标 |
 | --- | --- |
-| `InventoryItemManagerBase.Start` → `CreateFakeData` → `SaveItemData` | 删除无条件写档；改为 Load + StarterSeed / DevProvider |
-| `ItemManager` 与 `RemoteItemManager` 共用 `itemData.json` | `inventory_local.json` / `inventory_remote.json` |
-| `DataUtil.SaveData` 直接 `WriteAllText` | 原子写封装 `SaveDataAtomic` |
-| 无版本号 | `meta.json` + `CurrentSaveVersion = 1` + Migrator 0→1 |
-| `BattleController.FakeData` 等 | 正式路径改遭遇表；Fake 迁入 `IDevDataProvider` |
-| `DefaultProperty.isDebug` 控制 Base64 | **继续只控制编码**；不控制 FakeData |
-| `05-data-and-save.md` 仍写 `itemData.json` | 实现后更新 05 路径树，并指向本文 |
+| ~~`InventoryItemManagerBase.Start` → `CreateFakeData` → `SaveItemData`~~ | **P0.1 已做**：Load + `isRemote` 投影；注入走 `TryInjectSampleInventory`；StarterSeed 仍属 P0.2 |
+| `ItemManager` 与 `RemoteItemManager` 共用 `itemData.json` | `inventory_local.json` / `inventory_remote.json`（P0.2） |
+| `DataUtil.SaveData` 直接 `WriteAllText` | 原子写封装 `SaveDataAtomic`（P0.2） |
+| 无版本号 | `meta.json` + `CurrentSaveVersion = 1` + Migrator 0→1（P0.2） |
+| ~~`BattleController.FakeData` 等~~ | **P0.1 已迁入** `IDevDataProvider`；正式遭遇表仍属 P2.3 |
+| `DefaultProperty.isDebug` 控制 Base64 | **继续只控制编码**；不控制 FakeData（已遵守） |
+| `05-data-and-save.md` 仍写 `itemData.json` | P0.2 分文件后更新路径树 |
 
 入口类（P0 优先改）：
 
@@ -306,8 +306,8 @@ flowchart TD
 
 ## 8. 分步实现顺序（对齐 P0）
 
-1. **P0.1a** `DevDataSettings` + `IDevDataProvider`；切断库存 Fake 写档  
-2. **P0.1b** 战斗/抽卡/雷达/事件 Fake 调用改为 Provider 守卫（可同 PR 或紧随）  
+1. ~~**P0.1a** `DevDataSettings` + `IDevDataProvider`；切断库存 Fake 写档~~ **完成**  
+2. ~~**P0.1b** 战斗/抽卡/雷达/事件 Fake 调用改为 Provider 守卫~~ **完成**  
 3. **P0.2a** `meta.json` + `CurrentSaveVersion` + 原子写  
 4. **P0.2b** 库存分文件 API + 迁移 0→1  
 5. **P0.2c** `StarterSeed` 新档写入；EditMode：迁移拆分、原子写崩溃模拟、正式模式不写随机档  
@@ -319,15 +319,15 @@ flowchart TD
 
 ## 9. 验收清单
 
-- [ ] 正式模式启动 MainScene：**不会**因库存逻辑把随机物品写入玩家档  
-- [ ] 连续两次启动，本地/远程库存与上次保存一致（无随机漂移）  
+- [x] 正式模式启动 MainScene：**不会**因库存逻辑把随机物品写入玩家档（P0.1）  
+- [x] 连续两次启动，本地/远程库存与上次保存一致（无随机漂移）（P0.1；分文件仍待 P0.2）  
 - [ ] 旧档仅有 `itemData.json` 时可自动迁移为 local/remote，并生成 `meta.json`（`saveVersion = 1`）  
 - [ ] 迁移后改本地物品不影响远程文件，反之亦然  
 - [ ] 保存过程杀进程（或单测模拟失败）不损坏旧 JSON  
 - [ ] `saveVersion` 高于游戏支持时拒绝加载并提示  
-- [ ] Editor 打开 Dev Data Mode 可注入样例；默认关闭时与正式包行为一致  
+- [x] Editor 打开 Dev Data Mode 可注入样例；默认关闭时与正式包行为一致（P0.1）  
 - [ ] 新档本地库存来自 Starter Seed 配置，而非 `Random`  
-- [ ] `DefaultProperty.isDebug` 只影响明文/Base64，不打开 FakeData  
+- [x] `DefaultProperty.isDebug` 只影响明文/Base64，不打开 FakeData（P0.1）  
 - [ ] EditMode：0→1 拆分、`isRemote` 归类、空档 LoadOrDefault  
 
 ---
