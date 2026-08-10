@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
@@ -13,6 +14,9 @@ namespace Assets.Resources.Scripts.Deck
     /// </summary>
     public static class DeckService
     {
+        /// <summary>UI-selected deck for Formation editing (not persisted).</summary>
+        private static string editingDeckId = "";
+
         public static PlayerDeckState State { get; private set; }
 
         public static bool IsLoaded => State != null;
@@ -20,6 +24,7 @@ namespace Assets.Resources.Scripts.Deck
         public static void Clear()
         {
             State = null;
+            editingDeckId = "";
         }
 
         /// <summary>Loads decks.json or creates/migrates from legacy lineup positions.</summary>
@@ -40,6 +45,9 @@ namespace Assets.Resources.Scripts.Deck
                 Debug.Log($"[DECK] Created decks.json from legacy lineup ({State.decks[0].MemberCount} members).");
             }
 
+            if (string.IsNullOrEmpty(editingDeckId) || DeckRules.FindDeck(State, editingDeckId) == null)
+                editingDeckId = State.activeCombatDeckId;
+
             SyncLegacyLineupPositions(cards);
         }
 
@@ -47,6 +55,7 @@ namespace Assets.Resources.Scripts.Deck
         public static void CreateForNewPlayer(DataUtil dataUtil)
         {
             State = DeckStateFactory.CreateNewPlayerState();
+            editingDeckId = State.activeCombatDeckId;
             dataUtil.SaveDeckState(State, touchMeta: false);
         }
 
@@ -68,6 +77,64 @@ namespace Assets.Resources.Scripts.Deck
             return State.decks?.FirstOrDefault(d => d != null && d.unlocked);
         }
 
+        public static DeckEntity GetEditingDeck()
+        {
+            if (State == null) return null;
+            var deck = DeckRules.FindDeck(State, editingDeckId);
+            if (deck != null)
+                return deck;
+            return GetActiveCombatDeck();
+        }
+
+        public static string EditingDeckId => GetEditingDeck()?.deckId ?? "";
+
+        public static IReadOnlyList<DeckEntity> GetDecks() =>
+            (IReadOnlyList<DeckEntity>)(State?.decks ?? new List<DeckEntity>());
+
+        public static int CountBusyDecks() => DeckOccupationMap.CountBusyDecks(State);
+
+        public static int MaxParallelActions => State?.maxParallelActions ?? DeckConstants.DefaultMaxParallelActions;
+
+        public static List<DeckEntity> GetBusyDecks()
+        {
+            var list = new List<DeckEntity>();
+            if (State?.decks == null) return list;
+            foreach (var deck in State.decks)
+            {
+                if (deck != null && deck.unlocked && deck.IsActionBusy)
+                    list.Add(deck);
+            }
+
+            return list;
+        }
+
+        public static DeckCommandResult TrySelectDeck(string deckId)
+        {
+            EnsureState();
+            var deck = DeckRules.FindDeck(State, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            editingDeckId = deck.deckId;
+            return DeckCommandResult.Ok();
+        }
+
+        /// <summary>Marks an unlocked deck as the Explore / main-combat default.</summary>
+        public static DeckCommandResult TrySetActiveCombatDeck(string deckId, IList<CardEntity> cards = null)
+        {
+            EnsureState();
+            var deck = DeckRules.FindDeck(State, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            if (!deck.unlocked)
+                return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
+
+            State.activeCombatDeckId = deck.deckId;
+            editingDeckId = deck.deckId;
+            SyncLegacyLineupPositions(cards ?? CardListFallback());
+            Save();
+            return DeckCommandResult.Ok();
+        }
+
         public static List<CardEntity> GetOrderedMembers(string deckId, IList<CardEntity> cards)
         {
             var result = new List<CardEntity>();
@@ -86,6 +153,17 @@ namespace Assets.Resources.Scripts.Deck
             }
 
             return result;
+        }
+
+        public static CardEntity FindMemberInSlot(string deckId, int slotIndex, IList<CardEntity> cards)
+        {
+            var deck = DeckRules.FindDeck(State, deckId);
+            if (deck?.slotCardIds == null || slotIndex < 0 || slotIndex >= deck.slotCardIds.Length)
+                return null;
+            var id = deck.slotCardIds[slotIndex];
+            if (string.IsNullOrEmpty(id) || cards == null)
+                return null;
+            return cards.FirstOrDefault(c => c != null && c.id == id);
         }
 
         /// <summary>Members of the active combat deck, with LineupPosition mirrored for battle slotting.</summary>
@@ -114,20 +192,50 @@ namespace Assets.Resources.Scripts.Deck
         public static CardOccupationState GetOccupation(string cardId) =>
             DeckOccupationMap.GetState(State, cardId);
 
-        public static DeckCommandResult TryAssignToActiveCombat(int slotIndex, string cardId, IList<CardEntity> allCards)
+        public static DeckCommandResult TryAssignToDeck(string deckId, int slotIndex, string cardId, IList<CardEntity> allCards)
         {
             EnsureState();
-            var deck = GetActiveCombatDeck();
-            if (deck == null)
-                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "No active combat deck.");
-
-            var result = DeckRules.TryAssignSlot(State, deck.deckId, slotIndex, cardId);
+            var result = DeckRules.TryAssignSlot(State, deckId, slotIndex, cardId);
             if (result.Success)
             {
                 SyncLegacyLineupPositions(allCards);
                 Save();
             }
 
+            return result;
+        }
+
+        public static DeckCommandResult TryAssignToActiveCombat(int slotIndex, string cardId, IList<CardEntity> allCards)
+        {
+            var deck = GetActiveCombatDeck();
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "No active combat deck.");
+            return TryAssignToDeck(deck.deckId, slotIndex, cardId, allCards);
+        }
+
+        public static DeckCommandResult TryAssignToEditing(int slotIndex, string cardId, IList<CardEntity> allCards)
+        {
+            var deck = GetEditingDeck();
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "No deck selected.");
+            return TryAssignToDeck(deck.deckId, slotIndex, cardId, allCards);
+        }
+
+        public static DeckCommandResult TryRename(string deckId, string displayName)
+        {
+            EnsureState();
+            var result = DeckRules.TryRename(State, deckId, displayName);
+            if (result.Success)
+                Save();
+            return result;
+        }
+
+        public static DeckCommandResult TrySetPurpose(string deckId, DeckPurpose purpose)
+        {
+            EnsureState();
+            var result = DeckRules.TrySetPurpose(State, deckId, purpose);
+            if (result.Success)
+                Save();
             return result;
         }
 
@@ -138,18 +246,9 @@ namespace Assets.Resources.Scripts.Deck
             IList<CardEntity> cards)
         {
             EnsureState();
-            var owned = new HashSet<string>();
-            if (cards != null)
-            {
-                foreach (var c in cards)
-                {
-                    if (c != null && !string.IsNullOrEmpty(c.id))
-                        owned.Add(c.id);
-                }
-            }
-
+            var owned = CollectOwnedIds(cards);
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var result = DeckRules.TryStart(State, deckId, actionType, targetId, now, owned);
+            var result = ActionScheduler.TryStart(State, deckId, actionType, targetId, now, owned);
             if (result.Success)
                 Save();
             return result;
@@ -159,7 +258,17 @@ namespace Assets.Resources.Scripts.Deck
         {
             EnsureState();
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var result = DeckRules.TryStop(State, deckId, now);
+            var result = ActionScheduler.TryStop(State, deckId, now);
+            if (result.Success)
+                Save();
+            return result;
+        }
+
+        public static DeckCommandResult TryComplete(string deckId)
+        {
+            EnsureState();
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var result = ActionScheduler.TryComplete(State, deckId, now);
             if (result.Success)
                 Save();
             return result;
@@ -176,7 +285,7 @@ namespace Assets.Resources.Scripts.Deck
                 if (deck?.action == null) continue;
                 if (deck.IsActionBusy && deck.action.actionType == DeckActionType.MainCombat)
                 {
-                    DeckRules.TryStop(State, deck.deckId, now);
+                    ActionScheduler.TryStop(State, deck.deckId, now);
                     changed = true;
                 }
             }
@@ -210,10 +319,29 @@ namespace Assets.Resources.Scripts.Deck
             }
         }
 
+        private static HashSet<string> CollectOwnedIds(IList<CardEntity> cards)
+        {
+            var owned = new HashSet<string>();
+            if (cards == null) return owned;
+            foreach (var c in cards)
+            {
+                if (c != null && !string.IsNullOrEmpty(c.id))
+                    owned.Add(c.id);
+            }
+
+            return owned;
+        }
+
+        private static IList<CardEntity> CardListFallback() =>
+            CardListManager.Instance?.GetCardEntities();
+
         private static void EnsureState()
         {
             if (State == null)
+            {
                 State = DeckStateFactory.CreateNewPlayerState();
+                editingDeckId = State.activeCombatDeckId;
+            }
         }
 
         private static PlayerDeckState Normalize(PlayerDeckState state)
@@ -238,11 +366,14 @@ namespace Assets.Resources.Scripts.Deck
                 });
             }
 
-            foreach (var deck in state.decks)
+            for (var i = 0; i < state.decks.Count; i++)
             {
+                var deck = state.decks[i];
+                if (deck == null) continue;
                 if (deck.slotCardIds == null || deck.slotCardIds.Length != DeckConstants.SlotsPerDeck)
                     deck.slotCardIds = DeckEntity.CreateEmptySlots();
                 deck.action ??= new DeckActionState();
+                deck.unlocked = i < state.unlockedDeckSlots;
             }
 
             if (string.IsNullOrEmpty(state.activeCombatDeckId) ||

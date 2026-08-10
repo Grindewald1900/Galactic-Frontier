@@ -24,14 +24,16 @@ namespace Assets.Resources.Scripts.Deck.Domain
         public string Message { get; private set; }
         public List<string> ConflictCardIds { get; private set; }
         public List<string> ConflictDeckIds { get; private set; }
+        public ActionSettlement Settlement { get; private set; }
 
-        public static DeckCommandResult Ok() => new DeckCommandResult
+        public static DeckCommandResult Ok(ActionSettlement settlement = null) => new DeckCommandResult
         {
             Success = true,
             Error = DeckCommandError.None,
             Message = string.Empty,
             ConflictCardIds = new List<string>(),
-            ConflictDeckIds = new List<string>()
+            ConflictDeckIds = new List<string>(),
+            Settlement = settlement
         };
 
         public static DeckCommandResult Fail(
@@ -45,7 +47,8 @@ namespace Assets.Resources.Scripts.Deck.Domain
                 Error = error,
                 Message = message ?? error.ToString(),
                 ConflictCardIds = conflictCardIds ?? new List<string>(),
-                ConflictDeckIds = conflictDeckIds ?? new List<string>()
+                ConflictDeckIds = conflictDeckIds ?? new List<string>(),
+                Settlement = null
             };
     }
 }

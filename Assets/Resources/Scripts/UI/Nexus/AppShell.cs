@@ -25,7 +25,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private Canvas contentCanvas;
         private RectTransform contentHost;
-        private GameObject bridgeRoot;
+        private BridgeScreen bridgeScreen;
         private GameObject missionsRoot;
         private GameObject settingsRoot;
         private GameObject exploreRoot;
@@ -111,7 +111,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (contentCanvas != null) Destroy(contentCanvas.gameObject);
             contentCanvas = null;
             contentHost = null;
-            bridgeRoot = null;
+            bridgeScreen = null;
             missionsRoot = null;
             settingsRoot = null;
             exploreRoot = null;
@@ -143,7 +143,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             contentCanvas = null;
             contentHost = null;
-            bridgeRoot = null;
+            bridgeScreen = null;
             missionsRoot = null;
             settingsRoot = null;
             exploreRoot = null;
@@ -241,15 +241,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
             switch (screen)
             {
                 case AppScreen.Bridge:
-                    if (bridgeRoot == null)
+                    if (bridgeScreen == null)
                     {
-                        bridgeRoot = BridgeScreen.Build(
+                        bridgeScreen = BridgeScreen.Build(
                             ContentRoot(),
                             () => ShowScreen(AppScreen.Missions),
                             () => ShowScreen(AppScreen.Formation),
                             () => ShowScreen(AppScreen.Battle));
                     }
-                    bridgeRoot.SetActive(true);
+                    else
+                    {
+                        bridgeScreen.Rebuild();
+                    }
+                    bridgeScreen.Root.SetActive(true);
                     break;
                 case AppScreen.Formation:
                     if (formationScreen == null)
@@ -286,7 +290,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void HideNativeRoots()
         {
-            if (bridgeRoot != null) bridgeRoot.SetActive(false);
+            if (bridgeScreen != null) bridgeScreen.Root.SetActive(false);
             if (missionsRoot != null) missionsRoot.SetActive(false);
             if (settingsRoot != null) settingsRoot.SetActive(false);
             if (exploreRoot != null) exploreRoot.SetActive(false);

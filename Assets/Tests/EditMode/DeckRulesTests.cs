@@ -107,5 +107,17 @@ namespace GalacticFrontier.Tests.EditMode
             Assert.IsTrue(state.decks[1].unlocked);
             Assert.IsFalse(state.decks[2].unlocked);
         }
+
+        [Test]
+        public void IdleBackupDeck_CanShareCardAndBeRenamed()
+        {
+            var state = TwoDeckState();
+            state.decks[1].slotCardIds[0] = "card-a";
+            Assert.AreEqual(CardOccupationState.Idle, DeckOccupationMap.GetState(state, "card-a"));
+
+            var rename = DeckRules.TryRename(state, state.decks[1].deckId, "Backup Alpha");
+            Assert.IsTrue(rename.Success);
+            Assert.AreEqual("Backup Alpha", state.decks[1].displayName);
+        }
     }
 }

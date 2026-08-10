@@ -52,6 +52,36 @@ namespace Assets.Resources.Scripts.Deck.Domain
         public static DeckCommandResult TryClearSlot(PlayerDeckState state, string deckId, int slotIndex) =>
             TryAssignSlot(state, deckId, slotIndex, "");
 
+        public static DeckCommandResult TryRename(PlayerDeckState state, string deckId, string displayName)
+        {
+            var deck = FindDeck(state, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            if (!deck.unlocked)
+                return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
+            if (deck.IsActionBusy)
+                return DeckCommandResult.Fail(DeckCommandError.DeckBusy, "Stop the action before renaming.");
+            if (string.IsNullOrWhiteSpace(displayName))
+                return DeckCommandResult.Fail(DeckCommandError.InvalidSlot, "Name is required.");
+
+            deck.displayName = displayName.Trim();
+            return DeckCommandResult.Ok();
+        }
+
+        public static DeckCommandResult TrySetPurpose(PlayerDeckState state, string deckId, DeckPurpose purpose)
+        {
+            var deck = FindDeck(state, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            if (!deck.unlocked)
+                return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
+            if (deck.IsActionBusy)
+                return DeckCommandResult.Fail(DeckCommandError.DeckBusy, "Stop the action before changing purpose.");
+
+            deck.purpose = purpose;
+            return DeckCommandResult.Ok();
+        }
+
         public static DeckCommandResult TryStart(
             PlayerDeckState state,
             string deckId,

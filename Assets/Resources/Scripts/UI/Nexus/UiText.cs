@@ -72,20 +72,31 @@ namespace Assets.Resources.Scripts.UI.Nexus
             $"{cards} cards · {inLine} in line",
             $"{cards} 张卡 · {inLine} 上阵");
 
-        public static string ActiveFleet => T("ACTIVE FLEET", "当前编队");
+        public static string ActiveFleet => T("ACTIVE COMBAT DECK", "当前战斗卡组");
+        public static string RunningOps => T("RUNNING OPS", "运行中行动");
+        public static string ParallelOps(int current, int max) => T(
+            $"Parallel {current} / {max}",
+            $"并行 {current} / {max}");
         public static string BridgeSectors => T("NEARBY SECTORS", "邻近星域");
         public static string EventLog => T("EVENT LOG", "战情日志");
 
         public static string EmptyFleet => T(
             "No units in formation. Open Formation to assign cards.",
             "当前没有上阵单位。请打开编队配置。");
+        public static string NoRunningOps => T(
+            "No decks running. Idle presets do not occupy cards.",
+            "没有运行中的卡组。未启动的备用编队不占用角色。");
+        public static string StopAction => T("Stop", "停止");
+        public static string StopActionConfirm => T(
+            "Tap Stop again: keep settled rewards, discard unsettled cycle progress.",
+            "再点一次停止：保留已结算收益，丢弃未完成周期进度。");
 
         public static string TodaysMissions => T("MISSIONS", "任务");
         public static string BridgeOpenFormation => T("Open Formation", "打开编队");
         public static string BridgeStartAutoBattle => T("Explore / Auto Battle", "探索 / 自动战斗");
         public static string BridgeOpsHint => T(
-            "Multi-deck parallel ops (gather / craft) arrive with later phases. Combat decks use 5 cards.",
-            "多卡组并行行动（采集 / 制造）将在后续阶段接入。战斗卡组固定 5 人。");
+            "Manage multiple decks in Formation. Running decks occupy members; idle backup presets do not.",
+            "在编队中管理多套卡组。运行中卡组占用成员；未运行的备用预设不占用。");
 
         public static string SlotLabel(int index) => T($"Slot {index}", $"槽位 {index}");
 
@@ -130,10 +141,45 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string FormationTitle => T("FORMATION", "编队配置");
         public static string FormationStats => T("Formation Stats", "编队属性");
         public static string SaveFormation => T("Save Formation", "保存编队");
+        public static string SetCombatDeck => T("Set Active Combat Deck", "设为战斗卡组");
+        public static string ActiveCombatBadge => T("COMBAT", "战斗");
+        public static string DeckLocked => T("LOCKED", "未解锁");
+        public static string DeckListHeader => T("DECK SLOTS", "卡组槽");
         public static string AddUnit => T("+ Add", "+ 添加");
         public static string FormationHint => T(
-            "Select a character on the left, then a slot.\nTap an occupied slot to remove.\nCombat decks use up to 5 cards.",
-            "点击左侧角色，再点格子上阵。\n点击已占用格子可下阵。\n战斗卡组最多 5 人。");
+            "Select a deck tab, then assign cards to its 5 slots.\nIdle backup decks may share cards; running decks occupy them.\nTap Stop twice to cancel a running action.",
+            "先选卡组页签，再为 5 个槽位上阵。\n未运行的备用卡组可共享卡牌；运行中会占用。\n运行中行动需点两次停止。");
+        public static string DeckBusyHint => T(
+            "This deck is running — stop it before editing membership.",
+            "该卡组正在行动 — 停止后才能改编制。");
+        public static string OccupationBadge(string state) => state switch
+        {
+            "MainCombat" => T("In combat", "战斗中"),
+            "AutoCombat" => T("Farming", "挂机刷取"),
+            "Gathering" => T("Gathering", "采集中"),
+            "Processing" => T("Processing", "加工中"),
+            "Manufacturing" => T("Crafting", "制造中"),
+            "Researching" => T("Research", "研究中"),
+            "InTransit" => T("Transit", "运输中"),
+            _ => ""
+        };
+        public static string DeckPurposeLabel(string purpose) => purpose switch
+        {
+            "Combat" => T("Combat", "战斗"),
+            "Gather" => T("Gather", "采集"),
+            "Produce" => T("Produce", "生产"),
+            "Research" => T("Research", "研究"),
+            "Transit" => T("Transit", "运输"),
+            _ => T("Flexible", "通用")
+        };
+        public static string DeckActionLabel(string status, string actionType) => status switch
+        {
+            "Running" => T($"Running · {actionType}", $"运行中 · {actionType}"),
+            "PausedCap" => T($"Paused (cap) · {actionType}", $"已暂停（上限）· {actionType}"),
+            "Completing" => T("Completing…", "结算中…"),
+            _ => T("Idle (backup OK)", "空闲（可作备用）")
+        };
+        public static string DeckUnlockHint(string en, string zh) => T(en, zh);
 
         public static string[] FormationSlotLabels => new[]
         {

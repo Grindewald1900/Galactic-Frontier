@@ -1,7 +1,7 @@
 # 系统文档：卡组与角色占用
 
-> 文档版本：v1.1  
-> 状态：**P1.1 + P1.3 已落地（数据/占用）；P1.2 多卡组 UI / P1.4 调度器待做**  
+> 文档版本：v1.2  
+> 状态：**P1 已完成**（数据、占用、Formation/Bridge UI、ActionScheduler、备用卡组）  
 > 上级约束：`Documentation/01-core-product-design.md` §6.1 / §7.2 / §7.3 / §21 / §22  
 > 实现阶段：开发计划 P1（见 `../11-mvp-development-plan.md`）  
 > 更新日期：2026-08-09
@@ -315,27 +315,20 @@ PlayerDeckState
 
 | 现有实现 | 状态 |
 | --- | --- |
-| `DeckEntity` / `PlayerDeckState` + `decks.json` | **P1.1 已完成**（`Deck/Domain` + `DeckService`；Migrator 1→2） |
-| 编制权威 | **P1.1**：`DeckEntity.slotCardIds`；`LineupPosition` 为活跃战斗卡组镜像 |
-| `GetInLineCardEntities()` | **P1.1**：读 `activeCombatDeckId` 成员 |
-| `DeckActionState` + `TryStart` / `TryStop` 占用 | **P1.3 已完成**（领域规则 + Explore/Battle 进出占用） |
-| `maxParallelActions` / 开局 2 槽 | **P1.1/P1.3**：默认值落盘；EditMode 覆盖 |
-| Formation 多卡组 UI | **P1.2 未做**（仍编辑活跃战斗卡组） |
-| 完整 `ActionScheduler`（挂机周期结算） | **P1.4 未做** |
+| `DeckEntity` / `PlayerDeckState` + `decks.json` | **完成**（`Deck/Domain` + `DeckService`；Migrator 1→2） |
+| 编制权威 | `DeckEntity.slotCardIds`；`LineupPosition` 为活跃战斗卡组镜像 |
+| Formation / Bridge 多卡组 UI | **P1.2 完成**（页签切换、解锁条件、并行摘要、停止确认） |
+| `ActionScheduler` | **P1.4 完成**（Start/Stop/Complete/PausedCap；低停止惩罚） |
+| 备用卡组 | **P1.5 完成**（idle 共享编制 + UI 可编辑多套未运行卡组） |
+| 采集/制造周期收益结算 | **后置 P3**（调度器只清进度标志，不发资源） |
 
 **代码入口：**
 
 - Domain：`Assets/Resources/Scripts/Deck/Domain/`（asmdef `GalacticFrontier.DeckDomain`）
 - Runtime：`Assets/Resources/Scripts/Deck/DeckService.cs`
-- Tests：`Assets/Tests/EditMode/DeckRulesTests.cs`
+- UI：`FormationScreen.cs`、`BridgeScreen.cs`
+- Tests：`DeckRulesTests.cs`、`ActionSchedulerTests.cs`
 - Save：`SaveVersion.Current = 2`；`DefaultProperty.DECKS_DATA`
-
-**剩余落地顺序：**
-
-1. ~~数据模型 + `decks.json` + 迁移~~  
-2. ~~`DeckService` 编制 / 占用 / Explore·Battle 接线~~  
-3. Formation UI 改为多卡组（P1.2）  
-4. `ActionScheduler` 通用开始/停止/完成（P1.4）  
 
 ---
 
@@ -351,8 +344,9 @@ PlayerDeckState
 - [x] 主动停止不扣除已入包资源、不加长时间锁定（当前仅清状态；资源惩罚属后续生产系统）  
 - [x] 旧存档仅有 `LineupPosition` 时可迁移出默认战斗卡组（Migrator 1→2 / `EnsureLoaded`）  
 - [x] 领域规则具备 EditMode 测试（冲突启动、并行上限、停止解锁、同名并行、Running 不可编辑）  
-- [ ] Formation / Bridge 多卡组 UI 与解锁提示（P1.2）  
-- [ ] 通用行动调度器（P1.4）
+- [x] Formation / Bridge 多卡组 UI 与解锁提示（P1.2）  
+- [x] 通用行动调度器（P1.4）  
+- [x] 备用卡组可在 UI 中编辑且不占用（P1.5）
 
 ---
 

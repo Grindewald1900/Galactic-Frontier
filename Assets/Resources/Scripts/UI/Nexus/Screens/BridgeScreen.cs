@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
@@ -9,12 +11,31 @@ using UnityEngine.UI;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Bridge command dashboard: live player/fleet data plus legacy planet/event art.
-    /// Aligns with product loop: auto-battle explore, formation, parallel ops placeholders.
+    /// Bridge command dashboard: active combat deck, running ops / parallel caps, sector strip.
     /// </summary>
-    internal static class BridgeScreen
+    internal sealed class BridgeScreen
     {
-        public static GameObject Build(
+        private readonly Transform root;
+        private readonly System.Action openMissions;
+        private readonly System.Action openFormation;
+        private readonly System.Action openExplore;
+        private string pendingStopDeckId = "";
+
+        private BridgeScreen(
+            Transform root,
+            System.Action openMissions,
+            System.Action openFormation,
+            System.Action openExplore)
+        {
+            this.root = root;
+            this.openMissions = openMissions;
+            this.openFormation = openFormation;
+            this.openExplore = openExplore;
+        }
+
+        public GameObject Root => root.gameObject;
+
+        public static BridgeScreen Build(
             Transform parent,
             System.Action openMissions,
             System.Action openFormation,
@@ -29,8 +50,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero,
                 Vector2.zero);
 
+            var screen = new BridgeScreen(root.transform, openMissions, openFormation, openExplore);
+            screen.Rebuild();
+            return screen;
+        }
+
+        public void Rebuild()
+        {
+            ClearDynamicChildren(root);
+
+            List<CardEntity> all = CardListManager.Instance?.GetCardEntities() ?? new List<CardEntity>();
+            if (DataUtil.Instance != null)
+                DeckService.EnsureLoaded(DataUtil.Instance, all);
+
             NexusUiFactory.CreateText(
-                root.transform,
+                root,
                 "Title",
                 UiText.BridgeTitle,
                 new Vector2(28f, 16f),
@@ -42,7 +76,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             string commander = DataUtil.Instance?.currentPlayer?.playerName ?? "COMMANDER";
             NexusUiFactory.CreateText(
-                root.transform,
+                root,
                 "Subtitle",
                 UiText.BridgeSubtitle(commander),
                 new Vector2(28f, 52f),
@@ -51,7 +85,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.MutedText);
 
             NexusUiFactory.CreateText(
-                root.transform,
+                root,
                 "AutoBadge",
                 UiText.BridgeAutoCombatBadge,
                 new Vector2(1460f, 20f),
@@ -62,7 +96,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 FontStyles.Bold);
 
             GameObject banner = NexusUiFactory.CreateBox(
-                root.transform,
+                root,
                 "Event Banner",
                 new Vector2(28f, 88f),
                 new Vector2(1740f, 44f),
@@ -88,39 +122,93 @@ namespace Assets.Resources.Scripts.UI.Nexus
             int power = DataUtil.Instance?.currentPlayer?.combatPower ?? 0;
             int credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
             int progress = DataUtil.Instance?.currentPlayer?.explorationProgress ?? 0;
-            int cards = CardListManager.Instance?.GetCardEntities()?.Count ?? 0;
-            int inLine = CardListManager.Instance?.GetInLineCardEntities()?.Count ?? 0;
+            int cards = all.Count;
+            var combatMembers = DeckService.GetActiveCombatMembers(all);
+            int inLine = combatMembers.Count;
             if (power <= 0 && inLine > 0)
             {
-                foreach (var e in CardListManager.Instance.GetInLineCardEntities())
+                foreach (var e in combatMembers)
                     if (e != null) power += Mathf.RoundToInt(e.power);
             }
 
-            AddStat(root.transform, new Vector2(28f, 148f), UiText.StatCombatPower, power.ToString("N0"), NexusTheme.Gold);
-            AddStat(root.transform, new Vector2(372f, 148f), UiText.StatExploration, $"{progress}%", NexusTheme.Cyan);
-            AddStat(root.transform, new Vector2(716f, 148f), UiText.StatCredits, credits.ToString("N0") + "₵", NexusTheme.Purple);
-            AddStat(root.transform, new Vector2(1060f, 148f), UiText.StatRoster, UiText.RosterSummary(cards, inLine), NexusTheme.Green);
+            int busy = DeckService.CountBusyDecks();
+            int maxParallel = DeckService.MaxParallelActions;
 
-            // Active fleet with legacy card art
+            AddStat(root, new Vector2(28f, 148f), UiText.StatCombatPower, power.ToString("N0"), NexusTheme.Gold);
+            AddStat(root, new Vector2(372f, 148f), UiText.StatExploration, $"{progress}%", NexusTheme.Cyan);
+            AddStat(root, new Vector2(716f, 148f), UiText.StatCredits, credits.ToString("N0") + "₵", NexusTheme.Purple);
+            AddStat(root, new Vector2(1060f, 148f), UiText.StatRoster, UiText.ParallelOps(busy, maxParallel), NexusTheme.Green);
+
+            BuildActiveFleet(combatMembers);
+            BuildRunningOps();
+            BuildSectors();
+            BuildLog(inLine, cards, progress, credits, power);
+
+            NexusUiFactory.CreateButton(
+                root,
+                "CTA Formation",
+                UiText.BridgeOpenFormation,
+                new Vector2(1090f, 730f),
+                new Vector2(210f, 44f),
+                () => openFormation?.Invoke(),
+                NexusTheme.SurfaceRaised,
+                NexusTheme.Text,
+                13f);
+            NexusUiFactory.CreateButton(
+                root,
+                "CTA Explore",
+                UiText.BridgeStartAutoBattle,
+                new Vector2(1320f, 730f),
+                new Vector2(210f, 44f),
+                () => openExplore?.Invoke(),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
+                NexusTheme.Gold,
+                13f);
+            NexusUiFactory.CreateButton(
+                root,
+                "CTA Missions",
+                UiText.TodaysMissions,
+                new Vector2(1550f, 730f),
+                new Vector2(210f, 44f),
+                () => openMissions?.Invoke(),
+                NexusTheme.SurfaceRaised,
+                NexusTheme.Cyan,
+                13f);
+
+            NexusUiFactory.CreateText(
+                root,
+                "OpsHint",
+                UiText.BridgeOpsHint,
+                new Vector2(1090f, 790f),
+                new Vector2(670f, 40f),
+                11f,
+                NexusTheme.DimText);
+        }
+
+        private void BuildActiveFleet(List<CardEntity> lineup)
+        {
             GameObject fleet = NexusUiFactory.CreateBox(
-                root.transform,
+                root,
                 "Fleet",
                 new Vector2(28f, 288f),
-                new Vector2(1040f, 360f),
+                new Vector2(1040f, 240f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
+            var combat = DeckService.GetActiveCombatDeck();
+            string heading = combat != null
+                ? $"{UiText.ActiveFleet}: {combat.displayName}"
+                : UiText.ActiveFleet;
             NexusUiFactory.CreateText(
                 fleet.transform,
                 "Heading",
-                UiText.ActiveFleet,
+                heading,
                 new Vector2(20f, 12f),
-                new Vector2(400f, 28f),
+                new Vector2(700f, 28f),
                 16f,
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
 
-            List<CardEntity> lineup = CardListManager.Instance?.GetInLineCardEntities();
             float x = 20f;
             if (lineup != null && lineup.Count > 0)
             {
@@ -132,10 +220,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         fleet.transform,
                         $"Unit {entity.id}",
                         entity,
-                        new Vector2(x, 52f),
-                        new Vector2(180f, 280f),
+                        new Vector2(x, 48f),
+                        new Vector2(150f, 170f),
                         footer);
-                    x += 200f;
+                    x += 170f;
                 }
             }
             else
@@ -144,15 +232,106 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     fleet.transform,
                     "Empty",
                     UiText.EmptyFleet,
-                    new Vector2(24f, 140f),
+                    new Vector2(24f, 100f),
                     new Vector2(700f, 40f),
                     14f,
                     NexusTheme.MutedText);
             }
+        }
 
-            // Sector / planet strip (legacy planet art)
+        private void BuildRunningOps()
+        {
+            GameObject ops = NexusUiFactory.CreateBox(
+                root,
+                "RunningOps",
+                new Vector2(28f, 548f),
+                new Vector2(1040f, 100f),
+                NexusTheme.Surface,
+                NexusTheme.BorderSoft);
+            NexusUiFactory.CreateText(
+                ops.transform,
+                "Heading",
+                $"{UiText.RunningOps} · {UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)}",
+                new Vector2(20f, 8f),
+                new Vector2(700f, 24f),
+                14f,
+                NexusTheme.Text,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+
+            var busyDecks = DeckService.GetBusyDecks();
+            if (busyDecks.Count == 0)
+            {
+                NexusUiFactory.CreateText(
+                    ops.transform,
+                    "Empty",
+                    UiText.NoRunningOps,
+                    new Vector2(20f, 44f),
+                    new Vector2(900f, 40f),
+                    12f,
+                    NexusTheme.MutedText);
+                return;
+            }
+
+            float x = 20f;
+            foreach (var deck in busyDecks)
+            {
+                string label =
+                    $"{deck.displayName}: {UiText.DeckActionLabel(deck.action.status.ToString(), deck.action.actionType.ToString())}";
+                GameObject row = NexusUiFactory.CreateBox(
+                    ops.transform,
+                    $"Op {deck.deckId}",
+                    new Vector2(x, 40f),
+                    new Vector2(320f, 48f),
+                    NexusTheme.SurfaceRaised,
+                    NexusTheme.BorderSoft);
+                NexusUiFactory.CreateText(
+                    row.transform,
+                    "Label",
+                    Truncate(label, 34),
+                    new Vector2(8f, 6f),
+                    new Vector2(220f, 36f),
+                    11f,
+                    NexusTheme.Cyan,
+                    TextAlignmentOptions.Left,
+                    FontStyles.Bold);
+
+                string capturedId = deck.deckId;
+                NexusUiFactory.CreateButton(
+                    row.transform,
+                    "Stop",
+                    UiText.StopAction,
+                    new Vector2(230f, 8f),
+                    new Vector2(80f, 32f),
+                    () => TryStopDeck(capturedId),
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
+                    NexusTheme.Gold,
+                    11f);
+                x += 340f;
+            }
+        }
+
+        private void TryStopDeck(string deckId)
+        {
+            if (pendingStopDeckId != deckId)
+            {
+                pendingStopDeckId = deckId;
+                Debug.Log("[DECK] " + UiText.StopActionConfirm);
+                Rebuild();
+                return;
+            }
+
+            var result = DeckService.TryStop(deckId);
+            pendingStopDeckId = "";
+            if (!result.Success)
+                Debug.LogWarning("[DECK] Stop failed: " + result.Message);
+            Rebuild();
+        }
+
+        private void BuildSectors()
+        {
             GameObject sectors = NexusUiFactory.CreateBox(
-                root.transform,
+                root,
                 "Sectors",
                 new Vector2(28f, 668f),
                 new Vector2(1040f, 200f),
@@ -169,11 +348,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
 
-            string[] sectorNames =
-            {
-                UiText.SectorName(0), UiText.SectorName(1), UiText.SectorName(2),
-                UiText.SectorName(3), UiText.SectorName(4)
-            };
             for (int i = 0; i < 5; i++)
             {
                 float sx = 20f + i * 200f;
@@ -194,17 +368,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusUiFactory.CreateText(
                     cell.transform,
                     "Name",
-                    sectorNames[i],
+                    UiText.SectorName(i),
                     new Vector2(8f, 96f),
                     new Vector2(164f, 28f),
                     12f,
                     NexusTheme.MutedText,
                     TextAlignmentOptions.Center);
             }
+        }
 
-            // Event log with legacy event icons
+        private void BuildLog(int inLine, int cards, int progress, int credits, int power)
+        {
             GameObject log = NexusUiFactory.CreateBox(
-                root.transform,
+                root,
                 "Log",
                 new Vector2(1090f, 288f),
                 new Vector2(678f, 420f),
@@ -227,7 +403,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 UiText.BridgeLogLine(1, progress, credits),
                 UiText.BridgeLogLine(2, power, 0),
                 UiText.BridgeLogLine(3, 0, 0),
-                UiText.BridgeLogLine(4, 0, 0)
+                UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)
             };
             for (int i = 0; i < logLines.Length; i++)
             {
@@ -256,49 +432,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     NexusTheme.Text);
                 line.textWrappingMode = TextWrappingModes.Normal;
             }
-
-            // Quick actions aligned with product: formation, explore auto-battle, missions
-            NexusUiFactory.CreateButton(
-                root.transform,
-                "CTA Formation",
-                UiText.BridgeOpenFormation,
-                new Vector2(1090f, 730f),
-                new Vector2(210f, 44f),
-                () => openFormation?.Invoke(),
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Text,
-                13f);
-            NexusUiFactory.CreateButton(
-                root.transform,
-                "CTA Explore",
-                UiText.BridgeStartAutoBattle,
-                new Vector2(1320f, 730f),
-                new Vector2(210f, 44f),
-                () => openExplore?.Invoke(),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
-                NexusTheme.Gold,
-                13f);
-            NexusUiFactory.CreateButton(
-                root.transform,
-                "CTA Missions",
-                UiText.TodaysMissions,
-                new Vector2(1550f, 730f),
-                new Vector2(210f, 44f),
-                () => openMissions?.Invoke(),
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Cyan,
-                13f);
-
-            NexusUiFactory.CreateText(
-                root.transform,
-                "OpsHint",
-                UiText.BridgeOpsHint,
-                new Vector2(1090f, 790f),
-                new Vector2(670f, 40f),
-                11f,
-                NexusTheme.DimText);
-
-            return root;
         }
 
         private static void AddStat(Transform parent, Vector2 position, string label, string value, Color accent)
@@ -307,6 +440,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreatePanel(card.transform, "Accent", accent, new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero, new Vector2(3f, 0f));
             NexusUiFactory.CreateText(card.transform, "Value", value, new Vector2(18f, 20f), new Vector2(280f, 36f), 24f, NexusTheme.Text, TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(card.transform, "Label", label, new Vector2(18f, 68f), new Vector2(280f, 22f), 12f, NexusTheme.MutedText);
+        }
+
+        private static string Truncate(string value, int max)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= max)
+                return value ?? "";
+            return value.Substring(0, max - 1) + "…";
+        }
+
+        private static void ClearDynamicChildren(Transform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(parent.GetChild(i).gameObject);
         }
     }
 }

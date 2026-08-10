@@ -42,7 +42,7 @@
 - `GalacticFrontier.DeckDomain`（纯 C#：`DeckRules` / `DeckOccupationMap` / `DeckStateFactory`）
 - `GalacticFrontier.Tests.EditMode`（战斗公式 + `DeckRulesTests` 占用/并行）
 
-仍待：更广的 Runtime asmdef 拆分、离线/存档 EditMode、PlayMode；多卡组 UI（P1.2）。
+仍待：更广的 Runtime asmdef 拆分、离线/存档 EditMode、PlayMode。
 
 ### 字符串路径和场景名
 
