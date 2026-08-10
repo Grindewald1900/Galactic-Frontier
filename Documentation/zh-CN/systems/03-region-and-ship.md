@@ -1,10 +1,11 @@
 # 系统文档：区域推进与舰船门槛
 
-> 文档版本：v1.0  
+> 文档版本：v1.1  
 > 状态：**MVP 规则已拍板，可供 P2 实现**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
+> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
 > 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`；离线/采集细则见 `04-idle-and-offline.md`  
-> 更新日期：2026-08-09
+> 更新日期：2026-08-09  
+> 变更：v1.1 强化舰船**模块化**；增补星域特殊玩法（虫洞/暗面/多元宇宙）为非 MVP 方向。
 
 ---
 
@@ -25,6 +26,7 @@
 - 挂机刷取产率、离线时长上限 → `04-idle-and-offline.md`
 - 采集节点产量、生产链 → `05-production-and-quality.md`
 - 多星域大地图、跨服航线、公会占星（非 MVP）
+- 虫洞 / 宇宙暗面 / 多元宇宙的完整数值与 UI（§10 仅定方向，非 MVP 必做）
 
 ---
 
@@ -39,7 +41,8 @@
 | **首次通关（FirstClear）** | 该区域主挑战遭遇首次胜利 |
 | **挂机刷取解锁** | 首次通关后，允许对该区启动 `AutoCombat` |
 | **区域首领（RegionBoss）** | 星域内指定 Boss 遭遇（MVP **1** 名） |
-| **舰船（Ship）** | 玩家账号唯一主舰实体；等级 + 分项能力 + 设施 |
+| **舰船（Ship）** | 玩家账号唯一主舰实体；等级 + 分项能力 + **可升级模块** |
+| **舰船模块（ShipModule）** | 独立升级的子系统；提升对应 ShipStat 并解锁功能钩子（并行、离线比例、卡组槽等） |
 
 ---
 
@@ -149,26 +152,41 @@ CanEnter(region) =
 
 `shipMeets`：对表中每个 **>0** 的分项，要求 `ship.stat >= required`；`Level` 始终检查。
 
-### 4.5 舰船升级（反时间墙）
+### 4.5 舰船升级与模块化（反时间墙）
 
 | 项目 | MVP 规则 |
 | --- | --- |
 | 主舰数量 | 账号 **1** 艘主舰 |
-| 升级消耗 | **资源 + 信用点**（主）；可选短 costruction 计时 |
+| 成长双轨 | **舰船等级**（总许可/基础值）+ **分模块等级**（功能与门槛） |
+| 升级消耗 | **资源 + 信用点**（主）；可选短 construction 计时 |
 | 计时原则 | 若存在建造时间，必须提供 **材料加速 / 立即完成（信用或加速券）**；禁止「只能挂机等升级才能开下一区」作为唯一路径 |
-| 分项成长 | 升级舰船等级提升基础值；**模块/设施**提供额外分项（MVP 做 2–3 个关键设施即可） |
+| 分项成长 | 舰船等级提升各 Stat 基础值；**模块**提供主要额外分项与系统解锁 |
 | 与仓库 | 升级与改装消耗进本地仓库；失败不扣（确认后扣） |
+| 与离线 | 「生命维持 / 自动化」模块同时提高 Offline Cap 与 **Offline Yield Ratio**（见离线文档） |
 
-#### MVP 设施钩子（与卡组文档解锁表对齐）
+#### MVP 模块表（拍板语义）
 
-| 设施 | 效果钩子 |
-| --- | --- |
-| 调度中枢 | 解锁额外卡组槽（见占用文档） |
-| 自动化核心 | 提高并行行动上限 |
-| 装甲工坊 | +Hull / 降低战斗耐久损耗（耐久文档细化） |
-| 货舱扩展 | +Cargo |
+| `moduleId` | 名称 | 主要 Stat / 解锁 |
+| --- | --- | --- |
+| `mod_propulsion` | 推进 | +Range；后续虫洞最低门槛钩子 |
+| `mod_reactor` | 能源核心 | +Energy |
+| `mod_armor` | 装甲工坊 | +Hull；降低战斗耐久损耗钩子 |
+| `mod_entropy` | 熵雾屏障 | +EntropyResist |
+| `mod_cargo` | 货舱扩展 | +Cargo |
+| `mod_scanner` | 扫描阵列 | +Scan |
+| `mod_life_support` | 生命维持 | +LifeSupport；**离线比例 / 时长** |
+| `mod_automation` | 自动化核心 | 并行行动上限；**离线比例 / 时长** |
+| `mod_command` | 调度中枢 | 额外卡组槽（见占用文档） |
 
-设施等级与具体数值进配置表，不写死在 UI。
+规则：
+
+- 模块等级与具体数值进 `ShipModuleTable`；  
+- 区域 `ShipGate` 检查的是 **合计后的 ShipStat**（等级基础 + 模块），不是要求某模块必须装上（除非特殊玩法另写）；  
+- MVP 至少实装上表模块的数据驱动升级；UI 按模块列表展示。
+
+#### 与旧「设施」表述
+
+原文「设施」一律视为 **ShipModule**；卡组解锁表中的设施名与上表 `moduleId` 对齐。
 
 ### 4.6 首次通关 vs 挂机刷取
 
@@ -238,9 +256,9 @@ ShipEntity
 - shipId: string
 - displayName: string
 - level: int
-- stats: { range, energy, hull, entropyResist, cargo, scan, lifeSupport }
-- facilities: List<{ facilityId, level }>
-- pendingUpgrade?: { targetLevel, finishesAtUtc, paidMaterials }  // 可选
+- stats: { range, energy, hull, entropyResist, cargo, scan, lifeSupport }  // 缓存合计值
+- modules: List<{ moduleId, level }>
+- pendingUpgrade?: { target: shipLevel|moduleId, finishesAtUtc, paidMaterials }
 ```
 
 权威存档：`saves/{playerId}/ship.json`。
@@ -358,8 +376,20 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 - 第二星域与跨域航行（非 MVP）  
 - 扫描揭示隐藏遭遇  
 - 货舱不足时采集收益削减（采集文档）  
-- 生命维持影响离线挂机效率（离线文档）  
+- 生命维持影响离线挂机效率与 **Yield Ratio**（离线文档）  
 - 多艘舰船 / 舰队（非 MVP，主舰唯一）  
+
+### 10.1 星域特殊玩法（非 MVP，方向锁定）
+
+对应核心设计 §7.10；**不阻塞**首圈 6 区 + 首领。
+
+| 模式 | 要点 |
+| --- | --- |
+| **虫洞** | 随机跃迁至区域遭遇；**通关解锁该区**；**失败回到跃迁原点**；需推进模块门槛防过度跳关 |
+| **宇宙暗面** | 已通关区的地狱难度变体；更高掉落；可限次 |
+| **多元宇宙 Boss 房** | 一命肉鸽连续战；失败结束本轮；奖励宜绑定/限兑，降低对线上经济冲击 |
+
+完整规则另开 `systems/12-sector-special-modes.md`（待写）。
 
 若取消「舰船硬门」或改为纯等级门，需修订核心设计 §7.8 并升本文主版本。
 

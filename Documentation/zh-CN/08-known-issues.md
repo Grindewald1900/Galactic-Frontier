@@ -13,6 +13,8 @@
 
 在接入真实数据前，需要定义开发模式开关和可重复的测试数据来源，避免每次启动污染存档。
 
+> 规则已拍板：见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)（P0.1 / P0.2）。本条在代码落地前仍视为未修复。
+
 ### 本地与远程物品共用存档
 
 `ItemManager` 与 `RemoteItemManager` 当前都通过 `DataUtil.SaveItemData/LoadItemData` 使用同一个 `itemData.json`。应设计独立集合或在存档模型中明确区分位置。

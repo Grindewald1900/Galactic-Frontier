@@ -1,5 +1,8 @@
 # 数据与存档
 
+> 契约与 FakeData / 版本迁移规则见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。  
+> 本文保留**当前代码路径与序列化现状**；P0 落地后应把下方 `itemData.json` 更新为 `inventory_local.json` / `inventory_remote.json` 并补充 `meta.json`。
+
 ## 存档位置
 
 `DataUtil` 使用：

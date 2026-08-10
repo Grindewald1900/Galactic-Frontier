@@ -24,11 +24,17 @@
 | --- | --- | --- |
 | [卡组与角色占用](systems/01-deck-and-occupation.md) | P1 | MVP 规则已拍板 |
 | [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
-| [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | MVP 规则已拍板 |
-| [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | MVP 规则已拍板 |
+| [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | 已拍板 v1.1（模块化 + 特殊玩法方向） |
+| [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | 已拍板 v1.1（含 Yield Ratio） |
 | [生产链与品质](systems/05-production-and-quality.md) | P3 | MVP 规则已拍板 |
 | [装备耐久与维修](systems/06-durability-and-repair.md) | P3 | MVP 规则已拍板 |
-| [全服市场与卡牌交易](systems/07-market-and-card-trade.md) | P4 | MVP 规则已拍板 |
+| [全服市场与卡牌交易 / NPC 商店](systems/07-market-and-card-trade.md) | P4 / Online | MVP=NPC；玩家市场仅 Online（v1.1） |
+| [存档契约与种子数据](systems/08-save-and-seed-data.md) | P0 | MVP 规则已拍板 |
+| `systems/09-resources-and-warehouse.md` | P3 | 待写 |
+| `systems/10-onboarding-and-missions.md` | P5 | 待写 |
+| `systems/11-faction-and-content-pipeline.md` | P5 | 待写 |
+| `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
+| [运行模式与存档互通](systems/14-play-modes-and-persistence.md) | Online | 方向稿 v0.1 |
 
 产品设计真相源（仓库根文档）：
 
