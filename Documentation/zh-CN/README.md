@@ -15,6 +15,7 @@
 9. [Figma UI 重构](09-figma-ui.md)：NEXUS 视觉系统、页面映射、运行时装配和扩展方式。
 10. [核心类职责与关系](10-core-classes.md)：核心类的数据所有权、依赖方向、生命周期和主要调用链。
 11. [MVP 进度与 Cursor 开发计划](11-mvp-development-plan.md)：对照核心设计的实现进度、分阶段路线图与 Cursor 任务方法。
+12. [Debug 模式与测试工具](systems/16-debug-and-test-mode.md)：Dev Data、Debug Panel、礼品码与 EditMode/冒烟清单。
 
 ### 系统规则文档
 
@@ -35,6 +36,7 @@
 | `systems/11-faction-and-content-pipeline.md` | P5 | 待写 |
 | `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
 | [运行模式与存档互通](systems/14-play-modes-and-persistence.md) | Online | 方向稿 v0.1 |
+| [Debug 模式与测试工具](systems/16-debug-and-test-mode.md) | 全程 | 已拍板 v1.1（单例开关 / 导航 Debug 页 / 设置礼品码） |
 
 产品设计真相源（仓库根文档）：
 

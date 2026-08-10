@@ -75,6 +75,8 @@
 | 默认模式 | **正式模式**（含 Development Build 与 Release） |
 | Dev Data Mode 开启条件 | **仅** `UNITY_EDITOR` 且 `DevDataSettings.enabled == true`，**或** 启动参数 / Debug 菜单显式打开 |
 | PlayerPrefs / 打包包体 | 正式包默认 `enabled = false`；不得因 `DefaultProperty.isDebug`（明文 JSON）连带打开 FakeData |
+
+> Debug 面板、礼品码、测试清单的完整说明见 [16-debug-and-test-mode.md](16-debug-and-test-mode.md)。
 | 正式模式遇「需要演示数据」 | 使用 **Starter Seed 配置表** 或遭遇/静态配置；禁止 `Random.Range` 写档 |
 | Dev 注入目标 | 优先写入 `saves/_dev/{playerId}/` **或** 仅内存；若必须写正式档目录，须二次确认且打日志 `[DEV-DATA]` |
 | 战斗敌人 | 正式流程只读 `EncounterConfig`；`BattleController.FakeData()` 仅 Dev 或单测夹具 |
@@ -364,4 +366,5 @@ flowchart TD
 - 区域/舰船：`03-region-and-ship.md`（`world.json` / `ship.json`）  
 - 离线：`04-idle-and-offline.md`（`idle.json`）  
 - 市场 Mock：`07-market-and-card-trade.md`（`market_local.json`）  
-- 代码：`DataUtil.cs`、`InventoryItemManagerBase.cs`、`DefaultProperty.cs`、`BattleController.cs`
+- Debug / Dev Data：`16-debug-and-test-mode.md`  
+- 代码：`DataUtil.cs`、`InventoryItemManagerBase.cs`、`DefaultProperty.cs`、`BattleController.cs`、`DevDataSettings.cs`

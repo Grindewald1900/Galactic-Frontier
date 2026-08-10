@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private GameObject missionsRoot;
         private GameObject settingsRoot;
         private GameObject exploreRoot;
+        private GameObject debugRoot;
         private FormationScreen formationScreen;
         private TextMeshProUGUI breadcrumbTitle;
         private TextMeshProUGUI statusShortcuts;
@@ -58,6 +60,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Instance = this;
             LocalizationUtil.Initialize();
             LocalizationUtil.LanguageChanged += OnLanguageChanged;
+            if (DebugModeController.Instance != null)
+                DebugModeController.Instance.Changed += OnDebugModeChanged;
             yield return null;
 
             string sceneName = SceneManager.GetActiveScene().name;
@@ -82,8 +86,43 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void OnDestroy()
         {
             LocalizationUtil.LanguageChanged -= OnLanguageChanged;
+            if (DebugModeController.Instance != null)
+                DebugModeController.Instance.Changed -= OnDebugModeChanged;
             if (Instance == this)
                 Instance = null;
+        }
+
+        private void OnDebugModeChanged(bool enabled)
+        {
+            NotifyDebugModeChanged();
+        }
+
+        /// <summary>Rebuilds chrome when Debug Mode is toggled so the nav entry appears/hides.</summary>
+        public void NotifyDebugModeChanged()
+        {
+            if (!mainReady && SceneManager.GetActiveScene().name != "MainScene")
+                return;
+
+            AppScreen restore = activeScreen;
+            if (restore == AppScreen.Debug && DebugModeController.Instance?.IsEnabled != true)
+                restore = AppScreen.Settings;
+
+            if (chromeRoot != null) Destroy(chromeRoot.gameObject);
+            if (contentCanvas != null) Destroy(contentCanvas.gameObject);
+            contentCanvas = null;
+            contentHost = null;
+            bridgeRoot = null;
+            missionsRoot = null;
+            settingsRoot = null;
+            exploreRoot = null;
+            debugRoot = null;
+            formationScreen = null;
+            navigationButtons.Clear();
+            navigationLabels.Clear();
+            navigationIcons.Clear();
+
+            BuildChrome(true);
+            ShowScreen(restore);
         }
 
         private void OnLanguageChanged()
@@ -108,6 +147,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             missionsRoot = null;
             settingsRoot = null;
             exploreRoot = null;
+            debugRoot = null;
             formationScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
@@ -173,6 +213,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void ShowScreen(AppScreen screen)
         {
+            if (screen == AppScreen.Debug && DebugModeController.Instance?.IsEnabled != true)
+                screen = AppScreen.Settings;
+
             activeScreen = screen;
             SetActiveNavigation(screen);
             SetBreadcrumb(screen);
@@ -216,9 +259,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     formationScreen.Root.SetActive(true);
                     break;
                 case AppScreen.Settings:
-                    if (settingsRoot == null)
-                        settingsRoot = SettingsScreen.Build(ContentRoot());
+                    if (settingsRoot != null)
+                        Destroy(settingsRoot);
+                    settingsRoot = SettingsScreen.Build(ContentRoot());
                     settingsRoot.SetActive(true);
+                    break;
+                case AppScreen.Debug:
+                    if (debugRoot != null)
+                        Destroy(debugRoot);
+                    debugRoot = DebugScreen.Build(ContentRoot());
+                    debugRoot.SetActive(true);
                     break;
                 case AppScreen.Missions:
                     if (missionsRoot == null)
@@ -240,6 +290,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (missionsRoot != null) missionsRoot.SetActive(false);
             if (settingsRoot != null) settingsRoot.SetActive(false);
             if (exploreRoot != null) exploreRoot.SetActive(false);
+            if (debugRoot != null) debugRoot.SetActive(false);
             if (formationScreen != null) formationScreen.Root.SetActive(false);
         }
 
@@ -405,6 +456,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AddNav(parent, AppScreen.Market, y); y += 52f;
             AddNav(parent, AppScreen.Missions, y);
 
+            if (DebugModeController.Instance != null && DebugModeController.Instance.IsEnabled)
+            {
+                y += 52f;
+                AddNav(parent, AppScreen.Debug, y);
+            }
+
             AddNav(parent, AppScreen.Settings, 1000f);
 
             if (!fullNavigation)
@@ -540,6 +597,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 AppScreen.Market => "Shop",
                 AppScreen.Missions => "Add Icon",
                 AppScreen.Settings => "Settings",
+                AppScreen.Debug => "Settings",
                 _ => "circle"
             };
             return NexusCardVisual.UiIcon(iconName);
@@ -557,6 +615,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Market => UiText.ScreenMarket,
             AppScreen.Missions => UiText.ScreenMissions,
             AppScreen.Settings => UiText.ScreenSettings,
+            AppScreen.Debug => UiText.ScreenDebug,
             _ => screen.ToString()
         };
 

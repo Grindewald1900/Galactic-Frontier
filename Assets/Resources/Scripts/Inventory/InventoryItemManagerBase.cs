@@ -191,6 +191,50 @@ namespace Assets.Resources.Scripts.Inventory
                 .ToList();
         }
 
+        /// <summary>Sets absolute quantity for a named stack (0 removes). Persists.</summary>
+        public bool SetItemQuantity(string itemName, int quantity)
+        {
+            if (string.IsNullOrWhiteSpace(itemName))
+                return false;
+
+            var index = items.FindIndex(item =>
+                item != null && string.Equals(item.itemName, itemName, StringComparison.Ordinal));
+
+            if (quantity <= 0)
+            {
+                if (index < 0)
+                    return false;
+                items.RemoveAt(index);
+                UpdateItemList();
+                PersistInventory();
+                return true;
+            }
+
+            if (index >= 0)
+            {
+                items[index].quantity = quantity;
+            }
+            else
+            {
+                if (items.Count >= inventorySize)
+                    return false;
+                items.Add(new ItemEntity(itemName, itemName, itemName, 0, ItemType.Material)
+                {
+                    quantity = quantity,
+                    isRemote = IsRemote
+                });
+            }
+
+            UpdateItemList();
+            PersistInventory();
+            return true;
+        }
+
+        public void RefreshSlotsFromMemory()
+        {
+            UpdateItemList();
+        }
+
         private void PersistInventory()
         {
             if (DataUtil.Instance == null)

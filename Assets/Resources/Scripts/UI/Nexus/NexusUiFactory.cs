@@ -169,6 +169,52 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return button;
         }
 
+        public static TMP_InputField CreateInputField(
+            Transform parent,
+            string name,
+            string placeholder,
+            Vector2 position,
+            Vector2 size,
+            int fontSize = 14)
+        {
+            var root = CreateBox(parent, name, position, size, NexusTheme.SurfaceRaised, NexusTheme.Border);
+            var image = root.GetComponent<Image>();
+            image.raycastTarget = true;
+
+            var input = root.AddComponent<TMP_InputField>();
+            var text = CreateText(
+                root.transform,
+                "Text",
+                string.Empty,
+                new Vector2(8f, 4f),
+                new Vector2(size.x - 16f, size.y - 8f),
+                fontSize,
+                NexusTheme.Text,
+                TextAlignmentOptions.Left);
+            text.raycastTarget = false;
+
+            var placeholderText = CreateText(
+                root.transform,
+                "Placeholder",
+                placeholder,
+                new Vector2(8f, 4f),
+                new Vector2(size.x - 16f, size.y - 8f),
+                fontSize,
+                NexusTheme.MutedText,
+                TextAlignmentOptions.Left);
+            placeholderText.fontStyle = FontStyles.Italic;
+            placeholderText.raycastTarget = false;
+
+            input.textViewport = root.GetComponent<RectTransform>();
+            input.textComponent = text;
+            input.placeholder = placeholderText;
+            input.fontAsset = text.font;
+            input.pointSize = fontSize;
+            input.caretColor = NexusTheme.Gold;
+            input.selectionColor = NexusTheme.WithAlpha(NexusTheme.Gold, 0.35f);
+            return input;
+        }
+
         public static Image CreateIcon(
             Transform parent,
             string name,

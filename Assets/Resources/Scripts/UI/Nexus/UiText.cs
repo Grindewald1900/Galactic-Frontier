@@ -20,6 +20,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ScreenMarket => T("Market", "市场");
         public static string ScreenMissions => T("Missions", "任务");
         public static string ScreenSettings => T("Settings", "设置");
+        public static string ScreenDebug => T("Debug Mode", "Debug模式");
 
         public static string Breadcrumb(AppScreen screen) => screen switch
         {
@@ -33,6 +34,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Market => T("Market", "市场"),
             AppScreen.Missions => T("Missions", "任务"),
             AppScreen.Settings => T("Settings", "设置"),
+            AppScreen.Debug => T("Debug Mode", "Debug模式"),
             _ => screen.ToString()
         };
 
@@ -145,8 +147,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         // Settings
         public static string SettingsTitle => T("Settings", "设置");
         public static string SettingsHint => T(
-            "Save / clear cards / language / return to main menu.",
-            "保存 / 清空卡牌 / 语言 / 返回主菜单。");
+            "Language, save, gift codes, and developer Debug Mode.",
+            "语言、存档、礼品码，以及开发用 Debug 模式。");
         public static string SaveCardData => T("Save Card Data", "保存卡牌数据");
         public static string ClearCardsDebug => T("Clear Cards (Debug)", "清空卡牌（调试）");
         public static string ReturnMainMenu => T("Return to Main Menu", "返回主菜单");
@@ -154,6 +156,44 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string LanguageEnglish => "English";
         public static string LanguageChinese => "简体中文";
         public static string CurrentPlayer(string name) => T($"Current player: {name}", $"当前玩家：{name}");
+        public static string GiftCodeSection => T("Gift Code", "礼品码");
+        public static string GiftCodeHint => T(
+            "Enter a code to claim reward items (once per save).",
+            "输入礼品码领取奖励道具（每个存档限领一次）。");
+        public static string GiftCodePlaceholder => T("Enter gift code…", "输入礼品码…");
+        public static string GiftCodeRedeem => T("Redeem", "领取");
+        public static string DebugModeSection => T("Developer", "开发者");
+        public static string DebugModeToggleOn => T("Enable Debug Mode", "开启 Debug 模式");
+        public static string DebugModeToggleOff => T("Disable Debug Mode", "关闭 Debug 模式");
+        public static string DebugModeHint => T(
+            "When on, a Debug Mode tab appears in the nav bar.",
+            "开启后，导航栏会出现「Debug模式」入口。");
+
+        // Debug screen
+        public static string DebugTitle => T("Debug Mode", "Debug模式");
+        public static string DebugHint => T(
+            "Edit local item quantities and add / upgrade cards. Changes persist to the current save.",
+            "修改本地道具数量，新增或升级卡牌。变更会写入当前存档。");
+        public static string DebugItemsHeader => T("Items (local inventory)", "道具（本地仓库）");
+        public static string DebugCardsHeader => T("Cards", "卡牌");
+        public static string DebugApplyQty => T("Apply", "应用");
+        public static string DebugInvalidNumber => T("Invalid quantity.", "数量无效。");
+        public static string DebugItemUpdated(string name, int qty) => T(
+            $"Set {name} × {qty}",
+            $"已设置 {name} × {qty}");
+        public static string DebugItemFailed => T("Failed to update item.", "更新道具失败。");
+        public static string DebugAddRandomCard => T("Add Random Card", "新增随机卡牌");
+        public static string DebugUpgradeFirstCard => T("Upgrade First Card", "升级第一张卡");
+        public static string DebugAddExpFirstCard => T("Level-Up First Card", "第一张卡升一级");
+        public static string DebugRefresh => T("Refresh List", "刷新列表");
+        public static string DebugNoCards => T("No cards in roster.", "当前没有卡牌。");
+        public static string DebugCardAdded(string name) => T($"Added card: {name}", $"已新增卡牌：{name}");
+        public static string DebugCardFailed => T("Could not create a card.", "无法创建卡牌。");
+        public static string DebugCardUpgraded(string name) => T($"Upgraded: {name}", $"已升级：{name}");
+        public static string DebugCardLeveled(string name, int level) => T(
+            $"{name} → Lv.{level}",
+            $"{name} → Lv.{level}");
+        public static string DebugDisable => T("Turn Off Debug Mode", "关闭 Debug 模式");
 
         // Missions placeholder
         public static string MissionsTitle => T("Missions", "任务");

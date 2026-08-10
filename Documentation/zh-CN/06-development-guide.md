@@ -52,6 +52,11 @@
 
 ## 验证方式
 
+调试开关、礼品码、Debug 导航页见 **[systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md)** v1.1。  
+- **Debug Mode**：`DebugModeController` 单例；设置页开启后导航出现「Debug模式」。  
+- **礼品码**：仅设置页领奖（`GiftCodeService`），不再用 `000`/`001` 开 Debug。  
+- **`DefaultProperty.isDebug`**：只控制存档明文；样例数据仍走 `DevDataSettings`。
+
 ### 静态检查
 
 ```powershell

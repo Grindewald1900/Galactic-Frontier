@@ -1,14 +1,14 @@
+using System.Collections.Generic;
+using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.DebugTools;
+using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Scene;
+using Assets.Scripts.Utils;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
-using Assets.Resources.Scripts.Entity;
-using Assets.Resources.Scripts.Cards;
-using Assets.Resources.Scripts.Utils;
-using Assets.Resources.Scripts.Utils.Save;
-using Assets.Resources.Scripts.Props;
-using Assets.Resources.Scripts.Test;
-using Assets.Resources.Scripts.Scene;
 
 namespace Assets.Resources.Scripts.Settings
 {
@@ -96,17 +96,24 @@ namespace Assets.Resources.Scripts.Settings
 
         void OnEndEdit(string input)
         {
-            Debug.Log("Input: " + input);
-            if (input.Equals(DefaultProperty.CODE_DEBUG_BOARD))
+            Debug.Log("Gift code input: " + input);
+            if (string.IsNullOrWhiteSpace(input))
+                return;
+
+            // Legacy debug codes no longer open Debug Mode / Dev Data — use Settings → Developer.
+            if (input.Equals(DefaultProperty.CODE_DEBUG_BOARD) ||
+                input.Equals(DefaultProperty.CODE_DEV_DATA))
             {
-                DebugPanelController.Instance.ShowDebugPanel();
+                Debug.LogWarning(
+                    "[GIFT] Codes 000/001 no longer toggle Debug/Dev Data. " +
+                    "Enable Debug Mode in Nexus Settings → Developer.");
+                return;
             }
-            else if (input.Equals(DefaultProperty.CODE_DEV_DATA))
-            {
-                var next = !DevDataSettings.Enabled;
-                DevDataSettings.SetSessionEnabled(next);
-                Debug.Log($"[DEV-DATA] Gift code toggled Dev Data Mode to {next}. Reload scenes to apply sample providers.");
-            }
+
+            if (GiftCodeService.TryRedeem(input, out string en, out string zh))
+                Debug.Log("[GIFT] " + (LocalizationUtil.IsSimplifiedChinese ? zh : en));
+            else
+                Debug.LogWarning("[GIFT] " + (LocalizationUtil.IsSimplifiedChinese ? zh : en));
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         Crafting,
         Market,
         Missions,
-        Settings
+        Settings,
+        Debug
     }
 }

@@ -4,7 +4,7 @@
 > 对照设计：`Documentation/01-core-product-design.md`（产品核心设计 **v0.4**）  
 > 对照实现：`Assets/Resources/Scripts` 与现有 `zh-CN` 开发文档  
 > 更新日期：2026-08-09  
-> 变更摘要：P1.1 + P1.3 完成（`decks.json` / 占用规则）；下一刀 P1.2 多卡组 UI 或 P1.4 调度器。
+> 变更摘要：增补 `systems/16-debug-and-test-mode.md`；P1.1 + P1.3 完成（`decks.json` / 占用规则）；下一刀 P1.2 多卡组 UI 或 P1.4 调度器。
 本文档回答三件事：
 
 1. 以核心设计 / MVP 为尺子，**当前做到哪一步**；
@@ -342,6 +342,7 @@ flowchart LR
 | 11 | `systems/11-faction-and-content-pipeline.md` | **P5** | 批量内容 | **待写** |
 | 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |
 | 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.1**（MVP 只读 Solo 边界） |
+| 16 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | 全程 | 调试 / QA | **已拍板 v1.1**：`DebugModeController`、导航 Debug 页、设置礼品码 |
 
 可选：
 
@@ -356,7 +357,8 @@ flowchart LR
 2. **待写（7.2 其余）**：未落盘前，实现只用**明显可配置的默认常量**，并在提交说明标注「待 `09`/`10`/… 确认」。  
 3. **数值**：档位、秒数、掉落权重进配置表；系统文档只锁语义与公式形状。  
 4. **写完一篇 7.2 文档后**：更新本表状态、[README.md](README.md) 系统规则表，并视需要修订核心设计 §21（将已关闭项移出或标注「见 systems/xx」）。  
-5. **P0 编码入口**：先读 `08-save-and-seed-data.md`，再改 `DataUtil` / 库存 FakeData；完成后回写 [05-data-and-save.md](05-data-and-save.md) 路径树。
+5. **P0 编码入口**：先读 `08-save-and-seed-data.md`，再改 `DataUtil` / 库存 FakeData；完成后回写 [05-data-and-save.md](05-data-and-save.md) 路径树。  
+6. **调试入口**：联调样例数据与作弊面板前读 [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md)，勿把 `isDebug` 当成 FakeData 开关。
 
 ---
 
@@ -413,3 +415,4 @@ P1 数据与占用已闭合；下一步做多卡组 UI 或行动调度器。
 | [09-figma-ui.md](09-figma-ui.md) | Nexus UI 扩展方式 |
 | [10-core-classes.md](10-core-classes.md) | 核心类职责与调用链 |
 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | P0 存档版本、FakeData 边界、双背包与种子 |
+| [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | Dev Data、Debug Panel、礼品码与测试清单 |

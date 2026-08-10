@@ -45,9 +45,9 @@ namespace Assets.Resources.Scripts.Props
         // Configs — isDebug only toggles plaintext vs Base64 save encoding; it does NOT enable FakeData.
         public static bool isDebug = true;
 
-        // Gift codes
-        public const string CODE_DEBUG_BOARD = "000";
-        /// <summary>Toggles Dev Data Mode for the current session (FakeData / sample providers).</summary>
+        // Gift codes — reward redemption only (not Debug Mode). See GiftCodeService / systems/16-debug-and-test-mode.md
+        public const string CODE_DEBUG_BOARD = "000"; // deprecated
+        /// <summary>Deprecated: Dev Data Mode is toggled from Settings / EditorPrefs, not gift codes.</summary>
         public const string CODE_DEV_DATA = "001";
     }
 }
