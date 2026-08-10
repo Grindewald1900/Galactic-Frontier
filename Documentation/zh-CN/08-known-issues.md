@@ -9,20 +9,20 @@
 - ~~`InventoryItemManagerBase` 启动时生成并保存随机物品。~~ → 启动只 `Load`；样例注入需 Dev Data Mode + `TryInjectSampleInventory`。
 - 抽卡材料 / 战斗敌人 / 雷达星球 / 事件 Fake 已迁入 `IDevDataProvider`，默认关闭。
 - 开启方式：EditorPrefs `GalacticFrontier.DevData.enabled`、启动参数 `-devData`、或礼品码 `001`（会话开关）。
-- **未完成**：Starter Seed（P0.2）、遭遇表替换敌人（P2.3）、`saves/_dev` 隔离写档。
+- **未完成**：遭遇表替换敌人（P2.3）、`saves/_dev` 隔离写档。
 
 > 契约：见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。`DefaultProperty.isDebug` 仍只控制明文/Base64，不打开 FakeData。
 
-### 本地与远程物品共用存档
+### 本地与远程物品共用存档 — **P0.2 已拆分**
 
-`ItemManager` 与 `RemoteItemManager` 当前都通过 `DataUtil.SaveItemData/LoadItemData` 使用同一个 `itemData.json`。应设计独立集合或在存档模型中明确区分位置。
+~~共用 `itemData.json`~~ → `inventory_local.json` / `inventory_remote.json`；旧档由 `SaveMigrator` 0→1 拆分。
 
-### 存档可靠性
+### 存档可靠性 — **P0.2 部分完成**
 
-- 当前直接覆盖目标文件，没有临时文件和原子替换；
-- 没有版本号与迁移器；
-- Base64 不是加密；
-- 错误恢复和损坏存档处理有限。
+- ~~直接覆盖~~ → 原子写（tmp → Replace）；
+- ~~无版本号~~ → `meta.json` + `SaveVersion.Current = 2` + Migrator 0→1→2；
+- Base64 仍不是加密；
+- 迁移失败可复制到 `saves/_corrupt/`；完整滚动备份仍未做。
 
 ## 中优先级
 
@@ -34,14 +34,15 @@
 
 大量系统同时挂在 `MainScene`，使初始化顺序、场景合并和回归测试复杂。可考虑按功能拆分 Prefab/子场景或引入明确的 Composition Root。
 
-### 缺少第一方程序集与测试
+### 缺少第一方程序集与测试 — **P0.5 已起步**
 
-没有第一方 `.asmdef`，也没有针对领域逻辑的稳定测试。建议先拆出：
+已有：
 
-- `GalacticFrontier.Domain`
-- `GalacticFrontier.Runtime`
-- `GalacticFrontier.Tests.EditMode`
-- `GalacticFrontier.Tests.PlayMode`
+- `GalacticFrontier.BattleDomain`（纯 C#：`BattleRng` / `CombatMath` / `BattleOutcomeRules`）
+- `GalacticFrontier.DeckDomain`（纯 C#：`DeckRules` / `DeckOccupationMap` / `DeckStateFactory`）
+- `GalacticFrontier.Tests.EditMode`（战斗公式 + `DeckRulesTests` 占用/并行）
+
+仍待：更广的 Runtime asmdef 拆分、离线/存档 EditMode、PlayMode；多卡组 UI（P1.2）。
 
 ### 字符串路径和场景名
 
@@ -54,7 +55,7 @@
 ## 低优先级或未完成功能
 
 - `MainMenu.OnSettingsButtonClick()` 为空。
-- 战斗结束后目前显示战报，但返回 `MainScene` 的调用被注释。
+- ~~战斗结束后目前显示战报，但返回 `MainScene` 的调用被注释。~~ → **P0.3**：战报 Confirm → Explore；Esc → Bridge。
 - `HomeScene` 未加入构建。
 - 设置、礼品码、成就、事件和星球系统仍有占位逻辑。
 - 多个公开 Inspector 字段缺少统一命名与空值验证。
@@ -62,9 +63,9 @@
 
 ## 推荐演进顺序
 
-1. ~~将所有 `FakeData()` 放入明确的开发数据提供器。~~（P0.1 完成：`Utils/Save/*`）
-2. 为存档增加版本、备份和迁移（P0.2）。
-3. 为伤害、属性、抽取概率和背包集合增加 EditMode 测试。
-4. 引入第一方 `.asmdef`，隔离领域逻辑和 Unity 表现层。
+1. ~~将所有 `FakeData()` 放入明确的开发数据提供器。~~（P0.1）
+2. ~~为存档增加版本、备份和迁移。~~（P0.2：版本 + 原子写 + 0→1；滚动备份仍后置）
+3. ~~为伤害…增加 EditMode 测试 / 引入 asmdef~~ → **P0.4/P0.5 起步**（战斗公式）；扩展占用/离线/存档测试  
+4. 继续拆分 Runtime asmdef，隔离更多领域逻辑与 Unity 表现层。
 5. 统一 Singleton/场景生命周期。
 6. 用 ScriptableObject、Addressables 或集中配置逐步替代字符串资源路径。

@@ -1,7 +1,7 @@
 # 系统文档：卡组与角色占用
 
-> 文档版本：v1.0  
-> 状态：**MVP 规则已拍板，可供 P1 实现**  
+> 文档版本：v1.1  
+> 状态：**P1.1 + P1.3 已落地（数据/占用）；P1.2 多卡组 UI / P1.4 调度器待做**  
 > 上级约束：`Documentation/01-core-product-design.md` §6.1 / §7.2 / §7.3 / §21 / §22  
 > 实现阶段：开发计划 P1（见 `../11-mvp-development-plan.md`）  
 > 更新日期：2026-08-09
@@ -313,37 +313,46 @@ PlayerDeckState
 
 ## 8. 与现有代码的差距
 
-| 现有实现 | 差距 |
+| 现有实现 | 状态 |
 | --- | --- |
-| `LineupManager` / `FormationScreen` 单全局 5 槽 | 需升为多 `DeckEntity` |
-| `CardEntity.position` 权威编制 | 编制权威应迁到 Deck |
-| `GetInLineCardEntities()` | 需按 `deckId` 查询 |
-| 无占用状态 | 需 `DeckActionState` + 启动校验 |
-| 无并行上限 | 需 `PlayerDeckState.maxParallelActions` |
-| Explore 直接读全局编队开战 | 开战前选择 `activeCombatDeckId` |
+| `DeckEntity` / `PlayerDeckState` + `decks.json` | **P1.1 已完成**（`Deck/Domain` + `DeckService`；Migrator 1→2） |
+| 编制权威 | **P1.1**：`DeckEntity.slotCardIds`；`LineupPosition` 为活跃战斗卡组镜像 |
+| `GetInLineCardEntities()` | **P1.1**：读 `activeCombatDeckId` 成员 |
+| `DeckActionState` + `TryStart` / `TryStop` 占用 | **P1.3 已完成**（领域规则 + Explore/Battle 进出占用） |
+| `maxParallelActions` / 开局 2 槽 | **P1.1/P1.3**：默认值落盘；EditMode 覆盖 |
+| Formation 多卡组 UI | **P1.2 未做**（仍编辑活跃战斗卡组） |
+| 完整 `ActionScheduler`（挂机周期结算） | **P1.4 未做** |
 
-**建议落地顺序（P1）：**
+**代码入口：**
 
-1. 新增 `DeckEntity` / `PlayerDeckState` 与 `decks.json` 读写 + 旧编队迁移  
-2. 领域服务 `DeckService`：编制 CRUD、占用查询、`TryStart` / `Stop`  
-3. Formation UI 改为多卡组  
-4. Explore / Battle 入口改为传入 `deckId`  
-5. EditMode 测试：占用冲突、并行上限、停止立即解锁、同名不同实例并行  
+- Domain：`Assets/Resources/Scripts/Deck/Domain/`（asmdef `GalacticFrontier.DeckDomain`）
+- Runtime：`Assets/Resources/Scripts/Deck/DeckService.cs`
+- Tests：`Assets/Tests/EditMode/DeckRulesTests.cs`
+- Save：`SaveVersion.Current = 2`；`DefaultProperty.DECKS_DATA`
+
+**剩余落地顺序：**
+
+1. ~~数据模型 + `decks.json` + 迁移~~  
+2. ~~`DeckService` 编制 / 占用 / Explore·Battle 接线~~  
+3. Formation UI 改为多卡组（P1.2）  
+4. `ActionScheduler` 通用开始/停止/完成（P1.4）  
 
 ---
 
 ## 9. 验收清单
 
-- [ ] 开局 2 个卡组槽可用，并行上限为 2  
-- [ ] 每卡组最多 5 人；同卡组内不可重复 `cardId`  
-- [ ] 同一 `cardId` 不能同时处于两个 Running 卡组  
-- [ ] 不同 `cardId` 的同名角色可同时 Running  
-- [ ] 未运行卡组可共享同一 `cardId` 预设且不占用  
-- [ ] 启动冲突时有明确失败原因  
-- [ ] 停止后占用立即解除，可立刻改打其他行动  
-- [ ] 主动停止不扣除已入包资源、不加长时间锁定  
-- [ ] 旧存档仅有 `LineupPosition` 时可迁移出默认战斗卡组  
-- [ ] 领域规则具备 EditMode 测试（至少：冲突启动、并行上限、停止解锁）
+- [x] 开局 2 个卡组槽可用，并行上限为 2（`DeckStateFactory` + 单测）  
+- [x] 每卡组最多 5 人；同卡组内不可重复 `cardId`（`DeckRules.TryAssignSlot`）  
+- [x] 同一 `cardId` 不能同时处于两个 Running 卡组  
+- [x] 不同 `cardId` 的同名角色可同时 Running  
+- [x] 未运行卡组可共享同一 `cardId` 预设且不占用  
+- [x] 启动冲突时有明确失败原因（`DeckCommandError` / `ConflictCardIds`）  
+- [x] 停止后占用立即解除，可立刻改打其他行动  
+- [x] 主动停止不扣除已入包资源、不加长时间锁定（当前仅清状态；资源惩罚属后续生产系统）  
+- [x] 旧存档仅有 `LineupPosition` 时可迁移出默认战斗卡组（Migrator 1→2 / `EnsureLoaded`）  
+- [x] 领域规则具备 EditMode 测试（冲突启动、并行上限、停止解锁、同名并行、Running 不可编辑）  
+- [ ] Formation / Bridge 多卡组 UI 与解锁提示（P1.2）  
+- [ ] 通用行动调度器（P1.4）
 
 ---
 

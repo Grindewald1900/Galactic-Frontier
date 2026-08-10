@@ -59,17 +59,24 @@ git diff --check
 rg -n "TODO|FIXME|FakeData" Assets/Resources/Scripts -g "*.cs"
 ```
 
+### EditMode 测试（P0.5）
+
+- 程序集：`Assets/Tests/EditMode/GalacticFrontier.Tests.EditMode.asmdef`
+- 领域：`Assets/Resources/Scripts/Battle/Domain`（`noEngineReferences`）
+- 在 Unity：**Window → General → Test Runner → EditMode**，运行 `GalacticFrontier.Tests.EditMode`
+- 战斗结算路径禁止新增未播种的 `UnityEngine.Random`；用 `BattleRng`
+
 ### 编译
 
 首选让 Unity 完成脚本导入和编译，然后检查 Console。Unity 生成的 `.csproj` 在本项目中包含本机扩展路径，命令行 `dotnet build` 不一定可复现 Unity 编译环境。
 
 ### 测试
 
-项目已包含 `com.unity.test-framework`，但第一方代码目前没有独立测试程序集。建议新增：
+项目已包含 `com.unity.test-framework` 与第一方 EditMode 程序集：
 
 ```text
 Assets/Tests/EditMode/
-Assets/Tests/PlayMode/
+Assets/Resources/Scripts/Battle/Domain/
 ```
 
 并使用 `.asmdef` 隔离测试。优先覆盖：

@@ -4,7 +4,6 @@ using Assets.Resources.Scripts.Main;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
@@ -207,8 +206,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static void ReturnToBridge()
         {
-            AppShell.RequestScreen(AppScreen.Bridge);
-            SceneManager.LoadScene("MainScene");
+            BattleSceneExit.ReturnToBridge();
         }
 
         private void Update()

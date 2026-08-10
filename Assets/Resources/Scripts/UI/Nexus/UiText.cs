@@ -166,16 +166,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BattleBreadcrumb => T("NEXUS › EXPLORE / AUTO BATTLE", "NEXUS › 探索 / 自动战斗");
         public static string AutoBattle => T("AUTO BATTLE", "自动战斗");
         public static string BattleEnd => T("BATTLE END", "战斗结束");
+        public static string BattleVictory => T("VICTORY", "胜利");
+        public static string BattleDefeat => T("DEFEAT", "失败");
         public static string ReturnToBridge => T("Return to Bridge", "返回舰桥");
         public static string BattleStatusHint => T(
-            "Fully automatic combat · Esc returns to Bridge · Report opens when finished",
-            "全自动战斗 · Esc 返回舰桥 · 结束后可查看战报");
+            "Fully automatic combat · Esc returns to Bridge · Confirm on report returns to Explore",
+            "全自动战斗 · Esc 返回舰桥 · 战报确认后返回探索");
         public static string BattleLogHeader => T("BATTLE LOG", "战斗日志");
         public static string BattleLogStart => T("Auto combat started.\nResolving rounds…", "自动战斗开始。\n正在结算回合…");
         public static string BattleLogRound(int round) => T($"— Round {round} —", $"— 第 {round} 回合 —");
         public static string BattleLogEnded => T(
-            "Battle ended. Open report or return to Bridge.",
-            "战斗结束。可查看战报或返回舰桥。");
+            "Battle ended. Confirm the report to return to Explore.",
+            "战斗结束。确认战报后返回探索。");
         public static string Turn(int round) => round > 0 ? T($"TURN  {round}", $"回合  {round}") : T("TURN  —", "回合  —");
     }
 }

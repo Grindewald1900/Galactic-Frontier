@@ -81,7 +81,7 @@ sequenceDiagram
     end
 ```
 
-`DataUtil` 是唯一应负责拼接玩家存档路径的类。业务 Manager 应调用 `SaveCardData`、`SaveItemData` 等明确入口，不应自行假设目录结构。
+`DataUtil` 是唯一应负责拼接玩家存档路径的类。业务 Manager 应调用 `SaveCardData`、`SaveInventory` 等明确入口，不应自行假设目录结构。
 
 ## 2. 卡牌生成、持有与显示
 
@@ -175,7 +175,7 @@ flowchart LR
 - `RemoteItemManager` 表示远程仓库；
 - `ItemOperationManager` 负责删除和延迟传送操作。
 
-物品转移使用新的 `ItemEntity` 副本，避免两个背包共享可变对象。当前两个背包仍共享 `itemData.json` 且启动时会生成测试数据，修改持久化前需先确定远程仓库的独立数据源。
+物品转移使用新的 `ItemEntity` 副本，避免两个背包共享可变对象。本地/远程分文件持久化（P0.2）；`ItemManager` ↔ `inventory_local.json`，`RemoteItemManager` ↔ `inventory_remote.json`。
 
 ## 生命周期和单例注意事项
 

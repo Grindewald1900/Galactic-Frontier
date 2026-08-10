@@ -1,10 +1,10 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v1.3  
+> 文档版本：v1.4  
 > 对照设计：`Documentation/01-core-product-design.md`（产品核心设计 **v0.4**）  
 > 对照实现：`Assets/Resources/Scripts` 与现有 `zh-CN` 开发文档  
 > 更新日期：2026-08-09  
-> 变更摘要：对齐 v0.4——Solo/Online 分层、离线收益比例、舰船模块化、MVP 改 NPC 商店；§7 文档顺序更新。
+> 变更摘要：P1.1 + P1.3 完成（`decks.json` / 占用规则）；下一刀 P1.2 多卡组 UI 或 P1.4 调度器。
 本文档回答三件事：
 
 1. 以核心设计 / MVP 为尺子，**当前做到哪一步**；
@@ -27,10 +27,10 @@
 
 | 维度 | 评估 | 说明 |
 | --- | --- | --- |
-| 战斗原型 | ★★★★☆ | 全自动回合制可跑通，敌人/策略/战后闭环仍弱 |
-| 卡牌与编队 | ★★★☆☆ | 单编队 5 槽可用；多卡组与占用状态未做 |
+| 战斗原型 | ★★★★☆ | 全自动可跑通；种子伤害+战报返回已通；敌人/策略仍弱 |
+| 卡牌与编队 | ★★★☆☆ | **P1.1/P1.3**：`decks.json` + 占用规则；Formation 仍单活跃战斗卡组（P1.2） |
 | UI 壳层 | ★★★☆☆ | Nexus 导航与关键页已有；多数玩法仍接旧面板或占位 |
-| 存档与数据 | ★★☆☆☆ | 本地存档可用；**P0.1 FakeData 已隔离**；仍无版本迁移 / 双背包分文件 |
+| 存档与数据 | ★★★☆☆ | **P0 完成**：FakeData 隔离、meta/版本、双背包、原子写、Starter Seed |
 | 经济循环 | ★☆☆☆☆ | 采集 / 生产 / 耐久 / 品质 / 市场基本缺失 |
 | 成长与主线 | ★☆☆☆☆ | 区域 UI 有入口，舰船门、章节、首领未落地 |
 | 内容量 | ★☆☆☆☆ | 可战斗角色约 3 名，远低于 MVP 30–50 |
@@ -48,9 +48,9 @@
 | MVP 必含项（设计 §16.1） | 状态 | 当前证据 / 缺口 |
 | --- | --- | --- |
 | 全自动回合制卡牌战斗 | 已实现 | `BattleController.BattleRoutine` 按速度自动结算 |
-| 每队 5 张出战角色卡 | 部分实现 | `LineupManager` 单编队 5 槽；无多卡组 |
-| 多卡组管理 | 未开始 | 仅一套出战阵容 |
-| 角色单队伍占用规则 | 部分实现 | 编队内防重复；无采集/生产等占用态 |
+| 每队 5 张出战角色卡 | 部分实现 | 每 `DeckEntity` 5 槽；UI 仍编辑 `activeCombatDeckId` |
+| 多卡组管理 | 部分实现 | 存档 6 槽/开局 2 解锁；多卡组 UI（P1.2）未做 |
+| 角色单队伍占用规则 | 部分实现 | **P1.3** Running 占用 + 冲突拒绝；调度器/挂机态（P1.4）未做 |
 | 主线/区域战斗自动结算 | 部分实现 | 可进 `BattleScene` 自动打；无章节进度与首次通关态 |
 | 通关后挂机自动战斗刷取 | 未开始 | 无 AFK 战斗循环 |
 | 基础挂机采集 | 未开始 | Bridge 文案占位 |
@@ -89,11 +89,11 @@
 
 必须在大规模做经济系统前处理，否则 Cursor 改一处易污染全局：
 
-1. ~~**FakeData 污染存档**~~ → **P0.1 完成**（`Utils/Save` + 正式默认关闭）；Starter Seed / 分文件仍属 P0.2  
-2. **本地/远程背包共用 `itemData.json`** → 存档模型拆分  
-3. **无存档版本与迁移** → 加 `saveVersion` + migrator  
-4. **战斗结束返回主场景被注释** → 打通 Explore → Battle → 结果 → 回主流程  
-5. **缺少 Domain 层测试** → 战斗结算、占用规则、离线结算优先 EditMode 测试  
+1. ~~**FakeData 污染存档**~~ → **P0.1 完成**；~~分文件 / 版本 / Starter Seed~~ → **P0.2 完成**  
+2. ~~**本地/远程背包共用 `itemData.json`**~~ → **P0.2 完成**（分文件 + 迁移）  
+3. ~~**无存档版本与迁移**~~ → **P0.2 完成**（`meta.json` + Migrator 0→1）  
+4. ~~**战斗结束返回主场景被注释**~~ → **P0.3 完成**（战报 Confirm → Explore）  
+5. ~~**缺少 Domain 层测试**~~ → **P0.5** `BattleDomain`；**P1.3** 已追加 `DeckRulesTests`（离线测试随 P3）  
 
 详见 [08-known-issues.md](08-known-issues.md)。
 
@@ -148,10 +148,10 @@ flowchart LR
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
 | P0.1 FakeData 隔离 | **已完成** `IDevDataProvider` / `DevDataSettings`；正式流程默认关闭 | 新档启动不再随机覆写背包/材料 |
-| P0.2 存档 v1 | `saveVersion`、原子写（tmp→replace）、本地/远程物品分文件 | 旧档能读或明确迁移；双背包数据不串 |
-| P0.3 战斗闭环 | 胜利/失败 → 战报 → 返回 MainScene/Explore | Explore 进出战斗完整一轮无卡死 |
-| P0.4 战斗确定性种子 | 同编队同敌人同种子战报一致 | EditMode 测试覆盖伤害与胜负判定 |
-| P0.5 Domain 测试脚手架 | `Assets/Tests/EditMode` + asmdef（可选） | 至少 5 个稳定测试 |
+| P0.2 存档 v1 | **已完成** `meta.json`、原子写、`inventory_*`、Migrator 0→1、Starter Seed | 旧档能读或明确迁移；双背包数据不串 |
+| P0.3 战斗闭环 | **已完成** 胜负战报 + Confirm → Explore；Esc → Bridge | Explore 进出战斗完整一轮无卡死 |
+| P0.4 战斗确定性种子 | **已完成** `BattleRng` + `CombatMath`；命中/暴击走种子 | 同种子伤害序列一致（EditMode） |
+| P0.5 Domain 测试脚手架 | **已完成** `Assets/Tests/EditMode` + `GalacticFrontier.BattleDomain` | ≥5 个稳定 EditMode 测试 |
 
 **Cursor 任务切片示例：**
 
@@ -165,11 +165,11 @@ flowchart LR
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P1.1 卡组数据模型 | `DeckEntity`（id、用途、5 槽、状态） | 可序列化进存档 |
+| P1.1 卡组数据模型 | **已完成** `DeckEntity` / `PlayerDeckState` / `decks.json`；Migrator 1→2 | 可序列化进存档；旧编队可迁移 |
 | P1.2 多卡组 UI | 在 Formation/Bridge 管理多套卡组 | 至少 2 个卡组槽；未解锁槽显示条件 |
-| P1.3 占用状态机 | 角色状态：Idle / Combat / Gather / Craft / Research / Transit… | 占用中角色不可加入其他运行中卡组 |
+| P1.3 占用状态机 | **已完成** `DeckRules` + `DeckOccupationMap`；Explore/Battle 进出占用 | 占用中角色不可加入其他运行中卡组（EditMode） |
 | P1.4 行动调度器 | `ActionScheduler`：开始/停止/完成；停止惩罚低 | 停止行动后角色可重分配 |
-| P1.5 备用卡组 | 允许保存未启用编队 | 未运行编队不占用角色 |
+| P1.5 备用卡组 | 允许保存未启用编队（领域已允许 idle 共享） | UI 暴露多套未运行编队（随 P1.2） |
 
 **拍板清单（实现前写入系统文档）：**
 
@@ -390,13 +390,13 @@ flowchart LR
 
 按依赖排出的**下一批 5 个任务**（建议严格按序）：
 
-1. ~~**P0.1** FakeData 隔离开关~~ **已完成**  
-2. **P0.3** 战斗结束返回 Explore/Main 闭环  
-3. **P0.2** 存档版本 + 双背包分文件  
-4. **P1.1 + P1.3** `DeckEntity` + 角色占用状态（先数据后 UI）  
-5. **P2.1** 区域通关标记与 Explore 解锁（为挂机刷怪铺路）  
+1. ~~**P0.1–P0.5** 稳基线~~ **已完成**  
+2. ~~**P1.1 + P1.3**~~ **已完成**（`decks.json` + 占用规则；EditMode）  
+3. **P1.2** Formation/Bridge 多卡组 UI（解锁槽提示）  
+4. **P1.4** `ActionScheduler`（通用开始/停止；低停止惩罚）  
+5. **P2.1** 区域通关标记与 Explore 解锁  
 
-完成以上五项后，项目将从「战斗 Demo」进入「可扩展的多队伍原型」，再开 P3 经济系统风险显著降低。
+P1 数据与占用已闭合；下一步做多卡组 UI 或行动调度器。
 
 ---
 

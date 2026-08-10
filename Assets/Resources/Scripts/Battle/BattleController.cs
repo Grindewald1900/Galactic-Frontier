@@ -10,8 +10,12 @@ using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.Main;
-using Assets.Resources.Scripts.Scene;
-using UnityEngine.SceneManagement;
+using Assets.Resources.Scripts.UI.Nexus;
+using Assets.Resources.Scripts.Battle.Domain;
+using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Deck.Domain;
+using TMPro;
+using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.Battle
 {
@@ -41,10 +45,27 @@ namespace Assets.Resources.Scripts.Battle
         private List<CardEntity> inlineEntities = new();
         [SerializeField] private BattleController enemyController;
 
-        //private bool isBattleActive = false;
-        // public bool isSpecialAttackInProgress = false;
-
         public GameObject reportPanel;
+        [SerializeField] private Button confirmButton;
+        [SerializeField] private TextMeshProUGUI reportTitle;
+
+        /// <summary>Outcome of the last finished battle; set before the report opens.</summary>
+        public BattleOutcome LastOutcome { get; private set; } = BattleOutcome.None;
+
+        /// <summary>Seed used for this battle's hit/crit rolls.</summary>
+        public long BattleSeed { get; private set; }
+
+        /// <summary>Optional seed set before loading BattleScene (e.g. Explore / AFK).</summary>
+        public static long? PendingBattleSeed { get; set; }
+
+        /// <summary>Optional combat target id (region / encounter) for MainCombat occupation.</summary>
+        public static string PendingBattleTargetId { get; set; }
+
+        [Tooltip("Non-zero overrides PendingBattleSeed / auto seed (Editor testing).")]
+        [SerializeField] private long battleSeedOverride;
+
+        private BattleRng battleRng;
+        private bool reportConfirmWired;
         #endregion
 
         private void Awake()
@@ -54,6 +75,7 @@ namespace Assets.Resources.Scripts.Battle
         private void Start()
         {
             Init();
+            WireReportConfirm();
             StartBattle();
         }
 
@@ -61,7 +83,8 @@ namespace Assets.Resources.Scripts.Battle
         {
             if (GameStatusManager.Instance != null)
                 GameStatusManager.Instance.CurrentScene = CurrentScene.BATTLE_SCENE;
-            reportPanel.SetActive(false);
+            if (reportPanel != null)
+                reportPanel.SetActive(false);
         }
 
         #region Initialization 🚀 
@@ -73,13 +96,15 @@ namespace Assets.Resources.Scripts.Battle
             Debug.Log("inLine counts cardListMgr " + (cardListMgr != null));
             if (cardListMgr != null)
             {
+                if (DataUtil.Instance != null && !DeckService.IsLoaded)
+                    DeckService.EnsureLoaded(DataUtil.Instance, cardListMgr.cardEntities);
                 inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(cardListMgr.GetInLineCardEntities());
             }
             else if (DataUtil.Instance != null)
             {
                 var loaded = DataUtil.Instance.LoadCardData();
-                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(
-                    loaded.FindAll(e => e.GetLineupPosition() != LineupPosition.None));
+                DeckService.EnsureLoaded(DataUtil.Instance, loaded);
+                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(DeckService.GetActiveCombatMembers(loaded));
             }
             else
             {
@@ -110,21 +135,28 @@ namespace Assets.Resources.Scripts.Battle
         #endregion
 
         /// <summary>
-        /// Calculates damage entity between attacker and defender.
+        /// Calculates damage entity between attacker and defender using the battle seed RNG.
         /// </summary>
         public DamageEntity CalculateDamage(Card playerCard, Card enemyCard, float attackMultiplier = 1)
         {
             if (playerCard?.cardEntity == null || enemyCard?.cardEntity == null)
                 return new DamageEntity(0, DamageType.DAMAGE, 1);
+
+            EnsureBattleRng();
             var pEntity = playerCard.cardEntity;
             var eEntity = enemyCard.cardEntity;
-            float hitRate = Mathf.Clamp(pEntity.Accuracy - eEntity.Dodge, 0, 1);
-            if (UnityEngine.Random.value >= hitRate)
-                return new DamageEntity(0, DamageType.DAMAGE, 1);
-            float criticalMultiplier = UnityEngine.Random.value < pEntity.Critical ? pEntity.CriticalDamage : 1;
-            float reductionRate = CalculateDmgReductionRate(eEntity);
-            float damage = pEntity.GetBattleAttack() * criticalMultiplier * (1 - reductionRate) * attackMultiplier;
-            return new DamageEntity(damage, DamageType.DAMAGE, criticalMultiplier);
+            var roll = CombatMath.ResolveAttack(
+                attackerAccuracy: pEntity.Accuracy,
+                defenderDodge: eEntity.Dodge,
+                criticalChance: pEntity.Critical,
+                criticalDamageMultiplier: pEntity.CriticalDamage,
+                battleAttack: pEntity.GetBattleAttack(),
+                battleDefense: eEntity.GetBattleDefense(),
+                fixedDamageReduction: eEntity.DamageReduction,
+                attackMultiplier: attackMultiplier,
+                rng: battleRng);
+
+            return new DamageEntity(roll.Damage, DamageType.DAMAGE, roll.CriticalMultiplier);
         }
 
         /// <summary>
@@ -133,9 +165,7 @@ namespace Assets.Resources.Scripts.Battle
         public float CalculateDmgReductionRate(CardEntity eEntity)
         {
             if (eEntity == null) return 0;
-            double logBase1Point4 = Math.Log(Mathf.Max(eEntity.GetBattleDefense(), 1)) / Math.Log(1.4);
-            float reductionRate = (float)(logBase1Point4 * 0.01f + eEntity.DamageReduction);
-            return Mathf.Clamp(reductionRate, 0, 1);
+            return CombatMath.DamageReductionRate(eEntity.GetBattleDefense(), eEntity.DamageReduction);
         }
 
         /// <summary>
@@ -183,7 +213,57 @@ namespace Assets.Resources.Scripts.Battle
             if (GameStatusManager.Instance.IsBattle) return;
             GameStatusManager.Instance.IsBattle = true;
             currentRound = 0;
+            LastOutcome = BattleOutcome.None;
+            BeginSeededBattle();
+            EnsureMainCombatOccupation();
             StartCoroutine(BattleRoutine());
+        }
+
+        private void EnsureMainCombatOccupation()
+        {
+            if (!DeckService.IsLoaded)
+                return;
+
+            var deck = DeckService.GetActiveCombatDeck();
+            if (deck == null)
+                return;
+
+            if (deck.IsActionBusy && deck.action.actionType == DeckActionType.MainCombat)
+                return;
+
+            var cards = CardListManager.Instance != null
+                ? CardListManager.Instance.cardEntities
+                : null;
+            var result = DeckService.TryStart(
+                deck.deckId,
+                DeckActionType.MainCombat,
+                PendingBattleTargetId ?? "",
+                cards);
+            if (!result.Success)
+                Debug.LogWarning("[DECK] MainCombat start: " + result.Message + " (" + result.Error + ")");
+        }
+
+        private void BeginSeededBattle()
+        {
+            if (battleSeedOverride != 0)
+                BattleSeed = battleSeedOverride;
+            else if (PendingBattleSeed.HasValue)
+            {
+                BattleSeed = PendingBattleSeed.Value;
+                PendingBattleSeed = null;
+            }
+            else
+                BattleSeed = DateTime.UtcNow.Ticks;
+
+            battleRng = new BattleRng(BattleSeed);
+            Debug.Log($"[BATTLE] Seed={BattleSeed}");
+        }
+
+        private void EnsureBattleRng()
+        {
+            if (battleRng != null)
+                return;
+            BeginSeededBattle();
         }
 
         /// <summary>
@@ -192,6 +272,26 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         private IEnumerator BattleRoutine()
         {
+            // No opposing party (e.g. encounter table not ready): resolve immediately so the report/return path works.
+            if (!HasAliveCards(enemyCards) || !HasAliveCards(playerCards))
+            {
+                LastOutcome = BattleOutcomeRules.Resolve(
+                    HasAliveCards(playerCards),
+                    HasAliveCards(enemyCards),
+                    reachedRoundCap: false);
+                BattleInfo.Instance?.PlayBattleInfoAnimation(
+                    LastOutcome == BattleOutcome.Victory ? "Victory" : "Defeated");
+                GameStatusManager.Instance.IsBattle = false;
+                if (BattleInfo.Instance != null)
+                {
+                    BattleInfo.Instance.PlayBattleInfoAnimation("Battle End");
+                    yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
+                }
+                yield return new WaitForSeconds(0.5f);
+                ShowBattleReport();
+                yield break;
+            }
+
             while (currentRound < MaxRound && GameStatusManager.Instance.IsBattle)
             {
                 currentRound++;
@@ -224,7 +324,15 @@ namespace Assets.Resources.Scripts.Battle
 
                     var targets = GetAliveTargets(card);
                     Debug.Log("target count: " + targets.Count);
-                    if (targets.Count == 0) break;
+                    if (targets.Count == 0)
+                    {
+                        LastOutcome = BattleOutcomeRules.Resolve(
+                            HasAliveCards(playerCards),
+                            HasAliveCards(enemyCards),
+                            reachedRoundCap: false);
+                        GameStatusManager.Instance.IsBattle = false;
+                        break;
+                    }
 
                     var character = CharacterSkillController.GetCharacter(card.cardEntity.characterName);
                     if (character == null)
@@ -252,7 +360,12 @@ namespace Assets.Resources.Scripts.Battle
 
                     if (!HasAliveCards(playerCards) || !HasAliveCards(enemyCards))
                     {
-                        BattleInfo.Instance?.PlayBattleInfoAnimation(!HasAliveCards(playerCards) ? "Defeated" : "Victory");
+                        LastOutcome = BattleOutcomeRules.Resolve(
+                            HasAliveCards(playerCards),
+                            HasAliveCards(enemyCards),
+                            reachedRoundCap: false);
+                        BattleInfo.Instance?.PlayBattleInfoAnimation(
+                            LastOutcome == BattleOutcome.Victory ? "Victory" : "Defeated");
                         GameStatusManager.Instance.IsBattle = false;
                         break;
                     }
@@ -263,8 +376,14 @@ namespace Assets.Resources.Scripts.Battle
                 if (!GameStatusManager.Instance.IsBattle) break;
             }
 
-            if (GameStatusManager.Instance.IsBattle && BattleInfo.Instance != null)
-                BattleInfo.Instance.PlayBattleInfoAnimation("Max Rounds Reached");
+            if (GameStatusManager.Instance.IsBattle)
+            {
+                LastOutcome = BattleOutcomeRules.Resolve(
+                    HasAliveCards(playerCards),
+                    HasAliveCards(enemyCards),
+                    reachedRoundCap: true);
+                BattleInfo.Instance?.PlayBattleInfoAnimation("Max Rounds Reached");
+            }
 
             if (BattleInfo.Instance != null)
             {
@@ -311,16 +430,75 @@ namespace Assets.Resources.Scripts.Battle
         }
 
         /// <summary>
-        /// Shows result and returns to main scene.
+        /// Shows the battle report. Confirm button returns to MainScene Explore.
         /// </summary>
         private void ShowBattleReport()
         {
-            Debug.Log($"{GetType().Name} ShowBattleReport");
-            reportPanel.SetActive(true);
-            BattleReportManager.Instance.RefreshChart(ChartType.pDamageChart, playerCards);
-            BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
-            BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
-            //SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainScene));
+            Debug.Log($"{GetType().Name} ShowBattleReport outcome={LastOutcome}");
+            WireReportConfirm();
+
+            if (reportPanel != null)
+                reportPanel.SetActive(true);
+
+            ApplyReportTitle();
+
+            if (BattleReportManager.Instance != null)
+            {
+                BattleReportManager.Instance.RefreshChart(ChartType.pDamageChart, playerCards);
+                BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
+                BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
+            }
+        }
+
+        private void WireReportConfirm()
+        {
+            if (reportConfirmWired)
+                return;
+
+            if (confirmButton == null && reportPanel != null)
+            {
+                var confirmTransform = reportPanel.transform.Find("ConfirmButton");
+                if (confirmTransform != null)
+                    confirmButton = confirmTransform.GetComponent<Button>();
+            }
+
+            if (confirmButton == null)
+            {
+                Debug.LogWarning($"{GetType().Name}: ConfirmButton missing on report panel.");
+                return;
+            }
+
+            confirmButton.onClick.RemoveListener(OnReportConfirm);
+            confirmButton.onClick.AddListener(OnReportConfirm);
+            reportConfirmWired = true;
+        }
+
+        private void ApplyReportTitle()
+        {
+            if (reportTitle == null && reportPanel != null)
+            {
+                var titleTransform = reportPanel.transform.Find("ReportTitle");
+                if (titleTransform != null)
+                    reportTitle = titleTransform.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (reportTitle == null)
+                return;
+
+            reportTitle.text = LastOutcome switch
+            {
+                BattleOutcome.Victory => UiText.BattleVictory,
+                BattleOutcome.Defeat => UiText.BattleDefeat,
+                _ => UiText.BattleEnd
+            };
+        }
+
+        private void OnReportConfirm()
+        {
+            Debug.Log($"{GetType().Name}: Report confirmed → Explore/Main.");
+            if (reportPanel != null)
+                reportPanel.SetActive(false);
+            BattleSceneExit.ReturnToExplore();
         }
 
     }

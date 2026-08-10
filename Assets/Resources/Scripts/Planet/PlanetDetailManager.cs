@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
 
@@ -44,7 +45,11 @@ namespace Assets.Resources.Scripts.Planet
                 Debug.LogError("Start Button is null");
                 return;
             }
-            startButton.onClick.AddListener(() => SceneManager.LoadScene("BattleScene"));
+            startButton.onClick.AddListener(() =>
+            {
+                BattleController.PendingBattleSeed = System.DateTime.UtcNow.Ticks;
+                SceneManager.LoadScene("BattleScene");
+            });
         }
 
         public void SetPlanetDetail(PlanetEntity planet)

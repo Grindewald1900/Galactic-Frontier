@@ -56,8 +56,13 @@ namespace Assets.Resources.Scripts.Main
                 item.SetFocus(item == newFocus);
             }
             currentIndex = items.IndexOf(newFocus);
-            // Update current player in DataUtil when item selected
-            DataUtil.Instance.SetCurrentPlayer(newFocus.playerEntity);
+            // Update current player in DataUtil when item selected (also migrates save schema).
+            if (!DataUtil.Instance.SetCurrentPlayer(newFocus.playerEntity))
+            {
+                Debug.LogError(
+                    "[SAVE] Cannot use this save: " +
+                    (DataUtil.Instance.LastSaveError ?? "unknown migration error"));
+            }
         }
 
         public void AddItem(PlayerEntity player)

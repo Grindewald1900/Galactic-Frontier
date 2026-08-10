@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -142,6 +144,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             ClearChildren(slotsRoot, keepHeader: false);
 
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities() ?? new List<CardEntity>();
+            if (DataUtil.Instance != null)
+                DeckService.EnsureLoaded(DataUtil.Instance, all);
             float y = 56f;
             foreach (CardEntity entity in all)
             {
@@ -288,6 +292,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             selectedCard.SetLineupPosition((LineupPosition)selectedSlot);
+            if (DeckService.IsLoaded)
+            {
+                var assign = DeckService.TryAssignToActiveCombat(selectedSlot, selectedCard.id, all);
+                if (!assign.Success)
+                    Debug.LogWarning("[DECK] Formation assign failed: " + assign.Message);
+            }
+
             Persist();
             selectedCard = null;
             Rebuild();
@@ -299,6 +310,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             CardEntity occupant = FindInSlot(all, index);
             if (occupant == null) return;
             occupant.SetLineupPosition(LineupPosition.None);
+            if (DeckService.IsLoaded)
+                DeckService.TryAssignToActiveCombat(index, "", all);
             Persist();
             Rebuild();
         }
@@ -306,6 +319,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void Persist()
         {
             if (CardListManager.Instance == null) return;
+            if (DeckService.IsLoaded)
+                DeckService.Save();
+            DataUtil.Instance?.SaveCardData(CardListManager.Instance.GetCardEntities());
             CardListManager.Instance.UpdateCardList(CardListManager.Instance.GetCardEntities());
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Characters;
+using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Utils;
@@ -57,6 +58,8 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCardList()
         {
             cardEntities = DataUtil.Instance.LoadCardData() ?? new List<CardEntity>();
+            if (DataUtil.Instance != null)
+                DeckService.EnsureLoaded(DataUtil.Instance, cardEntities);
             UpdateCardObjects(cardEntities.Count);
             SortCards(Order);
         }
@@ -169,9 +172,14 @@ namespace Assets.Resources.Scripts.Cards
         {
             return cardEntities;
         }
-        /// <summary>Returns the persistent collection entries currently assigned to formation slots.</summary>
+        /// <summary>
+        /// Returns members of the active combat deck (authoritative), falling back to legacy LineupPosition.
+        /// </summary>
         public List<CardEntity> GetInLineCardEntities()
         {
+            if (DeckService.IsLoaded)
+                return DeckService.GetActiveCombatMembers(cardEntities);
+
             return cardEntities.Where(entity => entity.GetLineupPosition() != LineupPosition.None).ToList();
         }
         public CardEntity GetCardEntityById(string id)

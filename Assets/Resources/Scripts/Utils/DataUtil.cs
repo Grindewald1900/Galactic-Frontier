@@ -7,6 +7,10 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Utils.Save;
 
 namespace Assets.Resources.Scripts.Utils
 {
@@ -18,28 +22,33 @@ namespace Assets.Resources.Scripts.Utils
     /// <remarks>
     /// Save files live under Application.persistentDataPath/saves/{playerId}. Base64 encoding is
     /// an optional storage format controlled by DefaultProperty.isDebug, not a security boundary.
+    /// Writes use a temp file then replace for crash safety (P0.2).
     /// </remarks>
     public class DataUtil : MonoBehaviour
     {
+        private static readonly HashSet<string> ReservedSaveDirectoryNames =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "_dev", "_corrupt" };
+
         public static DataUtil Instance { get; private set; }
 
         /// <summary>The player whose directory is currently bound to the cached save paths.</summary>
         public PlayerEntity currentPlayer;
+
+        /// <summary>Last migration / save readiness error for UI messaging.</summary>
+        public string LastSaveError { get; private set; }
+
         private List<PlayerEntity> playerEntities = new();
         private List<ExpertiseEntity> expertiseEntities = new();
 
-        // e.g C:/Users/.../Galactic Frontier/saves
         private string savePath;
-        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a
         private string playerSavePath;
-        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/playerData.json
         private string playerDataPath;
-        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/playerCards.json
         private string playerCardPath;
-        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/itemData.json
-        private string itemDataPath;
-        // e.g C:/Users/.../Galactic Frontier/saves/9ea194d8-ab32-47c0-a023-4c0c040c4c0a/avatar.png
+        private string inventoryLocalPath;
+        private string inventoryRemotePath;
+        private string metaPath;
         public string playerAvatarPath;
+
         private void Awake()
         {
             if (Instance == null)
@@ -82,7 +91,9 @@ namespace Assets.Resources.Scripts.Utils
             playerSavePath = GetPlayerSavePath(currentPlayer.playerID);
             playerDataPath = GetPlayerDataPath(currentPlayer.playerID);
             playerCardPath = GetPlayerCardPath(currentPlayer.playerID);
-            itemDataPath = GetPlayerItemDataPath(currentPlayer.playerID);
+            inventoryLocalPath = GetInventoryPath(currentPlayer.playerID, InventoryStore.Local);
+            inventoryRemotePath = GetInventoryPath(currentPlayer.playerID, InventoryStore.Remote);
+            metaPath = CombinePath(playerSavePath, DefaultProperty.META_DATA);
             playerAvatarPath = GetPlayerAvatarPath(currentPlayer.playerID);
 
             Debug.Log("数据路径已初始化：");
@@ -90,71 +101,215 @@ namespace Assets.Resources.Scripts.Utils
             Debug.Log("playerSavePath: " + playerSavePath);
             Debug.Log("playerDataPath: " + playerDataPath);
             Debug.Log("playerCardPath: " + playerCardPath);
-            Debug.Log("itemDataPath: " + itemDataPath);
+            Debug.Log("inventoryLocalPath: " + inventoryLocalPath);
+            Debug.Log("inventoryRemotePath: " + inventoryRemotePath);
+            Debug.Log("metaPath: " + metaPath);
             Debug.Log("playerAvatarPath: " + playerAvatarPath);
         }
 
-        /// <summary>Creates a new player identity, binds its save directory, and writes its profile.</summary>
+        /// <summary>Creates a new player identity, binds its save directory, writes seed + decks + meta.</summary>
         public bool CreatePlayerData()
         {
+            LastSaveError = null;
             currentPlayer = new PlayerEntity();
             UpdatePaths();
-            return SavePlayerData(currentPlayer);
+            CheckIfPathExist(playerSavePath);
+
+            // Write profile without touching meta (meta is created below).
+            if (!SaveData(currentPlayer, playerSavePath, DefaultProperty.PLAYER_DATA))
+            {
+                LastSaveError = "Failed to write playerData.json.";
+                return false;
+            }
+
+            LoadPlayerEntities();
+
+            var seedVersion = StarterSeedApplier.ApplyNewPlayerLocalInventory(this);
+            if (!SaveInventory(InventoryStore.Remote, new List<ItemEntity>(), touchMeta: false))
+            {
+                LastSaveError = "Failed to write inventory_remote.json.";
+                return false;
+            }
+
+            DeckService.CreateForNewPlayer(this);
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var meta = new SaveMeta
+            {
+                saveVersion = SaveVersion.Current,
+                createdAtUtc = now,
+                lastSavedAtUtc = now,
+                starterSeedTableVersion = seedVersion,
+                appVersion = Application.version
+            };
+
+            if (!SaveMeta(meta))
+            {
+                LastSaveError = "Failed to write meta.json.";
+                return false;
+            }
+
+            return true;
         }
 
+        /// <summary>Saves one inventory store file and optionally refreshes meta timestamps.</summary>
+        public bool SaveInventory(InventoryStore store, List<ItemEntity> items, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            items ??= new List<ItemEntity>();
+            var isRemote = store == InventoryStore.Remote;
+            foreach (var item in items)
+            {
+                if (item != null)
+                    item.isRemote = isRemote;
+            }
+
+            var fileName = store == InventoryStore.Local
+                ? DefaultProperty.INVENTORY_LOCAL
+                : DefaultProperty.INVENTORY_REMOTE;
+            var ok = SaveData(
+                new ItemListWrapper { items = items, count = items.Count },
+                playerSavePath,
+                fileName);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        /// <summary>Loads one inventory store; missing file yields an empty list.</summary>
+        public List<ItemEntity> LoadInventory(InventoryStore store)
+        {
+            EnsurePlayerBound();
+            var path = store == InventoryStore.Local ? inventoryLocalPath : inventoryRemotePath;
+            var items = ReadItemListFile(path) ?? new List<ItemEntity>();
+            var isRemote = store == InventoryStore.Remote;
+            foreach (var item in items)
+            {
+                if (item != null)
+                    item.isRemote = isRemote;
+            }
+
+            Debug.Log($"物品数据已加载：{path}，共{items.Count}个物品 ({store})");
+            return items;
+        }
+
+        [Obsolete("Use SaveInventory(InventoryStore, List<ItemEntity>). Legacy shared itemData.json is migrator-only.")]
         public void SaveItemData(List<ItemEntity> items)
         {
-            SaveData(new ItemListWrapper { items = items, count = items.Count }, playerSavePath, DefaultProperty.ITEM_DATA);
+            Debug.LogWarning("[SAVE] SaveItemData is obsolete; use SaveInventory.");
+            SaveInventory(InventoryStore.Local, items);
+        }
+
+        [Obsolete("Use LoadInventory(InventoryStore). Legacy shared itemData.json is migrator-only.")]
+        public List<ItemEntity> LoadItemData()
+        {
+            Debug.LogWarning("[SAVE] LoadItemData is obsolete; use LoadInventory.");
+            return LoadInventory(InventoryStore.Local);
         }
 
         public void SaveCardData(List<CardEntity> cards)
         {
             SaveData(new CardListWrapper { cardEntities = cards, count = cards.Count }, playerSavePath, DefaultProperty.PLAYER_CARDS_DATA);
+            TouchMetaLastSaved();
         }
 
         public void SaveExpertiseData(List<ExpertiseEntity> expertiseEntities)
         {
             SaveData(new ExpertiseListWrapper { expertiseEntities = expertiseEntities, count = expertiseEntities.Count }, playerSavePath, DefaultProperty.EXPERT_DATA);
+            TouchMetaLastSaved();
         }
 
-        // Save player data in its individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
         public bool SavePlayerData(PlayerEntity playerEntity)
         {
-            SaveData(playerEntity, playerSavePath, DefaultProperty.PLAYER_DATA);
+            var ok = SaveData(playerEntity, playerSavePath, DefaultProperty.PLAYER_DATA);
             LoadPlayerEntities();
-            return true;
+            if (ok)
+                TouchMetaLastSaved();
+            return ok;
         }
 
-        // Save playerEntities in root directory e.g, e.g. saves/playerEntities.json
         public void SavePlayerEntities()
         {
             SaveData(new PlayerListWrapper { playerEntities = playerEntities, count = playerEntities.Count }, savePath, DefaultProperty.PLAYER_ENTITIES);
         }
 
         /// <summary>
-        /// Saves the high-level player state and the current card collection as one checkpoint.
+        /// Saves player profile, cards, both inventories (when managers exist), and refreshes meta.
         /// </summary>
-        /// <remarks>Both scene managers must already be initialized when this method is called.</remarks>
         public void SaveGameData()
         {
             SavePlayerData(CharacterInfoManager.Instance.playerData);
             SaveCardData(CardListManager.Instance.cardEntities);
+            DeckService.Save(this);
+
+            if (ItemManager.Instance != null)
+                SaveInventory(InventoryStore.Local, ItemManager.Instance.GetItems(), touchMeta: false);
+            if (RemoteItemManager.Instance != null)
+                SaveInventory(InventoryStore.Remote, RemoteItemManager.Instance.GetItems(), touchMeta: false);
+
+            TouchMetaLastSaved();
         }
 
-        public List<ItemEntity> LoadItemData()
+        public bool SaveDeckState(PlayerDeckState state, bool touchMeta = true)
         {
-            if (File.Exists(itemDataPath))
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.decks?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.DECKS_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public PlayerDeckState LoadDeckState()
+        {
+            EnsurePlayerBound();
+            return ReadDeckStateFromDirectory(playerSavePath);
+        }
+
+        public PlayerDeckState ReadDeckStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.DECKS_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
             {
-                string json = File.ReadAllText(itemDataPath);
-                string encryptedJson = DecryptBase64(json);
-                ItemListWrapper wrapper = JsonUtility.FromJson<ItemListWrapper>(encryptedJson);
-                Debug.Log("物品数据已加载：" + itemDataPath + "，共" + wrapper.items.Count + "个物品");
-                return wrapper.items;
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<PlayerDeckState>(decoded);
             }
-            else
+            catch (Exception ex)
             {
-                Debug.LogWarning("未找到存档文件，返回默认物品列表");
-                return new List<ItemEntity>();
+                Debug.LogError("[SAVE] Failed to read decks.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteDeckStateToDirectory(string directory, PlayerDeckState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.decks?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.DECKS_DATA);
+        }
+
+        public List<CardEntity> ReadCardListFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.PLAYER_CARDS_DATA);
+            if (!File.Exists(path))
+                return new List<CardEntity>();
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                var wrapper = JsonUtility.FromJson<CardListWrapper>(decoded);
+                return wrapper?.cardEntities ?? new List<CardEntity>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read playerCards.json during migration: " + ex.Message);
+                return new List<CardEntity>();
             }
         }
 
@@ -169,11 +324,9 @@ namespace Assets.Resources.Scripts.Utils
                 Debug.Log("卡片数据已加载：" + playerCardPath + "，共" + wrapper.cardEntities.Count + "张卡片");
                 return wrapper.cardEntities;
             }
-            else
-            {
-                Debug.LogWarning("未找到存档，返回默认卡片列表");
-                return new List<CardEntity>();
-            }
+
+            Debug.LogWarning("未找到存档，返回默认卡片列表");
+            return new List<CardEntity>();
         }
 
         public List<ExpertiseEntity> LoadExpertiseData()
@@ -202,10 +355,8 @@ namespace Assets.Resources.Scripts.Utils
                 string encryptedJson = DecryptBase64(json);
                 return JsonUtility.FromJson<PlayerEntity>(encryptedJson);
             }
-            else
-            {
-                Debug.LogWarning("No player data found, returning default player data");
-            }
+
+            Debug.LogWarning("No player data found, returning default player data");
             return currentPlayer;
         }
 
@@ -213,7 +364,6 @@ namespace Assets.Resources.Scripts.Utils
         {
             playerEntities.Clear();
 
-            // Load all player data from individual directory e.g. saves/asdhjakh123uh2insajdia/playerData.json
             foreach (string id in GetAllPlayerIDs())
             {
                 PlayerEntity player = LoadPlayerData(GetPlayerDataPath(id));
@@ -224,14 +374,19 @@ namespace Assets.Resources.Scripts.Utils
             return playerEntities;
         }
 
-        // Get all player IDs from file name in saves directory 
         public List<string> GetAllPlayerIDs()
         {
             List<string> ids = new();
+            if (!Directory.Exists(savePath))
+                return ids;
+
             foreach (string p in Directory.GetDirectories(savePath))
             {
-                Debug.Log("存在的存档：" + Path.GetFileName(p));
-                ids.Add(Path.GetFileName(p));
+                var name = Path.GetFileName(p);
+                if (ReservedSaveDirectoryNames.Contains(name))
+                    continue;
+                Debug.Log("存在的存档：" + name);
+                ids.Add(name);
             }
             return ids;
         }
@@ -241,11 +396,31 @@ namespace Assets.Resources.Scripts.Utils
             return currentPlayer;
         }
 
-        /// <summary>Selects the active player and updates every path used by player-scoped operations.</summary>
-        public void SetCurrentPlayer(PlayerEntity player)
+        /// <summary>
+        /// Selects the active player, updates paths, and migrates the directory to the current schema.
+        /// </summary>
+        /// <returns>False when the save is newer than this build or migration fails.</returns>
+        public bool SetCurrentPlayer(PlayerEntity player)
         {
             currentPlayer = player;
             UpdatePaths();
+            return EnsurePlayerSaveReady();
+        }
+
+        /// <summary>Runs migrators so the bound player directory matches <see cref="SaveVersion.Current"/>.</summary>
+        public bool EnsurePlayerSaveReady()
+        {
+            LastSaveError = null;
+            EnsurePlayerBound();
+            var result = SaveMigrator.EnsureCurrent(this, playerSavePath);
+            if (!result.Success)
+            {
+                LastSaveError = result.Message;
+                Debug.LogError("[SAVE] " + result.Message);
+                return false;
+            }
+
+            return true;
         }
 
         public string GetPlayerSavePath(string playerID)
@@ -264,6 +439,15 @@ namespace Assets.Resources.Scripts.Utils
             return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.PLAYER_CARDS_DATA);
         }
 
+        public string GetInventoryPath(string playerID, InventoryStore store)
+        {
+            var file = store == InventoryStore.Local
+                ? DefaultProperty.INVENTORY_LOCAL
+                : DefaultProperty.INVENTORY_REMOTE;
+            return CombinePath(GetPlayerSavePath(playerID), file);
+        }
+
+        [Obsolete("Legacy shared item file. Use GetInventoryPath.")]
         public string GetPlayerItemDataPath(string playerID)
         {
             return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.ITEM_DATA);
@@ -274,17 +458,105 @@ namespace Assets.Resources.Scripts.Utils
             return CombinePath(GetPlayerSavePath(playerID), DefaultProperty.AVATAR);
         }
 
+        public SaveMeta LoadMeta()
+        {
+            EnsurePlayerBound();
+            return LoadMetaFromDirectory(playerSavePath);
+        }
+
+        public SaveMeta LoadMetaFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.META_DATA);
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<SaveMeta>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read meta.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool SaveMeta(SaveMeta meta)
+        {
+            EnsurePlayerBound();
+            return WriteMetaToDirectory(playerSavePath, meta);
+        }
+
+        public bool WriteMetaToDirectory(string directory, SaveMeta meta)
+        {
+            if (meta == null)
+                throw new ArgumentNullException(nameof(meta));
+            return SaveData(meta, directory, DefaultProperty.META_DATA);
+        }
+
+        public void TouchMetaLastSaved()
+        {
+            if (currentPlayer == null || string.IsNullOrEmpty(playerSavePath))
+                return;
+            if (!File.Exists(metaPath) && !File.Exists(CombinePath(playerSavePath, DefaultProperty.META_DATA)))
+                return;
+
+            var meta = LoadMetaFromDirectory(playerSavePath) ?? new SaveMeta
+            {
+                saveVersion = SaveVersion.Current,
+                createdAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                appVersion = Application.version
+            };
+            meta.saveVersion = SaveVersion.Current;
+            meta.lastSavedAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (string.IsNullOrEmpty(meta.appVersion))
+                meta.appVersion = Application.version;
+            WriteMetaToDirectory(playerSavePath, meta);
+        }
+
+        /// <summary>Reads an item list file at an absolute path (used by migrator and inventory load).</summary>
+        public List<ItemEntity> ReadItemListFile(string absolutePath)
+        {
+            if (!File.Exists(absolutePath))
+                return null;
+
+            try
+            {
+                var json = File.ReadAllText(absolutePath);
+                var decoded = DecryptBase64(json);
+                var wrapper = JsonUtility.FromJson<ItemListWrapper>(decoded);
+                return wrapper?.items ?? new List<ItemEntity>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SAVE] Failed to read item list at {absolutePath}: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>Atomically writes an item list to an absolute path.</summary>
+        public bool WriteItemListFile(string absolutePath, List<ItemEntity> items)
+        {
+            items ??= new List<ItemEntity>();
+            var directory = Path.GetDirectoryName(absolutePath);
+            var fileName = Path.GetFileName(absolutePath);
+            return SaveData(
+                new ItemListWrapper { items = items, count = items.Count },
+                directory,
+                fileName);
+        }
+
         public string EncryptBase64(string plainText)
         {
             if (DefaultProperty.isDebug)
             {
                 return plainText;
             }
-            else
-            {
-                byte[] bytes = Encoding.UTF8.GetBytes(plainText);
-                return Convert.ToBase64String(bytes);
-            }
+
+            byte[] bytes = Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(bytes);
         }
 
         public string DecryptBase64(string encryptedText)
@@ -293,17 +565,15 @@ namespace Assets.Resources.Scripts.Utils
             {
                 return encryptedText;
             }
-            else
-            {
-                byte[] bytes = Convert.FromBase64String(encryptedText);
-                return Encoding.UTF8.GetString(bytes);
-            }
+
+            byte[] bytes = Convert.FromBase64String(encryptedText);
+            return Encoding.UTF8.GetString(bytes);
         }
 
         /// <summary>
-        /// Serializes an object with JsonUtility and writes it into the requested save directory.
+        /// Serializes an object with JsonUtility and atomically writes it into the save directory.
         /// </summary>
-        public void SaveData(object data, string filePath, string fileName)
+        public bool SaveData(object data, string filePath, string fileName)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -312,11 +582,80 @@ namespace Assets.Resources.Scripts.Utils
 
             CheckIfPathExist(filePath);
 
-            string json = JsonUtility.ToJson(data, true);
-            string outputJson = EncryptBase64(json);
-            string outputPath = CombinePath(filePath, fileName);
-            File.WriteAllText(outputPath, outputJson);
-            Debug.Log($"Saved {fileName} at {outputPath}.");
+            try
+            {
+                string json = JsonUtility.ToJson(data, true);
+                string outputJson = EncryptBase64(json);
+                string relativeFileName = fileName.TrimStart(
+                    Path.DirectorySeparatorChar,
+                    Path.AltDirectorySeparatorChar);
+                string outputPath = Path.Combine(filePath, relativeFileName);
+                string tempPath = Path.Combine(filePath, "." + relativeFileName + ".tmp");
+
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
+
+                File.WriteAllText(tempPath, outputJson);
+
+                if (!AtomicReplace(tempPath, outputPath))
+                {
+                    LastSaveError = $"Failed to replace {relativeFileName}.";
+                    return false;
+                }
+
+                Debug.Log($"Saved {relativeFileName} at {outputPath}.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LastSaveError = ex.Message;
+                Debug.LogError($"[SAVE] Failed to save {fileName}: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static bool AtomicReplace(string tempPath, string targetPath)
+        {
+            try
+            {
+                if (File.Exists(targetPath))
+                {
+                    var backupPath = targetPath + ".replacebak";
+                    if (File.Exists(backupPath))
+                        File.Delete(backupPath);
+                    File.Replace(tempPath, targetPath, backupPath);
+                    try
+                    {
+                        if (File.Exists(backupPath))
+                            File.Delete(backupPath);
+                    }
+                    catch
+                    {
+                        // Non-fatal: replace already succeeded.
+                    }
+                }
+                else
+                {
+                    File.Move(tempPath, targetPath);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SAVE] Atomic replace failed for {targetPath}: {ex.Message}");
+                try
+                {
+                    if (File.Exists(tempPath))
+                        File.Delete(tempPath);
+                }
+                catch
+                {
+                    // ignore cleanup errors
+                }
+
+                return false;
+            }
         }
 
         public void CheckIfPathExist(string directoryPath)
@@ -324,11 +663,17 @@ namespace Assets.Resources.Scripts.Utils
             if (string.IsNullOrWhiteSpace(directoryPath))
                 throw new ArgumentException("A directory path is required.", nameof(directoryPath));
 
-            if (!Directory.Exists(directoryPath)) // **如果文件夹不存在**
+            if (!Directory.Exists(directoryPath))
             {
-                Directory.CreateDirectory(directoryPath); // **创建文件夹**
+                Directory.CreateDirectory(directoryPath);
                 Debug.Log($"Path created: {directoryPath}");
             }
+        }
+
+        private void EnsurePlayerBound()
+        {
+            if (currentPlayer == null || string.IsNullOrWhiteSpace(playerSavePath))
+                throw new InvalidOperationException("A current player must be selected before save I/O.");
         }
 
         private static string CombinePath(string directory, string fileName)
@@ -345,6 +690,8 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentException("A player ID is required.", nameof(playerID));
             if (playerID.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
                 throw new ArgumentException("The player ID contains invalid path characters.", nameof(playerID));
+            if (ReservedSaveDirectoryNames.Contains(playerID))
+                throw new ArgumentException("The player ID is reserved.", nameof(playerID));
         }
 
         [Serializable]

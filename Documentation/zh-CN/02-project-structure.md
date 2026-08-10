@@ -25,6 +25,9 @@ Galactic Frontier/
 | --- | --- | --- |
 | `Achievement` | 成就和徽章 UI | `AchievementController` |
 | `Battle` | 战斗循环、Buff/Debuff、编队、战报 | `BattleController`, `LineupManager` |
+| `Battle/Domain` | 可测纯结算（asmdef `GalacticFrontier.BattleDomain`） | `BattleRng`, `CombatMath`, `BattleOutcomeRules` |
+| `Deck` / `Deck/Domain` | 多卡组编制与占用（asmdef `GalacticFrontier.DeckDomain`） | `DeckService`, `DeckRules`, `DeckEntity` |
+| `Tests/EditMode` | EditMode 领域测试 | `CombatMathTests`, `DeckRulesTests` |
 | `Cards` | 卡牌生成、展示、列表、抽卡结果 | `CardDataManager`, `CardListManager`, `Card` |
 | `CharacterPanel` | 角色面板、技能、移动 | `CharacterInfoManager`, `SpellController` |
 | `Characters` | 各角色战斗行为 | `Character`, `Asra`, `Magki`, `Sernia` |
@@ -37,7 +40,7 @@ Galactic Frontier/
 | `Shop` | 抽卡材料选择 | `CardDrawingManager` |
 | `UI` | 可复用 Slot、交互和面板控制器 | `ItemSlot`, `PortraitSlot`, `RadarSystem` |
 | `Utils` | 存档、图片、加密、定位和选择工具 | `DataUtil`, `ImageUtil`, `TargetSelector` |
-| `Utils/Save` | Dev Data 开关与样例数据提供器（P0.1） | `DevDataSettings`, `IDevDataProvider`, `DevData` |
+| `Utils/Save` | Dev Data、存档版本/迁移、Starter Seed（P0.1/P0.2） | `DevDataSettings`, `SaveMigrator`, `StarterSeedApplier` |
 
 ## Resources 约定
 

@@ -15,7 +15,7 @@ namespace Assets.Resources.Scripts.Inventory
     /// <remarks>
     /// Derived managers only define inventory ownership through IsRemote. Items are copied during
     /// transfer so the local and remote inventories never share the same mutable ItemEntity instance.
-    /// Startup loads the save only; FakeData injection requires Dev Data Mode and an explicit call.
+    /// Each side loads/saves its own inventory_*.json file (saveVersion ≥ 1).
     /// </remarks>
     public abstract class InventoryItemManagerBase : MonoBehaviour
     {
@@ -29,6 +29,8 @@ namespace Assets.Resources.Scripts.Inventory
 
         protected abstract bool IsRemote { get; }
 
+        private InventoryStore Store => IsRemote ? InventoryStore.Remote : InventoryStore.Local;
+
         protected virtual void Start()
         {
             InitializeItemList();
@@ -36,7 +38,7 @@ namespace Assets.Resources.Scripts.Inventory
 
         /// <summary>
         /// Replaces the in-memory inventory with Dev sample items and persists them.
-        /// No-op when Dev Data Mode is off. Prefer Starter Seed for new saves (P0.2).
+        /// No-op when Dev Data Mode is off.
         /// </summary>
         public bool TryInjectSampleInventory(bool persist = true)
         {
@@ -50,8 +52,8 @@ namespace Assets.Resources.Scripts.Inventory
             items = new List<ItemEntity>(samples);
             Debug.Log($"[DEV-DATA] Injected {items.Count} sample items (isRemote={IsRemote}, persist={persist}).");
 
-            if (persist && DataUtil.Instance != null)
-                DataUtil.Instance.SaveItemData(items);
+            if (persist)
+                PersistInventory();
 
             UpdateItemList();
             return true;
@@ -59,13 +61,9 @@ namespace Assets.Resources.Scripts.Inventory
 
         private void InitializeItemList()
         {
-            var loaded = DataUtil.Instance != null
-                ? DataUtil.Instance.LoadItemData() ?? new List<ItemEntity>()
+            items = DataUtil.Instance != null
+                ? DataUtil.Instance.LoadInventory(Store) ?? new List<ItemEntity>()
                 : new List<ItemEntity>();
-            // Shared itemData.json still holds both sides (P0.2 will split files); project by ownership.
-            items = loaded
-                .Where(item => item != null && item.isRemote == IsRemote)
-                .ToList();
             itemSlots.Clear();
 
             for (var i = 0; i < inventorySize; i++)
@@ -112,6 +110,7 @@ namespace Assets.Resources.Scripts.Inventory
             }
 
             UpdateItemList();
+            PersistInventory();
             return true;
         }
 
@@ -139,6 +138,7 @@ namespace Assets.Resources.Scripts.Inventory
             }
 
             UpdateItemList();
+            PersistInventory();
         }
 
         public List<ItemEntity> GetItems()
@@ -180,6 +180,7 @@ namespace Assets.Resources.Scripts.Inventory
             }
 
             UpdateItemList();
+            PersistInventory();
             Debug.Log("Inventory sorted.");
         }
 
@@ -188,6 +189,13 @@ namespace Assets.Resources.Scripts.Inventory
             return items
                 .Where(item => item != null && item.itemType == itemType)
                 .ToList();
+        }
+
+        private void PersistInventory()
+        {
+            if (DataUtil.Instance == null)
+                return;
+            DataUtil.Instance.SaveInventory(Store, items);
         }
 
         /// <summary>Creates an ownership-specific copy for safe transfer between inventories.</summary>

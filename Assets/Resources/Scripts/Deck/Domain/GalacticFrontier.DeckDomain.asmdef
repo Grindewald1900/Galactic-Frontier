@@ -1,0 +1,14 @@
+{
+    "name": "GalacticFrontier.DeckDomain",
+    "rootNamespace": "Assets.Resources.Scripts.Deck.Domain",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

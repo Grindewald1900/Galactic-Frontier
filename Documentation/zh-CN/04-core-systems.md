@@ -92,7 +92,8 @@ flowchart LR
 4. 每回合按 `Speed` 降序行动；
 5. 能量满时使用 `SpecialAttack`，否则使用 `NormalAttack`；
 6. 判断任一方是否全部阵亡；
-7. 达到胜负或最大回合数后显示战报。
+7. 达到胜负或最大回合数后显示战报；Confirm 返回 MainScene Explore（`AppScreen.Battle`），Esc 中途返回舰桥。  
+8. 伤害命中/暴击使用 `BattleRng`（`BattleController.BattleSeed`）；公式在 `CombatMath`，EditMode 可回归。
 
 伤害核心：
 
@@ -133,7 +134,7 @@ flowchart LR
 - `ItemManager`：`IsRemote == false`；
 - `RemoteItemManager`：`IsRemote == true`。
 
-`ItemOperationManager` 负责删除和延迟传送。注意当前两个背包仍使用同一个 `itemData.json`，且启动时仍生成测试数据；这部分尚未形成完整持久化设计。
+`ItemOperationManager` 负责删除和延迟传送。本地/远程已分文件（`inventory_local.json` / `inventory_remote.json`）；启动不再写 FakeData。详见 `05-data-and-save.md`。
 
 ## 9. 星球与事件
 

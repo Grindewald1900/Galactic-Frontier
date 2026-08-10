@@ -1,0 +1,14 @@
+{
+  "seedTableVersion": 1,
+  "localItems": [
+    {
+      "itemType": 2,
+      "itemName": "seed_scrap",
+      "itemDescription": "Starter scrap for tutorials.",
+      "itemIcon": "Steel",
+      "quantity": 20,
+      "itemCost": 0,
+      "isRemote": false
+    }
+  ]
+}

@@ -1,4 +1,8 @@
+using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -178,6 +182,33 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             PlayerPrefs.SetInt("nexus_last_region", regionIndex);
             PlayerPrefs.Save();
+
+            if (CardListManager.Instance != null && !DeckService.IsLoaded && DataUtil.Instance != null)
+                DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance.cardEntities);
+
+            var deck = DeckService.GetActiveCombatDeck();
+            if (deck == null || deck.MemberCount < 1)
+            {
+                Debug.LogWarning("ExploreScreen: active combat deck empty — open formation first.");
+                openFormation?.Invoke();
+                return;
+            }
+
+            var start = DeckService.TryStart(
+                deck.deckId,
+                DeckActionType.MainCombat,
+                "region:" + regionIndex,
+                CardListManager.Instance?.cardEntities);
+            if (!start.Success)
+            {
+                Debug.LogWarning(
+                    $"[DECK] Cannot start battle: {start.Message} conflicts=[{string.Join(",", start.ConflictCardIds)}]");
+                return;
+            }
+
+            BattleController.PendingBattleTargetId = "region:" + regionIndex;
+            BattleController.PendingBattleSeed =
+                unchecked((long)regionIndex * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
             SceneManager.LoadScene("BattleScene");
         }
     }

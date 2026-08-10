@@ -28,12 +28,19 @@ namespace Assets.Resources.Scripts.Props
         public const string AVATAR = "/avatar.png";
         public const string PLAYER_DATA = "/playerData.json";
         public const string PLAYER_CARDS_DATA = "/playerCards.json";
+        /// <summary>Legacy shared inventory (migrator 0→1 only).</summary>
         public const string ITEM_DATA = "/itemData.json";
+        public const string ITEM_DATA_BAK = "/itemData.json.bak";
+        public const string INVENTORY_LOCAL = "/inventory_local.json";
+        public const string INVENTORY_REMOTE = "/inventory_remote.json";
+        public const string META_DATA = "/meta.json";
+        public const string DECKS_DATA = "/decks.json";
         public const string EXPERT_DATA = "/expertData.json";
 
         // Paths
         public const string SKILL_DATA_PATH = "data/SkillData_encrypted";
         public const string BASE_ATTR_PATH = "data/BaseAttributes";
+        public const string STARTER_SEED_PATH = "data/StarterSeed";
 
         // Configs — isDebug only toggles plaintext vs Base64 save encoding; it does NOT enable FakeData.
         public static bool isDebug = true;

@@ -194,7 +194,7 @@ MVP 不做更复杂的「技能树多选一」；角色仅普攻/特攻二元。
 | 跳过演出 | 立即用同一 Resolver + 同一种子算完剩余战斗，直接进入战报 |
 | 开战即跳过 | 挂机刷取默认 `PresentationMode.Skip`；主线默认 `Play` |
 | 战报 | 至少：胜负、回合数、我方每人造成伤害 / 承伤 / 治疗；确认后返回 Explore/Main |
-| 返回 | 战报关闭必须离开 `BattleScene`（修复当前返回被注释的问题） |
+| 返回 | **P0.3**：战报 Confirm → `BattleSceneExit.ReturnToExplore()`；Esc / Chrome → `ReturnToBridge()` |
 
 倍速实现注意：优先调制演出等待，避免长期依赖全局 `Time.timeScale` 影响非战斗系统；过渡期可继续用 `Time.timeScale`，但跳过结算不得依赖 timeScale。
 
@@ -357,11 +357,11 @@ Resolver 必须支持**无场景**连续调用，供离线结算复用。
 | 战报后返回主场景被注释 | P0 必修 |
 | 跳过演出 | 未实现 |
 | `CombatStrategy` | 未实现 |
-| 无战斗种子 | 命中/暴击仍用未播种 Random |
+| ~~无战斗种子~~ | **P0.4**：`BattleRng` / `CombatMath`；`BattleController.BattleSeed` |
 
 **建议落地顺序：**
 
-1. P0：遭遇表替换敌人 FakeData；战报返回；战斗种子接入伤害/暴击  
+1. ~~P0：战报返回；战斗种子接入伤害/暴击~~ **完成**；遭遇表替换敌人仍属 P2.3  
 2. P0/P2：`CombatStrategy` + 目标排序；加速档位调整；Skip 模式  
 3. P2：`BattleResolver` 与挂机刷取无场景结算  
 4. 持续：角色技能改为接受已排序目标列表，避免内部再 Random 未播种  
@@ -377,9 +377,9 @@ Resolver 必须支持**无场景**连续调用，供离线结算复用。
 - [ ] 阵亡单位跳过行动；持久卡池不被战斗 HP 写脏  
 - [ ] 战前可配置 `TargetPriority` / `SkillBias`，并影响自动索敌/技能分支  
 - [ ] 1x/2x/3x 加速可用；跳过与观看同种子结果一致  
-- [ ] 战报展示后可返回 Main/Explore  
-- [ ] 正式流程敌人来自遭遇配置，而非 `FakeData()`  
-- [ ] EditMode：同种子两次 `BattleResult` 相等；超时判负；能量阈值分支
+- [x] 战报展示后可返回 Main/Explore（P0.3：Confirm → Explore；Esc → Bridge）  
+- [ ] 正式流程敌人来自遭遇配置，而非 FakeData()（P2.3）  
+- [x] EditMode：同种子伤害序列一致；超时/歾灭判负胜（P0.4/P0.5；完整 BattleResult 回放随 Resolver 演进）
 
 ---
 

@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Deck;
 
 namespace Assets.Resources.Scripts.Battle
 {
@@ -108,6 +109,17 @@ namespace Assets.Resources.Scripts.Battle
             }
             cardEntity?.SetLineupPosition((LineupPosition)index);
             Debug.Log($"AddLineupCard lineup card at position {cardEntity.GetLineupPosition()} " + index);
+
+            // Authoritative membership lives on the active combat deck (P1.1).
+            if (DeckService.IsLoaded && cardEntity != null)
+            {
+                var assign = DeckService.TryAssignToActiveCombat(
+                    index,
+                    cardEntity.id,
+                    CardListManager.Instance.cardEntities);
+                if (!assign.Success)
+                    Debug.LogWarning("[DECK] Assign failed: " + assign.Message);
+            }
 
             // Update selected portrait slot
             PortraitEntity portraitEntity = new(cardEntity);
