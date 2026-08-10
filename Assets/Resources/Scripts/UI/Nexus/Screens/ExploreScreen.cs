@@ -1,8 +1,12 @@
+using System.Collections.Generic;
+using System.Text;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,23 +14,26 @@ using UnityEngine.SceneManagement;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Explore / region select using legacy planet sprites.
-    /// Starts fully automatic battle (product: no manual turn input).
+    /// Explore region select with prereq/ship hard gates and farm CTA (P2).
     /// </summary>
-    internal static class ExploreScreen
+    internal sealed class ExploreScreen
     {
-        private static readonly string[] RegionKeys =
-        {
-            "VII-A Outer Belt",
-            "VII-B Mining Spur",
-            "VII-C Quantum Rift",
-            "VIII Abyssal Edge",
-            "IX Convoy Lane"
-        };
+        private readonly Transform root;
+        private readonly System.Action openFormation;
+        private readonly System.Action openShip;
 
-        public static GameObject Build(Transform parent, System.Action openFormation)
+        private ExploreScreen(Transform root, System.Action openFormation, System.Action openShip)
         {
-            GameObject root = NexusUiFactory.CreatePanel(
+            this.root = root;
+            this.openFormation = openFormation;
+            this.openShip = openShip;
+        }
+
+        public GameObject Root => root.gameObject;
+
+        public static ExploreScreen Build(Transform parent, System.Action openFormation, System.Action openShip = null)
+        {
+            var panel = NexusUiFactory.CreatePanel(
                 parent,
                 "Explore Screen",
                 NexusTheme.Background,
@@ -34,182 +41,224 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.one,
                 Vector2.zero,
                 Vector2.zero);
+            var screen = new ExploreScreen(panel.transform, openFormation, openShip);
+            screen.Rebuild();
+            return screen;
+        }
+
+        public void Rebuild()
+        {
+            for (int i = root.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(root.GetChild(i).gameObject);
+
+            if (DataUtil.Instance != null)
+            {
+                WorldService.EnsureLoaded(DataUtil.Instance);
+                ShipService.EnsureLoaded(DataUtil.Instance);
+                if (CardListManager.Instance != null)
+                    DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance.cardEntities);
+            }
 
             NexusUiFactory.CreateText(
-                root.transform,
-                "Title",
-                UiText.ExploreTitle,
-                new Vector2(28f, 20f),
-                new Vector2(640f, 40f),
-                22f,
-                NexusTheme.Text,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
+                root, "Title", UiText.ExploreTitle,
+                new Vector2(28f, 20f), new Vector2(640f, 40f), 22f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
 
             var hint = NexusUiFactory.CreateText(
-                root.transform,
-                "Hint",
-                UiText.ExploreHint,
-                new Vector2(28f, 64f),
-                new Vector2(1100f, 40f),
-                13f,
-                NexusTheme.MutedText);
+                root, "Hint", UiText.ExploreHint,
+                new Vector2(28f, 64f), new Vector2(1100f, 40f), 13f, NexusTheme.MutedText);
             hint.textWrappingMode = TextWrappingModes.Normal;
 
             int inLine = CardListManager.Instance?.GetInLineCardEntities()?.Count ?? 0;
             NexusUiFactory.CreateText(
-                root.transform,
-                "FleetReady",
-                UiText.ExploreFleetReady(inLine),
-                new Vector2(28f, 110f),
-                new Vector2(600f, 24f),
-                13f,
+                root, "FleetReady", UiText.ExploreFleetReady(inLine),
+                new Vector2(28f, 110f), new Vector2(600f, 24f), 13f,
                 inLine > 0 ? NexusTheme.Green : NexusTheme.Red);
 
-            for (int i = 0; i < RegionKeys.Length; i++)
+            if (WorldService.IsSectorComplete())
             {
-                float y = 150f + i * 110f;
-                int planetIndex = i * 3;
-                int captured = i;
-
-                GameObject row = NexusUiFactory.CreateBox(
-                    root.transform,
-                    $"Region {i}",
-                    new Vector2(28f, y),
-                    new Vector2(1200f, 96f),
-                    NexusTheme.Surface,
-                    NexusTheme.BorderSoft);
-
-                NexusUiFactory.CreateIcon(
-                    row.transform,
-                    "Planet",
-                    NexusCardVisual.PlanetSprite(planetIndex),
-                    new Vector2(16f, 8f),
-                    new Vector2(80f, 80f),
-                    Color.white);
-
                 NexusUiFactory.CreateText(
-                    row.transform,
-                    "Name",
-                    UiText.SectorName(i),
-                    new Vector2(120f, 18f),
-                    new Vector2(500f, 28f),
-                    16f,
-                    NexusTheme.Text,
-                    TextAlignmentOptions.Left,
-                    FontStyles.Bold);
-
-                NexusUiFactory.CreateText(
-                    row.transform,
-                    "Meta",
-                    UiText.ExploreRegionMeta(i),
-                    new Vector2(120f, 52f),
-                    new Vector2(700f, 28f),
-                    12f,
-                    NexusTheme.MutedText);
-
-                NexusUiFactory.CreateButton(
-                    row.transform,
-                    "Start",
-                    UiText.StartAutoBattle,
-                    new Vector2(980f, 26f),
-                    new Vector2(190f, 44f),
-                    () => StartBattle(captured, openFormation),
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
-                    NexusTheme.Gold,
-                    13f);
+                    root, "SectorComplete", UiText.SectorComplete,
+                    new Vector2(650f, 110f), new Vector2(500f, 24f), 13f, NexusTheme.Gold,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
             }
 
-            // Right panel: auto-combat rules reminder + formation CTA
+            var views = new List<RegionView>();
+            foreach (var v in WorldService.GetAllRegionViews())
+                views.Add(v);
+            views.Sort((a, b) => (a.Config?.sortOrder ?? 0).CompareTo(b.Config?.sortOrder ?? 0));
+
+            for (var i = 0; i < views.Count; i++)
+            {
+                var view = views[i];
+                float y = 150f + i * 100f;
+                BuildRegionRow(view, y, i);
+            }
+
             GameObject side = NexusUiFactory.CreateBox(
-                root.transform,
-                "Side",
-                new Vector2(1260f, 150f),
-                new Vector2(460f, 620f),
-                NexusTheme.Surface,
-                NexusTheme.BorderSoft);
+                root, "Side", new Vector2(1260f, 150f), new Vector2(460f, 620f),
+                NexusTheme.Surface, NexusTheme.BorderSoft);
             NexusUiFactory.CreateText(
-                side.transform,
-                "SideTitle",
-                UiText.ExploreSideTitle,
-                new Vector2(20f, 16f),
-                new Vector2(400f, 28f),
-                15f,
-                NexusTheme.Text,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
+                side.transform, "SideTitle", UiText.ExploreSideTitle,
+                new Vector2(20f, 16f), new Vector2(400f, 28f), 15f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
             var body = NexusUiFactory.CreateText(
-                side.transform,
-                "SideBody",
-                UiText.ExploreSideBody,
-                new Vector2(20f, 56f),
-                new Vector2(420f, 280f),
-                13f,
-                NexusTheme.MutedText);
+                side.transform, "SideBody", UiText.ExploreSideBody,
+                new Vector2(20f, 56f), new Vector2(420f, 220f), 13f, NexusTheme.MutedText);
             body.textWrappingMode = TextWrappingModes.Normal;
 
             NexusUiFactory.CreateButton(
-                side.transform,
-                "Formation",
-                UiText.BridgeOpenFormation,
-                new Vector2(20f, 360f),
-                new Vector2(420f, 48f),
+                side.transform, "Formation", UiText.BridgeOpenFormation,
+                new Vector2(20f, 320f), new Vector2(420f, 48f),
                 () => openFormation?.Invoke(),
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Text,
-                14f);
-
-            NexusUiFactory.CreateIcon(
-                side.transform,
-                "BattleIcon",
-                NexusCardVisual.UiIcon("Battle"),
-                new Vector2(180f, 450f),
-                new Vector2(100f, 100f),
-                NexusTheme.Gold);
-
-            return root;
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 14f);
+            NexusUiFactory.CreateButton(
+                side.transform, "Ship", UiText.OpenShipBay,
+                new Vector2(20f, 380f), new Vector2(420f, 48f),
+                () => openShip?.Invoke(),
+                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan, 14f);
         }
 
-        private static void StartBattle(int regionIndex, System.Action openFormation)
+        private void BuildRegionRow(RegionView view, float y, int visualIndex)
         {
+            var cfg = view.Config;
+            if (cfg == null) return;
+            string regionId = cfg.regionId;
+
+            GameObject row = NexusUiFactory.CreateBox(
+                root, $"Region {regionId}",
+                new Vector2(28f, y), new Vector2(1200f, 90f),
+                NexusTheme.Surface, NexusTheme.BorderSoft);
+
+            NexusUiFactory.CreateIcon(
+                row.transform, "Planet", NexusCardVisual.PlanetSprite(visualIndex * 3),
+                new Vector2(16f, 5f), new Vector2(70f, 70f), Color.white);
+
+            string name = UiText.T(cfg.displayNameEn, cfg.displayNameZh);
+            if (cfg.bossRegion)
+                name = "★ " + name;
+
+            NexusUiFactory.CreateText(
+                row.transform, "Name", name,
+                new Vector2(100f, 10f), new Vector2(480f, 26f), 15f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            NexusUiFactory.CreateText(
+                row.transform, "Meta", BuildMeta(view),
+                new Vector2(100f, 42f), new Vector2(700f, 36f), 11f, NexusTheme.MutedText);
+
+            if (view.CanEnter)
+            {
+                NexusUiFactory.CreateButton(
+                    row.transform, "Start", UiText.StartAutoBattle,
+                    new Vector2(820f, 22f), new Vector2(170f, 44f),
+                    () => StartBattle(regionId),
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 13f);
+            }
+            else
+            {
+                NexusUiFactory.CreateText(
+                    row.transform, "Locked", UiText.RegionLocked,
+                    new Vector2(820f, 30f), new Vector2(170f, 30f), 12f, NexusTheme.DimText,
+                    TextAlignmentOptions.Center, FontStyles.Bold);
+            }
+
+            if (view.FarmUnlocked)
+            {
+                NexusUiFactory.CreateButton(
+                    row.transform, "Farm", UiText.StartFarm,
+                    new Vector2(1000f, 22f), new Vector2(170f, 44f),
+                    () => StartFarm(regionId),
+                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
+            }
+        }
+
+        private static string BuildMeta(RegionView view)
+        {
+            var sb = new StringBuilder();
+            sb.Append(UiText.RegionProgressLabel(view.Progress.ToString()));
+            sb.Append(" · ");
+            sb.Append(UiText.T($"Rec power {view.Config.recommendedPower}", $"推荐战力 {view.Config.recommendedPower}"));
+            if (view.BlockReasons.Count > 0)
+            {
+                sb.Append(" · ");
+                sb.Append(string.Join("; ", view.BlockReasons));
+            }
+            else if (view.FarmUnlocked)
+            {
+                sb.Append(" · ");
+                sb.Append(UiText.FarmAvailable);
+            }
+
+            return sb.ToString();
+        }
+
+        private void StartBattle(string regionId)
+        {
+            if (!WorldService.CanEnter(regionId, out var view) || view?.Config == null)
+            {
+                Debug.LogWarning("[EXPLORE] CanEnter failed for " + regionId);
+                Rebuild();
+                return;
+            }
+
             int inLine = CardListManager.Instance?.GetInLineCardEntities()?.Count ?? 0;
             if (inLine <= 0)
             {
-                Debug.LogWarning("ExploreScreen: no lineup — open formation first.");
                 openFormation?.Invoke();
                 return;
             }
 
-            PlayerPrefs.SetInt("nexus_last_region", regionIndex);
-            PlayerPrefs.Save();
-
-            if (CardListManager.Instance != null && !DeckService.IsLoaded && DataUtil.Instance != null)
-                DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance.cardEntities);
-
             var deck = DeckService.GetActiveCombatDeck();
             if (deck == null || deck.MemberCount < 1)
             {
-                Debug.LogWarning("ExploreScreen: active combat deck empty — open formation first.");
                 openFormation?.Invoke();
                 return;
             }
 
             var start = DeckService.TryStart(
-                deck.deckId,
-                DeckActionType.MainCombat,
-                "region:" + regionIndex,
-                CardListManager.Instance?.cardEntities);
+                deck.deckId, DeckActionType.MainCombat, regionId, CardListManager.Instance?.cardEntities);
             if (!start.Success)
             {
-                Debug.LogWarning(
-                    $"[DECK] Cannot start battle: {start.Message} conflicts=[{string.Join(",", start.ConflictCardIds)}]");
+                Debug.LogWarning("[DECK] Cannot start battle: " + start.Message);
                 return;
             }
 
-            BattleController.PendingBattleTargetId = "region:" + regionIndex;
+            PlayerPrefs.SetString("nexus_last_region_id", regionId);
+            PlayerPrefs.Save();
+
+            BattleController.PendingBattleTargetId = regionId;
+            BattleController.PendingEncounterId = view.Config.mainEncounterId;
             BattleController.PendingBattleSeed =
-                unchecked((long)regionIndex * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
+                unchecked(regionId.GetHashCode() * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
             SceneManager.LoadScene("BattleScene");
+        }
+
+        private void StartFarm(string regionId)
+        {
+            if (!WorldService.IsFarmUnlocked(regionId))
+            {
+                Debug.LogWarning("[EXPLORE] Farm locked for " + regionId);
+                return;
+            }
+
+            var deck = DeckService.GetActiveCombatDeck();
+            if (deck == null || deck.MemberCount < 1)
+            {
+                openFormation?.Invoke();
+                return;
+            }
+
+            var start = DeckService.TryStart(
+                deck.deckId, DeckActionType.AutoCombat, regionId, CardListManager.Instance?.cardEntities);
+            if (!start.Success)
+            {
+                Debug.LogWarning("[DECK] Cannot start farm: " + start.Message);
+                return;
+            }
+
+            Debug.Log("[FARM] AutoCombat started on " + regionId);
+            Rebuild();
         }
     }
 }

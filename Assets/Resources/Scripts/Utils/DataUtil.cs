@@ -11,6 +11,8 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Utils.Save;
+using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.World.Domain;
 
 namespace Assets.Resources.Scripts.Utils
 {
@@ -132,6 +134,13 @@ namespace Assets.Resources.Scripts.Utils
             }
 
             DeckService.CreateForNewPlayer(this);
+            WorldService.CreateForNewPlayer(this);
+            ShipService.CreateForNewPlayer(this);
+
+            // Starter credits so Outer Belt ship upgrades are reachable.
+            if (currentPlayer.creditPoints < 50)
+                currentPlayer.creditPoints = 50;
+            SaveData(currentPlayer, playerSavePath, DefaultProperty.PLAYER_DATA);
 
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var meta = new SaveMeta
@@ -241,6 +250,8 @@ namespace Assets.Resources.Scripts.Utils
             SavePlayerData(CharacterInfoManager.Instance.playerData);
             SaveCardData(CardListManager.Instance.cardEntities);
             DeckService.Save(this);
+            WorldService.Save(this);
+            ShipService.Save(this);
 
             if (ItemManager.Instance != null)
                 SaveInventory(InventoryStore.Local, ItemManager.Instance.GetItems(), touchMeta: false);
@@ -292,6 +303,94 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentNullException(nameof(state));
             state.count = state.decks?.Count ?? 0;
             return SaveData(state, directory, DefaultProperty.DECKS_DATA);
+        }
+
+        public bool SaveWorldState(PlayerWorldState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.regions?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.WORLD_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public PlayerWorldState LoadWorldState()
+        {
+            EnsurePlayerBound();
+            return ReadWorldStateFromDirectory(playerSavePath);
+        }
+
+        public PlayerWorldState ReadWorldStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.WORLD_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<PlayerWorldState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read world.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteWorldStateToDirectory(string directory, PlayerWorldState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.regions?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.WORLD_DATA);
+        }
+
+        public bool SaveShipState(ShipEntity state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.modules?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.SHIP_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public ShipEntity LoadShipState()
+        {
+            EnsurePlayerBound();
+            return ReadShipStateFromDirectory(playerSavePath);
+        }
+
+        public ShipEntity ReadShipStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.SHIP_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<ShipEntity>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read ship.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteShipStateToDirectory(string directory, ShipEntity state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.modules?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.SHIP_DATA);
         }
 
         public List<CardEntity> ReadCardListFromDirectory(string directory)

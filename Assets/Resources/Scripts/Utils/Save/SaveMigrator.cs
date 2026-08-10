@@ -5,6 +5,7 @@ using System.Linq;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.World.Domain;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Utils.Save
@@ -52,6 +53,12 @@ namespace Assets.Resources.Scripts.Utils.Save
                             if (!Migrate1To2(dataUtil, playerSavePath, meta))
                                 return SaveEnsureResult.Fail("Migration 1→2 failed (decks.json).");
                             version = 2;
+                            meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
+                            break;
+                        case 2:
+                            if (!Migrate2To3(dataUtil, playerSavePath, meta))
+                                return SaveEnsureResult.Fail("Migration 2→3 failed (world/ship).");
+                            version = 3;
                             meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
                             break;
                         default:
@@ -169,6 +176,39 @@ namespace Assets.Resources.Scripts.Utils.Save
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var meta = existingMeta ?? new SaveMeta();
             meta.saveVersion = SaveVersion.Decks;
+            if (meta.createdAtUtc <= 0)
+                meta.createdAtUtc = now;
+            meta.lastSavedAtUtc = now;
+            if (string.IsNullOrEmpty(meta.appVersion))
+                meta.appVersion = Application.version;
+
+            return dataUtil.WriteMetaToDirectory(playerSavePath, meta);
+        }
+
+        /// <summary>Introduces world.json + ship.json (P2).</summary>
+        private static bool Migrate2To3(DataUtil dataUtil, string playerSavePath, SaveMeta existingMeta)
+        {
+            var worldPath = Combine(playerSavePath, DefaultProperty.WORLD_DATA);
+            if (!File.Exists(worldPath))
+            {
+                var world = WorldRules.CreateNewPlayerWorld();
+                if (!dataUtil.WriteWorldStateToDirectory(playerSavePath, world))
+                    return false;
+                Debug.Log("[SAVE] Migration 2→3 wrote world.json.");
+            }
+
+            var shipPath = Combine(playerSavePath, DefaultProperty.SHIP_DATA);
+            if (!File.Exists(shipPath))
+            {
+                var ship = ShipRules.CreateStarterShip();
+                if (!dataUtil.WriteShipStateToDirectory(playerSavePath, ship))
+                    return false;
+                Debug.Log("[SAVE] Migration 2→3 wrote ship.json.");
+            }
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var meta = existingMeta ?? new SaveMeta();
+            meta.saveVersion = SaveVersion.WorldAndShip;
             if (meta.createdAtUtc <= 0)
                 meta.createdAtUtc = now;
             meta.lastSavedAtUtc = now;

@@ -27,7 +27,8 @@ Galactic Frontier/
 | `Battle` | 战斗循环、Buff/Debuff、编队、战报 | `BattleController`, `LineupManager` |
 | `Battle/Domain` | 可测纯结算（asmdef `GalacticFrontier.BattleDomain`） | `BattleRng`, `CombatMath`, `BattleOutcomeRules` |
 | `Deck` / `Deck/Domain` | 多卡组编制、占用与调度（asmdef `GalacticFrontier.DeckDomain`） | `DeckService`, `DeckRules`, `ActionScheduler` |
-| `Tests/EditMode` | EditMode 领域测试 | `CombatMathTests`, `DeckRulesTests`, `ActionSchedulerTests` |
+| `World` / `World/Domain` | 区域进度、舰船门、遭遇与 AFK（asmdef `GalacticFrontier.WorldDomain`） | `WorldService`, `ShipService`, `IdleCombatTicker` |
+| `Tests/EditMode` | EditMode 领域测试 | `CombatMathTests`, `DeckRulesTests`, `WorldRulesTests` |
 | `Cards` | 卡牌生成、展示、列表、抽卡结果 | `CardDataManager`, `CardListManager`, `Card` |
 | `CharacterPanel` | 角色面板、技能、移动 | `CharacterInfoManager`, `SpellController` |
 | `Characters` | 各角色战斗行为 | `Character`, `Asra`, `Magki`, `Sernia` |

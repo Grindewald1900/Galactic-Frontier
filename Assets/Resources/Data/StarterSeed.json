@@ -6,7 +6,7 @@
       "itemName": "seed_scrap",
       "itemDescription": "Starter scrap for tutorials.",
       "itemIcon": "Steel",
-      "quantity": 20,
+      "quantity": 80,
       "itemCost": 0,
       "isRemote": false
     }

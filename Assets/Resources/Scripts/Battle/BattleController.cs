@@ -14,6 +14,8 @@ using Assets.Resources.Scripts.UI.Nexus;
 using Assets.Resources.Scripts.Battle.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine.UI;
 
@@ -58,14 +60,19 @@ namespace Assets.Resources.Scripts.Battle
         /// <summary>Optional seed set before loading BattleScene (e.g. Explore / AFK).</summary>
         public static long? PendingBattleSeed { get; set; }
 
-        /// <summary>Optional combat target id (region / encounter) for MainCombat occupation.</summary>
+        /// <summary>Optional combat target id (region) for MainCombat occupation / progress.</summary>
         public static string PendingBattleTargetId { get; set; }
+
+        /// <summary>Encounter id for enemy party load (P2.3).</summary>
+        public static string PendingEncounterId { get; set; }
 
         [Tooltip("Non-zero overrides PendingBattleSeed / auto seed (Editor testing).")]
         [SerializeField] private long battleSeedOverride;
 
         private BattleRng battleRng;
         private bool reportConfirmWired;
+        private bool progressApplied;
+        private CombatStrategyId activeStrategy = CombatStrategyId.Balanced;
         #endregion
 
         private void Awake()
@@ -113,7 +120,28 @@ namespace Assets.Resources.Scripts.Battle
             HideCards(playerCards);
             HideCards(enemyCards);
 
-            if (DevData.IsActive)
+            if (DeckService.IsLoaded)
+            {
+                var deck = DeckService.GetActiveCombatDeck();
+                activeStrategy = CombatStrategyRules.Parse(deck?.combatStrategyId);
+            }
+
+            var encounter = EncounterCatalog.Get(PendingEncounterId);
+            if (encounter == null && !string.IsNullOrEmpty(PendingBattleTargetId))
+            {
+                var region = RegionCatalog.Get(PendingBattleTargetId);
+                if (region != null)
+                    encounter = EncounterCatalog.Get(region.mainEncounterId);
+            }
+
+            if (encounter != null)
+            {
+                var party = EncounterPartyBuilder.Build(encounter);
+                for (var i = 0; i < party.Count && i < enemyCards.Count; i++)
+                    SetCard(enemyCards, i, party[i], false);
+                Debug.Log($"[BATTLE] Loaded encounter {encounter.encounterId} enemies={party.Count}");
+            }
+            else if (DevData.IsActive)
             {
                 var enemies = DevData.Current.CreateSampleEnemyParty(Mathf.Min(enemyCards.Count, 5));
                 for (var i = 0; i < enemies.Count && i < enemyCards.Count; i++)
@@ -122,7 +150,7 @@ namespace Assets.Resources.Scripts.Battle
             else
             {
                 DevData.LogSkipped(nameof(BattleController) + ".CreateSampleEnemyParty");
-                // EncounterConfig (P2.3) replaces FakeData; leave enemy slots empty until then.
+                Debug.LogWarning("[BATTLE] No encounter configured and Dev Data off — enemy slots empty.");
             }
 
             if (inlineEntities != null)
@@ -214,6 +242,7 @@ namespace Assets.Resources.Scripts.Battle
             GameStatusManager.Instance.IsBattle = true;
             currentRound = 0;
             LastOutcome = BattleOutcome.None;
+            progressApplied = false;
             BeginSeededBattle();
             EnsureMainCombatOccupation();
             StartCoroutine(BattleRoutine());
@@ -409,24 +438,40 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         public List<Card> GetAliveTargets(Card card)
         {
-            Debug.Log("Getting alive targets for card: " + card?.name ?? "null");
-            Debug.Log("player cards count: " + playerCards?.Count);
-            Debug.Log("enemy cards count: " + enemyCards?.Count);
-
             if (card == null || !card.IsAlive())
-            {
-                Debug.LogWarning($"{GetType().Name} GetAliveTargets: Invalid or dead card");
                 return new List<Card>();
-            }
 
             var targets = card.isPlayerCard ? enemyCards : playerCards;
             if (targets == null)
-            {
-                Debug.LogWarning($"{GetType().Name} GetAliveTargets: Invalid targets");
                 return new List<Card>();
+
+            var alive = targets.Where(t => t != null && t.IsAlive()).ToList();
+            if (!card.isPlayerCard || alive.Count <= 1)
+                return alive;
+
+            // P2.5: reorder so preferred target is first (attackers typically hit targets[0]).
+            var snaps = new List<CombatantSnapshot>();
+            foreach (var t in alive)
+            {
+                snaps.Add(new CombatantSnapshot
+                {
+                    Id = t.cardEntity?.id,
+                    CurrentHp = t.cardEntity?.Health ?? 0f,
+                    MaxHp = t.cardEntity?.Health ?? 1f,
+                    Power = t.cardEntity?.power ?? 0f,
+                    IsPlayer = false
+                });
             }
-            Debug.Log("Returning alive targets: " + targets.Count() + " cards: " + targets.Select(t => t?.name ?? "null").ToArray() + "\n");
-            return targets.Where(t => t != null && t.IsAlive()).ToList();
+
+            var pick = CombatStrategyRules.PickEnemyTargetIndex(activeStrategy, snaps);
+            if (pick > 0 && pick < alive.Count)
+            {
+                var preferred = alive[pick];
+                alive.RemoveAt(pick);
+                alive.Insert(0, preferred);
+            }
+
+            return alive;
         }
 
         /// <summary>
@@ -435,6 +480,7 @@ namespace Assets.Resources.Scripts.Battle
         private void ShowBattleReport()
         {
             Debug.Log($"{GetType().Name} ShowBattleReport outcome={LastOutcome}");
+            ApplyWorldProgressOnVictory();
             WireReportConfirm();
 
             if (reportPanel != null)
@@ -448,6 +494,33 @@ namespace Assets.Resources.Scripts.Battle
                 BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
                 BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
             }
+        }
+
+        private void ApplyWorldProgressOnVictory()
+        {
+            if (progressApplied || LastOutcome != BattleOutcome.Victory)
+                return;
+            progressApplied = true;
+
+            var regionId = PendingBattleTargetId;
+            var encounterId = PendingEncounterId;
+            if (string.IsNullOrEmpty(regionId))
+                return;
+
+            if (DataUtil.Instance != null)
+            {
+                WorldService.EnsureLoaded(DataUtil.Instance);
+                ShipService.EnsureLoaded(DataUtil.Instance);
+            }
+
+            if (string.IsNullOrEmpty(encounterId))
+            {
+                var cfg = RegionCatalog.Get(regionId);
+                encounterId = cfg?.mainEncounterId;
+            }
+
+            var result = WorldService.RegisterBattleVictory(regionId, encounterId);
+            Debug.Log($"[WORLD] Victory registered region={regionId} enc={encounterId} ok={result.Success} {result.Message}");
         }
 
         private void WireReportConfirm()

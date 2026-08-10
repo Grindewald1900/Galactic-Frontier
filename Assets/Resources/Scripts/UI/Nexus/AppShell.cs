@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
+using Assets.Resources.Scripts.World;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -28,9 +29,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private BridgeScreen bridgeScreen;
         private GameObject missionsRoot;
         private GameObject settingsRoot;
-        private GameObject exploreRoot;
+        private ExploreScreen exploreScreen;
         private GameObject debugRoot;
         private FormationScreen formationScreen;
+        private ShipScreen shipScreen;
         private TextMeshProUGUI breadcrumbTitle;
         private TextMeshProUGUI statusShortcuts;
         private TextMeshProUGUI statusVersion;
@@ -75,6 +77,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 case "MainScene":
                     BuildChrome(true);
                     PrepareMainScene();
+                    if (GetComponent<IdleCombatTicker>() == null)
+                        gameObject.AddComponent<IdleCombatTicker>();
+                    if (DataUtil.Instance != null)
+                    {
+                        WorldService.EnsureLoaded(DataUtil.Instance);
+                        ShipService.EnsureLoaded(DataUtil.Instance);
+                    }
                     AppScreen initial = PendingScreen;
                     PendingScreen = AppScreen.Bridge;
                     ShowScreen(initial);
@@ -114,9 +123,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             bridgeScreen = null;
             missionsRoot = null;
             settingsRoot = null;
-            exploreRoot = null;
+            exploreScreen = null;
             debugRoot = null;
             formationScreen = null;
+            shipScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -146,9 +156,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             bridgeScreen = null;
             missionsRoot = null;
             settingsRoot = null;
-            exploreRoot = null;
+            exploreScreen = null;
             debugRoot = null;
             formationScreen = null;
+            shipScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -227,9 +238,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 contentCanvas.gameObject.SetActive(true);
                 HideNativeRoots();
                 LegacyPanelAdapter.Hide(mainController);
-                if (exploreRoot == null)
-                    exploreRoot = ExploreScreen.Build(ContentRoot(), () => ShowScreen(AppScreen.Formation));
-                exploreRoot.SetActive(true);
+                if (exploreScreen == null)
+                {
+                    exploreScreen = ExploreScreen.Build(
+                        ContentRoot(),
+                        () => ShowScreen(AppScreen.Formation),
+                        () => ShowScreen(AppScreen.Ship));
+                }
+                else
+                {
+                    exploreScreen.Rebuild();
+                }
+
+                exploreScreen.Root.SetActive(true);
                 return;
             }
 
@@ -247,7 +268,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                             ContentRoot(),
                             () => ShowScreen(AppScreen.Missions),
                             () => ShowScreen(AppScreen.Formation),
-                            () => ShowScreen(AppScreen.Battle));
+                            () => ShowScreen(AppScreen.Battle),
+                            () => ShowScreen(AppScreen.Ship));
                     }
                     else
                     {
@@ -261,6 +283,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     else
                         formationScreen.Rebuild();
                     formationScreen.Root.SetActive(true);
+                    break;
+                case AppScreen.Ship:
+                    if (shipScreen == null)
+                        shipScreen = ShipScreen.Build(ContentRoot(), () => ShowScreen(AppScreen.Bridge));
+                    else
+                        shipScreen.Rebuild();
+                    shipScreen.Root.SetActive(true);
                     break;
                 case AppScreen.Settings:
                     if (settingsRoot != null)
@@ -293,9 +322,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (bridgeScreen != null) bridgeScreen.Root.SetActive(false);
             if (missionsRoot != null) missionsRoot.SetActive(false);
             if (settingsRoot != null) settingsRoot.SetActive(false);
-            if (exploreRoot != null) exploreRoot.SetActive(false);
+            if (exploreScreen != null) exploreScreen.Root.SetActive(false);
             if (debugRoot != null) debugRoot.SetActive(false);
             if (formationScreen != null) formationScreen.Root.SetActive(false);
+            if (shipScreen != null) shipScreen.Root.SetActive(false);
         }
 
         private void PrepareMainScene()

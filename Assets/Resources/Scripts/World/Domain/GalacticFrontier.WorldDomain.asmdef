@@ -1,0 +1,16 @@
+{
+    "name": "GalacticFrontier.WorldDomain",
+    "rootNamespace": "Assets.Resources.Scripts.World.Domain",
+    "references": [
+        "GalacticFrontier.BattleDomain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

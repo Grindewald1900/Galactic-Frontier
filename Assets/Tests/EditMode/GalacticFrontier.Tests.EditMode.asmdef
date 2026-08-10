@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "GalacticFrontier.BattleDomain",
-        "GalacticFrontier.DeckDomain"
+        "GalacticFrontier.DeckDomain",
+        "GalacticFrontier.WorldDomain"
     ],
     "includePlatforms": [
         "Editor"

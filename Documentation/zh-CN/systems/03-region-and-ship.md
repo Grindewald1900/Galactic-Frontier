@@ -1,11 +1,11 @@
 # 系统文档：区域推进与舰船门槛
 
-> 文档版本：v1.1  
-> 状态：**MVP 规则已拍板，可供 P2 实现**  
+> 文档版本：v1.2  
+> 状态：**P2 已落地**（world/ship 存档、Explore 硬门、遭遇、AFK、Boss）  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
 > 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`；离线/采集细则见 `04-idle-and-offline.md`  
-> 更新日期：2026-08-09  
-> 变更：v1.1 强化舰船**模块化**；增补星域特殊玩法（虫洞/暗面/多元宇宙）为非 MVP 方向。
+> 更新日期：2026-08-10  
+> 变更：v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
 
 ---
 

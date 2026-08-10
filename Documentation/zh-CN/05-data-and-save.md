@@ -18,7 +18,7 @@
 
 入口代码：`Assets/Resources/Scripts/Utils/Save/`（`DevDataSettings`、`IDevDataProvider`、`SaveMigrator`、`StarterSeedApplier` 等）。
 
-## 存档位置（saveVersion = 2）
+## 存档位置（saveVersion = 3）
 
 `DataUtil` 使用：
 
@@ -26,17 +26,19 @@
 Application.persistentDataPath/
 └─ saves/
    ├─ playerEntities.json
-   ├─ _corrupt/                    // 迁移失败时的可选隔离副本
+   ├─ _corrupt/
    └─ <player-guid>/
-      ├─ meta.json                 // saveVersion、时间戳、starterSeedTableVersion
+      ├─ meta.json
       ├─ playerData.json
       ├─ playerCards.json
       ├─ inventory_local.json
       ├─ inventory_remote.json
-      ├─ decks.json                 // P1.1：多卡组 + 行动占用
+      ├─ decks.json
+      ├─ world.json                  // P2：区域进度
+      ├─ ship.json                   // P2：舰船与模块
       ├─ expertData.json
       ├─ avatar.png
-      └─ itemData.json.bak         // 仅旧档 0→1 迁移残留
+      └─ itemData.json.bak
 ```
 
 在当前 Windows 项目配置下，典型路径为：

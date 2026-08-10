@@ -128,7 +128,7 @@ saves/{playerId}/meta.json
 
 | 项目 | MVP 默认 |
 | --- | --- |
-| 当前代码版本 `CurrentSaveVersion` | **2**（P1.1：`decks.json`） |
+| 当前代码版本 `CurrentSaveVersion` | **3**（P2：`world.json` + `ship.json`） |
 | 无 `meta.json` 的旧档 | 视为 `saveVersion = 0`，启动时依次迁移到 Current |
 | 高于 Current | **拒绝加载**，提示「请更新游戏」；不降级写回 |
 | 迁移失败 | 拒绝进入游戏；保留原文件；可选复制到 `saves/_corrupt/{playerId}_{timestamp}/` |
@@ -150,7 +150,15 @@ saves/{playerId}/meta.json
 | 2 | 若已有 `decks.json`：保留并仅抬升 `meta.saveVersion` |
 | 3 | 写入 `meta.json`（`saveVersion = 2`） |
 
-`saveVersion ≥ 3` 起的迁移由后续玩法文档登记（例如 `world.json` / `ship.json`）。
+`saveVersion ≥ 3` 起的迁移由后续玩法文档登记（例如 idle.json）。
+
+#### 4.3.3 版本 2 → 3 迁移（P2）
+
+| 步骤 | 动作 |
+| --- | --- |
+| 1 | 若无 `world.json`：写入默认区域进度（外缘带可挑战） |
+| 2 | 若无 `ship.json`：写入开局舰（Lv.1 + 模块列表） |
+| 3 | 写入 `meta.json`（`saveVersion = 3`） |
 
 ### 4.4 物品分文件
 

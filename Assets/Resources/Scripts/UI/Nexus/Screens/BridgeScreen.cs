@@ -4,6 +4,8 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,18 +21,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action openMissions;
         private readonly System.Action openFormation;
         private readonly System.Action openExplore;
+        private readonly System.Action openShip;
         private string pendingStopDeckId = "";
 
         private BridgeScreen(
             Transform root,
             System.Action openMissions,
             System.Action openFormation,
-            System.Action openExplore)
+            System.Action openExplore,
+            System.Action openShip)
         {
             this.root = root;
             this.openMissions = openMissions;
             this.openFormation = openFormation;
             this.openExplore = openExplore;
+            this.openShip = openShip;
         }
 
         public GameObject Root => root.gameObject;
@@ -39,7 +44,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Transform parent,
             System.Action openMissions,
             System.Action openFormation,
-            System.Action openExplore)
+            System.Action openExplore,
+            System.Action openShip = null)
         {
             GameObject root = NexusUiFactory.CreatePanel(
                 parent,
@@ -50,7 +56,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero,
                 Vector2.zero);
 
-            var screen = new BridgeScreen(root.transform, openMissions, openFormation, openExplore);
+            var screen = new BridgeScreen(root.transform, openMissions, openFormation, openExplore, openShip);
             screen.Rebuild();
             return screen;
         }
@@ -61,7 +67,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities() ?? new List<CardEntity>();
             if (DataUtil.Instance != null)
+            {
                 DeckService.EnsureLoaded(DataUtil.Instance, all);
+                WorldService.EnsureLoaded(DataUtil.Instance);
+                ShipService.EnsureLoaded(DataUtil.Instance);
+            }
 
             NexusUiFactory.CreateText(
                 root,
@@ -149,36 +159,49 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 "CTA Formation",
                 UiText.BridgeOpenFormation,
                 new Vector2(1090f, 730f),
-                new Vector2(210f, 44f),
+                new Vector2(150f, 44f),
                 () => openFormation?.Invoke(),
                 NexusTheme.SurfaceRaised,
                 NexusTheme.Text,
-                13f);
+                12f);
             NexusUiFactory.CreateButton(
                 root,
                 "CTA Explore",
                 UiText.BridgeStartAutoBattle,
-                new Vector2(1320f, 730f),
-                new Vector2(210f, 44f),
+                new Vector2(1250f, 730f),
+                new Vector2(150f, 44f),
                 () => openExplore?.Invoke(),
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
                 NexusTheme.Gold,
-                13f);
+                12f);
+            NexusUiFactory.CreateButton(
+                root,
+                "CTA Ship",
+                UiText.OpenShipBay,
+                new Vector2(1410f, 730f),
+                new Vector2(150f, 44f),
+                () => openShip?.Invoke(),
+                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f),
+                NexusTheme.Cyan,
+                12f);
             NexusUiFactory.CreateButton(
                 root,
                 "CTA Missions",
                 UiText.TodaysMissions,
-                new Vector2(1550f, 730f),
-                new Vector2(210f, 44f),
+                new Vector2(1570f, 730f),
+                new Vector2(150f, 44f),
                 () => openMissions?.Invoke(),
                 NexusTheme.SurfaceRaised,
                 NexusTheme.Cyan,
-                13f);
+                12f);
 
+            string opsHint = WorldService.IsSectorComplete()
+                ? UiText.SectorComplete
+                : UiText.BridgeOpsHint;
             NexusUiFactory.CreateText(
                 root,
                 "OpsHint",
-                UiText.BridgeOpsHint,
+                opsHint,
                 new Vector2(1090f, 790f),
                 new Vector2(670f, 40f),
                 11f,

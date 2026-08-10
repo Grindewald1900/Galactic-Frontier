@@ -25,6 +25,8 @@ namespace Assets.Resources.Scripts.Entity
         public Archetype archetype;
         public string id = "";
         public float power = 0f; // shown on main panel
+        /// <summary>P2 AFK farm wear; pauses AutoCombat at WorldConstants.FarmWearPauseThreshold.</summary>
+        public int farmWear;
 
         public int Level
         {

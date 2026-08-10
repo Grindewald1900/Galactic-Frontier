@@ -13,6 +13,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         Market,
         Missions,
         Settings,
-        Debug
+        Debug,
+        Ship
     }
 }

@@ -4,6 +4,7 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -171,11 +172,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 stats.transform,
                 "SetCombat",
                 UiText.SetCombatDeck,
-                new Vector2(16f, 760f),
+                new Vector2(16f, 710f),
                 new Vector2(248f, 40f),
                 () => screen.SetAsCombatDeck(),
                 NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f),
                 NexusTheme.Cyan,
+                13f);
+            NexusUiFactory.CreateButton(
+                stats.transform,
+                "Strategy",
+                UiText.CycleStrategy,
+                new Vector2(16f, 760f),
+                new Vector2(248f, 40f),
+                () => screen.CycleStrategy(),
+                NexusTheme.WithAlpha(NexusTheme.Purple, 0.16f),
+                NexusTheme.Purple,
                 13f);
             NexusUiFactory.CreateButton(
                 stats.transform,
@@ -502,6 +513,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Rebuild();
         }
 
+        private void CycleStrategy()
+        {
+            var editing = DeckService.GetEditingDeck();
+            if (editing == null) return;
+            var current = CombatStrategyRules.Parse(editing.combatStrategyId);
+            var next = (CombatStrategyId)(((int)current + 1) % 4);
+            DeckService.TrySetCombatStrategy(editing.deckId, next.ToString());
+            statusText.text = $"{UiText.CombatStrategyLabel}: {next}";
+            Rebuild();
+        }
+
         private void TryStopEditingDeck()
         {
             var editing = DeckService.GetEditingDeck();
@@ -561,13 +583,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     editing.action?.status.ToString() ?? "Idle",
                     editing.action?.actionType.ToString() ?? "None");
             bool isCombat = editing != null && editing.deckId == DeckService.GetActiveCombatDeck()?.deckId;
+            string strategy = editing == null
+                ? ""
+                : CombatStrategyRules.Parse(editing.combatStrategyId).ToString();
 
             statsText.text =
                 $"<color=#{muted}>{UiText.T("Selected deck", "当前卡组")}</color>\n" +
                 $"<size=16><color=#{gold}>{Truncate(editing?.displayName ?? "-", 20)}</color></size>\n" +
                 $"<color=#{cyan}>{UiText.DeckPurposeLabel(editing?.purpose.ToString() ?? "Flexible")}" +
                 (isCombat ? $" · {UiText.ActiveCombatBadge}" : "") + "</color>\n" +
-                $"{actionLabel}\n\n" +
+                $"{actionLabel}\n" +
+                $"{UiText.CombatStrategyLabel}: {strategy}\n\n" +
                 $"<color=#{muted}>{UiText.T("In formation", "上阵人数")}</color>\n" +
                 $"<size=18><color=#{gold}>{count} / {DeckConstants.SlotsPerDeck}</color></size>\n\n" +
                 $"<color=#{muted}>{UiText.T("Total power", "综合战力")}</color>\n" +

@@ -27,6 +27,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Bridge => T("Bridge", "舰桥"),
             AppScreen.Battle => T("Explore / Card Battle", "探索 / 卡牌战斗"),
             AppScreen.Formation => T("Formation", "编队"),
+            AppScreen.Ship => T("Ship Bay", "舰船舱"),
             AppScreen.Characters => T("Characters", "角色"),
             AppScreen.Cards => T("Cards", "卡牌"),
             AppScreen.Inventory => T("Inventory", "仓库"),
@@ -128,13 +129,32 @@ namespace Assets.Resources.Scripts.UI.Nexus
             ? T($"Formation ready: {count} / 5", $"编队就绪：{count} / 5")
             : T("Formation empty — assign cards before battle", "编队为空 — 开战前请先上阵");
         public static string ExploreRegionMeta(int index) => T(
-            $"Auto combat · Ship gate TBD · Region #{index + 1}",
-            $"全自动战斗 · 舰船门槛待定 · 星域 #{index + 1}");
-        public static string StartAutoBattle => T("Start Auto Battle", "开始自动战斗");
+            $"Auto combat · Region #{index + 1}",
+            $"全自动战斗 · 星域 #{index + 1}");
+        public static string StartAutoBattle => T("Challenge", "挑战");
+        public static string StartFarm => T("AFK Farm", "挂机刷取");
+        public static string RegionLocked => T("LOCKED", "未解锁");
+        public static string FarmAvailable => T("Farm unlocked", "可挂机刷取");
+        public static string SectorComplete => T("Sector first loop complete", "星域首圈完成");
+        public static string RegionProgressLabel(string state) => state switch
+        {
+            "Challengeable" => T("Challengeable", "可挑战"),
+            "Cleared" => T("Cleared", "已通关"),
+            "BossAvailable" => T("Boss available", "首领可挑战"),
+            "BossDefeated" => T("Boss defeated", "首领已击败"),
+            _ => T("Locked", "锁定")
+        };
+        public static string OpenShipBay => T("Ship Bay", "舰船舱");
+        public static string ShipBayTitle => T("SHIP BAY", "舰船舱");
+        public static string UpgradeShipLevel(int scrap, int credit) => T(
+            $"Upgrade ship level ({scrap} scrap / {credit}₵)",
+            $"升级舰船等级（{scrap} 废料 / {credit}₵）");
+        public static string CombatStrategyLabel => T("Combat strategy", "战前策略");
+        public static string CycleStrategy => T("Cycle Strategy", "切换策略");
         public static string ExploreSideTitle => T("AUTO COMBAT", "全自动战斗");
         public static string ExploreSideBody => T(
-            "• Pre-battle: pick deck & formation\n• In-battle: system resolves turns by speed\n• Post-battle: report & rewards\n• Optional: speed up / skip presentation\n\nManual skill targeting is out of scope.",
-            "• 战前：选择卡组与编队\n• 战中：系统按速度自动结算回合\n• 战后：战报与奖励\n• 可选：加速 / 跳过演出\n\n不提供手动点选技能与目标。");
+            "• Gates: clear previous region + ship stats\n• Challenge: MainCombat scene\n• Farm: AFK after first clear\n• Ship Bay: spend scrap/credits to raise gates\n\nRecommended power is advisory only.",
+            "• 门槛：通关前置 + 舰船分项\n• 挑战：进入战斗场景\n• 刷取：首次通关后挂机\n• 舰船舱：消耗废料/信用提升门槛\n\n推荐战力仅提示，不硬锁。");
 
         // Formation
         public static string AvailableCharacters => T("Available Characters", "可用角色");

@@ -239,6 +239,19 @@ namespace Assets.Resources.Scripts.Deck
             return result;
         }
 
+        public static DeckCommandResult TrySetCombatStrategy(string deckId, string strategyId)
+        {
+            EnsureState();
+            var deck = DeckRules.FindDeck(State, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            if (!deck.unlocked)
+                return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
+            deck.combatStrategyId = strategyId ?? "Balanced";
+            Save();
+            return DeckCommandResult.Ok();
+        }
+
         public static DeckCommandResult TryStart(
             string deckId,
             DeckActionType actionType,
