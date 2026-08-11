@@ -1,0 +1,265 @@
+"filename", "language", "C#", "ShaderLab", "JSON", "HLSL", "HTML", "Markdown", "PostCSS", "XML", "comment", "blank", "total"
+"j:\Unity3d\Projects\Galactic Frontier\Assets\GifToUnity\Editor\GifEditor.cs", "C#", -42, 0, 0, 0, 0, 0, 0, 0, 0, -5, -47
+"j:\Unity3d\Projects\Galactic Frontier\Assets\GifToUnity\Editor\GifImporter.cs", "C#", -116, 0, 0, 0, 0, 0, 0, 0, 0, -31, -147
+"j:\Unity3d\Projects\Galactic Frontier\Assets\GifToUnity\Gif.cs", "C#", -17, 0, 0, 0, 0, 0, 0, 0, 0, -2, -19
+"j:\Unity3d\Projects\Galactic Frontier\Assets\GifToUnity\GifPlayer.cs", "C#", -58, 0, 0, 0, 0, 0, 0, 0, 0, -15, -73
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Editor\CFXR_ExpressionParser.cs", "C#", -223, 0, 0, 0, 0, 0, 0, 0, -14, -38, -275
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Editor\CFXR_MaterialInspector.cs", "C#", -463, 0, 0, 0, 0, 0, 0, 0, -62, -67, -592
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Editor\CFXR_ShaderImporter.cs", "C#", -376, 0, 0, 0, 0, 0, 0, 0, -6, -41, -423
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Editor\CFXR_ShaderPostProcessor.cs", "C#", -35, 0, 0, 0, 0, 0, 0, 0, 0, -3, -38
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Editor\CFXR_Styles.cs", "C#", -291, 0, 0, 0, 0, 0, 0, 0, -40, -32, -363
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Scripts\CFXR_Effect.CameraShake.cs", "C#", -235, 0, 0, 0, 0, 0, 0, 0, -14, -39, -288
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Scripts\CFXR_Effect.cs", "C#", -729, 0, 0, 0, 0, 0, 0, 0, -28, -121, -878
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Scripts\CFXR_EmissionBySurface.cs", "C#", -175, 0, 0, 0, 0, 0, 0, 0, -1, -19, -195
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Scripts\CFXR_ParticleText.cs", "C#", -340, 0, 0, 0, 0, 0, 0, 0, -22, -57, -419
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Scripts\CFXR_ParticleTextFontAsset.cs", "C#", -109, 0, 0, 0, 0, 0, 0, 0, -5, -14, -128
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Shaders\CFXR.cginc", "HLSL", 0, 0, 0, -269, 0, 0, 0, 0, -42, -56, -367
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Shaders\CFXR_PASSES.cginc", "HLSL", 0, 0, 0, -792, 0, 0, 0, 0, -151, -213, -1156
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Shaders\CFXR_SETTINGS.cginc", "HLSL", 0, 0, 0, -2, 0, 0, 0, 0, -12, -8, -22
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\CFXR Assets\Shaders\CFXR_URP.cginc", "HLSL", 0, 0, 0, -114, 0, 0, 0, 0, -84, -34, -232
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\CFXR_Demo.cs", "C#", -219, 0, 0, 0, 0, 0, 0, 0, -8, -43, -270
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\CFXR_Demo_Rotate.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, -4, -3, -21
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\CFXR_Demo_Translate.cs", "C#", -31, 0, 0, 0, 0, 0, 0, 0, -4, -7, -42
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\Kino Bloom\Bloom.cs", "C#", -172, 0, 0, 0, 0, 0, 0, 0, -51, -50, -273
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\Kino Bloom\Editor\BloomEditor.cs", "C#", -45, 0, 0, 0, 0, 0, 0, 0, -23, -9, -77
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\Kino Bloom\Editor\BloomGraphDrawer.cs", "C#", -116, 0, 0, 0, 0, 0, 0, 0, -40, -28, -184
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\Kino Bloom\Shader\Bloom.cginc", "HLSL", 0, 0, 0, -171, 0, 0, 0, 0, -42, -39, -252
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Demo Assets\Kino Bloom\Shader\Bloom.shader", "ShaderLab", 0, -109, 0, 0, 0, 0, 0, 0, -32, -1, -142
+"j:\Unity3d\Projects\Galactic Frontier\Assets\JMO Assets\Cartoon FX Remaster\Readme Cartoon FX Remaster FREE.html", "HTML", 0, 0, 0, 0, -245, 0, 0, 0, 0, -33, -278
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\assets\css\main.css", "PostCSS", 0, 0, 0, 0, 0, 0, -610, 0, -79, -148, -837
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\assets\index.html", "HTML", 0, 0, 0, 0, -10, 0, 0, 0, 0, -1, -11
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTBezierPath.html", "HTML", 0, 0, 0, 0, -543, 0, 0, 0, -4, -247, -794
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTDescr.html", "HTML", 0, 0, 0, 0, -1940, 0, 0, 0, -4, -999, -2943
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTEvent.html", "HTML", 0, 0, 0, 0, -180, 0, 0, 0, -4, -56, -240
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTRect.html", "HTML", 0, 0, 0, 0, -267, 0, 0, 0, -4, -91, -362
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTSeq.html", "HTML", 0, 0, 0, 0, -379, 0, 0, 0, -4, -154, -537
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LTSpline.html", "HTML", 0, 0, 0, 0, -542, 0, 0, 0, -4, -253, -799
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LeanAudio.html", "HTML", 0, 0, 0, 0, -243, 0, 0, 0, -4, -88, -335
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LeanAudioOptions.html", "HTML", 0, 0, 0, 0, -275, 0, 0, 0, -4, -107, -386
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LeanSmooth.html", "HTML", 0, 0, 0, 0, -1357, 0, 0, 0, -4, -600, -1961
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LeanTween.html", "HTML", 0, 0, 0, 0, -5465, 0, 0, 0, -4, -2655, -8124
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\LeanTweenType.html", "HTML", 0, 0, 0, 0, -637, 0, 0, 0, -4, -452, -1093
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\classes\index.html", "HTML", 0, 0, 0, 0, -10, 0, 0, 0, 0, -1, -11
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\elements\index.html", "HTML", 0, 0, 0, 0, -10, 0, 0, 0, 0, -1, -11
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Documentation\index.html", "HTML", 0, 0, 0, 0, -142, 0, 0, 0, -4, -22, -168
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Editor\LeanTweenDocumentationEditor.cs", "C#", -48, 0, 0, 0, 0, 0, 0, 0, -2, -9, -59
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LTDescr.cs", "C#", -1657, 0, 0, 0, 0, 0, 0, 0, -370, -282, -2309
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LTDescrOptional.cs", "C#", -61, 0, 0, 0, 0, 0, 0, 0, -15, -14, -90
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LTSeq.cs", "C#", -99, 0, 0, 0, 0, 0, 0, 0, -79, -48, -226
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LeanAudio.cs", "C#", -257, 0, 0, 0, 0, 0, 0, 0, -81, -81, -419
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LeanSmooth.cs", "C#", -136, 0, 0, 0, 0, 0, 0, 0, -186, -43, -365
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LeanTest.cs", "C#", -106, 0, 0, 0, 0, 0, 0, 0, -1, -16, -123
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LeanTween.cs", "C#", -2283, 0, 0, 0, 0, 0, 0, 0, -1383, -450, -4116
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Framework\LeanTweenExt.cs", "C#", -124, 0, 0, 0, 0, 0, 0, 0, -57, -7, -188
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\FollowingTests.cs", "C#", -44, 0, 0, 0, 0, 0, 0, 0, -4, -22, -70
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\PerformanceTests.cs", "C#", -44, 0, 0, 0, 0, 0, 0, 0, -4, -16, -64
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\Scripts\LeanPool.cs", "C#", -61, 0, 0, 0, 0, 0, 0, 0, -3, -20, -84
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\Testing240.cs", "C#", -44, 0, 0, 0, 0, 0, 0, 0, -8, -17, -69
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\Testing243.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, -13, -9, -35
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\Testing246.cs", "C#", -11, 0, 0, 0, 0, 0, 0, 0, -20, -12, -43
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\Testing248.cs", "C#", -12, 0, 0, 0, 0, 0, 0, 0, -2, -4, -18
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingColorTweening.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, -1, -7, -22
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingDescr.cs", "C#", -16, 0, 0, 0, 0, 0, 0, 0, -2, -6, -24
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingIssue.cs", "C#", -26, 0, 0, 0, 0, 0, 0, 0, -1, -7, -34
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingIssue2.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, -1, -6, -34
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingMaxTweens.cs", "C#", -20, 0, 0, 0, 0, 0, 0, 0, -2, -7, -29
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingOptionalCancel.cs", "C#", -24, 0, 0, 0, 0, 0, 0, 0, -2, -7, -33
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingRotate.cs", "C#", -21, 0, 0, 0, 0, 0, 0, 0, -6, -12, -39
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingSceneSwitching.cs", "C#", -35, 0, 0, 0, 0, 0, 0, 0, -4, -18, -57
+"j:\Unity3d\Projects\Galactic Frontier\Assets\LeanTween\Testing\TestingSequencer.cs", "C#", -21, 0, 0, 0, 0, 0, 0, 0, 0, -5, -26
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Common\Script\Utils\SecondOrderDynamics.cs", "C#", -107, 0, 0, 0, 0, 0, 0, 0, -1, -26, -134
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\BoundingPlatform.cs", "C#", -89, 0, 0, 0, 0, 0, 0, 0, -2, -19, -110
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\Chest.cs", "C#", -33, 0, 0, 0, 0, 0, 0, 0, 0, -5, -38
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\Editor\ChestEditor.cs", "C#", -11, 0, 0, 0, 0, 0, 0, 0, 0, -3, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\Editor\ElevatorEditor.cs", "C#", -11, 0, 0, 0, 0, 0, 0, 0, 0, -3, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\Elevator.cs", "C#", -103, 0, 0, 0, 0, 0, 0, 0, -99, -35, -237
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Pixel Art Platformer - Village Props\Script\MovingPlatform.cs", "C#", -45, 0, 0, 0, 0, 0, 0, 0, -3, -13, -61
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\AssetsOnlyAttributeProcessor.cs", "C#", -12, 0, 0, 0, 0, 0, 0, 0, 0, -1, -13
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\BlockquoteAttributeProcessor.cs", "C#", -17, 0, 0, 0, 0, 0, 0, 0, 0, -2, -19
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\BoxGroupAttributeProcessor.cs", "C#", -21, 0, 0, 0, 0, 0, 0, 0, 0, -3, -24
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\DisableIfAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\DisableInEditModeAttributeProcessor.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -1, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\DisableInPlayModeAttributeProcessor.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -1, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\EnableIfAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\FoldoutGroupAttributeProcessor.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, 0, -5, -32
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\GUIColorAttributeProcessor.cs", "C#", -18, 0, 0, 0, 0, 0, 0, 0, 0, -2, -20
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\GroupAttributeProcessor.cs", "C#", -21, 0, 0, 0, 0, 0, 0, 0, 0, -3, -24
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HelpBoxAttributeProcessor.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -1, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HelpBoxIfAttributeProcessor.cs", "C#", -17, 0, 0, 0, 0, 0, 0, 0, 0, -1, -18
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HideIfAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HideLabelAttributeProcessor.cs", "C#", -12, 0, 0, 0, 0, 0, 0, 0, 0, -1, -13
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HorizontalGroupAttributeProcessor.cs", "C#", -23, 0, 0, 0, 0, 0, 0, 0, 0, -3, -26
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\HorizontalLineAttributeProcessor.cs", "C#", -23, 0, 0, 0, 0, 0, 0, 0, 0, -2, -25
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\IndentAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\LabelTextAttributeProcessor.cs", "C#", -12, 0, 0, 0, 0, 0, 0, 0, 0, -1, -13
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\LabelWidthAttributeProcessor.cs", "C#", -19, 0, 0, 0, 0, 0, 0, 0, 0, -3, -22
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\OnValueChangedAttributeProcessor.cs", "C#", -16, 0, 0, 0, 0, 0, 0, 0, 0, -2, -18
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\PropertyOrderAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\ReadOnlyAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\RequiredAttributeProcessor.cs", "C#", -18, 0, 0, 0, 0, 0, 0, 0, 0, -2, -20
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\SectionHeaderAttributeProcessor.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -1, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\ShowIfAttributeProcessor.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -1, -14
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\TabGroupAttributeProcessor.cs", "C#", -43, 0, 0, 0, 0, 0, 0, 0, 0, -7, -50
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\TitleHeaderAttributeProcessor.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -1, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Attributes\ValidateInputAttributeProcessor.cs", "C#", -17, 0, 0, 0, 0, 0, 0, 0, 0, -2, -19
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\EditorColors.cs", "C#", -112, 0, 0, 0, 0, 0, 0, 0, 0, -13, -125
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\EditorIcons.cs", "C#", -1181, 0, 0, 0, 0, 0, 0, 0, 0, -3, -1184
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Experimental\SimpleTreeView.cs", "C#", -98, 0, 0, 0, 0, 0, 0, 0, 0, -15, -113
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Experimental\TextFieldPopup.cs", "C#", -66, 0, 0, 0, 0, 0, 0, 0, 0, -12, -78
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Experimental\Toolbar.cs", "C#", -51, 0, 0, 0, 0, 0, 0, 0, 0, -12, -63
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Experimental\TreeMenu.cs", "C#", -184, 0, 0, 0, 0, 0, 0, 0, 0, -28, -212
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Extensions\EnumExtensions.cs", "C#", -56, 0, 0, 0, 0, 0, 0, 0, 0, -3, -59
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Extensions\SerializedPropertyExtensions.cs", "C#", -247, 0, 0, 0, 0, 0, 0, 0, -8, -49, -304
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\EditableInspectorProperty.cs", "C#", -163, 0, 0, 0, 0, 0, 0, 0, -2, -18, -183
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\InspectorButton.cs", "C#", -79, 0, 0, 0, 0, 0, 0, 0, 0, -16, -95
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\InspectorField.cs", "C#", -212, 0, 0, 0, 0, 0, 0, 0, 0, -35, -247
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\InspectorProperty.cs", "C#", -77, 0, 0, 0, 0, 0, 0, 0, 0, -10, -87
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\InspectorPropertyGroup.cs", "C#", -77, 0, 0, 0, 0, 0, 0, 0, 0, -15, -92
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\InspectorProperty\NonSerializedProperty.cs", "C#", -47, 0, 0, 0, 0, 0, 0, 0, 0, -9, -56
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidEditor.cs", "C#", -63, 0, 0, 0, 0, 0, 0, 0, -13, -18, -94
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidEditorGUI.cs", "C#", -822, 0, 0, 0, 0, 0, 0, 0, 0, -121, -943
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidEditorGUILayout.cs", "C#", -843, 0, 0, 0, 0, 0, 0, 0, 0, -153, -996
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidEditorPrefs.cs", "C#", -168, 0, 0, 0, 0, 0, 0, 0, 0, -19, -187
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidEditorUtility.cs", "C#", -38, 0, 0, 0, 0, 0, 0, 0, 0, -7, -45
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\LucidGUIEvent.cs", "C#", -92, 0, 0, 0, 0, 0, 0, 0, 0, -16, -108
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\PropertyGroupProcessor.cs", "C#", -37, 0, 0, 0, 0, 0, 0, 0, 0, -6, -43
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\PropertyProcessor.cs", "C#", -36, 0, 0, 0, 0, 0, 0, 0, 0, -5, -41
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\SerializeReferenceDropdown.cs", "C#", -137, 0, 0, 0, 0, 0, 0, 0, 0, -18, -155
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\SerializedPropertyUtility.cs", "C#", -30, 0, 0, 0, 0, 0, 0, 0, 0, -2, -32
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Utils\InspectorPropertyUtil.cs", "C#", -175, 0, 0, 0, 0, 0, 0, 0, -20, -34, -229
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Utils\ProcessorUtil.cs", "C#", -65, 0, 0, 0, 0, 0, 0, 0, 0, -10, -75
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Utils\ReflectionUtil.cs", "C#", -225, 0, 0, 0, 0, 0, 0, 0, -14, -35, -274
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Editor\Utils\TypeUtil.cs", "C#", -91, 0, 0, 0, 0, 0, 0, 0, -20, -14, -125
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\AssetsOnlyAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\BlockquoteAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\BoxGroupAttribute.cs", "C#", -9, 0, 0, 0, 0, 0, 0, 0, 0, -1, -10
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\ButtonAttribute.cs", "C#", -24, 0, 0, 0, 0, 0, 0, 0, 0, -5, -29
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\DisableIfAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\DisableInEditModeAttribute.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -2, -9
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\DisableInPlayModeAttribute.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -2, -9
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\DisableLucidEditorAttribute.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -1, -8
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\EnableIfAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\FoldoutGroupAttribute.cs", "C#", -9, 0, 0, 0, 0, 0, 0, 0, 0, -1, -10
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\GUIColorAttribute.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, 0, -2, -29
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\GroupAttribute.cs", "C#", -10, 0, 0, 0, 0, 0, 0, 0, 0, -1, -11
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HelpBoxAttribute.cs", "C#", -28, 0, 0, 0, 0, 0, 0, 0, 0, -4, -32
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HelpBoxIfAttribute.cs", "C#", -24, 0, 0, 0, 0, 0, 0, 0, 0, -3, -27
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HideIfAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HideLabelAttribute.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -1, -8
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HideMonoScript.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -1, -8
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HorizontalGroupAttribute.cs", "C#", -9, 0, 0, 0, 0, 0, 0, 0, 0, -1, -10
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\HorizontalLineAttribute.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, 0, -2, -29
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\IndentAttribute.cs", "C#", -18, 0, 0, 0, 0, 0, 0, 0, 0, -3, -21
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\LabelTextAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\LabelWidthAttribute.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -2, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\OnValueChangedAttribute.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -2, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\PropertyOrderAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\ReadOnlyAttribute.cs", "C#", -7, 0, 0, 0, 0, 0, 0, 0, 0, -1, -8
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\RequiredAttribute.cs", "C#", -15, 0, 0, 0, 0, 0, 0, 0, 0, -1, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\SectionHeaderAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\ShowIfAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\ShowInInspectorAttribute.cs", "C#", -6, 0, 0, 0, 0, 0, 0, 0, 0, -1, -7
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\TabGroupAttribute.cs", "C#", -13, 0, 0, 0, 0, 0, 0, 0, 0, -2, -15
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\TitleHeaderAttribute.cs", "C#", -14, 0, 0, 0, 0, 0, 0, 0, 0, -2, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Attributes\ValidateInputAttribute.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, 0, -4, -31
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\Enum.cs", "C#", -35, 0, 0, 0, 0, 0, 0, 0, 0, -1, -36
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Packages\Cainos\Third Party\Lucid Editor\Runtime\PropertyGroupAttribute.cs", "C#", -18, 0, 0, 0, 0, 0, 0, 0, 0, -2, -20
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\DOTween.XML", "XML", 0, 0, 0, 0, 0, 0, 0, -3089, 0, -1, -3090
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Editor\DOTweenEditor.XML", "XML", 0, 0, 0, 0, 0, 0, 0, -144, 0, -1, -145
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleAudio.cs", "C#", -94, 0, 0, 0, 0, 0, 0, 0, -80, -25, -199
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleEPOOutline.cs", "C#", -109, 0, 0, 0, 0, 0, 0, 0, -18, -20, -147
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModulePhysics.cs", "C#", -137, 0, 0, 0, 0, 0, 0, 0, -60, -20, -217
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModulePhysics2D.cs", "C#", -125, 0, 0, 0, 0, 0, 0, 0, -51, -18, -194
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleSprite.cs", "C#", -63, 0, 0, 0, 0, 0, 0, 0, -17, -14, -94
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleUI.cs", "C#", -390, 0, 0, 0, 0, 0, 0, 0, -203, -70, -663
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleUnityVersion.cs", "C#", -254, 0, 0, 0, 0, 0, 0, 0, -99, -37, -390
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\Demigiant\DOTween\Modules\DOTweenModuleUtils.cs", "C#", -123, 0, 0, 0, 0, 0, 0, 0, -27, -18, -168
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Android\FBCallbackHelper.cs", "C#", -27, 0, 0, 0, 0, 0, 0, 0, 0, -4, -31
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Android\FBDirectoryReceiveCallbackAndroid.cs", "C#", -33, 0, 0, 0, 0, 0, 0, 0, 0, -4, -37
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Android\FBPermissionCallbackAndroid.cs", "C#", -26, 0, 0, 0, 0, 0, 0, 0, 0, -4, -30
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\EventSystemHandler.cs", "C#", -63, 0, 0, 0, 0, 0, 0, 0, -2, -10, -75
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowser.cs", "C#", -2523, 0, 0, 0, 0, 0, 0, 0, -123, -521, -3167
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserAccessRestrictedPanel.cs", "C#", -59, 0, 0, 0, 0, 0, 0, 0, -1, -11, -71
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserContextMenu.cs", "C#", -126, 0, 0, 0, 0, 0, 0, 0, -6, -24, -156
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserCursorHandler.cs", "C#", -50, 0, 0, 0, 0, 0, 0, 0, 0, -11, -61
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserFileOperationConfirmationPanel.cs", "C#", -136, 0, 0, 0, 0, 0, 0, 0, -2, -36, -174
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserHelpers.cs", "C#", -485, 0, 0, 0, 0, 0, 0, 0, -2, -71, -558
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserItem.cs", "C#", -192, 0, 0, 0, 0, 0, 0, 0, -7, -39, -238
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserMovement.cs", "C#", -82, 0, 0, 0, 0, 0, 0, 0, 0, -23, -105
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserQuickLink.cs", "C#", -18, 0, 0, 0, 0, 0, 0, 0, 0, -3, -21
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\FileBrowserRenamedItem.cs", "C#", -66, 0, 0, 0, 0, 0, 0, 0, -3, -15, -84
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\NonDrawingGraphic.cs", "C#", -16, 0, 0, 0, 0, 0, 0, 0, -1, -2, -19
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\SimpleRecycledListView\IListViewAdapter.cs", "C#", -12, 0, 0, 0, 0, 0, 0, 0, 0, -4, -16
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\SimpleRecycledListView\ListItem.cs", "C#", -20, 0, 0, 0, 0, 0, 0, 0, 0, -4, -24
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\SimpleRecycledListView\RecycledListView.cs", "C#", -188, 0, 0, 0, 0, 0, 0, 0, -28, -43, -259
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Plugins\SimpleFileBrowser\Scripts\UISkin.cs", "C#", -580, 0, 0, 0, 0, 0, 0, 0, -1, -90, -671
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\BillingMode.json", "JSON", 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, -1
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Data\BaseAttributes.json", "JSON", 0, 0, -2604, 0, 0, 0, 0, 0, 0, 0, -2604
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Data\SkillData.json", "JSON", 0, 0, -121, 0, 0, 0, 0, 0, 0, 0, -121
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Data\StarterSeed.json", "JSON", 0, 0, -104, 0, 0, 0, 0, 0, 0, -1, -105
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Resources\Docs\Inrto.md", "Markdown", 0, 0, 0, 0, 0, -54, 0, 0, 0, -5, -59
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\ActionSchedulerTests.cs", "C#", -70, 0, 0, 0, 0, 0, 0, 0, 0, -10, -80
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\BattleOutcomeRulesTests.cs", "C#", -36, 0, 0, 0, 0, 0, 0, 0, 0, -5, -41
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\BattleRngTests.cs", "C#", -42, 0, 0, 0, 0, 0, 0, 0, 0, -5, -47
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\CombatMathTests.cs", "C#", -87, 0, 0, 0, 0, 0, 0, 0, -1, -12, -100
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\DeckRulesTests.cs", "C#", -105, 0, 0, 0, 0, 0, 0, 0, 0, -19, -124
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\DurabilityRulesTests.cs", "C#", -37, 0, 0, 0, 0, 0, 0, 0, 0, -5, -42
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\InventoryRulesTests.cs", "C#", -56, 0, 0, 0, 0, 0, 0, 0, 0, -4, -60
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\QualityRulesTests.cs", "C#", -34, 0, 0, 0, 0, 0, 0, 0, 0, -5, -39
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\ShipRulesTests.cs", "C#", -56, 0, 0, 0, 0, 0, 0, 0, 0, -6, -62
+"j:\Unity3d\Projects\Galactic Frontier\Assets\Tests\EditMode\WorldRulesTests.cs", "C#", -70, 0, 0, 0, 0, 0, 0, 0, -2, -9, -81
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\Benchmark01.cs", "C#", -63, 0, 0, 0, 0, 0, 0, 0, -29, -37, -129
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\Benchmark01_UGUI.cs", "C#", -59, 0, 0, 0, 0, 0, 0, 0, -37, -40, -136
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\Benchmark02.cs", "C#", -65, 0, 0, 0, 0, 0, 0, 0, -6, -27, -98
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\Benchmark03.cs", "C#", -73, 0, 0, 0, 0, 0, 0, 0, -1, -19, -93
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\Benchmark04.cs", "C#", -41, 0, 0, 0, 0, 0, 0, 0, -26, -19, -86
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\CameraController.cs", "C#", -198, 0, 0, 0, 0, 0, 0, 0, -25, -69, -292
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\ChatController.cs", "C#", -31, 0, 0, 0, 0, 0, 0, 0, -5, -16, -52
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\DropdownSample.cs", "C#", -15, 0, 0, 0, 0, 0, 0, 0, 0, -5, -20
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\EnvMapAnimator.cs", "C#", -23, 0, 0, 0, 0, 0, 0, 0, -4, -9, -36
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\ObjectSpin.cs", "C#", -50, 0, 0, 0, 0, 0, 0, 0, -4, -13, -67
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\ShaderPropAnimator.cs", "C#", -33, 0, 0, 0, 0, 0, 0, 0, -5, -14, -52
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\SimpleScript.cs", "C#", -24, 0, 0, 0, 0, 0, 0, 0, -15, -20, -59
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\SkewTextExample.cs", "C#", -95, 0, 0, 0, 0, 0, 0, 0, -18, -46, -159
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_DigitValidator.cs", "C#", -19, 0, 0, 0, 0, 0, 0, 0, -5, -4, -28
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_ExampleScript_01.cs", "C#", -37, 0, 0, 0, 0, 0, 0, 0, -9, -19, -65
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_FrameRateCounter.cs", "C#", -91, 0, 0, 0, 0, 0, 0, 0, -11, -33, -135
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_PhoneNumberValidator.cs", "C#", -93, 0, 0, 0, 0, 0, 0, 0, -7, -6, -106
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_TextEventCheck.cs", "C#", -56, 0, 0, 0, 0, 0, 0, 0, -1, -17, -74
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_TextEventHandler.cs", "C#", -172, 0, 0, 0, 0, 0, 0, 0, -36, -56, -264
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_TextInfoDebugTool.cs", "C#", -409, 0, 0, 0, 0, 0, 0, 0, -97, -147, -653
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_TextSelector_A.cs", "C#", -100, 0, 0, 0, 0, 0, 0, 0, -17, -41, -158
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_TextSelector_B.cs", "C#", -250, 0, 0, 0, 0, 0, 0, 0, -191, -107, -548
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMP_UiFrameRateCounter.cs", "C#", -96, 0, 0, 0, 0, 0, 0, 0, -1, -28, -125
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TMPro_InstructionOverlay.cs", "C#", -55, 0, 0, 0, 0, 0, 0, 0, -6, -24, -85
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TeleType.cs", "C#", -40, 0, 0, 0, 0, 0, 0, 0, -15, -28, -83
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TextConsoleSimulator.cs", "C#", -79, 0, 0, 0, 0, 0, 0, 0, -13, -29, -121
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TextMeshProFloatingText.cs", "C#", -135, 0, 0, 0, 0, 0, 0, 0, -32, -57, -224
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\TextMeshSpawner.cs", "C#", -46, 0, 0, 0, 0, 0, 0, 0, -13, -21, -80
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\VertexColorCycler.cs", "C#", -48, 0, 0, 0, 0, 0, 0, 0, -13, -24, -85
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\VertexJitter.cs", "C#", -105, 0, 0, 0, 0, 0, 0, 0, -26, -44, -175
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\VertexShakeA.cs", "C#", -99, 0, 0, 0, 0, 0, 0, 0, -23, -39, -161
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\VertexShakeB.cs", "C#", -112, 0, 0, 0, 0, 0, 0, 0, -29, -44, -185
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\VertexZoom.cs", "C#", -112, 0, 0, 0, 0, 0, 0, 0, -32, -48, -192
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Examples & Extras\Scripts\WarpTextExample.cs", "C#", -87, 0, 0, 0, 0, 0, 0, 0, -15, -43, -145
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\SDFFunctions.hlsl", "HLSL", 0, 0, 0, -130, 0, 0, 0, 0, -18, -31, -179
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader", "ShaderLab", 0, -113, 0, 0, 0, 0, 0, 0, -2, -31, -146
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader", "ShaderLab", 0, -123, 0, 0, 0, 0, 0, 0, -3, -30, -156
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader", "ShaderLab", 0, -113, 0, 0, 0, 0, 0, 0, -2, -31, -146
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader", "ShaderLab", 0, -253, 0, 0, 0, 0, 0, 0, -4, -70, -327
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader", "ShaderLab", 0, -253, 0, 0, 0, 0, 0, 0, -4, -65, -322
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader", "ShaderLab", 0, -198, 0, 0, 0, 0, 0, 0, -10, -51, -259
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader", "ShaderLab", 0, -193, 0, 0, 0, 0, 0, 0, -8, -52, -253
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader", "ShaderLab", 0, -82, 0, 0, 0, 0, 0, 0, -4, -21, -107
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile-2-Pass.shader", "ShaderLab", 0, -290, 0, 0, 0, 0, 0, 0, -15, -85, -390
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader", "ShaderLab", 0, -192, 0, 0, 0, 0, 0, 0, -8, -51, -251
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader", "ShaderLab", 0, -104, 0, 0, 0, 0, 0, 0, -8, -28, -140
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader", "ShaderLab", 0, -123, 0, 0, 0, 0, 0, 0, -4, -33, -160
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_SDF.shader", "ShaderLab", 0, -253, 0, 0, 0, 0, 0, 0, -4, -70, -327
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMP_Sprite.shader", "ShaderLab", 0, -111, 0, 0, 0, 0, 0, 0, 0, -21, -132
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMPro.cginc", "HLSL", 0, 0, 0, -63, 0, 0, 0, 0, -2, -20, -85
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc", "HLSL", 0, 0, 0, -129, 0, 0, 0, 0, -2, -35, -166
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc", "HLSL", 0, 0, 0, -62, 0, 0, 0, 0, -6, -13, -81
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc", "HLSL", 0, 0, 0, -75, 0, 0, 0, 0, -7, -18, -100
+"j:\Unity3d\Projects\Galactic Frontier\Assets\TextMesh Pro\Sprites\EmojiOne.json", "JSON", 0, 0, -155, 0, 0, 0, 0, 0, 0, -2, -157
+"Total", "-", -25466, -2510, -2985, -1807, -12245, -54, -610, -3233, -4853, -12106, -65869
