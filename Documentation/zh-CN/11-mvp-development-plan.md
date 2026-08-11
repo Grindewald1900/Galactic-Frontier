@@ -337,7 +337,7 @@ flowchart LR
 | 顺序 | 文档 | 服务阶段 | 必须先于 | 状态 / 要拍板的内容 |
 | --- | --- | --- | --- | --- |
 | 8 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | **P0** | 任何新存档字段 / 经济内容入库 | **已拍板 v1.0** |
-| 9 | `systems/09-resources-and-warehouse.md` | **P3** | P3.1 资源表、货舱 | **待写**：15–20 资源；仓库/货舱；满仓与离线对齐 |
+| 9 | [systems/09-resources-and-warehouse.md](systems/09-resources-and-warehouse.md) | **P3** | P3.1 资源表、货舱 | **已拍板 v1.0**：18+12 物品；3 链配方；设施解锁/速度/品质；仓库 60 |
 | 10 | `systems/10-onboarding-and-missions.md` | **P5** | 新手两小时 | **待写**：步骤含 NPC 商店，不含玩家市场 |
 | 11 | `systems/11-faction-and-content-pipeline.md` | **P5** | 批量内容 | **待写** |
 | 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |

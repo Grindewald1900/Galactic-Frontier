@@ -392,5 +392,6 @@ ProduceProgress
 - 离线：`04-idle-and-offline.md`  
 - 耐久：`06-durability-and-repair.md`  
 - 市场：`07-market-and-card-trade.md`  
+- **内容表（物品/配方/设施等级）**：`09-resources-and-warehouse.md`  
 - 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P3  
 - 现有：`ItemEntity.cs`、`InventoryItemManagerBase.cs`、`AppShell` Crafting 导航

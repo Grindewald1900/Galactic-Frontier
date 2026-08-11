@@ -31,7 +31,7 @@
 | [装备耐久与维修](systems/06-durability-and-repair.md) | P3 | MVP 规则已拍板 |
 | [全服市场与卡牌交易 / NPC 商店](systems/07-market-and-card-trade.md) | P4 / Online | MVP=NPC；玩家市场仅 Online（v1.1） |
 | [存档契约与种子数据](systems/08-save-and-seed-data.md) | P0 | MVP 规则已拍板 |
-| `systems/09-resources-and-warehouse.md` | P3 | 待写 |
+| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.0（内容契约） |
 | `systems/10-onboarding-and-missions.md` | P5 | 待写 |
 | `systems/11-faction-and-content-pipeline.md` | P5 | 待写 |
 | `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
