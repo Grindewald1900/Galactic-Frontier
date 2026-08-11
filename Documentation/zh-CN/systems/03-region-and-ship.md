@@ -24,7 +24,8 @@
 
 - 战斗内回合规则与策略 → `02-auto-battle.md`
 - 挂机刷取产率、离线时长上限 → `04-idle-and-offline.md`
-- 采集节点产量、生产链 → `05-production-and-quality.md`
+- 采集节点产量、生产链 → `05-production-and-quality.md` / `09-resources-and-warehouse.md`
+- **通关掉落、挂机奖励表、区域叙事填充** → `11-sector-and-region-content.md`
 - 多星域大地图、跨服航线、公会占星（非 MVP）
 - 虫洞 / 宇宙暗面 / 多元宇宙的完整数值与 UI（§10 仅定方向，非 MVP 必做）
 
@@ -400,5 +401,6 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 - 核心设计：`Documentation/01-core-product-design.md` §7.8 / §16.1  
 - 战斗：`02-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
 - 卡组：`01-deck-and-occupation.md`（舰船设施解锁钩子）  
+- **星域内容与掉落表**：`11-sector-and-region-content.md`  
 - 现有 UI：`ExploreScreen.cs`、`UiText.SectorName`、`PlanetEntity`、`PlayerEntity`  
 - 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P2

@@ -272,9 +272,12 @@ EncounterConfig
 - enemySlots[5]: { characterId or template, level, attrs override? }
 - maxRoundOverride?: int
 - isBoss: bool
+- rewardTableId?: string   // 掉落表见 `11-sector-and-region-content.md`
+- lootScrap?: int          // 兼容回退：废料保底
 ```
 
-敌人来源必须来自配置表，**禁止**正式流程 `FakeData()` 随机生成（P0 技术债）。
+敌人来源必须来自配置表，**禁止**正式流程 `FakeData()` 随机生成（P0 技术债）。  
+通关/挂机具体掉落数量以 `11-sector-and-region-content.md` 为准。
 
 ---
 

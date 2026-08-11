@@ -13,13 +13,35 @@ namespace Assets.Resources.Scripts.Inventory
 
         private void Awake()
         {
+            // Disabled leftovers (Shop Scroll View) must never become Instance.
+            if (!enabled)
+                return;
+
+            // Shop leftover also had ItemManager; never destroy the GameObject (wipes the inventory grid).
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
-                return;
+                if (!IsPreferredHost(transform) && IsPreferredHost(Instance.transform))
+                {
+                    enabled = false;
+                    return;
+                }
+
+                Instance.enabled = false;
             }
 
             Instance = this;
+        }
+
+        private static bool IsPreferredHost(Transform t)
+        {
+            while (t != null)
+            {
+                if (t.name.IndexOf("LocalRepo", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+                t = t.parent;
+            }
+
+            return false;
         }
     }
 }

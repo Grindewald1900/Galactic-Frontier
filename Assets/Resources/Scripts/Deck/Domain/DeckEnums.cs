@@ -15,7 +15,9 @@ namespace Assets.Resources.Scripts.Deck.Domain
         Idle = 0,
         Running = 1,
         PausedCap = 2,
-        Completing = 3
+        Completing = 3,
+        /// <summary>Blocked by missing mats / full warehouse / broken critical gear (P3).</summary>
+        PausedBlock = 4
     }
 
     public enum DeckActionType

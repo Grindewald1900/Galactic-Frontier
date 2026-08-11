@@ -200,6 +200,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 13f);
             NexusUiFactory.CreateButton(
                 stats.transform,
+                "Equip",
+                UiText.EquipToSelected,
+                new Vector2(16f, 680f),
+                new Vector2(248f, 40f),
+                () => screen.TryEquipSelected(),
+                NexusTheme.WithAlpha(NexusTheme.Green, 0.16f),
+                NexusTheme.Green,
+                13f);
+            NexusUiFactory.CreateButton(
+                stats.transform,
                 "Save",
                 UiText.SaveFormation,
                 new Vector2(16f, 860f),
@@ -521,6 +531,41 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var next = (CombatStrategyId)(((int)current + 1) % 4);
             DeckService.TrySetCombatStrategy(editing.deckId, next.ToString());
             statusText.text = $"{UiText.CombatStrategyLabel}: {next}";
+            Rebuild();
+        }
+
+        private void TryEquipSelected()
+        {
+            if (selectedCard == null)
+            {
+                statusText.text = UiText.T("Select a roster card first.", "请先选择角色。");
+                return;
+            }
+
+            ItemEntity candidate = null;
+            foreach (var item in Economy.ProductionService.GetLocalItems())
+            {
+                if (item == null || string.IsNullOrEmpty(item.itemInstanceId)) continue;
+                var def = Economy.Domain.ItemCatalog.Get(Economy.ItemFactory.ResolveDefId(item));
+                if (def == null || def.category != Economy.Domain.ItemCategory.Equipment) continue;
+                if (def.equipSlot != Economy.Domain.EquipSlot.Weapon
+                    && def.equipSlot != Economy.Domain.EquipSlot.Armor)
+                    continue;
+                if (!string.IsNullOrEmpty(item.equippedToCardId)) continue;
+                candidate = item;
+                break;
+            }
+
+            if (candidate == null)
+            {
+                statusText.text = UiText.T("No unequipped weapon/armor in bag.", "仓库中无未装备武器/护甲。");
+                return;
+            }
+
+            var ok = Economy.DurabilityService.TryEquip(candidate.itemInstanceId, selectedCard.id);
+            statusText.text = ok
+                ? UiText.T($"Equipped {candidate.itemName}", $"已装备 {candidate.itemName}")
+                : UiText.T("Equip failed.", "装备失败。");
             Rebuild();
         }
 

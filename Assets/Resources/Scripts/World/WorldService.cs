@@ -104,7 +104,7 @@ namespace Assets.Resources.Scripts.World
             DataUtil.Instance.SavePlayerData(DataUtil.Instance.currentPlayer);
         }
 
-        private static void EnsureReady()
+        public static void EnsureReady()
         {
             if (State != null) return;
             if (DataUtil.Instance != null)

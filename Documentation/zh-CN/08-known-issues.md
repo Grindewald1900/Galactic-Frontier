@@ -20,7 +20,7 @@
 ### 存档可靠性 — **P0.2 部分完成**
 
 - ~~直接覆盖~~ → 原子写（tmp → Replace）；
-- ~~无版本号~~ → `meta.json` + `SaveVersion.Current = 3` + Migrator 0→1→2→3；
+- ~~无版本号~~ → `meta.json` + `SaveVersion.Current = 4` + Migrator 0→1→2→3→4；
 - Base64 仍不是加密；
 - 迁移失败可复制到 `saves/_corrupt/`；完整滚动备份仍未做。
 
@@ -40,9 +40,12 @@
 
 - `GalacticFrontier.BattleDomain`（纯 C#：`BattleRng` / `CombatMath` / `BattleOutcomeRules`）
 - `GalacticFrontier.DeckDomain`（纯 C#：`DeckRules` / `DeckOccupationMap` / `DeckStateFactory`）
-- `GalacticFrontier.Tests.EditMode`（战斗公式 + `DeckRulesTests` 占用/并行）
+- `GalacticFrontier.WorldDomain`（区域/舰船规则）
+- `GalacticFrontier.EconomyDomain`（物品目录、库存/品质/耐久/离线规则）
+- `GalacticFrontier.MarketDomain`（NPC 商店规则 / PlayMode 门控）
+- `GalacticFrontier.Tests.EditMode`（战斗 + 卡组 + 库存堆叠 + 品质/耐久 + NPC 商店）
 
-仍待：更广的 Runtime asmdef 拆分、离线/存档 EditMode、PlayMode。
+仍待：更广的 Runtime asmdef 拆分、时间回拨护栏、PlayMode Online 玩家市场、PlayMode 集成测试。
 
 ### 字符串路径和场景名
 

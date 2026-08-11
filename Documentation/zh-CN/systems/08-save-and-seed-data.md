@@ -160,6 +160,14 @@ saves/{playerId}/meta.json
 | 2 | 若无 `ship.json`：写入开局舰（Lv.1 + 模块列表） |
 | 3 | 写入 `meta.json`（`saveVersion = 3`） |
 
+#### 4.3.4 版本 3 → 4 迁移（P3）
+
+| 步骤 | 动作 |
+| --- | --- |
+| 1 | 规范化 `inventory_*.json`：补齐 `itemDefId` / `quality`（legacy `seed_scrap` → `mat_scrap` Q2） |
+| 2 | 若无 `idle.json`：写入空 Pending + mastery |
+| 3 | 写入 `meta.json`（`saveVersion = 4`） |
+
 ### 4.4 物品分文件
 
 | 集合 | 文件名 | 读写方 |
@@ -348,6 +356,8 @@ flowchart TD
 - [x] `DefaultProperty.isDebug` 只影响明文/Base64，不打开 FakeData（P0.1）  
 - [x] `saveVersion = 1` 无 `decks.json` 时可 1→2 生成默认战斗卡组（P1.1）  
 - [x] 新档创建默认 `decks.json`（开局 2 解锁槽 / 并行 2）  
+- [x] `saveVersion = 3`→`4`：库存 itemDef 规范化 + 写入 `idle.json`（P3）  
+- [x] 新档含 `idle.json`；Starter Seed 含三链原料（seedTableVersion 2）  
 - [ ] EditMode：0→1 拆分、`isRemote` 归类、空档 LoadOrDefault（P0.5）  
 
 ---

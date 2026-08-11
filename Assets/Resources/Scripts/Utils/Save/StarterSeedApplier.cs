@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using UnityEngine;
@@ -51,10 +52,18 @@ namespace Assets.Resources.Scripts.Utils.Save
                         source.itemType)
                     {
                         quantity = Mathf.Max(1, source.quantity),
-                        isRemote = false
+                        isRemote = false,
+                        itemDefId = source.itemDefId ?? "",
+                        quality = source.quality > 0 ? source.quality : 2,
+                        itemInstanceId = source.itemInstanceId ?? "",
+                        durability = source.durability,
+                        maxDurability = source.maxDurability
                     });
                 }
             }
+
+            foreach (var item in items)
+                ItemFactory.NormalizeLegacy(item);
 
             dataUtil.SaveInventory(InventoryStore.Local, items, touchMeta: false);
             Debug.Log($"[SAVE] Applied starter seed v{table.seedTableVersion} ({items.Count} local items).");

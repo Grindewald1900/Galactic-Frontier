@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
@@ -30,9 +33,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private GameObject missionsRoot;
         private GameObject settingsRoot;
         private ExploreScreen exploreScreen;
-        private GameObject debugRoot;
+        private DebugScreen debugScreen;
         private FormationScreen formationScreen;
         private ShipScreen shipScreen;
+        private CraftingScreen craftingScreen;
+        private MarketScreen marketScreen;
+        private InventoryScreen inventoryScreen;
         private TextMeshProUGUI breadcrumbTitle;
         private TextMeshProUGUI statusShortcuts;
         private TextMeshProUGUI statusVersion;
@@ -53,6 +59,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private RectTransform toggleRect;
         private TextMeshProUGUI brandTitle;
         private TextMeshProUGUI toggleLabel;
+        private TextMeshProUGUI creditsLabel;
         private Image brandIcon;
 
         private static AppScreen PendingScreen { get; set; } = AppScreen.Bridge;
@@ -62,6 +69,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Instance = this;
             LocalizationUtil.Initialize();
             LocalizationUtil.LanguageChanged += OnLanguageChanged;
+            CurrencyService.Changed += OnCreditsChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed += OnDebugModeChanged;
             yield return null;
@@ -77,12 +85,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 case "MainScene":
                     BuildChrome(true);
                     PrepareMainScene();
-                    if (GetComponent<IdleCombatTicker>() == null)
-                        gameObject.AddComponent<IdleCombatTicker>();
+                    if (GetComponent<IdleEconomyTicker>() == null)
+                        gameObject.AddComponent<IdleEconomyTicker>();
                     if (DataUtil.Instance != null)
                     {
                         WorldService.EnsureLoaded(DataUtil.Instance);
                         ShipService.EnsureLoaded(DataUtil.Instance);
+                        IdleSettlementService.EnsureLoaded(DataUtil.Instance);
+                        IdleSettlementService.OnAppResume(CardListManager.Instance?.cardEntities);
                     }
                     AppScreen initial = PendingScreen;
                     PendingScreen = AppScreen.Bridge;
@@ -92,9 +102,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
         }
 
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (!mainReady) return;
+            if (pauseStatus)
+                IdleSettlementService.OnAppPause();
+            else
+                IdleSettlementService.OnAppResume(CardListManager.Instance?.cardEntities);
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!mainReady) return;
+            if (!hasFocus)
+                IdleSettlementService.OnAppPause();
+            else
+                IdleSettlementService.OnAppResume(CardListManager.Instance?.cardEntities);
+        }
+
         private void OnDestroy()
         {
             LocalizationUtil.LanguageChanged -= OnLanguageChanged;
+            CurrencyService.Changed -= OnCreditsChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed -= OnDebugModeChanged;
             if (Instance == this)
@@ -124,9 +153,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
             missionsRoot = null;
             settingsRoot = null;
             exploreScreen = null;
-            debugRoot = null;
+            debugScreen = null;
             formationScreen = null;
             shipScreen = null;
+            craftingScreen = null;
+            marketScreen = null;
+            inventoryScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -157,9 +189,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
             missionsRoot = null;
             settingsRoot = null;
             exploreScreen = null;
-            debugRoot = null;
+            debugScreen = null;
             formationScreen = null;
             shipScreen = null;
+            craftingScreen = null;
+            marketScreen = null;
+            inventoryScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -172,6 +207,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             toggleRect = null;
             brandTitle = null;
             toggleLabel = null;
+            creditsLabel = null;
             brandIcon = null;
             breadcrumbTitle = null;
             statusShortcuts = null;
@@ -291,6 +327,27 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         shipScreen.Rebuild();
                     shipScreen.Root.SetActive(true);
                     break;
+                case AppScreen.Crafting:
+                    if (craftingScreen == null)
+                        craftingScreen = CraftingScreen.Build(ContentRoot());
+                    else
+                        craftingScreen.Rebuild();
+                    craftingScreen.Root.SetActive(true);
+                    break;
+                case AppScreen.Market:
+                    if (marketScreen == null)
+                        marketScreen = MarketScreen.Build(ContentRoot());
+                    else
+                        marketScreen.Rebuild();
+                    marketScreen.Root.SetActive(true);
+                    break;
+                case AppScreen.Inventory:
+                    if (inventoryScreen == null)
+                        inventoryScreen = InventoryScreen.Build(ContentRoot());
+                    else
+                        inventoryScreen.Rebuild();
+                    inventoryScreen.Root.SetActive(true);
+                    break;
                 case AppScreen.Settings:
                     if (settingsRoot != null)
                         Destroy(settingsRoot);
@@ -298,10 +355,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     settingsRoot.SetActive(true);
                     break;
                 case AppScreen.Debug:
-                    if (debugRoot != null)
-                        Destroy(debugRoot);
-                    debugRoot = DebugScreen.Build(ContentRoot());
-                    debugRoot.SetActive(true);
+                    if (debugScreen == null)
+                        debugScreen = DebugScreen.Build(ContentRoot());
+                    else
+                        debugScreen.Rebuild();
+                    debugScreen.Root.SetActive(true);
                     break;
                 case AppScreen.Missions:
                     if (missionsRoot == null)
@@ -323,9 +381,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (missionsRoot != null) missionsRoot.SetActive(false);
             if (settingsRoot != null) settingsRoot.SetActive(false);
             if (exploreScreen != null) exploreScreen.Root.SetActive(false);
-            if (debugRoot != null) debugRoot.SetActive(false);
+            if (debugScreen != null) debugScreen.Root.SetActive(false);
             if (formationScreen != null) formationScreen.Root.SetActive(false);
             if (shipScreen != null) shipScreen.Root.SetActive(false);
+            if (craftingScreen != null) craftingScreen.Root.SetActive(false);
+            if (marketScreen != null) marketScreen.Root.SetActive(false);
+            if (inventoryScreen != null) inventoryScreen.Root.SetActive(false);
         }
 
         private void PrepareMainScene()
@@ -427,7 +488,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
-            NexusUiFactory.CreateText(
+            creditsLabel = NexusUiFactory.CreateText(
                 parent,
                 "Credits",
                 $"₵ {credits:N0}",
@@ -437,6 +498,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+        }
+
+        private void OnCreditsChanged()
+        {
+            RefreshCreditsLabel();
+        }
+
+        public void RefreshCreditsLabel()
+        {
+            if (creditsLabel == null) return;
+            int credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
+            creditsLabel.text = $"₵ {credits:N0}";
         }
 
         private void BuildBreadcrumb(Transform parent)

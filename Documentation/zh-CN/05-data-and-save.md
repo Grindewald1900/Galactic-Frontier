@@ -2,7 +2,9 @@
 
 > 契约与 FakeData / 版本迁移规则见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。  
 > **P0.2 已落地**：`meta.json`、`inventory_local.json` / `inventory_remote.json`、原子写、0→1 迁移、Starter Seed。  
-> **P1.1 已落地**：`decks.json`、`SaveVersion.Current = 2`、Migrator 1→2（旧 `LineupPosition` → 默认战斗卡组）。
+> **P1.1 已落地**：`decks.json`、`SaveVersion.Current = 2`、Migrator 1→2（旧 `LineupPosition` → 默认战斗卡组）。  
+> **P2 已落地**：`world.json` / `ship.json`、`SaveVersion.Current = 3`。  
+> **P3 已落地**：库存 `itemDefId`/`quality`/`durability`、`idle.json`、`SaveVersion.Current = 4`、Migrator 3→4。
 
 ## Dev Data Mode（P0.1）
 
@@ -18,7 +20,7 @@
 
 入口代码：`Assets/Resources/Scripts/Utils/Save/`（`DevDataSettings`、`IDevDataProvider`、`SaveMigrator`、`StarterSeedApplier` 等）。
 
-## 存档位置（saveVersion = 3）
+## 存档位置（saveVersion = 4）
 
 `DataUtil` 使用：
 
@@ -36,6 +38,7 @@ Application.persistentDataPath/
       ├─ decks.json
       ├─ world.json                  // P2：区域进度
       ├─ ship.json                   // P2：舰船与模块
+      ├─ idle.json                   // P3：离线结算 / Pending / 熟练度
       ├─ expertData.json
       ├─ avatar.png
       └─ itemData.json.bak

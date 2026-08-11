@@ -167,10 +167,32 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 NexusUiFactory.CreateButton(
                     row.transform, "Farm", UiText.StartFarm,
-                    new Vector2(1000f, 22f), new Vector2(170f, 44f),
+                    new Vector2(1000f, 22f), new Vector2(90f, 44f),
                     () => StartFarm(regionId),
-                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
+                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 12f);
+
+                var nodes = Economy.Domain.GatherNodeCatalog.ForRegion(regionId);
+                if (nodes.Count > 0)
+                {
+                    var nodeId = nodes[0].nodeId;
+                    NexusUiFactory.CreateButton(
+                        row.transform, "Gather", UiText.StartGather,
+                        new Vector2(1100f, 22f), new Vector2(90f, 44f),
+                        () => StartGather(nodeId),
+                        NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 12f);
+                }
             }
+        }
+
+        private void StartGather(string nodeId)
+        {
+            var result = Economy.ProductionService.TryStartGather(
+                nodeId, CardListManager.Instance?.cardEntities);
+            if (!result.Success)
+                Debug.LogWarning("[GATHER] " + result.Message);
+            else
+                Debug.Log("[GATHER] started " + nodeId);
+            Rebuild();
         }
 
         private static string BuildMeta(RegionView view)

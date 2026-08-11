@@ -177,6 +177,8 @@ flowchart LR
 
 物品转移使用新的 `ItemEntity` 副本，避免两个背包共享可变对象。本地/远程分文件持久化（P0.2）；`ItemManager` ↔ `inventory_local.json`，`RemoteItemManager` ↔ `inventory_remote.json`。
 
+P3 字段：`itemDefId`、`quality`、`itemInstanceId`、`durability` / `maxDurability`、`equippedToCardId`。领域规则在 `Economy/Domain`；运行时 `ProductionService` / `DurabilityService` / `IdleSettlementService`。
+
 ## 生命周期和单例注意事项
 
 | 阶段 | 典型行为 | 风险 |
@@ -197,7 +199,9 @@ flowchart LR
 | 修改卡牌成长 | `CardEntity`、等级配置 | `CardDataManager`、`CardListManager` | `CardPreviewController` |
 | 修改编队规模 | `LineupPosition` | `LineupManager`、`BattleController` | `PortraitSlot`、战斗槽位 |
 | 修改战斗回合 | `Card` 临时状态 | `BattleController`、具体 `Character` | `BattleInfo`、战报 |
-| 修改物品存档 | `ItemEntity`、`DataUtil` | 本地/远程 Item Manager | `ItemSlot` |
+| 修改物品存档 | `ItemEntity`、`DataUtil` | 本地/远程 Item Manager、`ProductionService` | `ItemSlot` / `CraftingScreen` |
+| 采集/制造/离线 | `ItemCatalog` / `idle.json` | `IdleEconomyTicker`、`IdleSettlementService` | Explore / Crafting / Bridge Claim |
+| NPC 商店 | `NpcShops.json` / `credits` | `NpcShopService`、`CurrencyService` | `MarketScreen` |
 | 新增主导航页 | 对应业务模型 | 对应业务 Controller | `AppShell`、必要时 `LegacyPanelAdapter` |
 
 ## 面向 Codex 的检查清单

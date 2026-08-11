@@ -17,6 +17,7 @@ namespace Assets.Resources.Scripts.UI
         public TextMeshProUGUI count;
         public int slotIndex;
         public bool isRemote;
+        private ItemEntity boundItem;
 
         void Awake()
         {
@@ -26,10 +27,15 @@ namespace Assets.Resources.Scripts.UI
 
         public void SetItem(ItemEntity item)
         {
+            boundItem = item;
             if (item != null)
             {
-                itemImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, item.itemIcon); // Set the item image to the item's icon
-                SetCount(item.quantity); // Set the count to the item's quantity
+                var icon = string.IsNullOrEmpty(item.itemIcon) ? "Steel" : item.itemIcon;
+                itemImage.sprite = ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, icon);
+                var q = item.quality > 0 ? item.quality : 2;
+                SetCount(item.quantity);
+                if (count != null)
+                    count.text = item.quantity <= 0 ? "" : $"Q{q}×{item.quantity}";
             }
             else
             {
@@ -45,19 +51,17 @@ namespace Assets.Resources.Scripts.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (count.text?.Length == 0) return; // If the count is empty, return
+            if (boundItem == null || boundItem.quantity <= 0) return;
             if (isRemote)
             {
-                Debug.Log("Selected Name: " + RemoteItemManager.Instance.GetItems()[slotIndex].itemName);
-                Debug.Log("Selected quantity: " + RemoteItemManager.Instance.GetItems()[slotIndex].quantity);
                 ItemOperationManager.Instance.SetButtonInteractable(true, true);
-                ItemOperationManager.Instance.selectedItem = RemoteItemManager.Instance.GetItems()[slotIndex];
+                ItemOperationManager.Instance.selectedItem = boundItem;
                 RemoteItemManager.Instance.SelectItem(slotIndex);
             }
             else
             {
                 ItemOperationManager.Instance.SetButtonInteractable(false, true);
-                ItemOperationManager.Instance.selectedItem = ItemManager.Instance.GetItems()[slotIndex];
+                ItemOperationManager.Instance.selectedItem = boundItem;
                 ItemManager.Instance.SelectItem(slotIndex);
             }
         }

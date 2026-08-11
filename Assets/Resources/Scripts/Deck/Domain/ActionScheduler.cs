@@ -62,16 +62,32 @@ namespace Assets.Resources.Scripts.Deck.Domain
             return DeckCommandResult.Ok();
         }
 
-        /// <summary>Resume a PausedCap deck without re-checking membership conflicts (already occupied).</summary>
+        /// <summary>Resume a PausedCap/PausedBlock deck without re-checking membership conflicts.</summary>
         public static DeckCommandResult TryResume(PlayerDeckState state, string deckId, long nowUtc)
         {
             var deck = DeckRules.FindDeck(state, deckId);
             if (deck == null)
                 return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
-            if (deck.action == null || deck.action.status != DeckActionStatus.PausedCap)
-                return DeckCommandResult.Fail(DeckCommandError.NotBusy, "Deck is not paused at cap.");
+            if (deck.action == null
+                || (deck.action.status != DeckActionStatus.PausedCap
+                    && deck.action.status != DeckActionStatus.PausedBlock))
+                return DeckCommandResult.Fail(DeckCommandError.NotBusy, "Deck is not paused.");
 
             deck.action.status = DeckActionStatus.Running;
+            deck.action.lastSettledAtUtc = nowUtc;
+            return DeckCommandResult.Ok();
+        }
+
+        /// <summary>Block Running action (warehouse full / missing mats / broken gear).</summary>
+        public static DeckCommandResult TryPauseBlock(PlayerDeckState state, string deckId, long nowUtc)
+        {
+            var deck = DeckRules.FindDeck(state, deckId);
+            if (deck == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "Deck not found.");
+            if (deck.action == null || deck.action.status != DeckActionStatus.Running)
+                return DeckCommandResult.Fail(DeckCommandError.NotBusy, "Only Running actions can pause-block.");
+
+            deck.action.status = DeckActionStatus.PausedBlock;
             deck.action.lastSettledAtUtc = nowUtc;
             return DeckCommandResult.Ok();
         }

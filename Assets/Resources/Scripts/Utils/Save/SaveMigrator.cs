@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.World.Domain;
@@ -59,6 +61,12 @@ namespace Assets.Resources.Scripts.Utils.Save
                             if (!Migrate2To3(dataUtil, playerSavePath, meta))
                                 return SaveEnsureResult.Fail("Migration 2→3 failed (world/ship).");
                             version = 3;
+                            meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
+                            break;
+                        case 3:
+                            if (!Migrate3To4(dataUtil, playerSavePath, meta))
+                                return SaveEnsureResult.Fail("Migration 3→4 failed (economy/idle).");
+                            version = 4;
                             meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
                             break;
                         default:
@@ -209,6 +217,56 @@ namespace Assets.Resources.Scripts.Utils.Save
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var meta = existingMeta ?? new SaveMeta();
             meta.saveVersion = SaveVersion.WorldAndShip;
+            if (meta.createdAtUtc <= 0)
+                meta.createdAtUtc = now;
+            meta.lastSavedAtUtc = now;
+            if (string.IsNullOrEmpty(meta.appVersion))
+                meta.appVersion = Application.version;
+
+            return dataUtil.WriteMetaToDirectory(playerSavePath, meta);
+        }
+
+        /// <summary>Normalizes inventory itemDefId/quality and writes idle.json (P3).</summary>
+        private static bool Migrate3To4(DataUtil dataUtil, string playerSavePath, SaveMeta existingMeta)
+        {
+            var localPath = Combine(playerSavePath, DefaultProperty.INVENTORY_LOCAL);
+            var remotePath = Combine(playerSavePath, DefaultProperty.INVENTORY_REMOTE);
+
+            if (File.Exists(localPath))
+            {
+                var local = dataUtil.ReadItemListFile(localPath) ?? new List<ItemEntity>();
+                foreach (var item in local)
+                    ItemFactory.NormalizeLegacy(item);
+                if (!dataUtil.WriteItemListFile(localPath, local))
+                    return false;
+            }
+
+            if (File.Exists(remotePath))
+            {
+                var remote = dataUtil.ReadItemListFile(remotePath) ?? new List<ItemEntity>();
+                foreach (var item in remote)
+                    ItemFactory.NormalizeLegacy(item);
+                if (!dataUtil.WriteItemListFile(remotePath, remote))
+                    return false;
+            }
+
+            var idlePath = Combine(playerSavePath, DefaultProperty.IDLE_DATA);
+            if (!File.Exists(idlePath))
+            {
+                var idle = new PlayerIdleState
+                {
+                    lastSeenAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    pendingLoot = new List<PendingLootEntry>(),
+                    mastery = new List<RecipeMasteryEntry>()
+                };
+                if (!dataUtil.WriteIdleStateToDirectory(playerSavePath, idle))
+                    return false;
+                Debug.Log("[SAVE] Migration 3→4 wrote idle.json.");
+            }
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var meta = existingMeta ?? new SaveMeta();
+            meta.saveVersion = SaveVersion.EconomyIdle;
             if (meta.createdAtUtc <= 0)
                 meta.createdAtUtc = now;
             meta.lastSavedAtUtc = now;

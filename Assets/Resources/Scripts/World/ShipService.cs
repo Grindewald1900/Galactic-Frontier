@@ -118,48 +118,49 @@ namespace Assets.Resources.Scripts.World
             error = null;
             if (DataUtil.Instance?.currentPlayer != null && credit > 0)
             {
-                if (DataUtil.Instance.currentPlayer.creditPoints < credit)
+                if (!Market.CurrencyService.TrySpendCredits(credit, out var creditErr))
                 {
-                    error = $"Need {credit} credits.";
+                    error = creditErr;
                     return false;
                 }
+
+                // Scrap paid below; credits already spent — if scrap fails we need refund.
             }
 
-            if (scrap > 0 && ItemManager.Instance != null)
+            if (scrap > 0)
             {
-                var items = ItemManager.Instance.GetItems();
-                ItemEntity scrapItem = null;
-                foreach (var item in items)
+                var items = ItemManager.Instance != null
+                    ? ItemManager.Instance.GetItems()
+                    : DataUtil.Instance?.LoadInventory(Assets.Resources.Scripts.Utils.Save.InventoryStore.Local);
+                if (items == null)
                 {
-                    if (item != null && item.itemName == WorldConstants.FarmLootItemName)
+                    Debug.LogWarning("[SHIP] Inventory missing; skipping scrap spend.");
+                }
+                else
+                {
+                    var have = Economy.Domain.InventoryRules.CountOf(
+                        Economy.ItemFactory.ToStacks(items),
+                        Economy.Domain.EconomyConstants.ScrapDefId,
+                        1);
+                    if (have < scrap)
                     {
-                        scrapItem = item;
-                        break;
+                        if (credit > 0)
+                            Market.CurrencyService.AddCredits(credit);
+                        error = $"Need {scrap} scrap.";
+                        return false;
                     }
+
+                    var stacks = Economy.ItemFactory.ToStacks(items);
+                    Economy.Domain.InventoryRules.TryConsume(
+                        stacks, Economy.Domain.EconomyConstants.ScrapDefId, scrap, 1);
+                    items.Clear();
+                    foreach (var s in stacks)
+                        items.Add(Economy.ItemFactory.FromStack(s));
+                    if (ItemManager.Instance != null)
+                        ItemManager.Instance.RefreshSlotsFromMemory();
+                    DataUtil.Instance?.SaveInventory(
+                        Assets.Resources.Scripts.Utils.Save.InventoryStore.Local, items, touchMeta: false);
                 }
-
-                if (scrapItem == null || scrapItem.quantity < scrap)
-                {
-                    error = $"Need {scrap} {WorldConstants.FarmLootItemName}.";
-                    return false;
-                }
-
-                scrapItem.quantity -= scrap;
-                if (scrapItem.quantity <= 0)
-                    items.Remove(scrapItem);
-                DataUtil.Instance?.SaveInventory(
-                    Assets.Resources.Scripts.Utils.Save.InventoryStore.Local, items, touchMeta: false);
-            }
-            else if (scrap > 0 && ItemManager.Instance == null)
-            {
-                // Allow upgrade in headless / early boot without inventory manager.
-                Debug.LogWarning("[SHIP] ItemManager missing; skipping scrap spend.");
-            }
-
-            if (DataUtil.Instance?.currentPlayer != null && credit > 0)
-            {
-                DataUtil.Instance.currentPlayer.creditPoints -= credit;
-                DataUtil.Instance.SavePlayerData(DataUtil.Instance.currentPlayer);
             }
 
             return true;

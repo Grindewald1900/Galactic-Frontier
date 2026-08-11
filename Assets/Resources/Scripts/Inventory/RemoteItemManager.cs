@@ -15,7 +15,7 @@ namespace Assets.Resources.Scripts.Inventory
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                enabled = false;
                 return;
             }
 

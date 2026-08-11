@@ -37,12 +37,14 @@ namespace Assets.Resources.Scripts.Props
         public const string DECKS_DATA = "/decks.json";
         public const string WORLD_DATA = "/world.json";
         public const string SHIP_DATA = "/ship.json";
+        public const string IDLE_DATA = "/idle.json";
         public const string EXPERT_DATA = "/expertData.json";
 
         // Paths
         public const string SKILL_DATA_PATH = "data/SkillData_encrypted";
         public const string BASE_ATTR_PATH = "data/BaseAttributes";
         public const string STARTER_SEED_PATH = "data/StarterSeed";
+        public const string NPC_SHOPS_PATH = "data/NpcShops";
         public const string REGIONS_PATH = "data/Regions";
         public const string ENCOUNTERS_PATH = "data/Encounters";
         public const string SHIP_MODULES_PATH = "data/ShipModules";

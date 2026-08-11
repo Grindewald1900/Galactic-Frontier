@@ -136,6 +136,10 @@ flowchart LR
 
 `ItemOperationManager` 负责删除和延迟传送。本地/远程已分文件（`inventory_local.json` / `inventory_remote.json`）；启动不再写 FakeData。详见 `05-data-and-save.md`。
 
+**P3**：堆叠键为 `(itemDefId, quality)`；装备为不可堆叠实例（`itemInstanceId` + 耐久）。采集/制造由 `ProductionService` + `IdleEconomyTicker` 驱动；离线进 `idle.json` Pending，舰桥 Claim。
+
+**P4**：Nexus「市场」→ `MarketScreen` 星港 NPC 商店（`NpcShops.json`）；`PlayMode.Solo` 禁用玩家市场 API；货币经 `CurrencyService`。
+
 ## 9. 星球与事件
 
 `RadarSystem` 在 UI 范围内生成星球和星点，负责焦点与坐标映射。`PlanetListManager`/`PlanetDetailManager` 展示列表与详情，开始按钮加载 `BattleScene`。

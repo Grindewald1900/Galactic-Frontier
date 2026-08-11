@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "shops": [
+    {
+      "shopId": "shop_starport",
+      "displayNameEn": "Starport Merchant",
+      "displayNameZh": "星港商人",
+      "anchor": "bridge",
+      "sellBackRatio": 0.4,
+      "offers": [
+        {
+          "offerId": "offer_scrap",
+          "itemDefId": "mat_scrap",
+          "quality": 2,
+          "buyPrice": 4,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "", "minShipLevel": 0, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_iron",
+          "itemDefId": "mat_iron_ore",
+          "quality": 2,
+          "buyPrice": 8,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "sec01_outer_belt", "minShipLevel": 1, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_crystal",
+          "itemDefId": "mat_crystal_sand",
+          "quality": 2,
+          "buyPrice": 10,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "sec01_mining_spur", "minShipLevel": 1, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_fungal",
+          "itemDefId": "mat_fungal",
+          "quality": 2,
+          "buyPrice": 9,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "sec01_mining_spur", "minShipLevel": 1, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_alloy",
+          "itemDefId": "mat_alloy_plate",
+          "quality": 2,
+          "buyPrice": 22,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 20,
+          "unlock": { "requireRegionCleared": "sec01_outer_belt", "minShipLevel": 2, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_energy",
+          "itemDefId": "mat_energy_cell",
+          "quality": 2,
+          "buyPrice": 28,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 20,
+          "unlock": { "requireRegionCleared": "sec01_mining_spur", "minShipLevel": 2, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_biofiber",
+          "itemDefId": "mat_biofiber",
+          "quality": 2,
+          "buyPrice": 18,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 20,
+          "unlock": { "requireRegionCleared": "sec01_mining_spur", "minShipLevel": 2, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_repair_kit",
+          "itemDefId": "con_repair_kit",
+          "quality": 2,
+          "buyPrice": 35,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 10,
+          "unlock": { "requireRegionCleared": "", "minShipLevel": 1, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_repair_parts",
+          "itemDefId": "mat_repair_parts",
+          "quality": 2,
+          "buyPrice": 12,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "", "minShipLevel": 0, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
+          "offerId": "offer_ration",
+          "itemDefId": "con_field_ration",
+          "quality": 2,
+          "buyPrice": 6,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "", "minShipLevel": 0, "minModuleLevel": 0, "requireModuleId": "" }
+        }
+      ]
+    }
+  ]
+}

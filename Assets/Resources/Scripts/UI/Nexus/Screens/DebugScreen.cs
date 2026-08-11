@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.Utils.Save;
@@ -11,194 +15,195 @@ using UnityEngine;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Debug Mode screen: edit local inventory quantities and add/edit player cards.
-    /// Only reachable when <see cref="DebugModeController.IsEnabled"/>.
+    /// Debug Mode: edit credits and every catalog item quantity; add/edit player cards.
     /// </summary>
-    internal static class DebugScreen
+    internal sealed class DebugScreen
     {
-        private static readonly string[] QuickItems =
-            { "Copper", "Steel", "GoldBar", "SteelBar", "Water", "Wood" };
+        private readonly Transform root;
 
-        public static GameObject Build(Transform parent)
+        private DebugScreen(Transform root)
         {
-            GameObject root = NexusUiFactory.CreatePanel(
-                parent,
-                "Debug Screen",
-                NexusTheme.Background,
-                Vector2.zero,
-                Vector2.one,
-                Vector2.zero,
-                Vector2.zero);
-
-            NexusUiFactory.CreateText(
-                root.transform,
-                "Title",
-                UiText.DebugTitle,
-                new Vector2(28f, 24f),
-                new Vector2(640f, 40f),
-                22f,
-                NexusTheme.Gold,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
-
-            NexusUiFactory.CreateText(
-                root.transform,
-                "Hint",
-                UiText.DebugHint,
-                new Vector2(28f, 68f),
-                new Vector2(1100f, 36f),
-                13f,
-                NexusTheme.MutedText);
-
-            BuildItemsSection(root.transform);
-            BuildCardsSection(root.transform);
-
-            NexusUiFactory.CreateButton(
-                root.transform,
-                "Disable Debug",
-                UiText.DebugDisable,
-                new Vector2(28f, 620f),
-                new Vector2(280f, 44f),
-                () => DebugModeController.Instance?.SetEnabled(false),
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Red,
-                14f);
-
-            return root;
+            this.root = root;
         }
 
-        private static void BuildItemsSection(Transform parent)
+        public GameObject Root => root.gameObject;
+
+        public static DebugScreen Build(Transform parent)
+        {
+            var panel = NexusUiFactory.CreatePanel(
+                parent, "Debug Screen", NexusTheme.Background,
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            var screen = new DebugScreen(panel.transform);
+            screen.Rebuild();
+            return screen;
+        }
+
+        public void Rebuild()
+        {
+            for (int i = root.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(root.GetChild(i).gameObject);
+
+            NexusUiFactory.CreateText(
+                root, "Title", UiText.DebugTitle,
+                new Vector2(28f, 16f), new Vector2(640f, 32f), 22f, NexusTheme.Gold,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            NexusUiFactory.CreateText(
+                root, "Hint", UiText.DebugHintAllItems,
+                new Vector2(28f, 48f), new Vector2(1100f, 28f), 12f, NexusTheme.MutedText);
+
+            BuildCreditsRow();
+            BuildItemsSection();
+            BuildCardsSection();
+
+            NexusUiFactory.CreateButton(
+                root, "Disable Debug", UiText.DebugDisable,
+                new Vector2(28f, 790f), new Vector2(280f, 40f),
+                () => DebugModeController.Instance?.SetEnabled(false),
+                NexusTheme.SurfaceRaised, NexusTheme.Red, 14f);
+        }
+
+        private void BuildCreditsRow()
         {
             NexusUiFactory.CreateText(
-                parent,
-                "Items Header",
-                UiText.DebugItemsHeader,
-                new Vector2(28f, 120f),
-                new Vector2(400f, 28f),
-                16f,
-                NexusTheme.Text,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
+                root, "Credits Header", UiText.DebugCreditsHeader,
+                new Vector2(28f, 80f), new Vector2(200f, 24f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            var creditsField = NexusUiFactory.CreateInputField(
+                root, "Credits Qty", CurrencyService.Credits.ToString(),
+                new Vector2(220f, 78f), new Vector2(120f, 32f));
 
             var status = NexusUiFactory.CreateText(
-                parent,
-                "Items Status",
-                string.Empty,
-                new Vector2(28f, 150f),
-                new Vector2(900f, 24f),
-                12f,
-                NexusTheme.Cyan);
+                root, "Credits Status", "",
+                new Vector2(620f, 80f), new Vector2(400f, 24f), 12f, NexusTheme.Cyan);
 
-            float y = 190f;
-            foreach (string itemName in QuickItems)
+            NexusUiFactory.CreateButton(
+                root, "Set Credits", UiText.DebugApplyQty,
+                new Vector2(360f, 78f), new Vector2(100f, 32f),
+                () =>
+                {
+                    if (!int.TryParse(creditsField.text, out int qty))
+                    {
+                        status.text = UiText.DebugInvalidNumber;
+                        return;
+                    }
+
+                    CurrencyService.SetCredits(qty);
+                    creditsField.text = CurrencyService.Credits.ToString();
+                    status.text = UiText.DebugCreditsUpdated(CurrencyService.Credits);
+                },
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 12f);
+
+            NexusUiFactory.CreateButton(
+                root, "+1000 Credits", "+1000",
+                new Vector2(480f, 78f), new Vector2(88f, 32f),
+                () =>
+                {
+                    CurrencyService.AddCredits(1000);
+                    creditsField.text = CurrencyService.Credits.ToString();
+                    status.text = UiText.DebugCreditsUpdated(CurrencyService.Credits);
+                },
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 12f);
+        }
+
+        private void BuildItemsSection()
+        {
+            NexusUiFactory.CreateText(
+                root, "Items Header", UiText.DebugItemsHeader,
+                new Vector2(28f, 118f), new Vector2(500f, 22f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            var status = NexusUiFactory.CreateText(
+                root, "Items Status", "",
+                new Vector2(28f, 140f), new Vector2(900f, 18f), 11f, NexusTheme.Cyan);
+
+            var defs = ItemCatalog.All.Values
+                .Where(d => d != null)
+                .OrderBy(d => d.category)
+                .ThenBy(d => d.displayNameEn)
+                .ToList();
+
+            const int cols = 2;
+            const float rowH = 34f;
+            for (var i = 0; i < defs.Count; i++)
             {
-                string captured = itemName;
-                NexusUiFactory.CreateText(
-                    parent,
-                    $"Label {captured}",
-                    captured,
-                    new Vector2(28f, y),
-                    new Vector2(140f, 36f),
-                    14f,
-                    NexusTheme.Text);
-
-                var qtyField = NexusUiFactory.CreateInputField(
-                    parent,
-                    $"Qty {captured}",
-                    "qty",
-                    new Vector2(180f, y),
-                    new Vector2(100f, 36f));
-
-                int current = GetLocalQuantity(captured);
-                qtyField.text = current.ToString();
-
-                NexusUiFactory.CreateButton(
-                    parent,
-                    $"Set {captured}",
-                    UiText.DebugApplyQty,
-                    new Vector2(300f, y),
-                    new Vector2(120f, 36f),
-                    () =>
-                    {
-                        if (!int.TryParse(qtyField.text, out int qty))
-                        {
-                            status.text = UiText.DebugInvalidNumber;
-                            return;
-                        }
-
-                        if (SetLocalQuantity(captured, qty))
-                        {
-                            status.text = UiText.DebugItemUpdated(captured, qty);
-                            qtyField.text = Mathf.Max(0, qty).ToString();
-                        }
-                        else
-                            status.text = UiText.DebugItemFailed;
-                    },
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
-                    NexusTheme.Gold,
-                    12f);
-
-                NexusUiFactory.CreateButton(
-                    parent,
-                    $"+10 {captured}",
-                    "+10",
-                    new Vector2(440f, y),
-                    new Vector2(72f, 36f),
-                    () =>
-                    {
-                        int next = GetLocalQuantity(captured) + 10;
-                        SetLocalQuantity(captured, next);
-                        qtyField.text = next.ToString();
-                        status.text = UiText.DebugItemUpdated(captured, next);
-                    },
-                    NexusTheme.SurfaceRaised,
-                    NexusTheme.Text,
-                    12f);
-
-                y += 48f;
+                var def = defs[i];
+                int col = i % cols;
+                int row = i / cols;
+                float x = 28f + col * 520f;
+                float y = 164f + row * rowH;
+                BuildItemRow(def, x, y, status);
             }
         }
 
-        private static void BuildCardsSection(Transform parent)
+        private static void BuildItemRow(ItemDef def, float x, float y, TextMeshProUGUI status)
+        {
+            var label = $"{def.displayNameEn} [{def.category}]";
+            NexusUiFactory.CreateText(
+                status.transform.parent, "Lbl " + def.itemDefId, label,
+                new Vector2(x, y), new Vector2(230f, 30f), 11f, NexusTheme.Text);
+
+            int current = GetLocalQuantity(def.itemDefId);
+            var qtyField = NexusUiFactory.CreateInputField(
+                status.transform.parent, "Qty " + def.itemDefId, current.ToString(),
+                new Vector2(x + 234f, y), new Vector2(70f, 30f));
+
+            NexusUiFactory.CreateButton(
+                status.transform.parent, "Set " + def.itemDefId, UiText.DebugApplyQty,
+                new Vector2(x + 310f, y), new Vector2(72f, 30f),
+                () =>
+                {
+                    if (!int.TryParse(qtyField.text, out int qty))
+                    {
+                        status.text = UiText.DebugInvalidNumber;
+                        return;
+                    }
+
+                    if (SetLocalQuantity(def.itemDefId, qty))
+                    {
+                        status.text = UiText.DebugItemUpdated(def.displayNameEn, qty);
+                        qtyField.text = Mathf.Max(0, qty).ToString();
+                    }
+                    else
+                        status.text = UiText.DebugItemFailed;
+                },
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 11f);
+
+            NexusUiFactory.CreateButton(
+                status.transform.parent, "+10 " + def.itemDefId, "+10",
+                new Vector2(x + 388f, y), new Vector2(52f, 30f),
+                () =>
+                {
+                    int next = GetLocalQuantity(def.itemDefId) + 10;
+                    SetLocalQuantity(def.itemDefId, next);
+                    qtyField.text = next.ToString();
+                    status.text = UiText.DebugItemUpdated(def.displayNameEn, next);
+                },
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 11f);
+        }
+
+        private void BuildCardsSection()
         {
             NexusUiFactory.CreateText(
-                parent,
-                "Cards Header",
-                UiText.DebugCardsHeader,
-                new Vector2(700f, 120f),
-                new Vector2(400f, 28f),
-                16f,
-                NexusTheme.Text,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
+                root, "Cards Header", UiText.DebugCardsHeader,
+                new Vector2(1100f, 118f), new Vector2(280f, 22f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
 
             var listLabel = NexusUiFactory.CreateText(
-                parent,
-                "Card List",
-                BuildCardSummary(),
-                new Vector2(700f, 156f),
-                new Vector2(520f, 280f),
-                12f,
-                NexusTheme.MutedText,
+                root, "Card List", BuildCardSummary(),
+                new Vector2(1100f, 146f), new Vector2(560f, 220f), 12f, NexusTheme.MutedText,
                 TextAlignmentOptions.TopLeft);
             listLabel.textWrappingMode = TextWrappingModes.Normal;
             listLabel.overflowMode = TextOverflowModes.Truncate;
 
             var status = NexusUiFactory.CreateText(
-                parent,
-                "Cards Status",
-                string.Empty,
-                new Vector2(700f, 450f),
-                new Vector2(520f, 28f),
-                12f,
-                NexusTheme.Cyan);
+                root, "Cards Status", "",
+                new Vector2(1100f, 370f), new Vector2(560f, 22f), 12f, NexusTheme.Cyan);
 
             NexusUiFactory.CreateButton(
-                parent,
-                "Add Random Card",
-                UiText.DebugAddRandomCard,
-                new Vector2(700f, 490f),
-                new Vector2(240f, 44f),
+                root, "Add Random Card", UiText.DebugAddRandomCard,
+                new Vector2(1100f, 400f), new Vector2(260f, 40f),
                 () =>
                 {
                     if (TryAddRandomCard(out string name))
@@ -209,16 +214,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     else
                         status.text = UiText.DebugCardFailed;
                 },
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
-                NexusTheme.Gold,
-                13f);
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 13f);
 
             NexusUiFactory.CreateButton(
-                parent,
-                "Upgrade First",
-                UiText.DebugUpgradeFirstCard,
-                new Vector2(960f, 490f),
-                new Vector2(240f, 44f),
+                root, "Upgrade First", UiText.DebugUpgradeFirstCard,
+                new Vector2(1380f, 400f), new Vector2(260f, 40f),
                 () =>
                 {
                     var cards = CardListManager.Instance?.GetCardEntities();
@@ -233,16 +233,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     status.text = UiText.DebugCardUpgraded(cards[0].cardName);
                     listLabel.text = BuildCardSummary();
                 },
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Text,
-                13f);
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 13f);
 
             NexusUiFactory.CreateButton(
-                parent,
-                "Add Exp First",
-                UiText.DebugAddExpFirstCard,
-                new Vector2(700f, 550f),
-                new Vector2(240f, 44f),
+                root, "Add Exp First", UiText.DebugAddExpFirstCard,
+                new Vector2(1100f, 450f), new Vector2(260f, 40f),
                 () =>
                 {
                     var cards = CardListManager.Instance?.GetCardEntities();
@@ -257,20 +252,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     status.text = UiText.DebugCardLeveled(cards[0].cardName, cards[0].Level);
                     listLabel.text = BuildCardSummary();
                 },
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Text,
-                13f);
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 13f);
 
             NexusUiFactory.CreateButton(
-                parent,
-                "Refresh List",
-                UiText.DebugRefresh,
-                new Vector2(960f, 550f),
-                new Vector2(240f, 44f),
+                root, "Refresh List", UiText.DebugRefresh,
+                new Vector2(1380f, 450f), new Vector2(260f, 40f),
                 () => { listLabel.text = BuildCardSummary(); },
-                NexusTheme.SurfaceRaised,
-                NexusTheme.MutedText,
-                13f);
+                NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
         }
 
         private static string BuildCardSummary()
@@ -280,7 +268,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return UiText.DebugNoCards;
 
             var lines = new List<string>();
-            int limit = Mathf.Min(cards.Count, 12);
+            int limit = Mathf.Min(cards.Count, 10);
             for (int i = 0; i < limit; i++)
             {
                 CardEntity c = cards[i];
@@ -292,51 +280,39 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return string.Join("\n", lines);
         }
 
-        private static int GetLocalQuantity(string itemName)
+        private static int GetLocalQuantity(string itemDefId)
         {
-            if (ItemManager.Instance != null)
-            {
-                var items = ItemManager.Instance.GetItems();
-                var hit = items?.Find(i =>
-                    i != null && string.Equals(i.itemName, itemName, System.StringComparison.Ordinal));
-                return hit?.quantity ?? 0;
-            }
+            if (ItemManager.Instance != null && ItemManager.Instance.HasLoaded)
+                return ItemManager.Instance.CountDef(itemDefId, 1);
 
             if (DataUtil.Instance == null)
                 return 0;
 
             var list = DataUtil.Instance.LoadInventory(InventoryStore.Local);
-            var found = list?.Find(i =>
-                i != null && string.Equals(i.itemName, itemName, System.StringComparison.Ordinal));
-            return found?.quantity ?? 0;
+            return InventoryRules.CountOf(ItemFactory.ToStacks(list), itemDefId, 1);
         }
 
-        private static bool SetLocalQuantity(string itemName, int quantity)
+        private static bool SetLocalQuantity(string itemDefId, int quantity)
         {
             quantity = Mathf.Max(0, quantity);
-            if (ItemManager.Instance != null)
-                return ItemManager.Instance.SetItemQuantity(itemName, quantity);
+            if (ItemManager.Instance != null && ItemManager.Instance.HasLoaded)
+                return ItemManager.Instance.SetItemQuantityByDef(itemDefId, quantity);
 
             if (DataUtil.Instance == null)
                 return false;
 
             var writeList = DataUtil.Instance.LoadInventory(InventoryStore.Local)
                             ?? new List<ItemEntity>();
-            int idx = writeList.FindIndex(i =>
-                i != null && string.Equals(i.itemName, itemName, System.StringComparison.Ordinal));
-            if (quantity <= 0)
-            {
-                if (idx >= 0)
-                    writeList.RemoveAt(idx);
-            }
-            else if (idx >= 0)
-                writeList[idx].quantity = quantity;
-            else
-            {
-                writeList.Add(new ItemEntity(itemName, itemName, itemName, 0, ItemType.Material)
-                    .SetQuantity(quantity));
-            }
+            var stacks = ItemFactory.ToStacks(writeList);
+            var have = InventoryRules.CountOf(stacks, itemDefId, 1);
+            if (have > 0)
+                InventoryRules.TryConsume(stacks, itemDefId, have, 1);
+            if (quantity > 0)
+                InventoryRules.TryMerge(stacks, ItemFactory.ToStack(ItemFactory.FromDef(itemDefId, quantity)), 60);
 
+            writeList.Clear();
+            foreach (var s in stacks)
+                writeList.Add(ItemFactory.FromStack(s));
             DataUtil.Instance.SaveInventory(InventoryStore.Local, writeList);
             return true;
         }

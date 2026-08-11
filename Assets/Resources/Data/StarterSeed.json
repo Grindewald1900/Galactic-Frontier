@@ -1,14 +1,104 @@
 {
-  "seedTableVersion": 1,
+  "seedTableVersion": 2,
   "localItems": [
     {
       "itemType": 2,
-      "itemName": "seed_scrap",
+      "itemName": "Scrap",
       "itemDescription": "Starter scrap for tutorials.",
       "itemIcon": "Steel",
       "quantity": 80,
       "itemCost": 0,
-      "isRemote": false
+      "isRemote": false,
+      "itemDefId": "mat_scrap",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Iron Ore",
+      "itemDescription": "Starter metal chain ore.",
+      "itemIcon": "Steel",
+      "quantity": 12,
+      "itemCost": 2,
+      "isRemote": false,
+      "itemDefId": "mat_iron_ore",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Crystal Sand",
+      "itemDescription": "Starter energy chain sand.",
+      "itemIcon": "Crystal",
+      "quantity": 12,
+      "itemCost": 3,
+      "isRemote": false,
+      "itemDefId": "mat_crystal_sand",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Fungal Mat",
+      "itemDescription": "Starter synth chain biomass.",
+      "itemIcon": "Organic",
+      "quantity": 12,
+      "itemCost": 2,
+      "isRemote": false,
+      "itemDefId": "mat_fungal",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Alloy Plate",
+      "itemDescription": "Starter alloy plates.",
+      "itemIcon": "Steel",
+      "quantity": 4,
+      "itemCost": 8,
+      "isRemote": false,
+      "itemDefId": "mat_alloy_plate",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Energy Cell",
+      "itemDescription": "Starter energy cells.",
+      "itemIcon": "Crystal",
+      "quantity": 4,
+      "itemCost": 10,
+      "isRemote": false,
+      "itemDefId": "mat_energy_cell",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Biofiber",
+      "itemDescription": "Starter biofiber.",
+      "itemIcon": "Organic",
+      "quantity": 4,
+      "itemCost": 6,
+      "isRemote": false,
+      "itemDefId": "mat_biofiber",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Repair Parts",
+      "itemDescription": "Parts for repair kits.",
+      "itemIcon": "Steel",
+      "quantity": 3,
+      "itemCost": 5,
+      "isRemote": false,
+      "itemDefId": "mat_repair_parts",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Repair Kit",
+      "itemDescription": "Restores equipment durability.",
+      "itemIcon": "Steel",
+      "quantity": 2,
+      "itemCost": 15,
+      "isRemote": false,
+      "itemDefId": "con_repair_kit",
+      "quality": 2
     }
   ]
 }

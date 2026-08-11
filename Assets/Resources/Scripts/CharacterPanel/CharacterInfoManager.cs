@@ -59,6 +59,15 @@ namespace Assets.Resources.Scripts.CharacterPanel
             InitTitle();
         }
 
+        public void RefreshCredits()
+        {
+            if (playerData == null && DataUtil.Instance != null)
+                playerData = DataUtil.Instance.currentPlayer;
+            if (playerCreditText == null || playerData == null)
+                return;
+            playerCreditText.text = "Credit Point: " + playerData.creditPoints.ToString();
+        }
+
         private void InitTitle()
         {
             if (playerData.selectedTitle.Length > 0)

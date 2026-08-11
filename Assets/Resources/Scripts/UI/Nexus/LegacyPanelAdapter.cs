@@ -52,14 +52,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     scene = CurrentScene.CARDS_MENU;
                     return true;
                 case AppScreen.Inventory:
-                    scene = CurrentScene.INVENTORY_MENU;
-                    return true;
-                case AppScreen.Crafting:
-                    scene = CurrentScene.BUILDING_MENU;
-                    return true;
+                    // Native InventoryScreen owns this route; legacy panel is World Space and hidden.
+                    scene = CurrentScene.MAIN_SCENE;
+                    return false;
                 case AppScreen.Market:
-                    scene = CurrentScene.SHOP_MENU;
-                    return true;
+                    // Native MarketScreen owns this route (P4); do not open gacha SHOP_MENU.
+                    scene = CurrentScene.MAIN_SCENE;
+                    return false;
                 default:
                     scene = CurrentScene.MAIN_SCENE;
                     return false;

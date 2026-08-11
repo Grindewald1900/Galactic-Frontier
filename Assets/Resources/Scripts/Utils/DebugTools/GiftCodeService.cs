@@ -155,11 +155,8 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
         {
             foreach (GiftReward reward in rewards)
             {
-                if (reward.Credits > 0 && DataUtil.Instance?.currentPlayer != null)
-                {
-                    DataUtil.Instance.currentPlayer.creditPoints += reward.Credits;
-                    DataUtil.Instance.SavePlayerData(DataUtil.Instance.currentPlayer);
-                }
+                if (reward.Credits > 0)
+                    Market.CurrencyService.AddCredits(reward.Credits);
 
                 if (reward.Quantity > 0 && !string.IsNullOrEmpty(reward.ItemName))
                 {
@@ -170,7 +167,7 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                         0,
                         reward.ItemType).SetQuantity(reward.Quantity);
 
-                    if (ItemManager.Instance != null)
+                    if (ItemManager.Instance != null && ItemManager.Instance.HasLoaded)
                         ItemManager.Instance.AddItem(item);
                     else if (DataUtil.Instance != null)
                     {

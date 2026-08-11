@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
@@ -71,6 +72,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 DeckService.EnsureLoaded(DataUtil.Instance, all);
                 WorldService.EnsureLoaded(DataUtil.Instance);
                 ShipService.EnsureLoaded(DataUtil.Instance);
+                IdleSettlementService.EnsureLoaded(DataUtil.Instance);
             }
 
             NexusUiFactory.CreateText(
@@ -151,6 +153,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             BuildActiveFleet(combatMembers);
             BuildRunningOps();
+            BuildPendingLoot();
             BuildSectors();
             BuildLog(inLine, cards, progress, credits, power);
 
@@ -349,6 +352,54 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (!result.Success)
                 Debug.LogWarning("[DECK] Stop failed: " + result.Message);
             Rebuild();
+        }
+
+        private void BuildPendingLoot()
+        {
+            var count = IdleSettlementService.PendingCount;
+            GameObject box = NexusUiFactory.CreateBox(
+                root,
+                "PendingLoot",
+                new Vector2(1090f, 148f),
+                new Vector2(678f, 120f),
+                NexusTheme.Surface,
+                NexusTheme.BorderSoft);
+            NexusUiFactory.CreateText(
+                box.transform,
+                "Heading",
+                UiText.PendingLootTitle(count),
+                new Vector2(20f, 12f),
+                new Vector2(500f, 28f),
+                15f,
+                NexusTheme.Text,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                box.transform,
+                "Body",
+                count > 0 ? UiText.PendingLootHint : UiText.PendingLootEmpty,
+                new Vector2(20f, 44f),
+                new Vector2(400f, 40f),
+                12f,
+                NexusTheme.MutedText);
+            if (count > 0)
+            {
+                NexusUiFactory.CreateButton(
+                    box.transform,
+                    "Claim",
+                    UiText.ClaimPendingLoot,
+                    new Vector2(440f, 36f),
+                    new Vector2(200f, 48f),
+                    () =>
+                    {
+                        var r = IdleSettlementService.ClaimAllPending();
+                        Debug.Log("[IDLE] claim: " + (r.Success ? "ok" : r.Message));
+                        Rebuild();
+                    },
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
+                    NexusTheme.Gold,
+                    13f);
+            }
         }
 
         private void BuildSectors()

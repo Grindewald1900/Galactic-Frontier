@@ -521,6 +521,8 @@ namespace Assets.Resources.Scripts.Battle
 
             var result = WorldService.RegisterBattleVictory(regionId, encounterId);
             Debug.Log($"[WORLD] Victory registered region={regionId} enc={encounterId} ok={result.Success} {result.Message}");
+            Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(
+                CardListManager.Instance?.cardEntities);
         }
 
         private void WireReportConfirm()

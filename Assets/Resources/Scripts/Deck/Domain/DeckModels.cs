@@ -43,7 +43,9 @@ namespace Assets.Resources.Scripts.Deck.Domain
 
         public bool IsActionBusy =>
             action != null &&
-            (action.status == DeckActionStatus.Running || action.status == DeckActionStatus.PausedCap);
+            (action.status == DeckActionStatus.Running
+             || action.status == DeckActionStatus.PausedCap
+             || action.status == DeckActionStatus.PausedBlock);
     }
 
     [Serializable]

@@ -136,6 +136,7 @@ namespace Assets.Resources.Scripts.Utils
             DeckService.CreateForNewPlayer(this);
             WorldService.CreateForNewPlayer(this);
             ShipService.CreateForNewPlayer(this);
+            Assets.Resources.Scripts.Economy.IdleSettlementService.CreateForNewPlayer(this);
 
             // Starter credits so Outer Belt ship upgrades are reachable.
             if (currentPlayer.creditPoints < 50)
@@ -391,6 +392,50 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentNullException(nameof(state));
             state.count = state.modules?.Count ?? 0;
             return SaveData(state, directory, DefaultProperty.SHIP_DATA);
+        }
+
+        public bool SaveIdleState(Assets.Resources.Scripts.Economy.Domain.PlayerIdleState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.pendingLoot?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.IDLE_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Economy.Domain.PlayerIdleState LoadIdleState()
+        {
+            EnsurePlayerBound();
+            return ReadIdleStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Economy.Domain.PlayerIdleState ReadIdleStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.IDLE_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Economy.Domain.PlayerIdleState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read idle.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteIdleStateToDirectory(string directory, Assets.Resources.Scripts.Economy.Domain.PlayerIdleState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.pendingLoot?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.IDLE_DATA);
         }
 
         public List<CardEntity> ReadCardListFromDirectory(string directory)

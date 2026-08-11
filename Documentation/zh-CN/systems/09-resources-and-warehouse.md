@@ -148,9 +148,13 @@ MVP 验收：**至少 3 件**可由制造产出（步枪 / 复合装甲 / 合成
 | `node_outer_iron` | `sec01_outer_belt` | `mat_iron_ore` | 2 | Q2 | 1 |
 | `node_spur_crystal` | `sec01_mining_spur` | `mat_crystal_sand` | 2 | Q2 | 2 |
 | `node_spur_fungal` | `sec01_mining_spur` | `mat_fungal` | 2 | Q2 | 2 |
+| `node_rift_energy` | `sec01_quantum_rift` | `mat_energy_cell` | 1 | Q2 | 2 |
+| `node_abyss_scrap` | `sec01_abyssal_edge` | `mat_scrap` | 3 | Q2 | 3 |
+| `node_convoy_bio` | `sec01_convoy_lane` | `mat_biofiber` | 2 | Q2 | 2 |
 
 周期秒数默认见 `EconomyConstants.GatherCycleSeconds`（设计目标 300s，原型可 30s）。  
-条件：区域已通关或刷取解锁（`ProductionService` / `04`）。
+条件：区域已通关或刷取解锁（`ProductionService` / `04`）。  
+区域绑定与战斗掉落总表见 `11-sector-and-region-content.md`。
 
 ---
 

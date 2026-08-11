@@ -16,8 +16,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ScreenCharacters => T("Characters", "角色");
         public static string ScreenCards => T("Cards", "卡牌");
         public static string ScreenInventory => T("Inventory", "仓库");
+        public static string InventoryTitle => T("Warehouse", "仓库");
+        public static string InventoryHint => T(
+            "Items from gathering, crafting, shops, and Debug Mode. Switch tabs by type or quality.",
+            "采集、制造、商店与 Debug 获得的物品会显示在此。按类型或品质切换页签。");
+        public static string InventoryTabAll => T("All", "全部");
+        public static string InventoryTabEquipment => T("Equipment", "装备");
+        public static string InventoryTabMaterial => T("Material", "材料");
+        public static string InventoryTabConsumable => T("Consumable", "消耗品");
+        public static string InventoryQualityAll => T("All Q", "全部品质");
+        public static string InventoryEmpty => T("No items in this tab.", "此页签没有物品。");
+        public static string InventoryQty(int quality, int qty) => T($"Q{quality} × {qty}", $"Q{quality} × {qty}");
+        public static string ScreenMarket => T("Starport", "星港");
         public static string ScreenCrafting => T("Crafting", "制造");
-        public static string ScreenMarket => T("Market", "市场");
         public static string ScreenMissions => T("Missions", "任务");
         public static string ScreenSettings => T("Settings", "设置");
         public static string ScreenDebug => T("Debug Mode", "Debug模式");
@@ -31,8 +42,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Characters => T("Characters", "角色"),
             AppScreen.Cards => T("Cards", "卡牌"),
             AppScreen.Inventory => T("Inventory", "仓库"),
+            AppScreen.Market => T("Starport Shop", "星港商店"),
             AppScreen.Crafting => T("Crafting", "制造"),
-            AppScreen.Market => T("Market", "市场"),
             AppScreen.Missions => T("Missions", "任务"),
             AppScreen.Settings => T("Settings", "设置"),
             AppScreen.Debug => T("Debug Mode", "Debug模式"),
@@ -40,8 +51,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         };
 
         public static string StatusShortcuts => T(
-            "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Market  F8 Missions",
-            "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 市场  F8 任务");
+            "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Starport  F8 Missions",
+            "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 星港  F8 任务");
 
         public static string StatusVersion => T(
             "NEXUS COMMAND · Fully automatic combat",
@@ -133,8 +144,54 @@ namespace Assets.Resources.Scripts.UI.Nexus
             $"全自动战斗 · 星域 #{index + 1}");
         public static string StartAutoBattle => T("Challenge", "挑战");
         public static string StartFarm => T("AFK Farm", "挂机刷取");
+        public static string StartGather => T("Gather", "采集");
         public static string RegionLocked => T("LOCKED", "未解锁");
         public static string FarmAvailable => T("Farm unlocked", "可挂机刷取");
+        public static string PendingLootTitle(int count) => T(
+            $"PENDING LOOT ({count})",
+            $"待领取收益（{count}）");
+        public static string PendingLootHint => T(
+            "Offline settlement ready. Claim into warehouse.",
+            "离线结算已就绪，领取至仓库。");
+        public static string PendingLootEmpty => T("No pending loot.", "暂无待领取收益。");
+        public static string ClaimPendingLoot => T("Claim All", "全部领取");
+        public static string CraftingTitle => T("CRAFTING", "制造");
+        public static string CraftingHint => T(
+            "Three chains: metal / energy / synth. Materials are consumed when Start is pressed.",
+            "三条产线：金属 / 能源 / 合成。点击开始时预扣材料。");
+        public static string CraftingSelectRecipe => T("Select a recipe", "选择配方");
+        public static string CraftingInputs => T("Inputs", "材料");
+        public static string CraftingOutputs => T("Output", "产出");
+        public static string CraftingExpectedQuality(string range) => T(
+            $"Expected quality: {range}",
+            $"预期品质：{range}");
+        public static string CraftingStart => T("Start Craft", "开始制造");
+        public static string CraftingMissingMats => T("(missing mats)", "（材料不足）");
+        public static string CraftingAutoRepair => T("Auto-Repair Gear", "自动维修装备");
+        public static string CraftingRepairFirst => T("Repair Damaged", "维修一件");
+        public static string EquipToSelected => T("Equip Gear → Card", "装备到角色");
+        public static string StarportShopTitle => T("STARPORT SHOP", "星港商店");
+        public static string StarportShopHint => T(
+            "Buy and sell materials with the starport merchant. Solo mode has no player market.",
+            "与星港商人买卖材料。单机模式无玩家市场。");
+        public static string CreditsLabel(int n) => T($"Credits {n}₵", $"信用点 {n}₵");
+        public static string BoundCreditsLabel(int n) => T($"Bound {n}", $"绑定币 {n}");
+        public static string PlayerMarketDisabledSolo => T(
+            "Player market disabled (Solo)",
+            "玩家市场已禁用（单机）");
+        public static string OpenPlayerMarket => T("Player Exchange", "玩家交易所");
+        public static string PlayerMarketSoon => T(
+            "Player market is Online-only (not in MVP).",
+            "玩家市场仅线上（非 MVP）。");
+        public static string SelectShopOffer => T("Select an offer", "选择商品");
+        public static string OfferLocked => T("LOCKED", "未解锁");
+        public static string ShopBuy => T("Buy ×1", "购买 ×1");
+        public static string ShopSell => T("Sell ×1", "回收 ×1");
+        public static string ShopBuyX(int n) => T($"Buy ×{n}", $"购买 ×{n}");
+        public static string ShopSellX(int n) => T($"Sell ×{n}", $"回收 ×{n}");
+        public static string ShopPrices(int buy, int sell) => T(
+            $"Buy {buy}₵ · Sell-back {sell}₵",
+            $"购入 {buy}₵ · 回收 {sell}₵");
         public static string SectorComplete => T("Sector first loop complete", "星域首圈完成");
         public static string RegionProgressLabel(string state) => state switch
         {
@@ -240,7 +297,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string DebugHint => T(
             "Edit local item quantities and add / upgrade cards. Changes persist to the current save.",
             "修改本地道具数量，新增或升级卡牌。变更会写入当前存档。");
-        public static string DebugItemsHeader => T("Items (local inventory)", "道具（本地仓库）");
+        public static string DebugHintAllItems => T(
+            "Set credits and any catalog item quantity. Inventory tabs filter by type / quality.",
+            "可修改信用点与全部图鉴物品数量。仓库页签按类型/品质筛选。");
+        public static string DebugCreditsHeader => T("Credits", "信用点");
+        public static string DebugCreditsUpdated(int n) => T($"Credits set to {n}₵", $"信用点已设为 {n}₵");
+        public static string DebugItemsHeader => T("All items (local inventory)", "全部物品（本地仓库）");
         public static string DebugCardsHeader => T("Cards", "卡牌");
         public static string DebugApplyQty => T("Apply", "应用");
         public static string DebugInvalidNumber => T("Invalid quantity.", "数量无效。");

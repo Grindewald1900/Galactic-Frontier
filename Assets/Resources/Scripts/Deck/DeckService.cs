@@ -348,6 +348,11 @@ namespace Assets.Resources.Scripts.Deck
         private static IList<CardEntity> CardListFallback() =>
             CardListManager.Instance?.GetCardEntities();
 
+        public static void EnsureReady()
+        {
+            EnsureState();
+        }
+
         private static void EnsureState()
         {
             if (State == null)

@@ -2,6 +2,8 @@ using System;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Utils;
@@ -11,12 +13,15 @@ using UnityEngine;
 
 namespace Assets.Resources.Scripts.World
 {
-    /// <summary>Online AFK AutoCombat cycle settlement on MainScene.</summary>
-    public sealed class IdleCombatTicker : MonoBehaviour
+    /// <summary>Online settlement for AutoCombat, Gather, and craft cycles (P2+P3).</summary>
+    public sealed class IdleEconomyTicker : MonoBehaviour
     {
-        public static IdleCombatTicker Instance { get; private set; }
+        public static IdleEconomyTicker Instance { get; private set; }
 
-        private float accumulator;
+        private float farmAcc;
+        private float gatherAcc;
+        private float craftAcc;
+        private float seenAcc;
 
         private void Awake()
         {
@@ -34,24 +39,64 @@ namespace Assets.Resources.Scripts.World
             if (!DeckService.IsLoaded)
                 return;
 
+            IdleSettlementService.EnsureLoaded();
+            seenAcc += Time.unscaledDeltaTime;
+            if (seenAcc >= 30f)
+            {
+                seenAcc = 0f;
+                IdleSettlementService.TickOnlineSeen();
+                IdleSettlementService.Save();
+            }
+
             var busy = DeckService.GetBusyDecks();
             if (busy == null || busy.Count == 0)
             {
-                accumulator = 0f;
+                farmAcc = gatherAcc = craftAcc = 0f;
                 return;
             }
 
-            accumulator += Time.unscaledDeltaTime;
-            if (accumulator < WorldConstants.FarmCycleSeconds)
-                return;
-            accumulator = 0f;
+            farmAcc += Time.unscaledDeltaTime;
+            gatherAcc += Time.unscaledDeltaTime;
+            craftAcc += Time.unscaledDeltaTime;
 
-            foreach (var deck in busy)
+            if (farmAcc >= WorldConstants.FarmCycleSeconds)
             {
-                if (deck?.action == null) continue;
-                if (deck.action.status != DeckActionStatus.Running) continue;
-                if (deck.action.actionType != DeckActionType.AutoCombat) continue;
-                TickFarm(deck);
+                farmAcc = 0f;
+                foreach (var deck in busy)
+                {
+                    if (deck?.action == null) continue;
+                    if (deck.action.status != DeckActionStatus.Running) continue;
+                    if (deck.action.actionType == DeckActionType.AutoCombat)
+                        TickFarm(deck);
+                }
+            }
+
+            if (gatherAcc >= EconomyConstants.GatherCycleSeconds)
+            {
+                gatherAcc = 0f;
+                foreach (var deck in busy)
+                {
+                    if (deck?.action == null) continue;
+                    if (deck.action.status != DeckActionStatus.Running) continue;
+                    if (deck.action.actionType == DeckActionType.Gather)
+                        TickGather(deck);
+                }
+            }
+
+            if (craftAcc >= EconomyConstants.CraftCycleSeconds)
+            {
+                craftAcc = 0f;
+                foreach (var deck in busy)
+                {
+                    if (deck?.action == null) continue;
+                    if (deck.action.status != DeckActionStatus.Running) continue;
+                    if (deck.action.actionType == DeckActionType.Process
+                        || deck.action.actionType == DeckActionType.Manufacture)
+                    {
+                        Economy.ProductionService.TrySettleCraftCycle(
+                            deck, CardListManager.Instance?.cardEntities);
+                    }
+                }
             }
         }
 
@@ -61,6 +106,14 @@ namespace Assets.Resources.Scripts.World
             if (string.IsNullOrEmpty(regionId) || !WorldService.IsFarmUnlocked(regionId))
             {
                 DeckService.TryStop(deck.deckId);
+                return;
+            }
+
+            if (Economy.DurabilityService.HasCriticalBrokenEquipped())
+            {
+                ActionScheduler.TryPauseBlock(
+                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                DeckService.Save();
                 return;
             }
 
@@ -81,7 +134,6 @@ namespace Assets.Resources.Scripts.World
                 ActionScheduler.TryPauseAtCap(
                     DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
                 DeckService.Save();
-                Debug.Log("[FARM] PausedCap due to wear/empty on " + deck.deckId);
                 return;
             }
 
@@ -98,45 +150,62 @@ namespace Assets.Resources.Scripts.World
                 m.farmWear += WorldConstants.FarmWearPerCycle;
             }
 
-            if (result.Victory && result.LootScrap > 0)
-                GrantScrap(result.LootScrap);
+            if (result.Victory)
+            {
+                Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
+                if (result.LootScrap > 0)
+                    GrantScrap(result.LootScrap);
+            }
 
             WorldService.MarkFarmTick(regionId);
             DataUtil.Instance?.SaveCardData(cards);
-            Debug.Log($"[FARM] cycle region={regionId} win={result.Victory} loot={result.LootScrap}");
+        }
+
+        private void TickGather(DeckEntity deck)
+        {
+            var node = GatherNodeCatalog.Get(deck.action.targetId);
+            if (node == null)
+            {
+                DeckService.TryStop(deck.deckId);
+                return;
+            }
+
+            if (ItemManager.Instance != null && ItemManager.Instance.IsFull)
+            {
+                ActionScheduler.TryPauseBlock(
+                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                DeckService.Save();
+                return;
+            }
+
+            if (Economy.DurabilityService.HasCriticalBrokenEquipped())
+            {
+                ActionScheduler.TryPauseBlock(
+                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                DeckService.Save();
+                return;
+            }
+
+            var granted = Economy.ItemFactory.FromDef(node.outputDefId, node.outputQty, node.outputQuality);
+            if (!Economy.ProductionService.TryAddLocal(granted))
+            {
+                ActionScheduler.TryPauseBlock(
+                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+                DeckService.Save();
+                return;
+            }
+
+            Economy.DurabilityService.ApplyGatherWear(node.riskLevel);
+            deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            DeckService.Save();
+            Debug.Log($"[GATHER] {node.nodeId} +{node.outputQty} {node.outputDefId}");
         }
 
         private static void GrantScrap(int qty)
         {
-            if (ItemManager.Instance == null || qty <= 0) return;
-            var items = ItemManager.Instance.GetItems();
-            ItemEntity existing = null;
-            foreach (var item in items)
-            {
-                if (item != null && item.itemName == WorldConstants.FarmLootItemName)
-                {
-                    existing = item;
-                    break;
-                }
-            }
-
-            if (existing != null)
-            {
-                existing.quantity += qty;
-            }
-            else
-            {
-                var created = new ItemEntity(
-                    WorldConstants.FarmLootItemName,
-                    "AFK farm scrap",
-                    "Steel",
-                    0,
-                    ItemType.Material).SetQuantity(qty);
-                ItemManager.Instance.AddItem(created);
-                items = ItemManager.Instance.GetItems();
-            }
-
-            DataUtil.Instance?.SaveInventory(InventoryStore.Local, items, touchMeta: true);
+            if (qty <= 0) return;
+            var created = Economy.ItemFactory.FromDef(EconomyConstants.ScrapDefId, qty, EconomyConstants.DefaultQuality);
+            Economy.ProductionService.TryAddLocal(created);
         }
     }
 }

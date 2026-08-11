@@ -14,7 +14,9 @@ namespace Assets.Resources.Scripts.Entity
         public string saveDate; // Save date
         public int level; // Level
         public int combatPower; // Combat Power
-        public int creditPoints; // Number of credit points
+        public int creditPoints; // Number of credit points (alias: credits)
+        /// <summary>Bound credits — NPC/exchange only; cannot enter player market later.</summary>
+        public int creditsBound;
         public int explorationProgress; // Exploration degree
         public int skillCount; // Number of skills
         public CharacterTier tier; // Rating (S/A/B/C/D)
@@ -30,6 +32,7 @@ namespace Assets.Resources.Scripts.Entity
             level = 0;
             combatPower = 0;
             creditPoints = 0;
+            creditsBound = 0;
             tier = CharacterTier.None;
             explorationProgress = 0;
             skillCount = 0;

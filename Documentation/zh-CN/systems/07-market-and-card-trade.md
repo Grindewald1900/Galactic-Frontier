@@ -1,12 +1,12 @@
 # 系统文档：经济流通、NPC 商店与玩家市场
 
 > 文档版本：v1.1  
-> 状态：**MVP 规则已拍板（单机 + NPC）；线上玩家市场契约保留供后期**  
+> 状态：**P4 MVP 已落地（Solo NPC 商店）；玩家市场仍为 Online 后期**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.5 / §7.6 / §12 / §16 / §20 / §22（v0.4）  
 > 关联：`05-production-and-quality.md`、`01-deck-and-occupation.md`、`04-idle-and-offline.md`、`09-economy`（货币细表，若拆分）  
-> 实现阶段：MVP → **P4 改为 NPC 商店**；玩家市场 → **线上版本 / 原 P4 后置**  
-> 更新日期：2026-08-09  
-> 变更：v1.1 对齐 v0.4——单机禁用玩家市场；MVP 只做 NPC；全服订单簿仅线上。
+> 实现阶段：MVP → **P4 NPC 商店完成**；玩家市场 → **线上版本 / 原 P4 后置**  
+> 更新日期：2026-08-10  
+> 变更：v1.2 P4 落地——`PlayMode`、`CurrencyService`、`NpcShops.json`、`MarketScreen`。
 
 ---
 
@@ -354,11 +354,11 @@ IMarketService
 
 ### MVP（Solo）
 
-- [ ] Solo 下无法打开玩家市场；API 返回禁用  
-- [ ] NPC 购买扣信用、加物品；满仓失败提示  
-- [ ] NPC 回收按 `sellBackRatio` 给信用、扣物品  
-- [ ] 货架解锁条件（区域/舰船）生效  
-- [ ] 导航不再进入抽卡商店  
+- [x] Solo 下无法打开玩家市场；API 返回禁用  
+- [x] NPC 购买扣信用、加物品；满仓失败提示  
+- [x] NPC 回收按 `sellBackRatio` 给信用、扣物品  
+- [x] 货架解锁条件（区域/舰船）生效  
+- [x] 导航不再进入抽卡商店  
 
 ### Online（后期）
 

@@ -1,0 +1,16 @@
+{
+    "name": "GalacticFrontier.MarketDomain",
+    "rootNamespace": "Assets.Resources.Scripts.Market.Domain",
+    "references": [
+        "GalacticFrontier.EconomyDomain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
