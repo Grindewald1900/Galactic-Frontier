@@ -15,6 +15,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
     {
         private readonly Transform root;
         private string selectedRecipeId = "";
+        private string lastStatus = "";
 
         private CraftingScreen(Transform root)
         {
@@ -130,6 +131,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(24f, 60f), new Vector2(850f, 320f), 13f, NexusTheme.MutedText);
             body.textWrappingMode = TextWrappingModes.Normal;
 
+            if (!string.IsNullOrEmpty(lastStatus))
+            {
+                NexusUiFactory.CreateText(
+                    box.transform, "Status", lastStatus,
+                    new Vector2(24f, 390f), new Vector2(850f, 24f), 12f, NexusTheme.Cyan);
+            }
+
             NexusUiFactory.CreateButton(
                 box.transform, "Start", UiText.CraftingStart,
                 new Vector2(24f, 420f), new Vector2(200f, 48f),
@@ -137,7 +145,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 {
                     var r = ProductionService.TryStartRecipe(
                         recipe.recipeId, CardListManager.Instance?.cardEntities);
-                    Debug.Log("[CRAFT] start: " + (r.Success ? "ok" : r.Message));
+                    var outDef = ItemCatalog.Get(recipe.outputDefId);
+                    lastStatus = r.Success
+                        ? UiText.CraftingDelivered(
+                            outDef != null ? UiText.T(outDef.displayNameEn, outDef.displayNameZh) : recipe.outputDefId,
+                            recipe.outputQty)
+                        : r.Message;
+                    Debug.Log("[CRAFT] start: " + (r.Success ? "ok " + r.Message : r.Message));
                     Rebuild();
                 },
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);

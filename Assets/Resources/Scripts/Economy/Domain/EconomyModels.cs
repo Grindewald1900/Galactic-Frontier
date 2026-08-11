@@ -90,6 +90,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public bool Success;
         public string Message = "";
         public static EconomyCommandResult Ok() => new EconomyCommandResult { Success = true };
+        public static EconomyCommandResult Ok(string message) =>
+            new EconomyCommandResult { Success = true, Message = message ?? "" };
         public static EconomyCommandResult Fail(string message) =>
             new EconomyCommandResult { Success = false, Message = message ?? "" };
     }

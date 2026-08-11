@@ -35,6 +35,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void Rebuild()
         {
+            IdleSettlementService.EnsureLoaded();
+            if (IdleSettlementService.PendingCount > 0)
+                IdleSettlementService.ClaimAllPending();
+
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
 
@@ -168,9 +172,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 if (item == null) continue;
                 ItemFactory.NormalizeLegacy(item);
-                if (typeTab == 1 && item.itemType != ItemType.Equipment) continue;
-                if (typeTab == 2 && item.itemType != ItemType.Material) continue;
-                if (typeTab == 3 && item.itemType != ItemType.Food) continue;
+                var category = ItemCatalog.Get(ItemFactory.ResolveDefId(item))?.category;
+                if (typeTab == 1 && item.itemType != ItemType.Equipment
+                    && category != ItemCategory.Equipment && category != ItemCategory.ShipModule)
+                    continue;
+                if (typeTab == 2 && item.itemType != ItemType.Material
+                    && category != ItemCategory.Material && category != ItemCategory.Intermediate)
+                    continue;
+                if (typeTab == 3 && item.itemType != ItemType.Food
+                    && category != ItemCategory.Consumable)
+                    continue;
                 if (qualityTab >= 1 && item.quality != qualityTab) continue;
                 list.Add(item);
             }

@@ -157,8 +157,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ClaimPendingLoot => T("Claim All", "全部领取");
         public static string CraftingTitle => T("CRAFTING", "制造");
         public static string CraftingHint => T(
-            "Three chains: metal / energy / synth. Materials are consumed when Start is pressed.",
-            "三条产线：金属 / 能源 / 合成。点击开始时预扣材料。");
+            "Three chains: metal / energy / synth. Start consumes materials and adds the output to Inventory immediately.",
+            "三条产线：金属 / 能源 / 合成。点击开始会预扣材料，并立刻将产出放入仓库。");
+        public static string CraftingDelivered(string name, int qty) => T(
+            $"Added {qty}× {name} to Inventory.",
+            $"已将 {qty}× {name} 放入仓库。");
         public static string CraftingSelectRecipe => T("Select a recipe", "选择配方");
         public static string CraftingInputs => T("Inputs", "材料");
         public static string CraftingOutputs => T("Output", "产出");

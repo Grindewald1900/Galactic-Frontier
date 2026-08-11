@@ -39,6 +39,10 @@ namespace Assets.Resources.Scripts.Economy
             if (recipe == null)
                 return EconomyCommandResult.Fail("Unknown recipe.");
 
+            var deck = PreferEconomyDeck(cards);
+            if (deck == null || deck.MemberCount < 1)
+                return EconomyCommandResult.Fail("No free deck with members for craft.");
+
             var inv = GetLocalItems();
             if (inv == null)
                 return EconomyCommandResult.Fail("Inventory not ready.");
@@ -50,10 +54,10 @@ namespace Assets.Resources.Scripts.Economy
                     return EconomyCommandResult.Fail($"Missing {input.itemDefId} x{input.quantity}.");
             }
 
+            var snapshot = CloneItems(inv);
             var stacks = ItemFactory.ToStacks(inv);
             var inputMinQ = InventoryRules.MinInputQuality(stacks, recipe.inputs);
 
-            // Pre-consume
             foreach (var input in recipe.inputs)
             {
                 if (input == null) continue;
@@ -63,27 +67,33 @@ namespace Assets.Resources.Scripts.Economy
 
             ReplaceLocalFromStacks(stacks);
 
-            var deck = PreferEconomyDeck(cards);
-            if (deck == null || deck.MemberCount < 1)
-                return EconomyCommandResult.Fail("No free deck with members for craft.");
-
             var actionType = recipe.kind == RecipeKind.Manufacture
                 ? DeckActionType.Manufacture
                 : DeckActionType.Process;
             var start = DeckService.TryStart(deck.deckId, actionType, recipeId, cards);
             if (!start.Success)
+            {
+                RestoreLocal(snapshot);
                 return EconomyCommandResult.Fail(start.Message);
+            }
 
-            deck = DeckService.GetDecks() != null
-                ? FindDeck(deck.deckId)
-                : null;
+            deck = FindDeck(deck.deckId);
             if (deck?.action != null)
             {
                 deck.action.progressPayload = $"{recipeId}|{inputMinQ}";
                 DeckService.Save();
             }
 
-            return EconomyCommandResult.Ok();
+            // First cycle is delivered now so warehouse updates when the player taps Start.
+            if (!TrySettleCraftCycle(deck, cards))
+            {
+                RestoreLocal(snapshot);
+                if (deck != null)
+                    DeckService.TryStop(deck.deckId);
+                return EconomyCommandResult.Fail("Could not deliver craft output.");
+            }
+
+            return EconomyCommandResult.Ok($"Crafted {recipe.outputQty}× {recipe.outputDefId}.");
         }
 
         public static bool TrySettleCraftCycle(DeckEntity deck, IList<CardEntity> cards)
@@ -143,6 +153,8 @@ namespace Assets.Resources.Scripts.Economy
                 DeckService.Save();
                 return false;
             }
+
+            Debug.Log($"[CRAFT] +{recipe.outputQty} {recipe.outputDefId} Q{quality} → warehouse");
 
             OfflineRules.AddMastery(IdleSettlementService.State, recipeId);
             IdleSettlementService.Save();
@@ -284,6 +296,24 @@ namespace Assets.Resources.Scripts.Economy
                 list.Add(ItemFactory.FromStack(s));
             DataUtil.Instance?.SaveInventory(InventoryStore.Local, list, touchMeta: true);
             return true;
+        }
+
+        private static List<ItemEntity> CloneItems(List<ItemEntity> source)
+        {
+            var list = new List<ItemEntity>();
+            if (source == null) return list;
+            foreach (var item in source)
+            {
+                if (item == null) continue;
+                list.Add(item.CloneOwnership(item.isRemote));
+            }
+
+            return list;
+        }
+
+        private static void RestoreLocal(List<ItemEntity> snapshot)
+        {
+            ReplaceLocalFromStacks(ItemFactory.ToStacks(snapshot));
         }
 
         private static void ReplaceLocalFromStacks(List<InventoryStack> stacks)
