@@ -1,10 +1,10 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v1.7  
+> 文档版本：v1.8  
 > 对照设计：`Documentation/01-core-product-design.md`（产品核心设计 **v0.4**）  
 > 对照实现：`Assets/Resources/Scripts` 与现有 `zh-CN` 开发文档  
-> 更新日期：2026-08-10  
-> 变更摘要：P4 完成——Solo PlayMode 门控、星港 NPC 商店、信用扣款、Market 不再进抽卡。
+> 更新日期：2026-08-11  
+> 变更摘要：P0–P4 已闭合；P5.0 `systems/10` 新手任务链已拍板；下一步 P5.4a Missions 实现。
 本文档回答三件事：
 
 1. 以核心设计 / MVP 为尺子，**当前做到哪一步**；
@@ -15,9 +15,9 @@
 
 ## 1. 一句话结论
 
-项目处于**可玩的战斗 + 多卡组 + 经济循环原型阶段**：全自动回合制战斗、多卡组占用与调度、采集/制造、耐久与离线领取、Nexus UI 壳、抽卡/背包/存档骨架已打通。  
-核心设计要求的 **NPC 商店、角色内容量、新手两小时流程** 仍属后续阶段。  
-后续应以「先打通单人核心循环，再扩内容量」为原则，用 Cursor 按阶段切片实现。
+项目处于**可演示的单人核心循环阶段**：全自动战斗、多卡组占用与调度、采集/制造/耐久/离线、星港 NPC 商店、Nexus 原生仓库/制造/商店页已打通。  
+**规则与单机经济已通**；核心设计要求的 **角色内容量、阵营区分、约两小时新手流程** 仍是主要缺口。  
+后续应以「先做可演示的引导脊骨，再分批扩角色与包装」为原则，用 Cursor 按 P5 切片实现。
 
 ---
 
@@ -29,13 +29,13 @@
 | --- | --- | --- |
 | 战斗原型 | ★★★★☆ | 全自动可跑通；种子伤害+战报返回已通；敌人/策略仍弱 |
 | 卡牌与编队 | ★★★★☆ | **P1 完成**：多卡组 UI、占用、调度器、备用预设 |
-| UI 壳层 | ★★★☆☆ | Nexus 导航与关键页已有；Crafting 已原生；部分页仍接 Legacy |
-| 存档与数据 | ★★★☆☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed |
-| 经济循环 | ★★★☆☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店 |
-| 成长与主线 | ★★★☆☆ | **P2**：6 区进度 + 舰船门 + 首领 + Explore 硬锁 |
+| UI 壳层 | ★★★★☆ | Nexus 导航 + Bridge/Explore/Formation；**Inventory / Crafting / Market 已原生**；Characters/Cards/Missions 仍薄或 Legacy |
+| 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed（saveVersion 4） |
+| 经济循环 | ★★★★☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店；制造首周期即时入仓 |
+| 成长与主线 | ★★★☆☆ | **P2**：6 区进度 + 舰船门 + 首领 + Explore 硬锁；新手任务链未做 |
 | 内容量 | ★☆☆☆☆ | 可战斗角色约 3 名，远低于 MVP 30–50 |
 
-整体相对 MVP §16.1：**约 45%–55%**（战斗/卡组/经济骨架已通，内容与 NPC 商店仍薄）。
+整体相对 MVP §16.1：**约 55%–65%**（战斗/卡组/经济与 NPC 商店已通，缺口在内容量与新手两小时）。
 
 ### 2.2 MVP 必含项对照表
 
@@ -68,10 +68,10 @@
 | 5–6 可探索区域 + 1 区域首领 | 已实现 | 6 区含 Frontier Anchor；`world.json` 进度 |
 | 1 个完整星域 / 2 基础阵营 | 部分实现 | 星域 `sector_frontier_vii`；阵营标签仍预留 |
 | 30–50 角色及相关卡牌 | 部分实现 | 约 3 名可战斗角色（Asra / Magki / Sernia） |
-| 约两小时新手流程 | 未开始 | Missions 为占位 |
-| 基础仓库和舰船升级 | 部分实现 | 双背包 + `ShipService` 模块/等级升级 |
-| 离线收益比例（开局 50%） | 已实现 | `OfflineRules.YieldRatio`；Bridge Claim |
-| 单机模式完整可玩 | 部分实现 | 本即单机原型；须去掉对玩家市场的依赖假设 |
+| 约两小时新手流程 | 未开始 | Missions 为占位；缺 `systems/10-onboarding-and-missions.md` |
+| 基础仓库和舰船升级 | 已实现 | 原生 `InventoryScreen`（类型/品质页签）+ 双背包存档；`ShipService` 模块/等级升级 |
+| 离线收益比例（开局 50%） | 已实现 | `OfflineRules.YieldRatio`；Bridge Claim；打开仓库时领取 pending loot |
+| 单机模式完整可玩 | 部分实现 | 规则与 NPC 经济齐；内容量与新手引导不足 |
 
 ### 2.3 已有可复用资产（后续不要推倒重来）
 
@@ -80,20 +80,22 @@
 | 自动战斗引擎 | `Battle/BattleController.cs` | 扩展战前策略、挂机刷取、确定性战报 |
 | 编队 UI | `LineupManager`、`FormationScreen` | 抽象为「卡组槽」，再扩多卡组 |
 | 卡牌领域模型 | `CardEntity`、`CardDataManager` | 加占用态、绑定/交易字段 |
-| Nexus 壳 | `AppShell`、`Bridge/Explore/Formation` | 新系统优先做原生 Screen，少挂 Legacy |
-| 存档基础设施 | `DataUtil` | 加版本号、原子写、分文件（队伍/行动/市场缓存） |
-| 背包骨架 | `InventoryItemManagerBase` | 去掉 FakeData 污染后接真实资源表 |
+| Nexus 壳 | `AppShell`、`Bridge/Explore/Formation/Inventory/Crafting/Market` | 新系统优先做原生 Screen，少挂 Legacy |
+| 存档基础设施 | `DataUtil` | 版本迁移、分文件已落地；新内容字段走 Migrator |
+| 背包骨架 | `InventoryItemManagerBase` + `InventoryScreen` | 已接 `ItemCatalog`；继续服务制造/商店/Debug |
 | 文档入口 | `Documentation/zh-CN/*` | Cursor 任务前必读 |
 
-### 2.4 高优先级技术债（阻塞扩展）
+### 2.4 高优先级技术债（历史项；P0–P3 已清）
 
-必须在大规模做经济系统前处理，否则 Cursor 改一处易污染全局：
+下列阻塞项已在 P0–P3 关闭，保留作审计痕迹：
 
 1. ~~**FakeData 污染存档**~~ → **P0.1 完成**；~~分文件 / 版本 / Starter Seed~~ → **P0.2 完成**  
 2. ~~**本地/远程背包共用 `itemData.json`**~~ → **P0.2 完成**（分文件 + 迁移）  
-3. ~~**无存档版本与迁移**~~ → **P0.2 完成**（`meta.json` + Migrator 0→1）  
+3. ~~**无存档版本与迁移**~~ → **P0.2 完成**（`meta.json` + Migrator 0→1…→4）  
 4. ~~**战斗结束返回主场景被注释**~~ → **P0.3 完成**（战报 Confirm → Explore）  
-5. ~~**缺少 Domain 层测试**~~ → **P0.5** `BattleDomain`；**P1.3** 已追加 `DeckRulesTests`（离线测试随 P3）  
+5. ~~**缺少 Domain 层测试**~~ → **P0.5** `BattleDomain`；**P1** `DeckRulesTests`；**P3/P4** Inventory/Quality/Durability/NpcShop 测试已追加  
+
+P5 阶段新债优先记入 [08-known-issues.md](08-known-issues.md)（内容管线、任务存档字段等）。
 
 详见 [08-known-issues.md](08-known-issues.md)。
 
@@ -200,12 +202,12 @@ flowchart LR
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P3.1 资源表 | `ItemCatalog` 18+12；`ItemEntity` itemDef/quality/durability | 仓库按 `(itemDefId, quality)` 堆叠 |
-| P3.2 采集行动 | `GatherNodeCatalog` + Explore Gather + `IdleEconomyTicker` | 与战斗卡组并行不冲突 |
-| P3.3 生产链 ×3 | `RecipeCatalog` + `ProductionService` + `CraftingScreen` | metal / energy / synth 可跑通 |
-| P3.4 装备与耐久 | `DurabilityRules` / `DurabilityService`；`equippedToCardId` | 归零不销毁；维修包可修 |
-| P3.5 品质系统 v0 | `QualityRules` + 制造预览 | 输入/设施抬高最低品质 |
-| P3.6 离线结算 v0 | `idle.json` + `IdleSettlementService` + Bridge Claim | 开局 50% 比例；上线领取 |
+| P3.1 资源表 | **已完成** `ItemCatalog` 18+12；`ItemEntity` itemDef/quality/durability | 仓库按 `(itemDefId, quality)` 堆叠 |
+| P3.2 采集行动 | **已完成** `GatherNodeCatalog` + Explore Gather + `IdleEconomyTicker` | 与战斗卡组并行不冲突 |
+| P3.3 生产链 ×3 | **已完成** `RecipeCatalog` + `ProductionService` + `CraftingScreen`；Start 首周期即时入仓 | metal / energy / synth 可跑通 |
+| P3.4 装备与耐久 | **已完成** `DurabilityRules` / `DurabilityService`；`equippedToCardId` | 归零不销毁；维修包可修 |
+| P3.5 品质系统 v0 | **已完成** `QualityRules` + 制造预览 | 输入/设施抬高最低品质 |
+| P3.6 离线结算 v0 | **已完成** `idle.json` + `IdleSettlementService` + Bridge Claim；打开仓库领取 pending | 开局 50% 比例；上线领取 |
 
 **内容目标（MVP 量）：** 10–15 件装备/模块；品质与耐久接入战斗/采集消耗。 **saveVersion = 4**。
 
@@ -217,28 +219,57 @@ flowchart LR
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P4.1 PlayMode 门控 | `PlayMode.Solo` + `PlayerMarketService` | Solo 无法打开玩家市场 |
-| P4.2 货币字段 | `creditPoints` + `creditsBound` + `CurrencyService` | 购买扣款一致 |
-| P4.3 NPC 货架配置 | `NpcShops.json` + `NpcShopCatalog` | 按区域/舰船解锁商品 |
-| P4.4 购买 / 回收 | `NpcShopService` | 满仓/余额不足有提示 |
-| P4.5 Nexus 入口 | `MarketScreen` 星港商店 | 不再进抽卡 |
+| P4.1 PlayMode 门控 | **已完成** `PlayMode.Solo` + `PlayerMarketService` | Solo 无法打开玩家市场 |
+| P4.2 货币字段 | **已完成** `creditPoints` + `creditsBound` + `CurrencyService`（含 `Changed` 刷新顶栏） | 购买扣款一致 |
+| P4.3 NPC 货架配置 | **已完成** `NpcShops.json` + `NpcShopCatalog` | 按区域/舰船解锁商品 |
+| P4.4 购买 / 回收 | **已完成** `NpcShopService` | 满仓/余额不足有提示 |
+| P4.5 Nexus 入口 | **已完成** `MarketScreen` 星港商店 | 不再进抽卡 |
 | P4.6（后置）玩家市场 | Online only 契约保留 | **非 MVP 验收项** |
 
 > 全服玩家市场与卡牌上架挪到 **线上版本**；不要在 Solo 用 LocalMock 冒充全服盘口。
 
 ---
 
-### P5 — 内容填充与新手两小时（约 3–5 周，可贯穿全程）
+### P3/P4 后补丁（非独立阶段；已并入主干）
 
-**目标**：把规则填成可体验的 MVP 内容量。
+规则闭环后的体验修补，避免误判为未完成：
+
+| 补丁 | 证据 | 说明 |
+| --- | --- | --- |
+| 原生仓库页 | `InventoryScreen` | Legacy World Space 面板被 Nexus 遮挡；现按类型/品质页签展示 |
+| 制造即时产出 | `ProductionService.TryStartRecipe` | Start 成功后立刻结算首周期；失败退还材料 |
+| 货币 UI 同步 | `CurrencyService.Changed` → AppShell credits | 买卖后顶栏信用点即时刷新 |
+| Debug 全图鉴数量 | `DebugScreen` | 可改信用点与全部 `ItemCatalog` 堆叠 |
+
+---
+
+### P5 — 内容填充与新手两小时（约 3–5 周，可贯穿全程） — **进行中 / 未开始子项**
+
+**目标**：把规则填成可体验的 MVP 内容量。  
+**原则**：先做可演示的**引导脊骨**（文档 → Missions），再包装星域奖励，再分批扩角色与阵营，最后粗调数值。
+
+```mermaid
+flowchart LR
+  doc10["P5.0 systems/10"] --> missions["P5.4 Missions"]
+  missions --> loopPolish["P5.3 sector polish"]
+  loopPolish --> rosterBatch["P5.1 roster batches"]
+  rosterBatch --> factions["P5.2 factions"]
+  factions --> balance["P5.5 balance"]
+```
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P5.1 角色扩充 | 向 30–50 张卡推进（可分批） | 抽卡/编队/战斗全链路可用 |
-| P5.2 2 基础阵营 | 阵营标签、少量专属卡/对话 | Explore/卡牌可见区分 |
-| P5.3 完整星域包装 | 5–6 区域叙事与奖励曲线 | 约 2 小时可完成首圈循环 |
-| P5.4 新手引导 | Bridge/任务链：编队→首战→采集→制造→**NPC 商店** | 无强制多人、无玩家市场 |
-| P5.5 数值初平衡 | 挂机产出、维修成本、NPC 价差粗调 | 高强度 AFK 有材料压力但不劝退 |
+| P5.0 新手系统文档 | **已完成** [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) v1.0 | 步骤：编队→首战→采集→制造→NPC 商店；无玩家市场；为 P5.4 实现依据 |
+| P5.4a Missions UI | 替换 `BuildMissionsPlaceholder`；可存档步骤进度 | Bridge/Missions 显示 ≥5 步；完成解锁下一步 |
+| P5.4b 软引导 CTA | Bridge/Explore/Crafting/Market 高亮未完成步骤入口 | 从当前页可感知「下一步去哪」 |
+| P5.3 星域包装 | 基于现有 `RegionCatalog` / `EncounterCatalog` 调 FirstClear/Farm 曲线与短叙事 | ~2 小时首圈可读；不新增星域 |
+| P5.1a 角色批次 1 | +5–10 张可战斗卡（共享技能模板） | 抽卡/编队/战斗全链路可用 |
+| P5.1b… 角色后续批次 | 继续向 30–50 推进 | 同管线；每批可独立验收 |
+| P5.2 2 基础阵营 | 阵营标签 + Explore/卡牌可见区分 | 两阵营标签可辨；不做完整阵营玩法 |
+| P5.5 数值初平衡 | 挂机产出、维修成本、NPC 价差粗调 | 高强度 AFK 有材料压力但不软锁 |
+| （后置）P4.6 / `systems/12` | Online 玩家市场；特殊星域模式 | **非 MVP** |
+
+> Characters / Cards 页仍可接 Legacy；P5 优先 Missions 原生页与内容表，不强求一次重写全部 Legacy 面板。
 
 ---
 
@@ -299,9 +330,9 @@ flowchart LR
 | P0 | `DataUtil.cs`、`InventoryItemManagerBase.cs`、`BattleController.cs`、`05-data-and-save.md` |
 | P1 | `LineupManager.cs`、`FormationScreen.cs`、`CardEntity.cs`、`CardListManager.cs` |
 | P2 | `ExploreScreen.cs`、`PlanetListManager.cs`、`BattleController.cs`、`GameStatusManager.cs` |
-| P3 | `ItemEntity`、Inventory 系列、新建 `Production/` / `Actions/` |
-| P4 | Nexus Market 适配层、新建 `Market/`、`IMarketService` |
-| P5 | `CardDataManager.cs`、`Character` 子类、技能 JSON、Explore/任务 UI |
+| P3 | `ItemCatalog`、`ProductionService`、`CraftingScreen`、`InventoryScreen`、`09-resources-and-warehouse.md` |
+| P4 | `MarketScreen`、`NpcShopService`、`CurrencyService`、`07-market-and-card-trade.md` |
+| P5 | `systems/10-onboarding-and-missions.md`（先写）、`AppShell` Missions、`CardDataManager.cs`、`Character` 子类、`11-sector-and-region-content.md` |
 
 ### 6.5 不建议交给 Cursor「一次做完」的事项
 
@@ -338,7 +369,7 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | 8 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | **P0** | 任何新存档字段 / 经济内容入库 | **已拍板 v1.0** |
 | 9 | [systems/09-resources-and-warehouse.md](systems/09-resources-and-warehouse.md) | **P3** | P3.1 资源表、货舱 | **已拍板 v1.0**：18+12 物品；3 链配方；设施解锁/速度/品质；仓库 60 |
-| 10 | `systems/10-onboarding-and-missions.md` | **P5** | 新手两小时 | **待写**：步骤含 NPC 商店，不含玩家市场 |
+| 10 | [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | **P5（首依赖）** | P5.4 Missions / 新手两小时 | **已拍板 v1.0（P5.0）**：编队→首战→采集→制造→NPC 商店；无玩家市场；下一步实现 P5.4a |
 | 11 | [systems/11-sector-and-region-content.md](systems/11-sector-and-region-content.md) | **P2/P5** | 星域掉落与挂机表 | **已拍板 v1.0**：1 星域×6 区；FirstClear/Farm 掉落；采集挂钩 |
 | 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |
 | 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.1**（MVP 只读 Solo 边界） |
@@ -365,14 +396,14 @@ flowchart LR
 
 ## 8. 里程碑定义（便于排期）
 
-| 里程碑 | 玩家可感知结果 | 依赖 |
-| --- | --- | --- |
-| **M0 可迭代原型** | 进出战斗稳定、存档不脏 | P0 |
-| **M1 有限角色决策** | 两支队伍不能抢同一角色 | P1 |
-| **M2 开图循环** | 通关区域 → 舰船门槛 → 挂机刷取 | P2 |
-| **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 |
-| **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 |
-| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 |
+| 里程碑 | 玩家可感知结果 | 依赖 | 状态 |
+| --- | --- | --- | --- |
+| **M0 可迭代原型** | 进出战斗稳定、存档不脏 | P0 | **已达成** |
+| **M1 有限角色决策** | 两支队伍不能抢同一角色 | P1 | **已达成** |
+| **M2 开图循环** | 通关区域 → 舰船门槛 → 挂机刷取 | P2 | **已达成** |
+| **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 | **已达成** |
+| **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 | **已达成** |
+| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **进行中**（阻塞：引导文档/任务链/角色批次） |
 
 ---
 
@@ -385,21 +416,25 @@ flowchart LR
 3. 若引入新模块，在 `02-project-structure.md` 增加目录说明  
 4. 若发现新坑，记入 `08-known-issues.md`  
 
-建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M1`），方便试玩反馈对齐版本。
+建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M5 (in progress)`），方便试玩反馈对齐版本。
 
 ---
 
 ## 10. 近期建议执行顺序（立刻可开的 Cursor 任务）
 
-按依赖排出的**下一批 5 个任务**（建议严格按序）：
+P0–P4 与 M0–M4 已闭合；**P5.0 文档已拍板**。按依赖排出的**下一批任务**（建议严格按序）：
 
-1. ~~**P0.1–P0.5** 稳基线~~ **已完成**  
-2. ~~**P1** 多卡组与占用~~ **已完成**  
-3. ~~**P2** 区域/舰船/挂机~~ **已完成**  
-4. **P3.1** 资源表接入仓库  
-5. **P3.2** 采集行动  
+1. ~~**P5.0** 撰写 `systems/10-onboarding-and-missions.md`~~ **已完成**  
+2. **P5.4a** Missions 原生页 + 可存档步骤进度（替换 `BuildMissionsPlaceholder`；遵循 `systems/10`）  
+3. **P5.4b** Bridge / 目标屏软 CTA  
+4. **P5.3** Frontier VII FirstClear/Farm 奖励与短叙事抛光（不新开星域）  
+5. **P5.1a** 第一批 +5–10 可战斗角色（共享技能模板；抽卡/编队/战斗可用）  
+6. **P5.5** 挂机产出 / 维修 / NPC 价差粗调  
 
-P2 开图循环已闭合；下一步进入经济循环（P3）。
+并行可后置：`P5.2` 阵营标签、`P5.1b…` 角色后续批次。  
+**不要**在 Solo 启动 P4.6 玩家市场或 `systems/12` 特殊星域模式。
+
+建议 Bridge / Debug 标签：`Build: M5 (in progress)`。
 
 ---
 
