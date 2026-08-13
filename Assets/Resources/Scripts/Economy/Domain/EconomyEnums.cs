@@ -39,7 +39,7 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public const int DefaultQuality = 2;
         public const int GatherCycleSeconds = 30; // playtest; design default 300
         public const int CraftCycleSeconds = 30;
-        public const int OnlineFarmCycleSeconds = 30;
+        public const int OnlineFarmCycleSeconds = 45;
         public const int OfflineCapBaseSeconds = 7200;
         public const int OfflineCapSoftSeconds = 43200;
         public const int OfflineCapHardSeconds = 86400;
@@ -47,7 +47,7 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public const float OfflineYieldSoft = 0.90f;
         public const float OfflineYieldHard = 1.00f;
         public const int AutoRepairThresholdPercent = 30;
-        public const int BaseCombatWear = 3;
+        public const int BaseCombatWear = 2;
         public const string ScrapDefId = "mat_scrap";
         public const string RepairKitDefId = "con_repair_kit";
     }

@@ -65,6 +65,7 @@ namespace Assets.Resources.Scripts.Economy.Domain
             Add(Con("con_field_ration", "Field Ration", "军粮", "Organic", 4));
             Add(Con("con_stim", "Combat Stim", "战剂", "Crystal", 12));
             Add(Con("con_nano_paste", "Nano Paste", "纳米膏", "Organic", 10));
+            Add(Con("con_recruit_ticket", "Recruit Ticket", "招募券", "Crystal", 40));
 
             // --- Equipment (8) ---
             Add(Eq("eq_pulse_rifle", "Pulse Rifle", "脉冲步枪", EquipSlot.Weapon, 80));

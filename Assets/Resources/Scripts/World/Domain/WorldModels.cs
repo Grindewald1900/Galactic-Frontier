@@ -74,10 +74,17 @@ namespace Assets.Resources.Scripts.World.Domain
         public int sortOrder;
         public string displayNameEn = "";
         public string displayNameZh = "";
+        public string blurbEn = "";
+        public string blurbZh = "";
+        public string factionTag = "";
         public string[] prereqRegionIds = Array.Empty<string>();
         public ShipGate shipGate = new ShipGate();
         public string mainEncounterId = "";
         public string farmEncounterId = "";
+        public string[] gatherNodeIds = Array.Empty<string>();
+        public string firstClearRewardId = "";
+        public string repeatClearRewardId = "";
+        public string farmRewardId = "";
         public int recommendedPower;
         public bool bossRegion;
     }
@@ -95,9 +102,12 @@ namespace Assets.Resources.Scripts.World.Domain
     {
         public string encounterId = "";
         public string displayName = "";
+        public string displayNameZh = "";
+        public string factionTag = "";
         public bool isBoss;
         public EncounterEnemySlot[] enemies = Array.Empty<EncounterEnemySlot>();
         public int lootScrap = 1;
+        public string rewardTableId = "";
     }
 
     [Serializable]
@@ -134,7 +144,17 @@ namespace Assets.Resources.Scripts.World.Domain
     {
         public bool Success;
         public string Message = "";
-        public static WorldCommandResult Ok() => new WorldCommandResult { Success = true };
+        public bool WasFirstClear;
+        public string RegionId = "";
+        public string EncounterId = "";
+        public static WorldCommandResult Ok(bool wasFirstClear = false, string regionId = "", string encounterId = "") =>
+            new WorldCommandResult
+            {
+                Success = true,
+                WasFirstClear = wasFirstClear,
+                RegionId = regionId ?? "",
+                EncounterId = encounterId ?? ""
+            };
         public static WorldCommandResult Fail(string message) =>
             new WorldCommandResult { Success = false, Message = message ?? "" };
     }

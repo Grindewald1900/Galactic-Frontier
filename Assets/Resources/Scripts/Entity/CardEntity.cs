@@ -27,6 +27,8 @@ namespace Assets.Resources.Scripts.Entity
         public float power = 0f; // shown on main panel
         /// <summary>P2 AFK farm wear; pauses AutoCombat at WorldConstants.FarmWearPauseThreshold.</summary>
         public int farmWear;
+        public CardSource cardSource = CardSource.None;
+        public CardBoundReason boundReason = CardBoundReason.None;
 
         public int Level
         {

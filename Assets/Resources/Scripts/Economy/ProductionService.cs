@@ -5,6 +5,7 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World;
@@ -28,6 +29,8 @@ namespace Assets.Resources.Scripts.Economy
                 return EconomyCommandResult.Fail("No free deck with members for gather.");
 
             var start = DeckService.TryStart(deck.deckId, DeckActionType.Gather, nodeId, cards);
+            if (start.Success)
+                OnboardingService.NotifyGatherProgress();
             return start.Success
                 ? EconomyCommandResult.Ok()
                 : EconomyCommandResult.Fail(start.Message);
@@ -93,6 +96,7 @@ namespace Assets.Resources.Scripts.Economy
                 return EconomyCommandResult.Fail("Could not deliver craft output.");
             }
 
+            OnboardingService.NotifyCraftedOnce();
             return EconomyCommandResult.Ok($"Crafted {recipe.outputQty}× {recipe.outputDefId}.");
         }
 
@@ -295,6 +299,17 @@ namespace Assets.Resources.Scripts.Economy
             foreach (var s in stacks)
                 list.Add(ItemFactory.FromStack(s));
             DataUtil.Instance?.SaveInventory(InventoryStore.Local, list, touchMeta: true);
+            return true;
+        }
+
+        public static bool TryConsumeLocal(string itemDefId, int quantity, int minQuality = 1)
+        {
+            if (string.IsNullOrEmpty(itemDefId) || quantity <= 0) return false;
+            var items = GetLocalItems();
+            var stacks = ItemFactory.ToStacks(items);
+            if (!InventoryRules.TryConsume(stacks, itemDefId, quantity, minQuality))
+                return false;
+            ReplaceLocalFromStacks(stacks);
             return true;
         }
 

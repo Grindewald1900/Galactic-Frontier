@@ -78,9 +78,11 @@ flowchart LR
 当前抽卡分为两个阶段：
 
 1. `CardDrawingManager` 选择 1 次或 10 次抽取，预扣材料；
-2. `CardResultManager.InitCards(drawCount)` 调用 `CardDataManager` 生成结果并展示统计。
+2. `CardResultManager.InitCards(drawCount)` 生成结果并展示统计；翻牌结束后 `ShowReport` → `CardListManager.AddCardEntity` 入池存档。
 
-`CardDrawingManager` 材料仅在 **Dev Data Mode** 下由 `IDevDataProvider.FillSampleGachaMaterials` 注入（内存，不写档）；正式模式材料列表为空，待接真实背包。确认抽卡后，生成的卡牌仍会进入 `CardListManager` 并保存（Dev 样例结果同理，日志前缀 `[DEV-DATA]`）。
+`CardDrawingManager` 材料仅在 **Dev Data Mode** 下由 `IDevDataProvider.FillSampleGachaMaterials` 注入（内存，不写档）；正式模式材料列表为空，待接真实背包。`InitCards` 在 Dev OFF 时目前不会调用 `CardDataManager` 生成（空结果）——正式路径见系统文档拍板。
+
+完整规则、代价表、软保底、绑定/分解与落地顺序：见 [systems/15-gacha-and-progression.md](systems/15-gacha-and-progression.md)。
 
 ## 6. 战斗
 

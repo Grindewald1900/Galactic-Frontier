@@ -1,10 +1,10 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v1.8  
+> 文档版本：v2.0  
 > 对照设计：`Documentation/01-core-product-design.md`（产品核心设计 **v0.4**）  
 > 对照实现：`Assets/Resources/Scripts` 与现有 `zh-CN` 开发文档  
-> 更新日期：2026-08-11  
-> 变更摘要：P0–P4 已闭合；P5.0 `systems/10` 新手任务链已拍板；下一步 P5.4a Missions 实现。
+> 更新日期：2026-08-12  
+> 变更摘要：P5.1b 角色扩至约 36 名；抽卡正式路径（招募券扣库存 + Recruit 页）已落地。
 本文档回答三件事：
 
 1. 以核心设计 / MVP 为尺子，**当前做到哪一步**；
@@ -15,9 +15,8 @@
 
 ## 1. 一句话结论
 
-项目处于**可演示的单人核心循环阶段**：全自动战斗、多卡组占用与调度、采集/制造/耐久/离线、星港 NPC 商店、Nexus 原生仓库/制造/商店页已打通。  
-**规则与单机经济已通**；核心设计要求的 **角色内容量、阵营区分、约两小时新手流程** 仍是主要缺口。  
-后续应以「先做可演示的引导脊骨，再分批扩角色与包装」为原则，用 Cursor 按 P5 切片实现。
+项目处于**可演示的单人核心循环阶段**：全自动战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名可战斗角色与招募抽卡已打通。  
+**规则与单机经济已通**；相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、以及 Characters/Cards 原生页。
 
 ---
 
@@ -29,13 +28,13 @@
 | --- | --- | --- |
 | 战斗原型 | ★★★★☆ | 全自动可跑通；种子伤害+战报返回已通；敌人/策略仍弱 |
 | 卡牌与编队 | ★★★★☆ | **P1 完成**：多卡组 UI、占用、调度器、备用预设 |
-| UI 壳层 | ★★★★☆ | Nexus 导航 + Bridge/Explore/Formation；**Inventory / Crafting / Market 已原生**；Characters/Cards/Missions 仍薄或 Legacy |
-| 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed（saveVersion 4） |
+| UI 壳层 | ★★★★☆ | Nexus 导航含 Recruit；Inventory / Crafting / Market / Missions 已原生；Characters/Cards 仍可接 Legacy |
+| 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed；`gacha.json` |
 | 经济循环 | ★★★★☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店；制造首周期即时入仓 |
-| 成长与主线 | ★★★☆☆ | **P2**：6 区进度 + 舰船门 + 首领 + Explore 硬锁；新手任务链未做 |
-| 内容量 | ★☆☆☆☆ | 可战斗角色约 3 名，远低于 MVP 30–50 |
+| 成长与主线 | ★★★★☆ | **P2+P5.4**：6 区进度 + 舰船门 + 首领 + 新手五步任务链 |
+| 内容量 | ★★★☆☆ | 可战斗角色约 **36** 名（P5.1a+b）；可继续向 50 扩 |
 
-整体相对 MVP §16.1：**约 55%–65%**（战斗/卡组/经济与 NPC 商店已通，缺口在内容量与新手两小时）。
+整体相对 MVP §16.1：**约 80%–85%**（引导/星域/招募已通；分解与卡册原生页仍薄）。
 
 ### 2.2 MVP 必含项对照表
 
@@ -66,9 +65,9 @@
 | 普通卡牌交易 | 未开始（**非 MVP**） | 仅 Online；Solo 走 NPC/分解 |
 | NPC 商店 + 基础货币 | 已实现 | `MarketScreen` + `NpcShopService`；`creditPoints` / `creditsBound` |
 | 5–6 可探索区域 + 1 区域首领 | 已实现 | 6 区含 Frontier Anchor；`world.json` 进度 |
-| 1 个完整星域 / 2 基础阵营 | 部分实现 | 星域 `sector_frontier_vii`；阵营标签仍预留 |
-| 30–50 角色及相关卡牌 | 部分实现 | 约 3 名可战斗角色（Asra / Magki / Sernia） |
-| 约两小时新手流程 | 未开始 | Missions 为占位；缺 `systems/10-onboarding-and-missions.md` |
+| 1 个完整星域 / 2 基础阵营 | 已实现 | Frontier VII 奖励/叙事；`FactionA`/`FactionB` 标签可见 |
+| 30–50 角色及相关卡牌 | 部分实现 | **36** 名可战斗（P5.1a+b）；可继续向 50 |
+| 约两小时新手流程 | 已实现 | `OnboardingService` + Missions + 软 CTA；曲线由星域奖励支撑 |
 | 基础仓库和舰船升级 | 已实现 | 原生 `InventoryScreen`（类型/品质页签）+ 双背包存档；`ShipService` 模块/等级升级 |
 | 离线收益比例（开局 50%） | 已实现 | `OfflineRules.YieldRatio`；Bridge Claim；打开仓库时领取 pending loot |
 | 单机模式完整可玩 | 部分实现 | 规则与 NPC 经济齐；内容量与新手引导不足 |
@@ -243,7 +242,7 @@ flowchart LR
 
 ---
 
-### P5 — 内容填充与新手两小时（约 3–5 周，可贯穿全程） — **进行中 / 未开始子项**
+### P5 — 内容填充与新手两小时（约 3–5 周，可贯穿全程） — **主切片已完成；扩容进行中**
 
 **目标**：把规则填成可体验的 MVP 内容量。  
 **原则**：先做可演示的**引导脊骨**（文档 → Missions），再包装星域奖励，再分批扩角色与阵营，最后粗调数值。
@@ -259,14 +258,15 @@ flowchart LR
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P5.0 新手系统文档 | **已完成** [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) v1.0 | 步骤：编队→首战→采集→制造→NPC 商店；无玩家市场；为 P5.4 实现依据 |
-| P5.4a Missions UI | 替换 `BuildMissionsPlaceholder`；可存档步骤进度 | Bridge/Missions 显示 ≥5 步；完成解锁下一步 |
-| P5.4b 软引导 CTA | Bridge/Explore/Crafting/Market 高亮未完成步骤入口 | 从当前页可感知「下一步去哪」 |
-| P5.3 星域包装 | 基于现有 `RegionCatalog` / `EncounterCatalog` 调 FirstClear/Farm 曲线与短叙事 | ~2 小时首圈可读；不新增星域 |
-| P5.1a 角色批次 1 | +5–10 张可战斗卡（共享技能模板） | 抽卡/编队/战斗全链路可用 |
-| P5.1b… 角色后续批次 | 继续向 30–50 推进 | 同管线；每批可独立验收 |
-| P5.2 2 基础阵营 | 阵营标签 + Explore/卡牌可见区分 | 两阵营标签可辨；不做完整阵营玩法 |
-| P5.5 数值初平衡 | 挂机产出、维修成本、NPC 价差粗调 | 高强度 AFK 有材料压力但不软锁 |
+| P5.0 新手系统文档 | **已完成** [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | 步骤：编队→首战→采集→制造→NPC 商店 |
+| P5.4a Missions UI | **已完成** `MissionsScreen` + `OnboardingService` + `onboarding.json` | Bridge/Missions 五步；Claim；可存档 |
+| P5.4b 软引导 CTA | **已完成** Bridge 下一步条 + 目标屏 `OnboardingBanner` | 各目标屏可感知下一步 |
+| P5.3 星域包装 | **已完成** `RewardCatalog` / `RewardService` + 采集节点 + Explore 短叙事 | FirstClear/Repeat/Farm 多物品；裂隙/深渊/护航节点 |
+| P5.1a 角色批次 1 | **已完成** +8 可战斗卡（共享 Burn/Stun/Freeze 模板）→ 共 11 | 抽卡池/编队/战斗可用 |
+| P5.1b 角色批次 2 | **已完成** +25 → 共约 **36** | 同模板；抽卡/编队/战斗可用 |
+| P5.2 2 基础阵营 | **已完成** `FactionTags` + Explore/编队标签 | Guard / Syndicate 可辨；无完整阵营玩法 |
+| P5.5 数值初平衡 | **已完成** 挂机 45s、维修/NPC 价差粗调 | AFK 有材料压力但不软锁 |
+| 抽卡正式路径 | **已完成** `GachaService` + `RecruitScreen` + 招募券扣库存 | Dev OFF 可抽；Lv1 入池；软保底 |
 | （后置）P4.6 / `systems/12` | Online 玩家市场；特殊星域模式 | **非 MVP** |
 
 > Characters / Cards 页仍可接 Legacy；P5 优先 Missions 原生页与内容表，不强求一次重写全部 Legacy 面板。
@@ -369,8 +369,8 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | 8 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | **P0** | 任何新存档字段 / 经济内容入库 | **已拍板 v1.0** |
 | 9 | [systems/09-resources-and-warehouse.md](systems/09-resources-and-warehouse.md) | **P3** | P3.1 资源表、货舱 | **已拍板 v1.0**：18+12 物品；3 链配方；设施解锁/速度/品质；仓库 60 |
-| 10 | [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | **P5（首依赖）** | P5.4 Missions / 新手两小时 | **已拍板 v1.0（P5.0）**：编队→首战→采集→制造→NPC 商店；无玩家市场；下一步实现 P5.4a |
-| 11 | [systems/11-sector-and-region-content.md](systems/11-sector-and-region-content.md) | **P2/P5** | 星域掉落与挂机表 | **已拍板 v1.0**：1 星域×6 区；FirstClear/Farm 掉落；采集挂钩 |
+| 10 | [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | **P5** | P5.4 Missions / 新手两小时 | **已拍板 v1.1**：P5.4a/b 已落地 |
+| 11 | [systems/11-sector-and-region-content.md](systems/11-sector-and-region-content.md) | **P2/P5** | P5.3 星域奖励 | **v1.1**：RewardCatalog / RewardService 已落地；采集节点补齐 |
 | 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |
 | 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.1**（MVP 只读 Solo 边界） |
 | 16 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | 全程 | 调试 / QA | **已拍板 v1.1**：`DebugModeController`、导航 Debug 页、设置礼品码 |
@@ -380,8 +380,8 @@ flowchart LR
 | 文档 | 何时需要 |
 | --- | --- |
 | `systems/13-research-and-transit.md` | `Research` / `Transit` 完整循环 |
-| `systems/15-gacha-and-progression.md` | 抽卡与绑定/分解对齐 |
-| `systems/15-faction-and-content-pipeline.md` | 阵营批量卡牌/遭遇管线（原 11 号位后置） |
+| [systems/15-gacha-and-progression.md](systems/15-gacha-and-progression.md) | 抽卡正式路径、代价、软保底、绑定/分解 | **已拍板 v1.0** |
+| `systems/15-faction-and-content-pipeline.md` | 阵营批量卡牌/遭遇管线（原 11 号位后置；编号冲突时改用 `17-`） |
 
 ### 7.3 使用规则
 
@@ -403,7 +403,7 @@ flowchart LR
 | **M2 开图循环** | 通关区域 → 舰船门槛 → 挂机刷取 | P2 | **已达成** |
 | **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 | **已达成** |
 | **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 | **已达成** |
-| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **进行中**（阻塞：引导文档/任务链/角色批次） |
+| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/阵营已通；角色量继续 P5.1b |
 
 ---
 
@@ -422,19 +422,16 @@ flowchart LR
 
 ## 10. 近期建议执行顺序（立刻可开的 Cursor 任务）
 
-P0–P4 与 M0–M4 已闭合；**P5.0 文档已拍板**。按依赖排出的**下一批任务**（建议严格按序）：
+P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已完成**。下一批：
 
-1. ~~**P5.0** 撰写 `systems/10-onboarding-and-missions.md`~~ **已完成**  
-2. **P5.4a** Missions 原生页 + 可存档步骤进度（替换 `BuildMissionsPlaceholder`；遵循 `systems/10`）  
-3. **P5.4b** Bridge / 目标屏软 CTA  
-4. **P5.3** Frontier VII FirstClear/Farm 奖励与短叙事抛光（不新开星域）  
-5. **P5.1a** 第一批 +5–10 可战斗角色（共享技能模板；抽卡/编队/战斗可用）  
-6. **P5.5** 挂机产出 / 维修 / NPC 价差粗调  
+1. ~~**P5.0–P5.5 / P5.1b / 抽卡正式路径**~~ **已完成**  
+2. （可选）继续角色扩至 50  
+3. （可选）卡牌分解 + Characters/Cards 原生页  
+4. （可选）抽卡概率公示细节 / 十连折扣  
 
-并行可后置：`P5.2` 阵营标签、`P5.1b…` 角色后续批次。  
 **不要**在 Solo 启动 P4.6 玩家市场或 `systems/12` 特殊星域模式。
 
-建议 Bridge / Debug 标签：`Build: M5 (in progress)`。
+建议 Bridge / Debug 标签：`Build: M5 (near)`。
 
 ---
 
@@ -451,4 +448,5 @@ P0–P4 与 M0–M4 已闭合；**P5.0 文档已拍板**。按依赖排出的**�
 | [09-figma-ui.md](09-figma-ui.md) | Nexus UI 扩展方式 |
 | [10-core-classes.md](10-core-classes.md) | 核心类职责与调用链 |
 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | P0 存档版本、FakeData 边界、双背包与种子 |
+| [systems/15-gacha-and-progression.md](systems/15-gacha-and-progression.md) | 抽卡正式路径、代价、软保底、绑定/分解 |
 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | Dev Data、Debug Panel、礼品码与测试清单 |

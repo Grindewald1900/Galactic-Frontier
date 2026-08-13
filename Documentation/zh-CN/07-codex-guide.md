@@ -70,7 +70,7 @@
 | 编队 | `LineupManager.cs`, `DropZoneHandler.cs`, `PortraitSlot.cs` |
 | 战斗 | `BattleController.cs`, `CharacterSkillController.cs`, 具体角色类 |
 | Buff/Debuff | `BuffManager.cs`, `DebuffManager.cs`, `Status.cs` |
-| 抽卡 | `CardDrawingManager.cs`, `CardResultManager.cs` |
+| 抽卡 | `CardDrawingManager.cs`, `CardResultManager.cs`, `systems/15-gacha-and-progression.md` |
 | 物品 | `InventoryItemManagerBase.cs`, `ItemOperationManager.cs`, `ItemSlot.cs` |
 | 存档 | `DataUtil.cs`, `Wrappers.cs`, `DefaultProperty.cs` |
 | 星球 | `RadarSystem.cs`, `PlanetListManager.cs`, `PlanetDetailManager.cs` |

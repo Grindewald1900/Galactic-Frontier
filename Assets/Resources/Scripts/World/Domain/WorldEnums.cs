@@ -27,7 +27,7 @@ namespace Assets.Resources.Scripts.World.Domain
         public const string ConvoyLaneId = "sec01_convoy_lane";
         public const string FrontierBossId = "sec01_frontier_boss";
 
-        public const int FarmCycleSeconds = 30;
+        public const int FarmCycleSeconds = 45;
         public const int FarmWearPerCycle = 1;
         public const int FarmWearPauseThreshold = 10;
         public const string FarmLootItemName = "seed_scrap";

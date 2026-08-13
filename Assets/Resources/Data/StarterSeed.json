@@ -1,5 +1,5 @@
 {
-  "seedTableVersion": 2,
+  "seedTableVersion": 3,
   "localItems": [
     {
       "itemType": 2,
@@ -98,6 +98,17 @@
       "itemCost": 15,
       "isRemote": false,
       "itemDefId": "con_repair_kit",
+      "quality": 2
+    },
+    {
+      "itemType": 2,
+      "itemName": "Recruit Ticket",
+      "itemDescription": "Pays for one standard-pool recruit pull.",
+      "itemIcon": "Crystal",
+      "quantity": 8,
+      "itemCost": 40,
+      "isRemote": false,
+      "itemDefId": "con_recruit_ticket",
       "quality": 2
     }
   ]

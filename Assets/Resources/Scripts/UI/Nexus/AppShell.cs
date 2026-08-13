@@ -7,6 +7,7 @@ using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.Onboarding;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private Canvas contentCanvas;
         private RectTransform contentHost;
         private BridgeScreen bridgeScreen;
-        private GameObject missionsRoot;
+        private MissionsScreen missionsScreen;
         private GameObject settingsRoot;
         private ExploreScreen exploreScreen;
         private DebugScreen debugScreen;
@@ -38,6 +39,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private ShipScreen shipScreen;
         private CraftingScreen craftingScreen;
         private MarketScreen marketScreen;
+        private RecruitScreen recruitScreen;
         private InventoryScreen inventoryScreen;
         private TextMeshProUGUI breadcrumbTitle;
         private TextMeshProUGUI statusShortcuts;
@@ -92,6 +94,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         WorldService.EnsureLoaded(DataUtil.Instance);
                         ShipService.EnsureLoaded(DataUtil.Instance);
                         IdleSettlementService.EnsureLoaded(DataUtil.Instance);
+                        OnboardingService.EnsureLoaded(DataUtil.Instance);
+                        Assets.Resources.Scripts.Gacha.GachaService.EnsureLoaded(DataUtil.Instance);
                         IdleSettlementService.OnAppResume(CardListManager.Instance?.cardEntities);
                     }
                     AppScreen initial = PendingScreen;
@@ -150,7 +154,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             contentCanvas = null;
             contentHost = null;
             bridgeScreen = null;
-            missionsRoot = null;
+            missionsScreen = null;
             settingsRoot = null;
             exploreScreen = null;
             debugScreen = null;
@@ -158,6 +162,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             shipScreen = null;
             craftingScreen = null;
             marketScreen = null;
+            recruitScreen = null;
             inventoryScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
@@ -186,7 +191,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             contentCanvas = null;
             contentHost = null;
             bridgeScreen = null;
-            missionsRoot = null;
+            missionsScreen = null;
             settingsRoot = null;
             exploreScreen = null;
             debugScreen = null;
@@ -194,6 +199,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             shipScreen = null;
             craftingScreen = null;
             marketScreen = null;
+            recruitScreen = null;
             inventoryScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
@@ -240,6 +246,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             else if (Input.GetKeyDown(KeyCode.F6)) ShowScreen(AppScreen.Crafting);
             else if (Input.GetKeyDown(KeyCode.F7)) ShowScreen(AppScreen.Market);
             else if (Input.GetKeyDown(KeyCode.F8)) ShowScreen(AppScreen.Missions);
+            else if (Input.GetKeyDown(KeyCode.F9)) ShowScreen(AppScreen.Recruit);
         }
 
         public static void RequestScreen(AppScreen screen)
@@ -305,7 +312,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                             () => ShowScreen(AppScreen.Missions),
                             () => ShowScreen(AppScreen.Formation),
                             () => ShowScreen(AppScreen.Battle),
-                            () => ShowScreen(AppScreen.Ship));
+                            () => ShowScreen(AppScreen.Ship),
+                            ShowScreen);
                     }
                     else
                     {
@@ -341,6 +349,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         marketScreen.Rebuild();
                     marketScreen.Root.SetActive(true);
                     break;
+                case AppScreen.Recruit:
+                    if (recruitScreen == null)
+                        recruitScreen = RecruitScreen.Build(ContentRoot(), ShowScreen);
+                    else
+                        recruitScreen.Rebuild();
+                    recruitScreen.Root.SetActive(true);
+                    break;
                 case AppScreen.Inventory:
                     if (inventoryScreen == null)
                         inventoryScreen = InventoryScreen.Build(ContentRoot());
@@ -362,9 +377,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     debugScreen.Root.SetActive(true);
                     break;
                 case AppScreen.Missions:
-                    if (missionsRoot == null)
-                        missionsRoot = BuildMissionsPlaceholder();
-                    missionsRoot.SetActive(true);
+                    if (missionsScreen == null)
+                        missionsScreen = MissionsScreen.Build(ContentRoot(), ShowScreen);
+                    else
+                        missionsScreen.Rebuild();
+                    missionsScreen.Root.SetActive(true);
                     break;
                 default:
                     if (contentCanvas != null)
@@ -378,7 +395,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void HideNativeRoots()
         {
             if (bridgeScreen != null) bridgeScreen.Root.SetActive(false);
-            if (missionsRoot != null) missionsRoot.SetActive(false);
+            if (missionsScreen != null) missionsScreen.Root.SetActive(false);
             if (settingsRoot != null) settingsRoot.SetActive(false);
             if (exploreScreen != null) exploreScreen.Root.SetActive(false);
             if (debugScreen != null) debugScreen.Root.SetActive(false);
@@ -386,6 +403,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (shipScreen != null) shipScreen.Root.SetActive(false);
             if (craftingScreen != null) craftingScreen.Root.SetActive(false);
             if (marketScreen != null) marketScreen.Root.SetActive(false);
+            if (recruitScreen != null) recruitScreen.Root.SetActive(false);
             if (inventoryScreen != null) inventoryScreen.Root.SetActive(false);
         }
 
@@ -561,6 +579,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AddNav(parent, AppScreen.Inventory, y); y += 52f;
             AddNav(parent, AppScreen.Crafting, y); y += 52f;
             AddNav(parent, AppScreen.Market, y); y += 52f;
+            AddNav(parent, AppScreen.Recruit, y); y += 52f;
             AddNav(parent, AppScreen.Missions, y);
 
             if (DebugModeController.Instance != null && DebugModeController.Instance.IsEnabled)
@@ -702,6 +721,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 AppScreen.Inventory => "Inventory",
                 AppScreen.Crafting => "Building",
                 AppScreen.Market => "Shop",
+                AppScreen.Recruit => "Cards",
                 AppScreen.Missions => "Add Icon",
                 AppScreen.Settings => "Settings",
                 AppScreen.Debug => "Settings",
@@ -720,6 +740,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Inventory => UiText.ScreenInventory,
             AppScreen.Crafting => UiText.ScreenCrafting,
             AppScreen.Market => UiText.ScreenMarket,
+            AppScreen.Recruit => UiText.ScreenRecruit,
             AppScreen.Missions => UiText.ScreenMissions,
             AppScreen.Settings => UiText.ScreenSettings,
             AppScreen.Debug => UiText.ScreenDebug,
@@ -908,48 +929,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             EnsureContentCanvas();
             return contentHost;
-        }
-
-        private GameObject BuildMissionsPlaceholder()
-        {
-            GameObject root = NexusUiFactory.CreatePanel(
-                ContentRoot(),
-                "Missions Placeholder",
-                NexusTheme.Background,
-                Vector2.zero,
-                Vector2.one,
-                Vector2.zero,
-                Vector2.zero);
-            NexusUiFactory.CreateText(
-                root.transform,
-                "Title",
-                UiText.MissionsTitle,
-                new Vector2(28f, 24f),
-                new Vector2(520f, 40f),
-                22f,
-                NexusTheme.Text,
-                TextAlignmentOptions.Left,
-                FontStyles.Bold);
-            var body = NexusUiFactory.CreateText(
-                root.transform,
-                "Body",
-                UiText.MissionsBody,
-                new Vector2(28f, 80f),
-                new Vector2(800f, 80f),
-                14f,
-                NexusTheme.MutedText);
-            body.textWrappingMode = TextWrappingModes.Normal;
-            NexusUiFactory.CreateButton(
-                root.transform,
-                "Explore",
-                UiText.EnterExploreBattle,
-                new Vector2(28f, 180f),
-                new Vector2(220f, 44f),
-                () => ShowScreen(AppScreen.Battle),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
-                NexusTheme.Gold,
-                13f);
-            return root;
         }
 
         private void BuildMainMenuBranding()

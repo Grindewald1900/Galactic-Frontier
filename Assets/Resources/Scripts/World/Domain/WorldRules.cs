@@ -147,21 +147,29 @@ namespace Assets.Resources.Scripts.World.Domain
             var enc = EncounterCatalog.Get(encounterId);
             var isBossFight = config.bossRegion || (enc != null && enc.isBoss);
 
+            bool wasFirstClear;
             if (isBossFight)
             {
+                wasFirstClear = !rt.bossDefeated;
                 rt.bossDefeated = true;
                 rt.cleared = true;
+                if (wasFirstClear)
+                    rt.firstClearedAtUtc = nowUtc;
             }
-            else if (!rt.cleared)
+            else
             {
-                rt.cleared = true;
-                rt.firstClearedAtUtc = nowUtc;
+                wasFirstClear = !rt.cleared;
+                if (wasFirstClear)
+                {
+                    rt.cleared = true;
+                    rt.firstClearedAtUtc = nowUtc;
+                }
             }
 
             rt.clearCount++;
             world.explorationProgress = ComputeExplorationProgress(world);
             world.count = world.regions.Count;
-            return WorldCommandResult.Ok();
+            return WorldCommandResult.Ok(wasFirstClear, regionId, encounterId ?? "");
         }
 
         public static int ComputeExplorationProgress(PlayerWorldState world)

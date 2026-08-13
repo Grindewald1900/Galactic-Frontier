@@ -438,6 +438,99 @@ namespace Assets.Resources.Scripts.Utils
             return SaveData(state, directory, DefaultProperty.IDLE_DATA);
         }
 
+        public bool SaveOnboardingState(
+            Assets.Resources.Scripts.Onboarding.Domain.OnboardingState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.completedStepIds?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.ONBOARDING_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Onboarding.Domain.OnboardingState LoadOnboardingState()
+        {
+            EnsurePlayerBound();
+            return ReadOnboardingStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Onboarding.Domain.OnboardingState ReadOnboardingStateFromDirectory(
+            string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.ONBOARDING_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Onboarding.Domain.OnboardingState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read onboarding.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteOnboardingStateToDirectory(
+            string directory, Assets.Resources.Scripts.Onboarding.Domain.OnboardingState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.completedStepIds?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.ONBOARDING_DATA);
+        }
+
+        public bool SaveGachaState(
+            Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.totalPulls;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.GACHA_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState LoadGachaState()
+        {
+            EnsurePlayerBound();
+            return ReadGachaStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState ReadGachaStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.GACHA_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read gacha.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteGachaStateToDirectory(
+            string directory, Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.totalPulls;
+            return SaveData(state, directory, DefaultProperty.GACHA_DATA);
+        }
+
         public List<CardEntity> ReadCardListFromDirectory(string directory)
         {
             var path = CombinePath(directory, DefaultProperty.PLAYER_CARDS_DATA);

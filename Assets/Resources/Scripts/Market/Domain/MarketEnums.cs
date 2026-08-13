@@ -23,7 +23,7 @@ namespace Assets.Resources.Scripts.Market.Domain
 
     public static class MarketConstants
     {
-        public const float DefaultSellBackRatio = 0.40f;
+        public const float DefaultSellBackRatio = 0.45f;
         public const string CurrencyCredits = "credits";
         public const string CurrencyCreditsBound = "credits_bound";
         public const string DefaultShopId = "shop_starport";

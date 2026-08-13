@@ -8,6 +8,7 @@ using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Utils.Save;
 using static Assets.Resources.Scripts.Cards.CardDataManager;
 using static Assets.Resources.Scripts.Main.GameStatusManager;
@@ -26,6 +27,7 @@ namespace Assets.Resources.Scripts.Cards
         public Button confirmButton;
         public List<Card> cards = new();
         private List<CardEntity> cardEntities = new();
+        private bool grantOnReport;
 
         void Awake()
         {
@@ -54,6 +56,7 @@ namespace Assets.Resources.Scripts.Cards
         {
             cards.Clear();
             cardEntities.Clear();
+            grantOnReport = true;
 
             if (DevData.IsActive)
             {
@@ -64,15 +67,35 @@ namespace Assets.Resources.Scripts.Cards
             else
             {
                 DevData.LogSkipped(nameof(CardResultManager) + ".CreateSampleGachaResults");
+                var result = GachaService.TryPull(cardCount, grantImmediately: false);
+                if (!result.Success)
+                {
+                    Debug.LogWarning("[GACHA] " + result.Message);
+                    return;
+                }
+                cardEntities.AddRange(result.Cards);
             }
 
+            PresentLoadedCards();
+        }
+
+        public void PresentResults(List<CardEntity> entities, bool grantOnReport)
+        {
+            cards.Clear();
+            cardEntities.Clear();
+            this.grantOnReport = grantOnReport;
+            if (entities != null)
+                cardEntities.AddRange(entities);
+            PresentLoadedCards();
+        }
+
+        private void PresentLoadedCards()
+        {
             if (cardEntities.Count == 0)
                 return;
 
             foreach (var cardEntity in cardEntities)
-            {
                 AddCard(cardEntity);
-            }
             StartCoroutine(FlipAllCards());
         }
 
@@ -87,7 +110,7 @@ namespace Assets.Resources.Scripts.Cards
 
         private void ConfirmCards()
         {
-            //TODO: Save card data
+            // Cards are granted in ShowReport (flip complete). Confirm only returns to shop.
             MainScrollController.Instance.ShowPanel(CurrentScene.SHOP_MENU);
         }
 
@@ -135,7 +158,8 @@ namespace Assets.Resources.Scripts.Cards
                 ShowCharacter(character.Key, character.Value);
             }
             confirmButton.interactable = true;
-            CardListManager.Instance.AddCardEntity(cardEntities);
+            if (grantOnReport)
+                GachaService.Grant(cardEntities);
         }
 
         private Dictionary<CharacterName, int> GetCharacterDrawCount(List<CardEntity> drawResults)

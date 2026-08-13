@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Characters;
+using Assets.Resources.Scripts.Characters.Magician;
 using Assets.Resources.Scripts.Characters.Mechanician;
 using Assets.Resources.Scripts.Characters.Monster;
-using Assets.Resources.Scripts.Characters.Magician;
-using static Assets.Resources.Scripts.Props.Status;
-using Assets.Resources.Scripts.Props;
+using Assets.Resources.Scripts.Characters.Roster;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Props;
+using static Assets.Resources.Scripts.Props.Status;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -67,25 +68,30 @@ namespace Assets.Resources.Scripts.Cards
                 .SetExp(0f);
         }
 
-        /// <summary>Rolls for character tier based on assigned probabilities.</summary>
-        public CharacterTier GetCardTier(Character character)
+        /// <summary>Formal gacha build: Lv1, template stats, source=Gacha, unbound.</summary>
+        public CardEntity GetGachaCardEntity(Character character, bool pityForce = false, System.Random rng = null)
         {
-            int roll = UnityEngine.Random.Range(1, 10001);
-            int acc = 0;
-            foreach (var entry in character.possibleTiers.OrderBy(e => e.Value))
-            {
-                acc += entry.Value;
-                if (roll <= acc)
-                    return entry.Key;
-            }
-            return CharacterTier.TierE;
+            var tier = GetCardTier(character, pityForce, rng);
+            var entity = new CardEntity()
+                .SetCardName(character.characterName.ToString())
+                .SetCharacterName(character.characterName)
+                .SetCharacterTier(tier)
+                .SetArchetype(character.archetype)
+                .SetId(Guid.NewGuid().ToString("N"))
+                .SetLevel(1)
+                .SetExp(0f);
+            entity.cardSource = CardSource.Gacha;
+            entity.boundReason = CardBoundReason.None;
+            ApplyLevelOneStats(entity);
+            return entity;
         }
 
-        /// <summary>Selects a character strategy using each character's spawn weight.</summary>
-        public Character GetCharacter()
+        public Character GetCharacter(System.Random rng)
         {
-            int rollRange = characterList.Sum(c => c.weight);
-            int roll = UnityEngine.Random.Range(0, rollRange);
+            if (characterList == null || characterList.Count == 0)
+                InitCharacterList();
+            int rollRange = Math.Max(1, characterList.Sum(c => c.weight));
+            int roll = rng != null ? rng.Next(0, rollRange) : UnityEngine.Random.Range(0, rollRange);
             int cumulative = 0;
             foreach (var character in characterList)
             {
@@ -93,7 +99,51 @@ namespace Assets.Resources.Scripts.Cards
                 if (roll < cumulative)
                     return character;
             }
-            return characterList.First();
+            return characterList[0];
+        }
+
+        /// <summary>Selects a character strategy using each character's spawn weight.</summary>
+        public Character GetCharacter() => GetCharacter(null);
+
+        /// <summary>Rolls for character tier based on assigned probabilities.</summary>
+        public CharacterTier GetCardTier(Character character, bool pityForce = false, System.Random rng = null)
+        {
+            if (character?.possibleTiers == null || character.possibleTiers.Count == 0)
+                return CharacterTier.TierE;
+
+            var entries = pityForce
+                ? character.possibleTiers.Where(e => e.Key >= CharacterTier.TierA).OrderBy(e => e.Value)
+                : character.possibleTiers.OrderBy(e => e.Value);
+            var list = entries.ToList();
+            if (list.Count == 0)
+                return CharacterTier.TierA;
+
+            int total = list.Sum(e => e.Value);
+            int rollCap = Math.Max(1, Math.Min(10000, total));
+            int roll = rng != null ? rng.Next(1, rollCap + 1) : UnityEngine.Random.Range(1, rollCap + 1);
+            int acc = 0;
+            foreach (var entry in list)
+            {
+                acc += entry.Value;
+                if (roll <= acc)
+                    return entry.Key;
+            }
+            return list[list.Count - 1].Key;
+        }
+
+        private void ApplyLevelOneStats(CardEntity entity)
+        {
+            var attr = GetBaseAttrEntitiy(1);
+            if (attr != null)
+            {
+                entity.SetHealth(attr.health)
+                    .SetAttack(attr.attack)
+                    .SetDefense(attr.defense)
+                    .SetSpeed(attr.speed);
+                return;
+            }
+
+            entity.SetSpeed(18f).SetAttack(12f).SetDefense(12f).SetHealth(100f);
         }
 
         /// <summary>Get a random ExpertiseEntity for given CardEntity.</summary>
@@ -154,22 +204,24 @@ namespace Assets.Resources.Scripts.Cards
         public List<ExpertiseEntity> GetCharacterExpertises(CharacterName name)
         {
             var ret = new List<ExpertiseEntity>();
-            switch (name)
+            var arch = CharacterSkillController.GetCharacter(name)?.archetype ?? Archetype.Default;
+            switch (arch)
             {
-                case CharacterName.Asra:
-                    ret.Add(new ExpertiseEntity(AttributeType.EnergyGenerateRate, GetExpertiseValue(CharacterTier.TierA), CharacterTier.TierA));
-                    ret.Add(new ExpertiseEntity(AttributeType.Accuracy, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
-                    ret.Add(new ExpertiseEntity(AttributeType.Health, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
+                case Archetype.Magician:
+                    ret.Add(new ExpertiseEntity(AttributeType.Attack, GetExpertiseValue(CharacterTier.TierB), CharacterTier.TierB));
+                    ret.Add(new ExpertiseEntity(AttributeType.Critical, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
+                    ret.Add(new ExpertiseEntity(AttributeType.CriticalDamage, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
                     break;
-                case CharacterName.Magki:
+                case Archetype.Warrior:
+                case Archetype.Monster:
                     ret.Add(new ExpertiseEntity(AttributeType.Health, GetExpertiseValue(CharacterTier.TierB), CharacterTier.TierB));
                     ret.Add(new ExpertiseEntity(AttributeType.Defense, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
                     ret.Add(new ExpertiseEntity(AttributeType.DamageReduction, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
                     break;
-                case CharacterName.Sernia:
-                    ret.Add(new ExpertiseEntity(AttributeType.Attack, GetExpertiseValue(CharacterTier.TierB), CharacterTier.TierB));
-                    ret.Add(new ExpertiseEntity(AttributeType.Critical, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
-                    ret.Add(new ExpertiseEntity(AttributeType.CriticalDamage, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
+                default:
+                    ret.Add(new ExpertiseEntity(AttributeType.EnergyGenerateRate, GetExpertiseValue(CharacterTier.TierA), CharacterTier.TierA));
+                    ret.Add(new ExpertiseEntity(AttributeType.Accuracy, GetExpertiseValue(CharacterTier.TierC), CharacterTier.TierC));
+                    ret.Add(new ExpertiseEntity(AttributeType.Health, GetExpertiseValue(CharacterTier.TierE), CharacterTier.TierE));
                     break;
             }
             return ret;
@@ -182,12 +234,7 @@ namespace Assets.Resources.Scripts.Cards
         public void SetAllCards(List<CardEntity> cards) => dataContainer.cardEntities = cards;
         private void InitCharacterList()
         {
-            characterList = new List<Character>
-            {
-                new Asra(),
-                new Magki(),
-                new Sernia()
-            };
+            characterList = CharacterSkillController.BuildRoster();
         }
 
         private void InitSkillList()

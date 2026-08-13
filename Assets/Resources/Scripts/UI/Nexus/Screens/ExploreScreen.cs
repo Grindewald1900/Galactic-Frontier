@@ -68,6 +68,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root, "Hint", UiText.ExploreHint,
                 new Vector2(28f, 64f), new Vector2(1100f, 40f), 13f, NexusTheme.MutedText);
             hint.textWrappingMode = TextWrappingModes.Normal;
+            OnboardingBanner.TryDraw(root, AppScreen.Battle, new Vector2(28f, 100f));
 
             int inLine = CardListManager.Instance?.GetInLineCardEntities()?.Count ?? 0;
             NexusUiFactory.CreateText(
@@ -91,7 +92,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             for (var i = 0; i < views.Count; i++)
             {
                 var view = views[i];
-                float y = 150f + i * 100f;
+                float y = 150f + i * 118f;
                 BuildRegionRow(view, y, i);
             }
 
@@ -127,12 +128,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             GameObject row = NexusUiFactory.CreateBox(
                 root, $"Region {regionId}",
-                new Vector2(28f, y), new Vector2(1200f, 90f),
+                new Vector2(28f, y), new Vector2(1200f, 108f),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
 
             NexusUiFactory.CreateIcon(
                 row.transform, "Planet", NexusCardVisual.PlanetSprite(visualIndex * 3),
-                new Vector2(16f, 5f), new Vector2(70f, 70f), Color.white);
+                new Vector2(16f, 14f), new Vector2(70f, 70f), Color.white);
 
             string name = UiText.T(cfg.displayNameEn, cfg.displayNameZh);
             if (cfg.bossRegion)
@@ -140,18 +141,26 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateText(
                 row.transform, "Name", name,
-                new Vector2(100f, 10f), new Vector2(480f, 26f), 15f, NexusTheme.Text,
+                new Vector2(100f, 8f), new Vector2(480f, 24f), 15f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
+
+            var blurb = UiText.T(cfg.blurbEn, cfg.blurbZh);
+            if (!string.IsNullOrEmpty(blurb))
+            {
+                NexusUiFactory.CreateText(
+                    row.transform, "Blurb", blurb,
+                    new Vector2(100f, 34f), new Vector2(700f, 22f), 11f, NexusTheme.Cyan);
+            }
 
             NexusUiFactory.CreateText(
                 row.transform, "Meta", BuildMeta(view),
-                new Vector2(100f, 42f), new Vector2(700f, 36f), 11f, NexusTheme.MutedText);
+                new Vector2(100f, 58f), new Vector2(700f, 36f), 11f, NexusTheme.MutedText);
 
             if (view.CanEnter)
             {
                 NexusUiFactory.CreateButton(
                     row.transform, "Start", UiText.StartAutoBattle,
-                    new Vector2(820f, 22f), new Vector2(170f, 44f),
+                    new Vector2(820f, 32f), new Vector2(170f, 44f),
                     () => StartBattle(regionId),
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 13f);
             }
@@ -159,7 +168,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 NexusUiFactory.CreateText(
                     row.transform, "Locked", UiText.RegionLocked,
-                    new Vector2(820f, 30f), new Vector2(170f, 30f), 12f, NexusTheme.DimText,
+                    new Vector2(820f, 40f), new Vector2(170f, 30f), 12f, NexusTheme.DimText,
                     TextAlignmentOptions.Center, FontStyles.Bold);
             }
 
@@ -167,7 +176,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 NexusUiFactory.CreateButton(
                     row.transform, "Farm", UiText.StartFarm,
-                    new Vector2(1000f, 22f), new Vector2(90f, 44f),
+                    new Vector2(1000f, 32f), new Vector2(90f, 44f),
                     () => StartFarm(regionId),
                     NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 12f);
 
@@ -177,7 +186,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     var nodeId = nodes[0].nodeId;
                     NexusUiFactory.CreateButton(
                         row.transform, "Gather", UiText.StartGather,
-                        new Vector2(1100f, 22f), new Vector2(90f, 44f),
+                        new Vector2(1100f, 32f), new Vector2(90f, 44f),
                         () => StartGather(nodeId),
                         NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 12f);
                 }
@@ -201,6 +210,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
             sb.Append(UiText.RegionProgressLabel(view.Progress.ToString()));
             sb.Append(" · ");
             sb.Append(UiText.T($"Rec power {view.Config.recommendedPower}", $"推荐战力 {view.Config.recommendedPower}"));
+            var faction = FactionTags.DisplayEn(view.Config.factionTag);
+            var factionZh = FactionTags.DisplayZh(view.Config.factionTag);
+            if (!string.IsNullOrEmpty(faction))
+            {
+                sb.Append(" · ");
+                sb.Append(UiText.T(faction, factionZh));
+            }
+
             if (view.BlockReasons.Count > 0)
             {
                 sb.Append(" · ");

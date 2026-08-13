@@ -52,6 +52,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateText(
                 root, "Hint", UiText.CraftingHint,
                 new Vector2(28f, 56f), new Vector2(1100f, 28f), 13f, NexusTheme.MutedText);
+            OnboardingBanner.TryDraw(root, AppScreen.Crafting, new Vector2(28f, 82f));
 
             float y = 100f;
             foreach (var recipe in RecipeCatalog.All)

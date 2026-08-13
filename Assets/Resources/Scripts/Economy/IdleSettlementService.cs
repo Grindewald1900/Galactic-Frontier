@@ -188,6 +188,17 @@ namespace Assets.Resources.Scripts.Economy
             }
         }
 
+        public static void EnqueuePending(string defId, int qty, int quality, string source = "")
+        {
+            EnsureLoaded();
+            var def = ItemCatalog.Get(defId);
+            var equipment = def != null &&
+                            (def.category == ItemCategory.Equipment || def.category == ItemCategory.ShipModule);
+            EnqueueLoot(defId, quality, qty, equipment, def?.baseMaxDurability ?? 0);
+            if (!string.IsNullOrEmpty(source))
+                Debug.Log($"[IDLE] pending enqueue source={source} {defId} x{qty} Q{quality}");
+        }
+
         private static void EnqueueLoot(string defId, int quality, int qty, bool equipment, int maxDura)
         {
             if (string.IsNullOrEmpty(defId) || qty <= 0) return;

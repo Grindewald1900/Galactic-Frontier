@@ -30,6 +30,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ScreenMarket => T("Starport", "星港");
         public static string ScreenCrafting => T("Crafting", "制造");
         public static string ScreenMissions => T("Missions", "任务");
+        public static string ScreenRecruit => T("Recruit", "招募");
         public static string ScreenSettings => T("Settings", "设置");
         public static string ScreenDebug => T("Debug Mode", "Debug模式");
 
@@ -43,6 +44,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Cards => T("Cards", "卡牌"),
             AppScreen.Inventory => T("Inventory", "仓库"),
             AppScreen.Market => T("Starport Shop", "星港商店"),
+            AppScreen.Recruit => T("Recruitment", "招募站"),
             AppScreen.Crafting => T("Crafting", "制造"),
             AppScreen.Missions => T("Missions", "任务"),
             AppScreen.Settings => T("Settings", "设置"),
@@ -51,8 +53,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         };
 
         public static string StatusShortcuts => T(
-            "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Starport  F8 Missions",
-            "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 星港  F8 任务");
+            "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Starport  F8 Missions  F9 Recruit",
+            "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 星港  F8 任务  F9 招募");
 
         public static string StatusVersion => T(
             "NEXUS COMMAND · Fully automatic combat",
@@ -213,8 +215,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CycleStrategy => T("Cycle Strategy", "切换策略");
         public static string ExploreSideTitle => T("AUTO COMBAT", "全自动战斗");
         public static string ExploreSideBody => T(
-            "• Gates: clear previous region + ship stats\n• Challenge: MainCombat scene\n• Farm: AFK after first clear\n• Ship Bay: spend scrap/credits to raise gates\n\nRecommended power is advisory only.",
-            "• 门槛：通关前置 + 舰船分项\n• 挑战：进入战斗场景\n• 刷取：首次通关后挂机\n• 舰船舱：消耗废料/信用提升门槛\n\n推荐战力仅提示，不硬锁。");
+            "Frontier Sector VII — outer colonial fringe.\n• Gates: clear previous + ship stats\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
+            "群星边境·第七前沿——殖民航线外缘。\n• 门槛：通关前置 + 舰船分项\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。");
 
         // Formation
         public static string AvailableCharacters => T("Available Characters", "可用角色");
@@ -326,12 +328,51 @@ namespace Assets.Resources.Scripts.UI.Nexus
             $"{name} → Lv.{level}");
         public static string DebugDisable => T("Turn Off Debug Mode", "关闭 Debug 模式");
 
-        // Missions placeholder
+        // Missions / onboarding
         public static string MissionsTitle => T("Missions", "任务");
         public static string MissionsBody => T(
             "Mission domain expands later.\nUse Explore for automatic sector combat.",
             "任务系统后续扩展。\n使用探索进行星域全自动战斗。");
+        public static string MissionsOnboardingHint => T(
+            "Starter route: Formation → First battle → Gather → Craft → Starport shop. No player market in Solo.",
+            "新手航线：编队 → 首战 → 采集 → 制造 → 星港商店。单机无玩家市场。");
+        public static string MissionsChainComplete => T(
+            "Starter route complete. Keep exploring, farming, and upgrading your ship.",
+            "新手航线已完成。可继续探索、刷取并升级舰船。");
+        public static string MissionsStatusActive => T("ACTIVE", "进行中");
+        public static string MissionsStatusDone => T("DONE", "已完成");
+        public static string MissionsStatusLocked => T("LOCKED", "未解锁");
+        public static string MissionsClaim => T("Claim", "领取");
+        public static string MissionsGo => T("Go", "前往");
+        public static string MissionsClaimed(string title) => T(
+            $"Claimed: {title}",
+            $"已领取：{title}");
+        public static string MissionsNextStep(string title) => T(
+            $"Next: {title}",
+            $"下一步：{title}");
+        public static string MissionsOpenMissions => T("Open Missions", "打开任务");
+        public static string MissionsStepBanner(string title) => T(
+            $"Mission · {title}",
+            $"任务 · {title}");
         public static string EnterExploreBattle => T("Open Explore", "打开探索");
+
+        public static string RecruitTitle => T("RECRUITMENT", "招募站");
+        public static string RecruitHint => T(
+            "Standard pool. Each pull costs 1 Recruit Ticket from the warehouse. Cards enter at Lv.1. Soft pity forces A+ after 40 misses.",
+            "标准池。每次消耗仓库 1 张招募券。抽出角色为 1 级。连续 40 次未出 A 及以上时触发软保底。");
+        public static string RecruitSubtitle(int tickets, int pity, int threshold) => T(
+            $"Tickets {tickets} · Pity {pity}/{threshold} · Pool: Standard",
+            $"招募券 {tickets} · 保底 {pity}/{threshold} · 卡池：标准");
+        public static string RecruitPullOne => T("Pull ×1", "单抽");
+        public static string RecruitPullTen => T("Pull ×10", "十连");
+        public static string RecruitBuyTickets => T("Buy Tickets", "购买招募券");
+        public static string RecruitNeedTickets => T(
+            "Not enough tickets. Buy them at the Starport shop.",
+            "招募券不足。可前往星港商店购买。");
+        public static string RecruitResultHeader(int spent, int pity) => T(
+            $"Granted. Spent {spent} ticket(s). Pity now {pity}.",
+            $"已入池。消耗 {spent} 张券。当前保底 {pity}。");
+        public static string BridgeOpenRecruit => T("Recruit", "招募");
 
         // Battle chrome
         public static string BattleBreadcrumb => T("NEXUS › EXPLORE / AUTO BATTLE", "NEXUS › 探索 / 自动战斗");

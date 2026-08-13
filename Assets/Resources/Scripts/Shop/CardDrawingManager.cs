@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.UI;
 using Assets.Resources.Scripts.Utils.Save;
@@ -33,9 +37,7 @@ namespace Assets.Resources.Scripts.Shop
         void Awake()
         {
             if (Instance == null)
-            {
                 Instance = this;
-            }
         }
 
         void Start()
@@ -46,14 +48,31 @@ namespace Assets.Resources.Scripts.Shop
 
         private void TryLoadSampleMaterials()
         {
-            if (!DevData.IsActive)
+            if (DevData.IsActive)
             {
-                DevData.LogSkipped(nameof(CardDrawingManager) + ".FillSampleGachaMaterials");
+                DevData.Current.FillSampleGachaMaterials(providerItems, consumerItems, itemQuantities);
+                Debug.Log($"[DEV-DATA] Loaded {providerItems.Count} sample gacha materials (memory only).");
                 return;
             }
 
-            DevData.Current.FillSampleGachaMaterials(providerItems, consumerItems, itemQuantities);
-            Debug.Log($"[DEV-DATA] Loaded {providerItems.Count} sample gacha materials (memory only).");
+            DevData.LogSkipped(nameof(CardDrawingManager) + ".FillSampleGachaMaterials");
+            LoadLiveTicketMaterials();
+        }
+
+        private void LoadLiveTicketMaterials()
+        {
+            providerItems.Clear();
+            consumerItems.Clear();
+            itemQuantities.Clear();
+            GachaService.EnsureLoaded();
+            var have = GachaService.TicketCount();
+            var ticket = ItemFactory.FromDef(GachaRules.TicketDefId, 1, EconomyConstants.DefaultQuality);
+            ticket.quantity = Math.Max(0, have);
+            var reserved = ItemFactory.FromDef(GachaRules.TicketDefId, 1, EconomyConstants.DefaultQuality);
+            reserved.quantity = 0;
+            providerItems.Add(ticket);
+            consumerItems.Add(reserved);
+            itemQuantities.Add(GachaRules.CostPerPull);
         }
 
         private void Init()
@@ -64,30 +83,14 @@ namespace Assets.Resources.Scripts.Shop
             if (LogUtil.CheckNull(drawButton, "drawButton")) return;
             if (LogUtil.CheckNull(providerPrefab, "providerPrefab")) return;
             if (LogUtil.CheckNull(consumerPrefab, "consumerPrefab")) return;
-            // Check Quantity
             HasEnoughQuantity();
             InitMaterialList();
 
-            drawButtonOne.onClick.AddListener(() =>
-            {
-                Debug.Log("Draw One");
-                AddDraw(1);
-            });
-            drawButtonTen.onClick.AddListener(() =>
-            {
-                Debug.Log("Draw Ten");
-                AddDraw(10);
-            });
-            drawButtonReset.onClick.AddListener(() =>
-            {
-                Debug.Log("Reset");
-                AddDraw(-drawCount);
-            });
-            drawButton.onClick.AddListener(() =>
-            {
-                Debug.Log("Draw");
-                StartDraw();
-            });
+            drawButtonOne.onClick.AddListener(() => AddDraw(1));
+            drawButtonTen.onClick.AddListener(() => AddDraw(10));
+            drawButtonReset.onClick.AddListener(() => AddDraw(-drawCount));
+            drawButton.onClick.AddListener(StartDraw);
+
             foreach (ItemEntity item in providerItems)
             {
                 GameObject cardGO = Instantiate(providerPrefab, providerContent);
@@ -138,6 +141,24 @@ namespace Assets.Resources.Scripts.Shop
 
         private void StartDraw()
         {
+            if (!DevData.IsActive)
+            {
+                var result = GachaService.TryPull(drawCount, grantImmediately: false);
+                if (!result.Success)
+                {
+                    Debug.LogWarning("[GACHA] " + result.Message);
+                    return;
+                }
+
+                MainScrollController.Instance.ShowPanel(CurrentScene.DRAWCARDS_MENU);
+                CardResultManager.Instance.PresentResults(result.Cards, grantOnReport: true);
+                drawCount = 0;
+                LoadLiveTicketMaterials();
+                HasEnoughQuantity();
+                UpdateQuantity();
+                return;
+            }
+
             MainScrollController.Instance.ShowPanel(CurrentScene.DRAWCARDS_MENU);
             CardResultManager.Instance.InitCards(drawCount);
         }
@@ -152,24 +173,17 @@ namespace Assets.Resources.Scripts.Shop
 
             bool hasOneDraw = true;
             bool hasTenDraw = true;
-            bool hasReset = true;
+            bool hasReset = drawCount > 0;
             bool hasDraw = true;
 
             for (int i = 0; i < providerItems.Count; i++)
             {
                 if (providerItems[i].quantity < itemQuantities[i])
-                {
                     hasOneDraw = false;
-                }
                 if (providerItems[i].quantity < itemQuantities[i] * 10)
-                {
                     hasTenDraw = false;
-                }
                 if (consumerItems[i].quantity < itemQuantities[i])
-                {
                     hasDraw = false;
-                }
-                hasReset = drawCount > 0;
             }
             UpdateButtonState(hasOneDraw, hasTenDraw, hasReset, hasDraw);
         }
@@ -178,10 +192,12 @@ namespace Assets.Resources.Scripts.Shop
         {
             for (int i = 0; i < itemQuantities.Count; i++)
             {
+                if (i >= providerSlots.Count || i >= consumerSlots.Count) continue;
                 providerSlots[i].SetQuantity(providerItems[i].quantity);
                 consumerSlots[i].SetQuantity(consumerItems[i].quantity);
             }
         }
+
         private void UpdateButtonState(bool oneState, bool tenState, bool resetState, bool drawState)
         {
             drawButtonOne.interactable = oneState;
@@ -189,6 +205,5 @@ namespace Assets.Resources.Scripts.Shop
             drawButtonReset.interactable = resetState;
             drawButton.interactable = drawState;
         }
-
     }
 }

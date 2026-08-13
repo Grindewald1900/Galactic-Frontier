@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Market.Domain;
+using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
@@ -120,6 +121,7 @@ namespace Assets.Resources.Scripts.Market
 
             var key = (shop?.shopId ?? shopId) + "|" + offerId;
             SessionPurchases[key] = purchased + quantity;
+            OnboardingService.NotifyShopTraded();
             return MarketCommandResult.Ok($"Bought {quantity}× {offer.itemDefId} for {cost}₵");
         }
 
@@ -146,6 +148,7 @@ namespace Assets.Resources.Scripts.Market
             ReplaceInventory(stacks);
             var payout = NpcShopRules.ResolveSellPrice(shop, offer) * quantity;
             CurrencyService.AddCredits(payout);
+            OnboardingService.NotifyShopTraded();
             return MarketCommandResult.Ok($"Sold {quantity}× {offer.itemDefId} for {payout}₵");
         }
 

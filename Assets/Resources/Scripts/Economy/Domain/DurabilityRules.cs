@@ -30,7 +30,7 @@ namespace Assets.Resources.Scripts.Economy.Domain
         {
             if (max <= 0 || current >= max) return 0;
             var missing = max - current;
-            return Math.Max(1, (missing + 24) / 25);
+            return Math.Max(1, (missing + 29) / 30);
         }
 
         public static bool TryRepair(ref int current, int max, ref int kitCount)

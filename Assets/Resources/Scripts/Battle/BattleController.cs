@@ -520,7 +520,12 @@ namespace Assets.Resources.Scripts.Battle
             }
 
             var result = WorldService.RegisterBattleVictory(regionId, encounterId);
-            Debug.Log($"[WORLD] Victory registered region={regionId} enc={encounterId} ok={result.Success} {result.Message}");
+            Debug.Log($"[WORLD] Victory registered region={regionId} enc={encounterId} ok={result.Success} first={result.WasFirstClear} {result.Message}");
+            if (result.Success)
+            {
+                Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyFirstBattleWon();
+                RewardService.GrantForRegionVictory(regionId, result.WasFirstClear);
+            }
             Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(
                 CardListManager.Instance?.cardEntities);
         }

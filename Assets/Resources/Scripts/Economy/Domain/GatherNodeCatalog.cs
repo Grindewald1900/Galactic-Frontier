@@ -88,6 +88,39 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputQuality = EconomyConstants.DefaultQuality,
                 riskLevel = 2
             });
+            Add(new GatherNodeDef
+            {
+                nodeId = "node_rift_energy",
+                regionId = "sec01_quantum_rift",
+                displayNameEn = "Rift Energy Cell",
+                displayNameZh = "裂隙能量芯",
+                outputDefId = "mat_energy_cell",
+                outputQty = 1,
+                outputQuality = EconomyConstants.DefaultQuality,
+                riskLevel = 2
+            });
+            Add(new GatherNodeDef
+            {
+                nodeId = "node_abyss_scrap",
+                regionId = "sec01_abyssal_edge",
+                displayNameEn = "Abyssal Scrap Field",
+                displayNameZh = "深渊废料场",
+                outputDefId = "mat_scrap",
+                outputQty = 3,
+                outputQuality = EconomyConstants.DefaultQuality,
+                riskLevel = 3
+            });
+            Add(new GatherNodeDef
+            {
+                nodeId = "node_convoy_bio",
+                regionId = "sec01_convoy_lane",
+                displayNameEn = "Convoy Biofiber Cache",
+                displayNameZh = "护航生物纤维库",
+                outputDefId = "mat_biofiber",
+                outputQty = 2,
+                outputQuality = EconomyConstants.DefaultQuality,
+                riskLevel = 2
+            });
         }
 
         private static void Add(GatherNodeDef n)

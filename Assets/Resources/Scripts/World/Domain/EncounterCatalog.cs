@@ -45,28 +45,42 @@ namespace Assets.Resources.Scripts.World.Domain
         {
             return new List<EncounterConfig>
             {
-                Enc("enc_outer_main", "Outer Belt Patrol", false, 2, Slot("Asra", 1), Slot("Magki", 1)),
-                Enc("enc_outer_farm", "Outer Belt Scraps", false, 1, Slot("Asra", 1)),
-                Enc("enc_mining_main", "Mining Spur Raiders", false, 3, Slot("Magki", 2), Slot("Sernia", 2)),
-                Enc("enc_mining_farm", "Mining Spur Sweep", false, 2, Slot("Magki", 2)),
-                Enc("enc_rift_main", "Quantum Rift Wardens", false, 4, Slot("Asra", 3), Slot("Magki", 3), Slot("Sernia", 3)),
-                Enc("enc_rift_farm", "Rift Echoes", false, 3, Slot("Asra", 3), Slot("Magki", 2)),
-                Enc("enc_abyss_main", "Abyssal Edge Host", false, 5, Slot("Sernia", 4), Slot("Asra", 4), Slot("Magki", 4)),
-                Enc("enc_abyss_farm", "Abyssal Drift", false, 4, Slot("Sernia", 4), Slot("Asra", 3)),
-                Enc("enc_convoy_main", "Convoy Ambush", false, 5, Slot("Magki", 5), Slot("Sernia", 5), Slot("Asra", 4)),
-                Enc("enc_convoy_farm", "Convoy Escort Sweep", false, 4, Slot("Magki", 4), Slot("Asra", 4)),
-                Enc("enc_frontier_boss", "Frontier Anchor Boss", true, 12,
+                Enc("enc_outer_main", "Outer Belt Patrol", "外缘巡逻队", FactionTags.FrontierGuard, false, 2,
+                    Slot("Asra", 1), Slot("Magki", 1)),
+                Enc("enc_outer_farm", "Outer Belt Scraps", "外缘残骸清扫", FactionTags.FrontierGuard, false, 1,
+                    Slot("Asra", 1)),
+                Enc("enc_mining_main", "Mining Spur Raiders", "矿脉劫掠者", FactionTags.FrontierGuard, false, 3,
+                    Slot("Magki", 2), Slot("Sernia", 2)),
+                Enc("enc_mining_farm", "Mining Spur Sweep", "矿脉清扫", FactionTags.FrontierGuard, false, 2,
+                    Slot("Magki", 2)),
+                Enc("enc_rift_main", "Quantum Rift Wardens", "裂隙看守", FactionTags.RiftSyndicate, false, 4,
+                    Slot("Asra", 3), Slot("Magki", 3), Slot("Sernia", 3)),
+                Enc("enc_rift_farm", "Rift Echoes", "裂隙残响", FactionTags.RiftSyndicate, false, 3,
+                    Slot("Asra", 3), Slot("Magki", 2)),
+                Enc("enc_abyss_main", "Abyssal Edge Host", "深渊宿主", FactionTags.RiftSyndicate, false, 5,
+                    Slot("Sernia", 4), Slot("Asra", 4), Slot("Magki", 4)),
+                Enc("enc_abyss_farm", "Abyssal Drift", "深渊漂流体", FactionTags.RiftSyndicate, false, 4,
+                    Slot("Sernia", 4), Slot("Asra", 3)),
+                Enc("enc_convoy_main", "Convoy Ambush", "护航伏击", FactionTags.FrontierGuard, false, 5,
+                    Slot("Magki", 5), Slot("Sernia", 5), Slot("Asra", 4)),
+                Enc("enc_convoy_farm", "Convoy Escort Sweep", "护航清扫", FactionTags.FrontierGuard, false, 4,
+                    Slot("Magki", 4), Slot("Asra", 4)),
+                Enc("enc_frontier_boss", "Frontier Anchor Boss", "边境锚点首领", FactionTags.RiftSyndicate, true, 12,
                     Slot("Sernia", 6), Slot("Asra", 6), Slot("Magki", 6), Slot("Sernia", 5)),
-                Enc("enc_frontier_farm", "Anchor Debris Field", false, 6, Slot("Asra", 5), Slot("Magki", 5))
+                Enc("enc_frontier_farm", "Anchor Debris Field", "锚点残骸带", FactionTags.RiftSyndicate, false, 6,
+                    Slot("Asra", 5), Slot("Magki", 5))
             };
         }
 
         private static EncounterConfig Enc(
-            string id, string name, bool boss, int loot, params EncounterEnemySlot[] enemies) =>
+            string id, string nameEn, string nameZh, string faction, bool boss, int loot,
+            params EncounterEnemySlot[] enemies) =>
             new EncounterConfig
             {
                 encounterId = id,
-                displayName = name,
+                displayName = nameEn,
+                displayNameZh = nameZh,
+                factionTag = faction ?? "",
                 isBoss = boss,
                 lootScrap = loot,
                 enemies = enemies

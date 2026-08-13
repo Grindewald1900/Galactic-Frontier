@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
@@ -112,6 +113,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+            OnboardingBanner.TryDraw(root.transform, AppScreen.Formation, new Vector2(28f, 8f));
 
             GameObject slotsHost = new GameObject("Slots", typeof(RectTransform));
             slotsHost.transform.SetParent(center.transform, false);
@@ -345,6 +347,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 string baseName = string.IsNullOrEmpty(entity.cardName)
                     ? entity.characterName.ToString()
                     : entity.cardName;
+                string faction = CharacterFactionCatalog.LabelEn(entity.characterName);
+                string factionZh = CharacterFactionCatalog.LabelZh(entity.characterName);
+                if (!string.IsNullOrEmpty(faction))
+                    baseName += $" · {UiText.T(faction, factionZh)}";
                 string label = inDeck ? $"{baseName}  [in]" : baseName;
                 if (!string.IsNullOrEmpty(occLabel))
                     label += $" · {occLabel}";

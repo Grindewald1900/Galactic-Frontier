@@ -200,6 +200,17 @@ namespace Assets.Resources.Scripts.Deck
             {
                 SyncLegacyLineupPositions(allCards);
                 Save();
+                if (GetDecks() != null)
+                {
+                    foreach (var d in GetDecks())
+                    {
+                        if (d != null && d.unlocked && d.MemberCount >= 1)
+                        {
+                            Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyFormationReady();
+                            break;
+                        }
+                    }
+                }
             }
 
             return result;

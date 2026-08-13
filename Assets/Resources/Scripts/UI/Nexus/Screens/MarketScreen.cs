@@ -67,6 +67,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateText(
                 root, "Hint", UiText.StarportShopHint,
                 new Vector2(28f, 84f), new Vector2(1100f, 28f), 12f, NexusTheme.DimText);
+            OnboardingBanner.TryDraw(root, AppScreen.Market, new Vector2(28f, 108f));
 
             if (PlayModeService.IsSolo)
             {

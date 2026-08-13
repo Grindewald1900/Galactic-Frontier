@@ -4,6 +4,8 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Onboarding.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
@@ -23,6 +25,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action openFormation;
         private readonly System.Action openExplore;
         private readonly System.Action openShip;
+        private readonly System.Action<AppScreen> navigate;
         private string pendingStopDeckId = "";
 
         private BridgeScreen(
@@ -30,13 +33,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
             System.Action openMissions,
             System.Action openFormation,
             System.Action openExplore,
-            System.Action openShip)
+            System.Action openShip,
+            System.Action<AppScreen> navigate)
         {
             this.root = root;
             this.openMissions = openMissions;
             this.openFormation = openFormation;
             this.openExplore = openExplore;
             this.openShip = openShip;
+            this.navigate = navigate;
         }
 
         public GameObject Root => root.gameObject;
@@ -46,7 +51,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             System.Action openMissions,
             System.Action openFormation,
             System.Action openExplore,
-            System.Action openShip = null)
+            System.Action openShip = null,
+            System.Action<AppScreen> navigate = null)
         {
             GameObject root = NexusUiFactory.CreatePanel(
                 parent,
@@ -57,7 +63,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero,
                 Vector2.zero);
 
-            var screen = new BridgeScreen(root.transform, openMissions, openFormation, openExplore, openShip);
+            var screen = new BridgeScreen(
+                root.transform, openMissions, openFormation, openExplore, openShip, navigate);
             screen.Rebuild();
             return screen;
         }
@@ -73,6 +80,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 WorldService.EnsureLoaded(DataUtil.Instance);
                 ShipService.EnsureLoaded(DataUtil.Instance);
                 IdleSettlementService.EnsureLoaded(DataUtil.Instance);
+                OnboardingService.EnsureLoaded(DataUtil.Instance);
             }
 
             NexusUiFactory.CreateText(
@@ -95,6 +103,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(720f, 22f),
                 12f,
                 NexusTheme.MutedText);
+
+            BuildOnboardingCta();
 
             NexusUiFactory.CreateText(
                 root,
@@ -157,6 +167,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildSectors();
             BuildLog(inLine, cards, progress, credits, power);
 
+            NexusUiFactory.CreateButton(
+                root,
+                "CTA Recruit",
+                UiText.BridgeOpenRecruit,
+                new Vector2(930f, 730f),
+                new Vector2(150f, 44f),
+                () => navigate?.Invoke(AppScreen.Recruit),
+                NexusTheme.WithAlpha(NexusTheme.Purple, 0.16f),
+                NexusTheme.Purple,
+                12f);
             NexusUiFactory.CreateButton(
                 root,
                 "CTA Formation",
@@ -507,6 +527,72 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 line.textWrappingMode = TextWrappingModes.Normal;
             }
         }
+
+        private void BuildOnboardingCta()
+        {
+            if (OnboardingService.IsChainComplete)
+                return;
+
+            var step = OnboardingService.ActiveStep;
+            if (step == null)
+                return;
+
+            var title = UiText.T(step.titleEn, step.titleZh);
+            NexusUiFactory.CreateText(
+                root,
+                "OnboardNext",
+                UiText.MissionsNextStep(title),
+                new Vector2(780f, 20f),
+                new Vector2(360f, 24f),
+                12f,
+                NexusTheme.Gold,
+                TextAlignmentOptions.Right,
+                FontStyles.Bold);
+
+            NexusUiFactory.CreateButton(
+                root,
+                "OnboardMissions",
+                UiText.MissionsOpenMissions,
+                new Vector2(1160f, 14f),
+                new Vector2(140f, 32f),
+                () => openMissions?.Invoke(),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
+                NexusTheme.Gold,
+                11f);
+
+            NexusUiFactory.CreateButton(
+                root,
+                "OnboardGo",
+                UiText.MissionsGo,
+                new Vector2(1312f, 14f),
+                new Vector2(88f, 32f),
+                () =>
+                {
+                    var target = MapOnboardingTarget(step.targetScreen);
+                    if (navigate != null)
+                        navigate(target);
+                    else if (target == AppScreen.Formation)
+                        openFormation?.Invoke();
+                    else if (target == AppScreen.Battle)
+                        openExplore?.Invoke();
+                    else
+                        openMissions?.Invoke();
+                },
+                NexusTheme.SurfaceRaised,
+                NexusTheme.Text,
+                11f);
+        }
+
+        private static AppScreen MapOnboardingTarget(string targetScreen) =>
+            targetScreen switch
+            {
+                "Formation" => AppScreen.Formation,
+                "Battle" => AppScreen.Battle,
+                "Crafting" => AppScreen.Crafting,
+                "Market" => AppScreen.Market,
+                "Ship" => AppScreen.Ship,
+                _ => AppScreen.Missions
+            };
 
         private static void AddStat(Transform parent, Vector2 position, string label, string value, Color accent)
         {

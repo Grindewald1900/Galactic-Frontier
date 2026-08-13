@@ -11,6 +11,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         Inventory,
         Crafting,
         Market,
+        Recruit,
         Missions,
         Settings,
         Debug,

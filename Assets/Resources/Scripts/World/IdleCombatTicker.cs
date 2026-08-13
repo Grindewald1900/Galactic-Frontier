@@ -153,7 +153,8 @@ namespace Assets.Resources.Scripts.World
             if (result.Victory)
             {
                 Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
-                if (result.LootScrap > 0)
+                var grant = RewardService.GrantForFarmCycle(regionId);
+                if (!grant.Success && result.LootScrap > 0)
                     GrantScrap(result.LootScrap);
             }
 
@@ -198,6 +199,7 @@ namespace Assets.Resources.Scripts.World
             Economy.DurabilityService.ApplyGatherWear(node.riskLevel);
             deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             DeckService.Save();
+            Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyGatherProgress();
             Debug.Log($"[GATHER] {node.nodeId} +{node.outputQty} {node.outputDefId}");
         }
 

@@ -1,11 +1,12 @@
 # 系统文档：MVP 星域 / 区域内容与掉落
 
-> 文档版本：v1.0  
-> 状态：**P2/P5 内容契约（MVP）**  
+> 文档版本：v1.1  
+> 状态：**P5.3 已落地（RewardCatalog / RewardService / 采集节点 / Explore 叙事）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
 > 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）  
-> 实现权威：`RegionCatalog` / `EncounterCatalog` / `GatherNodeCatalog` / `WorldService` / `IdleEconomyTicker`  
-> 更新日期：2026-08-10
+> 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
+> 更新日期：2026-08-12  
+> 变更：v1.1 — FirstClear/Repeat/Farm 发放；裂隙/深渊/护航采集节点；区域 blurb + 阵营标签。
 
 ---
 
@@ -474,29 +475,24 @@ RewardTable / LootEntry      // 新建 Catalog：RewardCatalog
 
 ## 13. 与实现差距
 
-| 现状 | 本文要求 |
+| 现状（v1.1） | 备注 |
 | --- | --- |
-| 通关只改 `world` 进度，无物品奖励 | `RegisterBattleVictory` 后 Grant First/Repeat 表 |
-| 挂机只掉 `mat_scrap`（`lootScrap`） | 按 §9 多物品 + 信用点 |
-| `RegionConfig` 无 `gatherNodeIds` / reward 引用 | 补字段或并行 `RegionRewardBinding` 表 |
-| 采集节点仅 3 个（外缘+矿脉×2） | 补裂隙/深渊/护航节点 |
-| 信用点几乎不从战斗来 | 通关与挂机表含 `credit` |
-| 装备无区域掉落 | 首次通关/Boss 表给入门装 |
-
-建议落地顺序：RewardCatalog → 通关发放 → 挂机多掉落 → 补采集节点 → UI 显示期望掉落。
-
----
+| `RewardService` 按 FirstClear/Repeat/Farm 表发放 | 满仓进 Pending |
+| 挂机使用 `farmRewardId` 多物品 + 信用点 | `lootScrap` 仅作表缺失回退 |
+| `RegionConfig` 含 gather / reward / blurb / faction | 已对齐 |
+| 采集节点含裂隙/深渊/护航 | `GatherNodeCatalog` |
+| 装备/模块可出现在 FirstClear/Boss 表 | 走 `ItemFactory` |
 
 ## 14. 验收清单
 
-- [ ] 6 区配置齐全；外缘可打，后区前置+舰船硬锁  
-- [ ] 每区主挑战与刷取遭遇可开战；Boss 区 `isBoss`  
-- [ ] 每区首次通关发放对应 FirstClear 表，且只发一次  
-- [ ] 通关后挂机使用 farm 表；含废料以外的主题材料  
-- [ ] Boss 首次击杀发大奖并标记星域完成  
-- [ ] 挂机失败不停队列；满仓 Pending/PausedBlock  
-- [ ] 掉落 Id 均存在于 `ItemCatalog`；信用点入账 `PlayerEntity`  
-- [ ] 新采集节点在对应区通关后可启动  
+- [x] 6 区配置齐全；外缘可打，后区前置+舰船硬锁  
+- [x] 每区主挑战与刷取遭遇可开战；Boss 区 `isBoss`  
+- [x] 每区首次通关发放对应 FirstClear 表，且只发一次  
+- [x] 通关后挂机使用 farm 表；含废料以外的主题材料  
+- [x] Boss 首次击杀发大奖并标记星域完成  
+- [x] 挂机失败不停队列；满仓 Pending/PausedBlock  
+- [x] 掉落 Id 均存在于 `ItemCatalog`；信用点入账 `CurrencyService`  
+- [x] 新采集节点在对应区通关后可启动 
 
 ---
 
