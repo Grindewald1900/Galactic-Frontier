@@ -7,7 +7,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
     /// <summary>Soft onboarding CTA strip for target screens (systems/10 §4.4).</summary>
     internal static class OnboardingBanner
     {
-        public static void TryDraw(Transform parent, AppScreen currentScreen, Vector2 position)
+        public static void TryDraw(Transform parent, AppScreen currentScreen, Vector2 position, Vector2? size = null)
         {
             if (OnboardingService.IsChainComplete)
                 return;
@@ -20,14 +20,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
 
             var title = UiText.T(step.titleEn, step.titleZh);
-            NexusUiFactory.CreateText(
+            var box = size ?? new Vector2(1100f, 28f);
+            var text = NexusUiFactory.CreateText(
                 parent,
                 "OnboardBanner",
                 UiText.MissionsStepBanner(title) + " — " + UiText.T(step.hintEn, step.hintZh),
                 position,
-                new Vector2(1100f, 28f),
+                box,
                 12f,
                 NexusTheme.Gold);
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Ellipsis;
         }
 
         private static bool Matches(string targetScreen, AppScreen current) =>

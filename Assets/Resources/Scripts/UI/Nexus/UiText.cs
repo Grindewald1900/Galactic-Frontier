@@ -228,9 +228,73 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string DeckLocked => T("LOCKED", "未解锁");
         public static string DeckListHeader => T("DECK SLOTS", "卡组槽");
         public static string AddUnit => T("+ Add", "+ 添加");
+        public static string JoinDeck => T("Join Deck", "加入卡组");
+        public static string LeaveDeck => T("Leave Deck", "退出卡组");
+        public static string InspectHint => T(
+            "Select a character from the list, or tap a slot below.",
+            "从左侧名单选择角色，或点击下方卡槽。");
+        public static string EquippedGear => T("Equipped Gear", "已穿戴装备");
+        public static string NoGearInSlot => T("Empty", "空");
+        public static string DetailSkills => T("Skills", "技能");
+        public static string DetailExpertise => T("Expertise", "专长");
+        public static string DetailStats => T("Combat Stats", "战斗属性");
+        public static string JoinNeedsEmptySlot => T("This deck has no empty slot.", "该卡组没有空槽。");
+        public static string EquipSlotLabel(string slot) => slot switch
+        {
+            "Weapon" => T("Weapon", "武器"),
+            "Armor" => T("Armor", "护甲"),
+            "Accessory" => T("Accessory", "配件"),
+            "Tool" => T("Tool", "工具"),
+            _ => T("Gear", "装备")
+        };
         public static string FormationHint => T(
             "Select a deck tab, then assign cards to its 5 slots.\nIdle backup decks may share cards; running decks occupy them.\nTap Stop twice to cancel a running action.",
             "先选卡组页签，再为 5 个槽位上阵。\n未运行的备用卡组可共享卡牌；运行中会占用。\n运行中行动需点两次停止。");
+        public static string RosterFilterAll => T("All", "全部");
+        public static string RosterEmpty => T("No characters match these filters.", "没有符合筛选条件的角色。");
+        public static string RosterAssignedTo(string deckNames) =>
+            T($"In {deckNames}", $"已编入 {deckNames}");
+        public static string RosterAlreadyAssignedHint(string deckNames) =>
+            T($"Already in {deckNames}. Remove it from that deck first.",
+                $"已在 {deckNames} 中。请先从该卡组下阵。");
+        public static string RosterTypeChip(string value) => T($"Type · {value}", $"类型 · {value}");
+        public static string RosterFactionChip(string value) => T($"Faction · {value}", $"阵营 · {value}");
+        public static string RosterRarityChip(string value) => T($"Rarity · {value}", $"稀有 · {value}");
+        public static string RosterSortChip(string value) => T($"Sort · {value}", $"排序 · {value}");
+        public static string RosterSortLabel(int mode) => mode switch
+        {
+            1 => T("Rarity", "稀有度"),
+            2 => T("Level", "等级"),
+            3 => T("Name", "名称"),
+            4 => T("Type", "类型"),
+            _ => T("Power", "战力")
+        };
+        public static string RosterRarityLabel(int filter) => filter switch
+        {
+            1 => "B+",
+            2 => "A+",
+            3 => "S+",
+            4 => "SS",
+            _ => RosterFilterAll
+        };
+        public static string RosterFactionLabel(int filter) => filter switch
+        {
+            1 => T("Guard", "卫队"),
+            2 => T("Syndicate", "商盟"),
+            _ => RosterFilterAll
+        };
+        public static string ArchetypeLabel(string archetype) => archetype switch
+        {
+            "Assassin" => T("Assassin", "刺客"),
+            "Magician" => T("Magician", "法师"),
+            "Mechanician" => T("Mechanician", "机师"),
+            "Monster" => T("Monster", "魔物"),
+            "Potioneer" => T("Potioneer", "药剂师"),
+            "Warrior" => T("Warrior", "战士"),
+            _ => T("Unknown", "未知")
+        };
+        public static string TierShort(string tierName) =>
+            string.IsNullOrEmpty(tierName) || tierName == "None" ? "-" : tierName.Replace("Tier", "");
         public static string DeckBusyHint => T(
             "This deck is running — stop it before editing membership.",
             "该卡组正在行动 — 停止后才能改编制。");
