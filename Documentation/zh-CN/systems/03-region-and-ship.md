@@ -13,12 +13,13 @@
 
 ### 1.1 目标
 
-用**双重门槛**驱动主线推进：
+用**双重门槛**驱动主线推进，并承接世界观中「断航后须自建航道与抗熵雾能力」：
 
 1. **战斗通关** — 证明能清除区域威胁；  
-2. **舰船条件** — 证明具备进入并持续开发该区域的基础设施。
+2. **舰船条件** — 证明具备进入并持续开发该区域的基础设施（航程、能源、**熵雾抗性**等）。
 
-由此把「开图」与「舰船成长 / 资源投入」绑在同一循环里，并避免仅靠等待时间卡进度。
+由此把「开图」与「舰船成长 / 资源投入」绑在同一循环里，并避免仅靠等待时间卡进度。  
+设定权威：`00-setting-and-lore.md`（群星航网 / 断航灾变 / 开拓局）。
 
 ### 1.2 非目标
 
@@ -72,7 +73,7 @@
 | `sec01_convoy_lane` | 护航航道 | Convoy Lane | 过渡 / 后勤叙事 |
 | `sec01_frontier_boss` | 边境锚点 | Frontier Anchor | **区域首领**所在 |
 
-星域 Id：`sector_frontier_vii`（群星边境 · 第七前沿）。  
+星域 Id：`sector_frontier_vii`（群星边境 · 第七前沿）——开拓局在断航带边缘的试验星域。  
 阵营标签预留：`FactionA` / `FactionB`（内容填充阶段挂到遭遇与卡牌，不阻塞门逻辑）。
 
 ### 4.2 双重解锁状态机
@@ -399,6 +400,7 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 ## 11. 参考
 
 - 核心设计：`Documentation/01-core-product-design.md` §7.8 / §16.1  
+- 设定：`00-setting-and-lore.md`  
 - 战斗：`02-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
 - 卡组：`01-deck-and-occupation.md`（舰船设施解锁钩子）  
 - **星域内容与掉落表**：`11-sector-and-region-content.md`  

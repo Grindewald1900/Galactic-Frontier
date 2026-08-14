@@ -367,13 +367,15 @@ flowchart LR
 
 | 顺序 | 文档 | 服务阶段 | 必须先于 | 状态 / 要拍板的内容 |
 | --- | --- | --- | --- | --- |
+| 0 | [systems/00-setting-and-lore.md](systems/00-setting-and-lore.md) | 全程 | 文案 / 新手口吻 / 星域叙事 | **已拍板 v1.0**：断航灾变、开拓局、开拓舰长开局 |
 | 8 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | **P0** | 任何新存档字段 / 经济内容入库 | **已拍板 v1.0** |
 | 9 | [systems/09-resources-and-warehouse.md](systems/09-resources-and-warehouse.md) | **P3** | P3.1 资源表、货舱 | **已拍板 v1.0**：18+12 物品；3 链配方；设施解锁/速度/品质；仓库 60 |
 | 10 | [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | **P5** | P5.4 Missions / 新手两小时 | **已拍板 v1.1**：P5.4a/b 已落地 |
 | 11 | [systems/11-sector-and-region-content.md](systems/11-sector-and-region-content.md) | **P2/P5** | P5.3 星域奖励 | **v1.1**：RewardCatalog / RewardService 已落地；采集节点补齐 |
 | 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |
-| 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.1**（MVP 只读 Solo 边界） |
+| 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.2**（挂接位面/Hub） |
 | 16 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | 全程 | 调试 / QA | **已拍板 v1.1**：`DebugModeController`、导航 Debug 页、设置礼品码 |
+| 17 | [systems/17-online-multiverse-cooperation.md](systems/17-online-multiverse-cooperation.md) | Online | 多人骨架 | **方向稿 v0.1**：私有位面、偏置产量、Hub 市场、公会抗压 |
 
 可选：
 

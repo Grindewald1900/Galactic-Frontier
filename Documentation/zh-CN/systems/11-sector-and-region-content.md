@@ -3,7 +3,7 @@
 > 文档版本：v1.1  
 > 状态：**P5.3 已落地（RewardCatalog / RewardService / 采集节点 / Explore 叙事）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
-> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）  
+> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观）  
 > 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
 > 更新日期：2026-08-12  
 > 变更：v1.1 — FirstClear/Repeat/Farm 发放；裂隙/深渊/护航采集节点；区域 blurb + 阵营标签。
@@ -75,8 +75,9 @@
 | 探索进度 | `floor(clearedRegions / 6 * 100)`；首领击杀计为通关 |
 | 阵营标签 | 预留 `FactionA` / `FactionB`（遭遇可挂叙事标签，不阻塞逻辑） |
 | 第二星域 | **不做** |
+| 叙事归属 | 群星开拓局试验星域（见 `00-setting-and-lore.md`） |
 
-叙事一句话：殖民航线最外侧的资源与裂隙带；玩家需边打边升舰，才能抵达边境锚点清除威胁。
+叙事一句话：第七前沿是开拓局在断航带边缘钉下的试验星域；玩家需边清威胁边升舰抗熵雾，收复至边境锚点。
 
 ---
 
@@ -403,37 +404,40 @@ farmCycle.guaranteed.mat_scrap.qty  ≈  encounter.lootScrap
 
 - **玩法**：无舰船门压力；教会主挑战 → 通关 → 挂机 / 采集铁矿。  
 - **经济**：废料喂舰船 Lv1→门槛；铁矿启动 `chain_metal`。  
-- **一句话**：清理航道垃圾带，取得第一桶金。
+- **一句话**：许可证后的第一站——清理航道残骸，证明你能活下来。
 
 ### 10.2 矿脉支线 — 双原料
 
 - **门槛**：Range1 + Cargo1（推货舱/推进）。  
 - **经济**：晶砂 + 菌毯，同时喂能源链与合成链入口。  
-- **挂机**：材料多样性最高的前中期区。
+- **挂机**：材料多样性最高的前中期区。  
+- **一句话**：失联矿带，回收航材与双链原料。
 
 ### 10.3 量子裂隙 — 能源压力
 
 - **门槛**：Energy / Entropy 抬升，强迫升 `mod_reactor` / `mod_entropy`。  
 - **经济**：能量芯与充能核心；耐久开始有感。  
-- **叙事**：不稳定裂隙，适合战斗向卡组。
+- **叙事**：熵雾渗漏严重的裂隙，需能源与抗性才能深入。
 
 ### 10.4 深渊边界 — 维修坑
 
 - **门槛**：Hull / Entropy 高压。  
 - **经济**：维修零件与维修包；逼出 `rcp_make_repair_kit` 与装甲工坊。  
-- **挂机**：高产出伴随高耐久消耗（`06`）。
+- **挂机**：高产出伴随高耐久消耗（`06`）。  
+- **叙事**：灾变残影与高压战场，维修成为日常。
 
 ### 10.5 护航航道 — 后勤冲刺
 
 - **门槛**：Range / Cargo 再抬；信用点奖励偏高。  
 - **经济**：生物纤维与合金板，冲刺合成/金属成品。  
-- **叙事**：为进攻边境锚点集结补给。
+- **叙事**：尝试恢复后勤线，为总攻边境锚点集结补给。
 
 ### 10.6 边境锚点 — 首领
 
 - **门槛**：全面 Lv4 档。  
 - **首次击杀**：星域完成 + 成品装备/模块大奖。  
-- **刷取**：残骸带，综合材料与极低概率饰品。
+- **刷取**：残骸带，综合材料与极低概率饰品。  
+- **叙事**：本星域威胁核心；清除后第七前沿首圈宣告收复。
 
 ---
 

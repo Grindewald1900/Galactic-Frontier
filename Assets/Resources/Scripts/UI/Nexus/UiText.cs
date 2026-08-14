@@ -215,8 +215,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CycleStrategy => T("Cycle Strategy", "切换策略");
         public static string ExploreSideTitle => T("AUTO COMBAT", "全自动战斗");
         public static string ExploreSideBody => T(
-            "Frontier Sector VII — outer colonial fringe.\n• Gates: clear previous + ship stats\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
-            "群星边境·第七前沿——殖民航线外缘。\n• 门槛：通关前置 + 舰船分项\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。");
+            "Frontier Sector VII — Bureau trial sector after the Severance.\n• Gates: clear previous + ship stats (Entropy Fog)\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
+            "群星边境·第七前沿——断航后开拓局试验星域。\n• 门槛：通关前置 + 舰船分项（抗熵雾）\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。");
 
         // Formation
         public static string AvailableCharacters => T("Available Characters", "可用角色");

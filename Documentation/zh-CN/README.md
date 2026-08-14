@@ -5,17 +5,18 @@
 ## 推荐阅读顺序
 
 1. [快速开始](01-quick-start.md)：运行环境、启动场景和首次阅读路径。
-2. [项目结构](02-project-structure.md)：第一方代码、资源和第三方目录边界。
-3. [架构总览](03-architecture.md)：系统分层、生命周期和主要依赖。
-4. [核心系统实现](04-core-systems.md)：卡牌、编队、抽卡、战斗、物品和 UI 的真实实现。
-5. [数据与存档](05-data-and-save.md)：JSON、Resources、存档文件和路径规则。
-6. [开发与验证](06-development-guide.md)：新增功能、Unity 序列化、测试和提交检查。
-7. [Codex 工作指南](07-codex-guide.md)：自动化修改项目时应优先读取的上下文和安全边界。
-8. [已知问题与技术债](08-known-issues.md)：原型数据、耦合点和后续重构方向。
-9. [Figma UI 重构](09-figma-ui.md)：NEXUS 视觉系统、页面映射、运行时装配和扩展方式。
-10. [核心类职责与关系](10-core-classes.md)：核心类的数据所有权、依赖方向、生命周期和主要调用链。
-11. [MVP 进度与 Cursor 开发计划](11-mvp-development-plan.md)：对照核心设计的实现进度、分阶段路线图与 Cursor 任务方法。
-12. [Debug 模式与测试工具](systems/16-debug-and-test-mode.md)：Dev Data、Debug Panel、礼品码与 EditMode/冒烟清单。
+2. [设定与故事背景](systems/00-setting-and-lore.md)：群星断航、开拓局与玩家身份（文案/叙事权威）。
+3. [项目结构](02-project-structure.md)：第一方代码、资源和第三方目录边界。
+4. [架构总览](03-architecture.md)：系统分层、生命周期和主要依赖。
+5. [核心系统实现](04-core-systems.md)：卡牌、编队、抽卡、战斗、物品和 UI 的真实实现。
+6. [数据与存档](05-data-and-save.md)：JSON、Resources、存档文件和路径规则。
+7. [开发与验证](06-development-guide.md)：新增功能、Unity 序列化、测试和提交检查。
+8. [Codex 工作指南](07-codex-guide.md)：自动化修改项目时应优先读取的上下文和安全边界。
+9. [已知问题与技术债](08-known-issues.md)：原型数据、耦合点和后续重构方向。
+10. [Figma UI 重构](09-figma-ui.md)：NEXUS 视觉系统、页面映射、运行时装配和扩展方式。
+11. [核心类职责与关系](10-core-classes.md)：核心类的数据所有权、依赖方向、生命周期和主要调用链。
+12. [MVP 进度与 Cursor 开发计划](11-mvp-development-plan.md)：对照核心设计的实现进度、分阶段路线图与 Cursor 任务方法。
+13. [Debug 模式与测试工具](systems/16-debug-and-test-mode.md)：Dev Data、Debug Panel、礼品码与 EditMode/冒烟清单。
 
 ### 系统规则文档
 
@@ -23,6 +24,7 @@
 
 | 文档 | 阶段 | 状态 |
 | --- | --- | --- |
+| [设定与故事背景](systems/00-setting-and-lore.md) | 全程 | 已拍板 v1.0（断航 / 开拓局） |
 | [卡组与角色占用](systems/01-deck-and-occupation.md) | P1 | MVP 规则已拍板 |
 | [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
 | [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | 已拍板 v1.2（模块化 + 特殊玩法方向） |
@@ -35,17 +37,18 @@
 | [新手引导与任务链](systems/10-onboarding-and-missions.md) | P5 | 已拍板 v1.1（P5.4a/b 已落地） |
 | [星域 / 区域内容与掉落](systems/11-sector-and-region-content.md) | P2/P5 | 已拍板 v1.1（P5.3 RewardService 已落地） |
 | `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
-| [运行模式与存档互通](systems/14-play-modes-and-persistence.md) | Online | 方向稿 v0.1 |
+| [运行模式与存档互通](systems/14-play-modes-and-persistence.md) | Online | 方向稿 v0.2（挂接位面/Hub） |
 | [抽卡与卡牌成长入口](systems/15-gacha-and-progression.md) | P5 / 经济 | 已拍板 v1.1（正式路径已落地） |
 | [Debug 模式与测试工具](systems/16-debug-and-test-mode.md) | 全程 | 已拍板 v1.1（单例开关 / 导航 Debug 页 / 设置礼品码） |
+| [线上多元宇宙位面与合作](systems/17-online-multiverse-cooperation.md) | Online | 方向稿 v0.1（隔离探索 + Hub 市场 + 公会压力） |
 
 产品设计真相源（仓库根文档）：
 
-- [核心产品设计 v0.3](../01-core-product-design.md)
+- [核心产品设计](../01-core-product-design.md)（含 §5 故事背景摘要；细则见 `systems/00-setting-and-lore.md`）
 
 ## 项目一句话说明
 
-`Galactic Frontier` 是一个 Unity 2D 卡牌养成原型：玩家创建或加载存档，在主场景管理角色卡、编队、物品、星球和抽卡，再进入回合制战斗场景。
+`Galactic Frontier / 群星边境`：断航三百年后，你作为群星开拓局新舰长，在熵雾撕裂的第七前沿战斗开图、挂机采集、制造补给，并以市场终端维持贸易——用 Unity 2D 卡牌养成原型落地单人核心循环。
 
 ## 当前基线
 

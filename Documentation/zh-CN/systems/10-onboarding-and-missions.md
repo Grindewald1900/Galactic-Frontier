@@ -3,10 +3,10 @@
 > 文档版本：v1.1  
 > 状态：**MVP 规则已拍板；P5.4a/b 已落地（MissionsScreen + OnboardingService）**  
 > 上级约束：`Documentation/01-core-product-design.md` §16.1 / §20 / §22（v0.4）；开发计划 **P5.0 / P5.4**  
-> 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`、`03-region-and-ship.md`、`05-production-and-quality.md`、`07-market-and-card-trade.md`、`08-save-and-seed-data.md`、`11-sector-and-region-content.md`  
+> 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`、`03-region-and-ship.md`、`05-production-and-quality.md`、`07-market-and-card-trade.md`、`08-save-and-seed-data.md`、`11-sector-and-region-content.md`、`00-setting-and-lore.md`  
 > 实现阶段：开发计划 **P5**（主切片 P5.0–P5.5 已通；P5.1b 扩容与抽卡正式路径进行中）  
-> 更新日期：2026-08-12  
-> 变更：v1.1 — `OnboardingService`、`onboarding.json`、`MissionsScreen`、Bridge/目标屏软 CTA。
+> 更新日期：2026-08-14  
+> 变更：v1.2 — 对齐开拓舰长 / 群星开拓局叙事口吻（见 `00-setting-and-lore.md`）。
 
 ---
 
@@ -14,13 +14,15 @@
 
 ### 1.1 目标
 
-把已打通的单人核心循环，收成一条**约两小时可演示**的新手脊骨：
+把已打通的单人核心循环，收成一条**约两小时可演示**的新手脊骨，并以**开拓舰长**身份开场：
 
-1. 用 **线性主任务链**（5 步）教会：编队 → 首战 → 采集 → 制造 → **NPC 商店**；  
+1. 用 **线性主任务链**（5 步）教会：编队 → 首战 → 采集 → 制造 → **NPC 商店（市场终端）**；  
 2. 进度可**持久化**，重进游戏不丢；  
 3. Bridge / Missions 与相关页有**软引导**（高亮下一步入口），不强弹强制教程；  
 4. **Solo 不出现玩家市场**步骤或文案；  
 5. 为后续区域包装（P5.3）与角色扩容（P5.1）留挂钩，但不依赖它们完成主链。
+
+玩家设定摘要：群星开拓局新晋舰长，持开拓许可证，开局仅有小型开拓舰、基础战队、简易采集与市场终端（详见 `00-setting-and-lore.md`）。
 
 完成本契约后，P5.4a/b 有唯一实现依据；M5「可演示」的引导侧条件满足。
 
@@ -65,13 +67,13 @@
 
 | 顺序 | stepId | 中文名 | 英文名 | 目标屏 | 完成条件（摘要） |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `ob_formation` | 编成首支队伍 | Form a Deck | Formation | 任一解锁卡组 `MemberCount >= 1`（建议引导满 5，验收 ≥1） |
-| 2 | `ob_first_battle` | 完成首场区域战 | First Battle | Explore → Battle | 任意区域挑战胜利至少 1 次（`world` 进度或战后标记） |
-| 3 | `ob_gather` | 开始采集 | Start Gathering | Explore | 成功开始 `DeckActionType.Gather` 至少一次，**或**本地仓库存在任意采集产物 `quantity >= 1` |
-| 4 | `ob_craft` | 完成一次制造 | Craft Once | Crafting | 成功 `TryStartRecipe` 且仓库出现对应 `outputDefId`（首周期即时入仓已支持） |
-| 5 | `ob_npc_shop` | 星港购或售 | Visit Starport | Market（星港） | 任意一次 `NpcShopService.TryBuy` **或** `TrySell` 成功 |
+| 1 | `ob_formation` | 编成首支开拓战队 | Form a Deck | Formation | 任一解锁卡组 `MemberCount >= 1`（建议引导满 5，验收 ≥1） |
+| 2 | `ob_first_battle` | 完成第七前沿首场清剿 | First Battle | Explore → Battle | 任意区域挑战胜利至少 1 次（`world` 进度或战后标记） |
+| 3 | `ob_gather` | 启动简易采集设备 | Start Gathering | Explore | 成功开始 `DeckActionType.Gather` 至少一次，**或**本地仓库存在任意采集产物 `quantity >= 1` |
+| 4 | `ob_craft` | 在舰船工坊完成一次制造 | Craft Once | Crafting | 成功 `TryStartRecipe` 且仓库出现对应 `outputDefId`（首周期即时入仓已支持） |
+| 5 | `ob_npc_shop` | 使用市场终端连接星港 | Visit Starport | Market（星港） | 任意一次 `NpcShopService.TryBuy` **或** `TrySell` 成功 |
 
-**链完成后**：主链状态 `Completed`；Missions 显示「新手航线完成」；可展示可选后续提示（刷取 / 舰船升级），**不**再强制步骤。
+**链完成后**：主链状态 `Completed`；Missions 显示「新手航线完成——开拓局确认你具备独立作业资格」；可展示可选后续提示（刷取 / 舰船升级），**不**再强制步骤。
 
 ### 4.2 完成判定细则
 
