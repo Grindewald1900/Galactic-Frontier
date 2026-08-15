@@ -376,6 +376,9 @@ flowchart LR
 | 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.2**（挂接位面/Hub） |
 | 16 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | 全程 | 调试 / QA | **已拍板 v1.1**：`DebugModeController`、导航 Debug 页、设置礼品码 |
 | 17 | [systems/17-online-multiverse-cooperation.md](systems/17-online-multiverse-cooperation.md) | Online | 多人骨架 | **方向稿 v0.1**：私有位面、偏置产量、Hub 市场、公会抗压 |
+| 18 | [systems/18-character-roster-and-lore.md](systems/18-character-roster-and-lore.md) | **P5** | 角色叙事与技能文案 | **已拍板 v1.0**：36 人设定、三模板技能、Lv.1 属性规则 |
+| 19 | [systems/19-card-energy-rank.md](systems/19-card-energy-rank.md) | **P5 / 成长** | 卡牌能级 | **v1.2**：F–S；每职业每能级 6 技；进阶从该档 6 选 1 觉醒；单主动上阵 |
+| 20 | [systems/20-stellar-map-and-navigation.md](systems/20-stellar-map-and-navigation.md) | 后 MVP | 星域地图 / 航行 | **方向稿 v0.1**：坐标雷达、航行/跃迁、海图、信标、边缘→中心；M1 先单星域小地图 |
 
 可选：
 

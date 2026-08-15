@@ -41,6 +41,9 @@
 | [抽卡与卡牌成长入口](systems/15-gacha-and-progression.md) | P5 / 经济 | 已拍板 v1.1（正式路径已落地） |
 | [Debug 模式与测试工具](systems/16-debug-and-test-mode.md) | 全程 | 已拍板 v1.1（单例开关 / 导航 Debug 页 / 设置礼品码） |
 | [线上多元宇宙位面与合作](systems/17-online-multiverse-cooperation.md) | Online | 方向稿 v0.1（隔离探索 + Hub 市场 + 公会压力） |
+| [卡牌角色设定与背景](systems/18-character-roster-and-lore.md) | P5 | 已拍板 v1.0（36 人叙事/技能/属性） |
+| [卡牌能级](systems/19-card-energy-rank.md) | P5 / 成长 | 已拍板 v1.2（职业技 F–S 每档 6 个） |
+| [星域地图与舰船航行](systems/20-stellar-map-and-navigation.md) | 后 MVP | 方向稿 v0.1（雷达/航行/跃迁/信标/边缘→中心） |
 
 产品设计真相源（仓库根文档）：
 

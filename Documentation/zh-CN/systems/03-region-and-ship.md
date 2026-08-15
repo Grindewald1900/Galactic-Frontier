@@ -27,7 +27,7 @@
 - 挂机刷取产率、离线时长上限 → `04-idle-and-offline.md`
 - 采集节点产量、生产链 → `05-production-and-quality.md` / `09-resources-and-warehouse.md`
 - **通关掉落、挂机奖励表、区域叙事填充** → `11-sector-and-region-content.md`
-- 多星域大地图、跨服航线、公会占星（非 MVP）
+- 多星域大地图、跨服航线、公会占星（非 MVP）→ 空间探索方向见 `20-stellar-map-and-navigation.md`
 - 虫洞 / 宇宙暗面 / 多元宇宙的完整数值与 UI（§10 仅定方向，非 MVP 必做）
 
 ---

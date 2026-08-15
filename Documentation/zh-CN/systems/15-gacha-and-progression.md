@@ -3,7 +3,7 @@
 > 文档版本：v1.1  
 > 状态：**MVP 规则已拍板；正式路径已落地（GachaService + RecruitScreen）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.6 / §16 / §20 / §21（卡牌交易相关）  
-> 关联：`07-market-and-card-trade.md`（绑定/交易）、`08-save-and-seed-data.md`（DevData / Starter）、`01-deck-and-occupation.md`（同名多开）、`09-resources-and-warehouse.md`（材料扣减）、`10-onboarding-and-missions.md`  
+> 关联：`07-market-and-card-trade.md`（绑定/交易）、`08-save-and-seed-data.md`（DevData / Starter）、`01-deck-and-occupation.md`（同名多开）、`09-resources-and-warehouse.md`（材料扣减）、`10-onboarding-and-missions.md`、`18-character-roster-and-lore.md`（角色叙事）、`19-card-energy-rank.md`（能级 ≠ 抽卡稀有度）  
 > 更新日期：2026-08-12  
 > 变更：v1.1 — Dev OFF 扣 `con_recruit_ticket`；Lv1 入池；软保底 `gacha.json`；Nexus 招募页。
 
@@ -42,6 +42,9 @@
 | **入池（Grant）** | 结果写入 `CardListManager` 并存档 |
 | **分解（Dismantle）** | 销毁卡实例换材料 / 信用（重复卡 sink） |
 | **绑定（Bound）** | 不可上架玩家市场的卡；见市场文档 |
+| **抽卡稀有度** | `CharacterTier`（E…SS）：抽出时的卡面品质；**不是**能级 |
+| **卡牌能级** | `EnergyRank`（F…S）：实例成长轴（波动门槛 + 进阶条件）；见 `19-card-energy-rank.md` |
+| **经验等级** | `Level`：吃经验升级 |
 
 ---
 

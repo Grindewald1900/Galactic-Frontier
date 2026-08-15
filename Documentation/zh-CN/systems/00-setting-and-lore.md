@@ -3,7 +3,7 @@
 > 文档版本：v1.0  
 > 状态：**世界观已拍板（MVP 叙事契约）**  
 > 上级约束：`Documentation/01-core-product-design.md`  
-> 关联：`03-region-and-ship.md`（熵雾门槛）、`07-market-and-card-trade.md`（市场终端）、`10-onboarding-and-missions.md`（开拓舰长开局）、`11-sector-and-region-content.md`（第七前沿内容）  
+> 关联：`03-region-and-ship.md`（熵雾门槛）、`07-market-and-card-trade.md`（市场终端）、`10-onboarding-and-missions.md`（开拓舰长开局）、`11-sector-and-region-content.md`（第七前沿内容）、`20-stellar-map-and-navigation.md`（后 MVP 空间航行）  
 > 更新日期：2026-08-14
 
 ---
@@ -23,7 +23,7 @@
 - 完整小说、多结局分支、过场动画脚本（可后置）  
 - 断航灾变「真相」的最终揭晓（仅作长期悬念钩子）  
 - 改变已拍板的系统规则（占用、品质、Solo 无玩家市场等）  
-- 第二星域 / 多领主争霸玩法细则（长期目标，非 MVP）
+- 第二星域 / 多领主争霸玩法细则（长期目标，非 MVP；空间地图见 `20`）
 
 ---
 
@@ -211,6 +211,8 @@
 | 航网重建工程 | 公会/全服基建（Online） |
 | 多元宇宙位面 + 中转站 | 私有位面开发 + Hub 市场与公会抗熵雾潮汐（`17`） |
 | 特殊空间玩法 | 虫洞、宇宙暗面、多元宇宙 Boss 房（见 `12`） |
+| 卡牌角色全名册 | 36 人设定/技能文案见 `18-character-roster-and-lore.md` |
+| 卡牌能级 | 相位共振 F–S 进阶见 `19-card-energy-rank.md` |
 
 ---
 
@@ -219,6 +221,7 @@
 | 位置 | 动作 |
 | --- | --- |
 | 本文 | 世界观权威 |
+| `18-character-roster-and-lore.md` | 卡牌角色背景与技能文案 |
 | `01-core-product-design.md` | 增加设定摘要章节 |
 | `11-sector-and-region-content.md` | 星域叙事句对齐 |
 | `10-onboarding-and-missions.md` | 玩家身份与任务口吻 |
