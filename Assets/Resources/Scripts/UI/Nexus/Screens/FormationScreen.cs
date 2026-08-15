@@ -161,7 +161,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateText(
                 slotBar.transform,
                 "Header",
-                UiText.T("Deck lineup", "卡组编制"),
+                UiText.DeckLineup,
                 new Vector2(16f, 8f),
                 new Vector2(420f, 20f),
                 12f,
@@ -668,7 +668,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             string faction = CharacterFactionCatalog.LabelEn(entity.characterName);
             string factionZh = CharacterFactionCatalog.LabelZh(entity.characterName);
             string factionLabel = string.IsNullOrEmpty(faction) ? "" : UiText.T(faction, factionZh);
-            string stats = $"{UiText.T("Lv.", "Lv.")}{entity.Level}  {UiText.TierShort(entity.CharacterTier.ToString())}  {entity.power:N0}  {UiText.ArchetypeLabel(entity.archetype.ToString())}";
+            string stats = $"{UiText.LevelAbbrev}{entity.Level}  {UiText.TierShort(entity.CharacterTier.ToString())}  {entity.power:N0}  {UiText.ArchetypeLabel(entity.archetype.ToString())}";
             if (!string.IsNullOrEmpty(factionLabel))
                 stats += $"  {factionLabel}";
 
@@ -788,7 +788,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (names == null || names.Count == 0)
                 return "";
-            return string.Join(UiText.T(", ", "、"), names);
+            return string.Join(UiText.ListSeparator, names);
         }
 
         private List<CardEntity> FilterAndSort(List<CardEntity> all, HashSet<string> memberIds)
@@ -993,7 +993,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 $"<size=20><color=#{gold}>{DisplayName(card)}</color></size>\n" +
                 $"<color=#{cyan}>{card.characterName} · {UiText.ArchetypeLabel(card.archetype.ToString())}" +
                 (string.IsNullOrEmpty(factionLabel) ? "" : $" · {factionLabel}") + "</color>\n" +
-                $"{UiText.T("Lv.", "Lv.")}{card.Level}  {UiText.TierShort(card.CharacterTier.ToString())}  " +
+                $"{UiText.LevelAbbrev}{card.Level}  {UiText.TierShort(card.CharacterTier.ToString())}  " +
                 $"<color=#{gold}>{card.power:N0}</color>";
             if (inCurrent)
                 identity += $"\n<color=#{cyan}>{UiText.RosterAssignedTo(editing.displayName)}</color>";
@@ -1014,16 +1014,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             string statsBlock =
                 $"<color=#{muted}>{UiText.DetailStats}</color>\n" +
-                $"{UiText.T("HP", "生命")}  {card.GetPanelHealth():N0}\n" +
-                $"{UiText.T("ATK", "攻击")}  {card.GetPanelAttack():N0}\n" +
-                $"{UiText.T("DEF", "防御")}  {card.GetPanelDefense():N0}\n" +
-                $"{UiText.T("ACC", "命中")}  {card.GetPanelAccuracy():N0}\n" +
-                $"{UiText.T("Dodge", "闪避")}  {card.GetPanelDodge():N0}\n" +
-                $"{UiText.T("Crit", "暴击")}  {card.GetPanelCritical():N0}\n" +
-                $"{UiText.T("Crit DMG", "暴伤")}  {card.GetPanelCritialDamage():N0}\n" +
-                $"{UiText.T("DR", "减伤")}  {card.GetPanelDMGReduction():N0}\n" +
-                $"{UiText.T("Energy", "能量")}  {card.GetPanelEnergyRate():N0}\n" +
-                $"{UiText.T("Speed", "速度")}  {card.GetPanelSpeed():N0}";
+                $"{UiText.StatHp}  {card.GetPanelHealth():N0}\n" +
+                $"{UiText.StatAtk}  {card.GetPanelAttack():N0}\n" +
+                $"{UiText.StatDef}  {card.GetPanelDefense():N0}\n" +
+                $"{UiText.StatAcc}  {card.GetPanelAccuracy():N0}\n" +
+                $"{UiText.StatDodge}  {card.GetPanelDodge():N0}\n" +
+                $"{UiText.StatCrit}  {card.GetPanelCritical():N0}\n" +
+                $"{UiText.StatCritDmg}  {card.GetPanelCritialDamage():N0}\n" +
+                $"{UiText.StatDr}  {card.GetPanelDMGReduction():N0}\n" +
+                $"{UiText.StatEnergy}  {card.GetPanelEnergyRate():N0}\n" +
+                $"{UiText.StatSpeed}  {card.GetPanelSpeed():N0}";
             var statsBlockText = NexusUiFactory.CreateText(
                 detailRoot,
                 "CombatStats",
@@ -1038,7 +1038,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             string extras = $"<color=#{muted}>{UiText.DetailSkills}</color>\n";
             if (card.skills == null || card.skills.Count == 0)
-                extras += $"{UiText.T("None", "无")}\n";
+                extras += $"{UiText.None}\n";
             else
             {
                 int shown = Mathf.Min(card.skills.Count, 4);
@@ -1052,7 +1052,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             extras += $"\n<color=#{muted}>{UiText.DetailExpertise}</color>\n";
             if (card.expertises == null || card.expertises.Count == 0)
-                extras += UiText.T("None", "无");
+                extras += UiText.None;
             else
             {
                 int shown = Mathf.Min(card.expertises.Count, 4);
@@ -1274,7 +1274,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (barHeader != null)
             {
                 barHeader.text = editing == null
-                    ? UiText.T("Deck lineup", "卡组编制")
+                    ? UiText.DeckLineup
                     : $"{editing.displayName}  ·  {MemberCountLabel(editing)}";
             }
 
@@ -1442,7 +1442,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (selectedCard == null)
             {
-                statusText.text = UiText.T("Select a roster card first.", "请先选择角色。");
+                statusText.text = UiText.SelectRosterFirst;
                 return;
             }
 
@@ -1462,14 +1462,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             if (candidate == null)
             {
-                statusText.text = UiText.T("No unequipped weapon/armor in bag.", "仓库中无未装备武器/护甲。");
+                statusText.text = UiText.NoUnequippedGear;
                 return;
             }
 
             var ok = Economy.DurabilityService.TryEquip(candidate.itemInstanceId, selectedCard.id);
             statusText.text = ok
-                ? UiText.T($"Equipped {candidate.itemName}", $"已装备 {candidate.itemName}")
-                : UiText.T("Equip failed.", "装备失败。");
+                ? UiText.EquippedItem(candidate.itemName)
+                : UiText.EquipFailed;
             Rebuild();
         }
 
@@ -1495,7 +1495,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             statusText.text = stop.Success
                 ? (stop.Settlement != null && stop.Settlement.DiscardedUnsettledProgress
                     ? UiText.StopActionConfirm
-                    : UiText.T("Action stopped.", "行动已停止。"))
+                    : UiText.ActionStopped)
                 : stop.Message;
             Rebuild();
         }
@@ -1537,15 +1537,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 : CombatStrategyRules.Parse(editing.combatStrategyId).ToString();
 
             statsText.text =
-                $"<color=#{muted}>{UiText.T("Selected deck", "当前卡组")}</color>\n" +
+                $"<color=#{muted}>{UiText.SelectedDeckLabel}</color>\n" +
                 $"<size=16><color=#{gold}>{Truncate(editing?.displayName ?? "-", 20)}</color></size>\n" +
                 $"<color=#{cyan}>{UiText.DeckPurposeLabel(editing?.purpose.ToString() ?? "Flexible")}" +
                 (isCombat ? $" · {UiText.ActiveCombatBadge}" : "") + "</color>\n" +
                 $"{actionLabel}\n" +
                 $"{UiText.CombatStrategyLabel}: {strategy}\n\n" +
-                $"<color=#{muted}>{UiText.T("In formation", "上阵人数")}</color>\n" +
+                $"<color=#{muted}>{UiText.InFormationLabel}</color>\n" +
                 $"<size=18><color=#{gold}>{count} / {DeckConstants.SlotsPerDeck}</color></size>\n\n" +
-                $"<color=#{muted}>{UiText.T("Total power", "综合战力")}</color>\n" +
+                $"<color=#{muted}>{UiText.TotalPowerLabel}</color>\n" +
                 $"<size=18><color=#{cyan}>{power:N0}</color></size>\n\n" +
                 $"<color=#{muted}>{UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)}</color>";
             statsText.overflowMode = TextOverflowModes.Truncate;

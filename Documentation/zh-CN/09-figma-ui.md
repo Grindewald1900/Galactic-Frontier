@@ -53,9 +53,12 @@ NexusUiBootstrap
 - 新颜色、间距只进 `NexusTheme`；通用构件进 `NexusUiFactory`。
 - **禁止**对全场景 Canvas 做全局 `ApplyThemeToScene` 涂装。
 - `AppShell` 只做导航与布局组合；卡牌/物品/战斗数据仍由既有 Manager 拥有。
-- 玩家可见 UI 默认文案为 **English**；通过 Settings 可切换 **简体中文（zh-CN）**，由 `LocalizationUtil` + `UiText` 解析。
+- 玩家可见 UI 默认文案为 **English**；通过 Settings 可切换 **简体中文（zh-CN）**。
 - 语言选择保存在 PlayerPrefs 键 `ui_language`（`en` / `zh-CN`）。
-- 本地化表后续可迁到外部 JSON；当前 AppShell 字符串集中在 `UiText.cs`。
+- **UI chrome**（导航、按钮、提示）：`Resources/Data/Localization/UiStrings.json`（`id` / `en` / `zh`），由 `LocalizationUtil.Get` / `Format` 解析；`UiText` 仅作强类型键访问器。
+- **内容目录**（物品、配方、商店、星域、任务、技能）：继续使用各自的 `displayNameEn`/`displayNameZh` 或 `{en,zh}`（`LocalizedText`），经 `LocalizationUtil.T` / `GetLocalizedText` 解析；**本阶段不迁入 UiStrings**。
+- 中文渲染：`CjkFontBootstrap` 将 `Resources/Fonts/NotoSansSC-Regular.otf` 注册为 TMP 动态 fallback（不检入完整 CJK atlas）；缺省时回退系统字体（如微软雅黑）。
+- 已安装的 `com.unity.localization` **本阶段不接入游戏代码**（Nexus UI 为代码构建，非 Prefab LocalizedString）。
 
 ## 已废弃方向
 

@@ -3,271 +3,215 @@ using Assets.Scripts.Utils;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// English-default UI copy with Simplified Chinese translations for the AppShell rewrite.
+    /// Typed UI copy accessors. Strings live in Resources/Data/Localization/UiStrings.json.
+    /// Catalog bilingual fields still use <see cref="T"/>.
     /// </summary>
     internal static class UiText
     {
         public static string T(string english, string zhCn) => LocalizationUtil.T(english, zhCn);
 
+        private static string G(string id) => LocalizationUtil.Get(id);
+        private static string F(string id, params object[] args) => LocalizationUtil.Format(id, args);
+
         // Shell / navigation
-        public static string ScreenBridge => T("Bridge", "舰桥");
-        public static string ScreenBattle => T("Explore", "探索");
-        public static string ScreenFormation => T("Formation", "编队");
-        public static string ScreenCharacters => T("Characters", "角色");
-        public static string ScreenCards => T("Cards", "卡牌");
-        public static string ScreenInventory => T("Inventory", "仓库");
-        public static string InventoryTitle => T("Warehouse", "仓库");
-        public static string InventoryHint => T(
-            "Items from gathering, crafting, shops, and Debug Mode. Switch tabs by type or quality.",
-            "采集、制造、商店与 Debug 获得的物品会显示在此。按类型或品质切换页签。");
-        public static string InventoryTabAll => T("All", "全部");
-        public static string InventoryTabEquipment => T("Equipment", "装备");
-        public static string InventoryTabMaterial => T("Material", "材料");
-        public static string InventoryTabConsumable => T("Consumable", "消耗品");
-        public static string InventoryQualityAll => T("All Q", "全部品质");
-        public static string InventoryEmpty => T("No items in this tab.", "此页签没有物品。");
-        public static string InventoryQty(int quality, int qty) => T($"Q{quality} × {qty}", $"Q{quality} × {qty}");
-        public static string ScreenMarket => T("Starport", "星港");
-        public static string ScreenCrafting => T("Crafting", "制造");
-        public static string ScreenMissions => T("Missions", "任务");
-        public static string ScreenRecruit => T("Recruit", "招募");
-        public static string ScreenSettings => T("Settings", "设置");
-        public static string ScreenDebug => T("Debug Mode", "Debug模式");
+        public static string ScreenBridge => G("ui.nav.bridge");
+        public static string ScreenBattle => G("ui.nav.explore");
+        public static string ScreenFormation => G("ui.nav.formation");
+        public static string ScreenCharacters => G("ui.nav.characters");
+        public static string ScreenCards => G("ui.nav.cards");
+        public static string ScreenInventory => G("ui.nav.inventory");
+        public static string InventoryTitle => G("ui.inventory.title");
+        public static string InventoryHint => G("ui.inventory.hint");
+        public static string InventoryTabAll => G("ui.inventory.tab_all");
+        public static string InventoryTabEquipment => G("ui.inventory.tab_equipment");
+        public static string InventoryTabMaterial => G("ui.inventory.tab_material");
+        public static string InventoryTabConsumable => G("ui.inventory.tab_consumable");
+        public static string InventoryQualityAll => G("ui.inventory.quality_all");
+        public static string InventoryEmpty => G("ui.inventory.empty");
+        public static string InventoryQty(int quality, int qty) => F("ui.inventory.qty", quality, qty);
+        public static string ScreenMarket => G("ui.nav.starport");
+        public static string ScreenCrafting => G("ui.nav.crafting");
+        public static string ScreenMissions => G("ui.nav.missions");
+        public static string ScreenRecruit => G("ui.nav.recruit");
+        public static string ScreenSettings => G("ui.nav.settings");
+        public static string ScreenDebug => G("ui.nav.debug");
 
         public static string Breadcrumb(AppScreen screen) => screen switch
         {
-            AppScreen.Bridge => T("Bridge", "舰桥"),
-            AppScreen.Battle => T("Explore / Card Battle", "探索 / 卡牌战斗"),
-            AppScreen.Formation => T("Formation", "编队"),
-            AppScreen.Ship => T("Ship Bay", "舰船舱"),
-            AppScreen.Characters => T("Characters", "角色"),
-            AppScreen.Cards => T("Cards", "卡牌"),
-            AppScreen.Inventory => T("Inventory", "仓库"),
-            AppScreen.Market => T("Starport Shop", "星港商店"),
-            AppScreen.Recruit => T("Recruitment", "招募站"),
-            AppScreen.Crafting => T("Crafting", "制造"),
-            AppScreen.Missions => T("Missions", "任务"),
-            AppScreen.Settings => T("Settings", "设置"),
-            AppScreen.Debug => T("Debug Mode", "Debug模式"),
+            AppScreen.Bridge => G("ui.breadcrumb.bridge"),
+            AppScreen.Battle => G("ui.breadcrumb.battle"),
+            AppScreen.Formation => G("ui.breadcrumb.formation"),
+            AppScreen.Ship => G("ui.breadcrumb.ship"),
+            AppScreen.Characters => G("ui.breadcrumb.characters"),
+            AppScreen.Cards => G("ui.breadcrumb.cards"),
+            AppScreen.Inventory => G("ui.breadcrumb.inventory"),
+            AppScreen.Market => G("ui.breadcrumb.market"),
+            AppScreen.Recruit => G("ui.breadcrumb.recruit"),
+            AppScreen.Crafting => G("ui.breadcrumb.crafting"),
+            AppScreen.Missions => G("ui.breadcrumb.missions"),
+            AppScreen.Settings => G("ui.breadcrumb.settings"),
+            AppScreen.Debug => G("ui.breadcrumb.debug"),
             _ => screen.ToString()
         };
 
-        public static string StatusShortcuts => T(
-            "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Starport  F8 Missions  F9 Recruit",
-            "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 星港  F8 任务  F9 招募");
-
-        public static string StatusVersion => T(
-            "NEXUS COMMAND · Fully automatic combat",
-            "NEXUS COMMAND · 全自动战斗");
-
-        public static string MainMenuTagline => T(
-            "FULL UI REWRITE · AUTO COMBAT",
-            "界面重写 · 全自动战斗");
+        public static string StatusShortcuts => G("ui.status.shortcuts");
+        public static string StatusVersion => G("ui.status.version");
+        public static string MainMenuTagline => G("ui.main.tagline");
 
         // Bridge
-        public static string BridgeTitle => T("Bridge", "舰桥");
-        public static string BridgeSubtitle(string commander) => T(
-            $"Commander {commander} — live fleet & sector status",
-            $"指挥官 {commander} — 舰队与星域状态");
+        public static string BridgeTitle => G("ui.bridge.title");
+        public static string BridgeSubtitle(string commander) => F("ui.bridge.subtitle", commander);
+        public static string BridgeAutoCombatBadge => G("ui.bridge.auto_badge");
+        public static string BridgeBanner => G("ui.bridge.banner");
 
-        public static string BridgeAutoCombatBadge => T(
-            "● AUTO COMBAT ONLINE",
-            "● 全自动战斗已启用");
+        public static string StatCombatPower => G("ui.stat.combat_power");
+        public static string StatExploration => G("ui.stat.exploration");
+        public static string StatCredits => G("ui.stat.credits");
+        public static string StatRoster => G("ui.stat.roster");
+        public static string RosterSummary(int cards, int inLine) => F("ui.bridge.roster_summary", cards, inLine);
 
-        public static string BridgeBanner => T(
-            "Combat is fully automatic. Configure formation, pick a sector, then watch or skip the battle.",
-            "战斗为全自动结算。配置编队、选择星域后发起战斗，可观看或跳过演出。");
+        public static string ActiveFleet => G("ui.bridge.active_fleet");
+        public static string RunningOps => G("ui.bridge.running_ops");
+        public static string ParallelOps(int current, int max) => F("ui.bridge.parallel_ops", current, max);
+        public static string BridgeSectors => G("ui.bridge.sectors");
+        public static string EventLog => G("ui.bridge.event_log");
 
-        public static string StatCombatPower => T("COMBAT POWER", "战力");
-        public static string StatExploration => T("EXPLORATION", "探索进度");
-        public static string StatCredits => T("CREDITS", "信用点");
-        public static string StatRoster => T("ROSTER", "编成");
-        public static string RosterSummary(int cards, int inLine) => T(
-            $"{cards} cards · {inLine} in line",
-            $"{cards} 张卡 · {inLine} 上阵");
+        public static string EmptyFleet => G("ui.bridge.empty_fleet");
+        public static string NoRunningOps => G("ui.bridge.no_running_ops");
+        public static string StopAction => G("ui.bridge.stop_action");
+        public static string StopActionConfirm => G("ui.bridge.stop_confirm");
 
-        public static string ActiveFleet => T("ACTIVE COMBAT DECK", "当前战斗卡组");
-        public static string RunningOps => T("RUNNING OPS", "运行中行动");
-        public static string ParallelOps(int current, int max) => T(
-            $"Parallel {current} / {max}",
-            $"并行 {current} / {max}");
-        public static string BridgeSectors => T("NEARBY SECTORS", "邻近星域");
-        public static string EventLog => T("EVENT LOG", "战情日志");
+        public static string TodaysMissions => G("ui.bridge.missions");
+        public static string BridgeOpenFormation => G("ui.bridge.open_formation");
+        public static string BridgeStartAutoBattle => G("ui.bridge.start_auto_battle");
+        public static string BridgeOpsHint => G("ui.bridge.ops_hint");
 
-        public static string EmptyFleet => T(
-            "No units in formation. Open Formation to assign cards.",
-            "当前没有上阵单位。请打开编队配置。");
-        public static string NoRunningOps => T(
-            "No decks running. Idle presets do not occupy cards.",
-            "没有运行中的卡组。未启动的备用编队不占用角色。");
-        public static string StopAction => T("Stop", "停止");
-        public static string StopActionConfirm => T(
-            "Tap Stop again: keep settled rewards, discard unsettled cycle progress.",
-            "再点一次停止：保留已结算收益，丢弃未完成周期进度。");
-
-        public static string TodaysMissions => T("MISSIONS", "任务");
-        public static string BridgeOpenFormation => T("Open Formation", "打开编队");
-        public static string BridgeStartAutoBattle => T("Explore / Auto Battle", "探索 / 自动战斗");
-        public static string BridgeOpsHint => T(
-            "Manage multiple decks in Formation. Running decks occupy members; idle backup presets do not.",
-            "在编队中管理多套卡组。运行中卡组占用成员；未运行的备用预设不占用。");
-
-        public static string SlotLabel(int index) => T($"Slot {index}", $"槽位 {index}");
+        public static string SlotLabel(int index) => F("ui.bridge.slot", index);
 
         public static string SectorName(int index) => index switch
         {
-            0 => T("Outer Belt", "外缘带"),
-            1 => T("Mining Spur", "矿脉支线"),
-            2 => T("Quantum Rift", "量子裂隙"),
-            3 => T("Abyssal Edge", "深渊边界"),
-            4 => T("Convoy Lane", "护航航道"),
-            _ => T($"Sector {index}", $"星域 {index}")
+            0 => G("ui.sector.0"),
+            1 => G("ui.sector.1"),
+            2 => G("ui.sector.2"),
+            3 => G("ui.sector.3"),
+            4 => G("ui.sector.4"),
+            _ => F("ui.sector.n", index)
         };
 
         public static string BridgeLogLine(int index, int a, int b) => index switch
         {
-            0 => T($"Fleet status: {a} units deployed · roster {b}", $"舰队状态：{a} 人上阵 · 卡池 {b}"),
-            1 => T($"Exploration {a}% · credits {b:N0}₵", $"探索进度 {a}% · 信用点 {b:N0}₵"),
-            2 => T($"Combat power estimate {a:N0}", $"预估战力 {a:N0}"),
-            3 => T("Auto-battle rules active — no manual turns required", "全自动战斗规则生效 — 无需手动回合"),
-            _ => T("Ship gates & offline caps unlock with progression", "舰船门槛与离线上限随成长解锁")
+            0 => F("ui.bridge.log.0", a, b),
+            1 => F("ui.bridge.log.1", a, b),
+            2 => F("ui.bridge.log.2", a),
+            3 => G("ui.bridge.log.3"),
+            _ => G("ui.bridge.log.default")
         };
 
         // Explore
-        public static string ExploreTitle => T("Explore / Auto Battle", "探索 / 自动战斗");
-        public static string ExploreHint => T(
-            "Select a sector to start fully automatic combat. First clear and farm both resolve without turn-by-turn input.",
-            "选择星域发起全自动战斗。首次通关与挂机刷取均无需逐回合操作。");
+        public static string ExploreTitle => G("ui.explore.title");
+        public static string ExploreHint => G("ui.explore.hint");
         public static string ExploreFleetReady(int count) => count > 0
-            ? T($"Formation ready: {count} / 5", $"编队就绪：{count} / 5")
-            : T("Formation empty — assign cards before battle", "编队为空 — 开战前请先上阵");
-        public static string ExploreRegionMeta(int index) => T(
-            $"Auto combat · Region #{index + 1}",
-            $"全自动战斗 · 星域 #{index + 1}");
-        public static string StartAutoBattle => T("Challenge", "挑战");
-        public static string StartFarm => T("AFK Farm", "挂机刷取");
-        public static string StartGather => T("Gather", "采集");
-        public static string RegionLocked => T("LOCKED", "未解锁");
-        public static string FarmAvailable => T("Farm unlocked", "可挂机刷取");
-        public static string PendingLootTitle(int count) => T(
-            $"PENDING LOOT ({count})",
-            $"待领取收益（{count}）");
-        public static string PendingLootHint => T(
-            "Offline settlement ready. Claim into warehouse.",
-            "离线结算已就绪，领取至仓库。");
-        public static string PendingLootEmpty => T("No pending loot.", "暂无待领取收益。");
-        public static string ClaimPendingLoot => T("Claim All", "全部领取");
-        public static string CraftingTitle => T("CRAFTING", "制造");
-        public static string CraftingHint => T(
-            "Three chains: metal / energy / synth. Start consumes materials and adds the output to Inventory immediately.",
-            "三条产线：金属 / 能源 / 合成。点击开始会预扣材料，并立刻将产出放入仓库。");
-        public static string CraftingDelivered(string name, int qty) => T(
-            $"Added {qty}× {name} to Inventory.",
-            $"已将 {qty}× {name} 放入仓库。");
-        public static string CraftingSelectRecipe => T("Select a recipe", "选择配方");
-        public static string CraftingInputs => T("Inputs", "材料");
-        public static string CraftingOutputs => T("Output", "产出");
-        public static string CraftingExpectedQuality(string range) => T(
-            $"Expected quality: {range}",
-            $"预期品质：{range}");
-        public static string CraftingStart => T("Start Craft", "开始制造");
-        public static string CraftingMissingMats => T("(missing mats)", "（材料不足）");
-        public static string CraftingAutoRepair => T("Auto-Repair Gear", "自动维修装备");
-        public static string CraftingRepairFirst => T("Repair Damaged", "维修一件");
-        public static string EquipToSelected => T("Equip Gear → Card", "装备到角色");
-        public static string StarportShopTitle => T("STARPORT SHOP", "星港商店");
-        public static string StarportShopHint => T(
-            "Buy and sell materials with the starport merchant. Solo mode has no player market.",
-            "与星港商人买卖材料。单机模式无玩家市场。");
-        public static string CreditsLabel(int n) => T($"Credits {n}₵", $"信用点 {n}₵");
-        public static string BoundCreditsLabel(int n) => T($"Bound {n}", $"绑定币 {n}");
-        public static string PlayerMarketDisabledSolo => T(
-            "Player market disabled (Solo)",
-            "玩家市场已禁用（单机）");
-        public static string OpenPlayerMarket => T("Player Exchange", "玩家交易所");
-        public static string PlayerMarketSoon => T(
-            "Player market is Online-only (not in MVP).",
-            "玩家市场仅线上（非 MVP）。");
-        public static string SelectShopOffer => T("Select an offer", "选择商品");
-        public static string OfferLocked => T("LOCKED", "未解锁");
-        public static string ShopBuy => T("Buy ×1", "购买 ×1");
-        public static string ShopSell => T("Sell ×1", "回收 ×1");
-        public static string ShopBuyX(int n) => T($"Buy ×{n}", $"购买 ×{n}");
-        public static string ShopSellX(int n) => T($"Sell ×{n}", $"回收 ×{n}");
-        public static string ShopPrices(int buy, int sell) => T(
-            $"Buy {buy}₵ · Sell-back {sell}₵",
-            $"购入 {buy}₵ · 回收 {sell}₵");
-        public static string SectorComplete => T("Sector first loop complete", "星域首圈完成");
+            ? F("ui.explore.fleet_ready", count)
+            : G("ui.explore.fleet_empty");
+        public static string ExploreRegionMeta(int index) => F("ui.explore.region_meta", index + 1);
+        public static string StartAutoBattle => G("ui.explore.challenge");
+        public static string StartFarm => G("ui.explore.farm");
+        public static string StartGather => G("ui.explore.gather");
+        public static string RegionLocked => G("ui.common.locked");
+        public static string FarmAvailable => G("ui.explore.farm_available");
+        public static string PendingLootTitle(int count) => F("ui.explore.pending_loot_title", count);
+        public static string PendingLootHint => G("ui.explore.pending_loot_hint");
+        public static string PendingLootEmpty => G("ui.explore.pending_loot_empty");
+        public static string ClaimPendingLoot => G("ui.explore.claim_all");
+        public static string ExploreRecPower(int power) => F("ui.explore.rec_power", power);
+        public static string CraftingTitle => G("ui.crafting.title");
+        public static string CraftingHint => G("ui.crafting.hint");
+        public static string CraftingDelivered(string name, int qty) => F("ui.crafting.delivered", qty, name);
+        public static string CraftingSelectRecipe => G("ui.crafting.select_recipe");
+        public static string CraftingInputs => G("ui.crafting.inputs");
+        public static string CraftingOutputs => G("ui.crafting.outputs");
+        public static string CraftingExpectedQuality(string range) => F("ui.crafting.expected_quality", range);
+        public static string CraftingStart => G("ui.crafting.start");
+        public static string CraftingMissingMats => G("ui.crafting.missing_mats");
+        public static string CraftingAutoRepair => G("ui.crafting.auto_repair");
+        public static string CraftingRepairFirst => G("ui.crafting.repair_first");
+        public static string EquipToSelected => G("ui.crafting.equip_to_selected");
+        public static string StarportShopTitle => G("ui.starport.title");
+        public static string StarportShopHint => G("ui.starport.hint");
+        public static string CreditsLabel(int n) => F("ui.starport.credits", n);
+        public static string BoundCreditsLabel(int n) => F("ui.starport.bound", n);
+        public static string PlayerMarketDisabledSolo => G("ui.starport.player_market_disabled");
+        public static string OpenPlayerMarket => G("ui.starport.player_exchange");
+        public static string PlayerMarketSoon => G("ui.starport.player_market_soon");
+        public static string SelectShopOffer => G("ui.starport.select_offer");
+        public static string OfferLocked => G("ui.common.locked");
+        public static string ShopBuy => G("ui.starport.buy");
+        public static string ShopSell => G("ui.starport.sell");
+        public static string ShopBuyX(int n) => F("ui.starport.buy_x", n);
+        public static string ShopSellX(int n) => F("ui.starport.sell_x", n);
+        public static string ShopPrices(int buy, int sell) => F("ui.starport.prices", buy, sell);
+        public static string SectorComplete => G("ui.explore.sector_complete");
         public static string RegionProgressLabel(string state) => state switch
         {
-            "Challengeable" => T("Challengeable", "可挑战"),
-            "Cleared" => T("Cleared", "已通关"),
-            "BossAvailable" => T("Boss available", "首领可挑战"),
-            "BossDefeated" => T("Boss defeated", "首领已击败"),
-            _ => T("Locked", "锁定")
+            "Challengeable" => G("ui.region.challengeable"),
+            "Cleared" => G("ui.region.cleared"),
+            "BossAvailable" => G("ui.region.boss_available"),
+            "BossDefeated" => G("ui.region.boss_defeated"),
+            _ => G("ui.region.locked")
         };
-        public static string OpenShipBay => T("Ship Bay", "舰船舱");
-        public static string ShipBayTitle => T("SHIP BAY", "舰船舱");
-        public static string UpgradeShipLevel(int scrap, int credit) => T(
-            $"Upgrade ship level ({scrap} scrap / {credit}₵)",
-            $"升级舰船等级（{scrap} 废料 / {credit}₵）");
-        public static string CombatStrategyLabel => T("Combat strategy", "战前策略");
-        public static string CycleStrategy => T("Cycle Strategy", "切换策略");
-        public static string ExploreSideTitle => T("AUTO COMBAT", "全自动战斗");
-        public static string ExploreSideBody => T(
-            "Frontier Sector VII — Bureau trial sector after the Severance.\n• Gates: clear previous + ship stats (Entropy Fog)\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
-            "群星边境·第七前沿——断航后开拓局试验星域。\n• 门槛：通关前置 + 舰船分项（抗熵雾）\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。");
+        public static string OpenShipBay => G("ui.ship.open");
+        public static string ShipBayTitle => G("ui.ship.title");
+        public static string UpgradeShipLevel(int scrap, int credit) => F("ui.ship.upgrade", scrap, credit);
+        public static string CombatStrategyLabel => G("ui.ship.strategy");
+        public static string CycleStrategy => G("ui.ship.cycle_strategy");
+        public static string Back => G("ui.ship.back");
+        public static string ExploreSideTitle => G("ui.explore.side_title");
+        public static string ExploreSideBody => G("ui.explore.side_body");
 
         // Formation
-        public static string AvailableCharacters => T("Available Characters", "可用角色");
-        public static string FormationTitle => T("FORMATION", "编队配置");
-        public static string FormationStats => T("Formation Stats", "编队属性");
-        public static string SaveFormation => T("Save Formation", "保存编队");
-        public static string SetCombatDeck => T("Set Active Combat Deck", "设为战斗卡组");
-        public static string ActiveCombatBadge => T("COMBAT", "战斗");
-        public static string DeckLocked => T("LOCKED", "未解锁");
-        public static string DeckListHeader => T("DECK SLOTS", "卡组槽");
-        public static string AddUnit => T("+ Add", "+ 添加");
-        public static string JoinDeck => T("Join Deck", "加入卡组");
-        public static string LeaveDeck => T("Leave Deck", "退出卡组");
-        public static string InspectHint => T(
-            "Select a character from the list, or tap a slot below.",
-            "从左侧名单选择角色，或点击下方卡槽。");
-        public static string EquippedGear => T("Equipped Gear", "已穿戴装备");
-        public static string NoGearInSlot => T("Empty", "空");
-        public static string DetailSkills => T("Skills", "技能");
-        public static string DetailExpertise => T("Expertise", "专长");
-        public static string DetailStats => T("Combat Stats", "战斗属性");
-        public static string JoinNeedsEmptySlot => T("This deck has no empty slot.", "该卡组没有空槽。");
+        public static string AvailableCharacters => G("ui.formation.available");
+        public static string FormationTitle => G("ui.formation.title");
+        public static string FormationStats => G("ui.formation.stats");
+        public static string SaveFormation => G("ui.formation.save");
+        public static string SetCombatDeck => G("ui.formation.set_combat");
+        public static string ActiveCombatBadge => G("ui.formation.combat_badge");
+        public static string DeckLocked => G("ui.common.locked");
+        public static string DeckListHeader => G("ui.formation.deck_slots");
+        public static string AddUnit => G("ui.formation.add");
+        public static string JoinDeck => G("ui.formation.join");
+        public static string LeaveDeck => G("ui.formation.leave");
+        public static string InspectHint => G("ui.formation.inspect_hint");
+        public static string EquippedGear => G("ui.formation.equipped_gear");
+        public static string NoGearInSlot => G("ui.formation.empty_gear");
+        public static string DetailSkills => G("ui.formation.skills");
+        public static string DetailExpertise => G("ui.formation.expertise");
+        public static string DetailStats => G("ui.formation.combat_stats");
+        public static string JoinNeedsEmptySlot => G("ui.formation.no_empty_slot");
         public static string EquipSlotLabel(string slot) => slot switch
         {
-            "Weapon" => T("Weapon", "武器"),
-            "Armor" => T("Armor", "护甲"),
-            "Accessory" => T("Accessory", "配件"),
-            "Tool" => T("Tool", "工具"),
-            _ => T("Gear", "装备")
+            "Weapon" => G("ui.equip.weapon"),
+            "Armor" => G("ui.equip.armor"),
+            "Accessory" => G("ui.equip.accessory"),
+            "Tool" => G("ui.equip.tool"),
+            _ => G("ui.equip.gear")
         };
-        public static string FormationHint => T(
-            "Select a deck tab, then assign cards to its 5 slots.\nIdle backup decks may share cards; running decks occupy them.\nTap Stop twice to cancel a running action.",
-            "先选卡组页签，再为 5 个槽位上阵。\n未运行的备用卡组可共享卡牌；运行中会占用。\n运行中行动需点两次停止。");
-        public static string RosterFilterAll => T("All", "全部");
-        public static string RosterEmpty => T("No characters match these filters.", "没有符合筛选条件的角色。");
-        public static string RosterAssignedTo(string deckNames) =>
-            T($"In {deckNames}", $"已编入 {deckNames}");
+        public static string FormationHint => G("ui.formation.hint");
+        public static string RosterFilterAll => G("ui.formation.filter_all");
+        public static string RosterEmpty => G("ui.formation.roster_empty");
+        public static string RosterAssignedTo(string deckNames) => F("ui.formation.assigned_to", deckNames);
         public static string RosterAlreadyAssignedHint(string deckNames) =>
-            T($"Already in {deckNames}. Remove it from that deck first.",
-                $"已在 {deckNames} 中。请先从该卡组下阵。");
-        public static string RosterTypeChip(string value) => T($"Type · {value}", $"类型 · {value}");
-        public static string RosterFactionChip(string value) => T($"Faction · {value}", $"阵营 · {value}");
-        public static string RosterRarityChip(string value) => T($"Rarity · {value}", $"稀有 · {value}");
-        public static string RosterSortChip(string value) => T($"Sort · {value}", $"排序 · {value}");
+            F("ui.formation.already_assigned", deckNames);
+        public static string RosterTypeChip(string value) => F("ui.formation.type_chip", value);
+        public static string RosterFactionChip(string value) => F("ui.formation.faction_chip", value);
+        public static string RosterRarityChip(string value) => F("ui.formation.rarity_chip", value);
+        public static string RosterSortChip(string value) => F("ui.formation.sort_chip", value);
         public static string RosterSortLabel(int mode) => mode switch
         {
-            1 => T("Rarity", "稀有度"),
-            2 => T("Level", "等级"),
-            3 => T("Name", "名称"),
-            4 => T("Type", "类型"),
-            _ => T("Power", "战力")
+            1 => G("ui.sort.rarity"),
+            2 => G("ui.sort.level"),
+            3 => G("ui.sort.name"),
+            4 => G("ui.sort.type"),
+            _ => G("ui.sort.power")
         };
         public static string RosterRarityLabel(int filter) => filter switch
         {
@@ -279,181 +223,165 @@ namespace Assets.Resources.Scripts.UI.Nexus
         };
         public static string RosterFactionLabel(int filter) => filter switch
         {
-            1 => T("Guard", "卫队"),
-            2 => T("Syndicate", "商盟"),
+            1 => G("ui.faction.guard"),
+            2 => G("ui.faction.syndicate"),
             _ => RosterFilterAll
         };
         public static string ArchetypeLabel(string archetype) => archetype switch
         {
-            "Assassin" => T("Assassin", "刺客"),
-            "Magician" => T("Magician", "法师"),
-            "Mechanician" => T("Mechanician", "机师"),
-            "Monster" => T("Monster", "魔物"),
-            "Potioneer" => T("Potioneer", "药剂师"),
-            "Warrior" => T("Warrior", "战士"),
-            _ => T("Unknown", "未知")
+            "Assassin" => G("ui.archetype.assassin"),
+            "Magician" => G("ui.archetype.magician"),
+            "Mechanician" => G("ui.archetype.mechanician"),
+            "Monster" => G("ui.archetype.monster"),
+            "Potioneer" => G("ui.archetype.potioneer"),
+            "Warrior" => G("ui.archetype.warrior"),
+            _ => G("ui.archetype.unknown")
         };
         public static string TierShort(string tierName) =>
             string.IsNullOrEmpty(tierName) || tierName == "None" ? "-" : tierName.Replace("Tier", "");
-        public static string DeckBusyHint => T(
-            "This deck is running — stop it before editing membership.",
-            "该卡组正在行动 — 停止后才能改编制。");
+        public static string DeckBusyHint => G("ui.formation.deck_busy");
         public static string OccupationBadge(string state) => state switch
         {
-            "MainCombat" => T("In combat", "战斗中"),
-            "AutoCombat" => T("Farming", "挂机刷取"),
-            "Gathering" => T("Gathering", "采集中"),
-            "Processing" => T("Processing", "加工中"),
-            "Manufacturing" => T("Crafting", "制造中"),
-            "Researching" => T("Research", "研究中"),
-            "InTransit" => T("Transit", "运输中"),
+            "MainCombat" => G("ui.occupation.main_combat"),
+            "AutoCombat" => G("ui.occupation.auto_combat"),
+            "Gathering" => G("ui.occupation.gathering"),
+            "Processing" => G("ui.occupation.processing"),
+            "Manufacturing" => G("ui.occupation.manufacturing"),
+            "Researching" => G("ui.occupation.researching"),
+            "InTransit" => G("ui.occupation.in_transit"),
             _ => ""
         };
         public static string DeckPurposeLabel(string purpose) => purpose switch
         {
-            "Combat" => T("Combat", "战斗"),
-            "Gather" => T("Gather", "采集"),
-            "Produce" => T("Produce", "生产"),
-            "Research" => T("Research", "研究"),
-            "Transit" => T("Transit", "运输"),
-            _ => T("Flexible", "通用")
+            "Combat" => G("ui.purpose.combat"),
+            "Gather" => G("ui.purpose.gather"),
+            "Produce" => G("ui.purpose.produce"),
+            "Research" => G("ui.purpose.research"),
+            "Transit" => G("ui.purpose.transit"),
+            _ => G("ui.purpose.flexible")
         };
         public static string DeckActionLabel(string status, string actionType) => status switch
         {
-            "Running" => T($"Running · {actionType}", $"运行中 · {actionType}"),
-            "PausedCap" => T($"Paused (cap) · {actionType}", $"已暂停（上限）· {actionType}"),
-            "Completing" => T("Completing…", "结算中…"),
-            _ => T("Idle (backup OK)", "空闲（可作备用）")
+            "Running" => F("ui.deck.running", actionType),
+            "PausedCap" => F("ui.deck.paused_cap", actionType),
+            "Completing" => G("ui.deck.completing"),
+            _ => G("ui.deck.idle")
         };
         public static string DeckUnlockHint(string en, string zh) => T(en, zh);
 
         public static string[] FormationSlotLabels => new[]
         {
-            T("Front Left", "前排左"),
-            T("Front Right", "前排右"),
-            T("Mid", "中排"),
-            T("Back Left", "后排左"),
-            T("Back Right", "后排右")
+            G("ui.formation.slot_fl"),
+            G("ui.formation.slot_fr"),
+            G("ui.formation.slot_mid"),
+            G("ui.formation.slot_bl"),
+            G("ui.formation.slot_br")
         };
 
+        public static string DeckLineup => G("ui.formation.deck_lineup");
+        public static string LevelAbbrev => G("ui.common.lv");
+        public static string ListSeparator => G("ui.common.list_sep");
+        public static string StatHp => G("ui.stat.hp");
+        public static string StatAtk => G("ui.stat.atk");
+        public static string StatDef => G("ui.stat.def");
+        public static string StatAcc => G("ui.stat.acc");
+        public static string StatDodge => G("ui.stat.dodge");
+        public static string StatCrit => G("ui.stat.crit");
+        public static string StatCritDmg => G("ui.stat.crit_dmg");
+        public static string StatDr => G("ui.stat.dr");
+        public static string StatEnergy => G("ui.stat.energy");
+        public static string StatSpeed => G("ui.stat.speed");
+        public static string None => G("ui.common.none");
+        public static string SelectRosterFirst => G("ui.formation.select_roster");
+        public static string NoUnequippedGear => G("ui.formation.no_unequipped");
+        public static string EquippedItem(string name) => F("ui.formation.equipped", name);
+        public static string EquipFailed => G("ui.formation.equip_failed");
+        public static string ActionStopped => G("ui.formation.action_stopped");
+        public static string SelectedDeckLabel => G("ui.formation.selected_deck");
+        public static string InFormationLabel => G("ui.formation.in_formation");
+        public static string TotalPowerLabel => G("ui.formation.total_power");
+
         // Settings
-        public static string SettingsTitle => T("Settings", "设置");
-        public static string SettingsHint => T(
-            "Language, save, gift codes, and developer Debug Mode.",
-            "语言、存档、礼品码，以及开发用 Debug 模式。");
-        public static string SaveCardData => T("Save Card Data", "保存卡牌数据");
-        public static string ClearCardsDebug => T("Clear Cards (Debug)", "清空卡牌（调试）");
-        public static string ReturnMainMenu => T("Return to Main Menu", "返回主菜单");
-        public static string Language => T("Language", "语言");
-        public static string LanguageEnglish => "English";
-        public static string LanguageChinese => "简体中文";
-        public static string CurrentPlayer(string name) => T($"Current player: {name}", $"当前玩家：{name}");
-        public static string GiftCodeSection => T("Gift Code", "礼品码");
-        public static string GiftCodeHint => T(
-            "Enter a code to claim reward items (once per save).",
-            "输入礼品码领取奖励道具（每个存档限领一次）。");
-        public static string GiftCodePlaceholder => T("Enter gift code…", "输入礼品码…");
-        public static string GiftCodeRedeem => T("Redeem", "领取");
-        public static string DebugModeSection => T("Developer", "开发者");
-        public static string DebugModeToggleOn => T("Enable Debug Mode", "开启 Debug 模式");
-        public static string DebugModeToggleOff => T("Disable Debug Mode", "关闭 Debug 模式");
-        public static string DebugModeHint => T(
-            "When on, a Debug Mode tab appears in the nav bar.",
-            "开启后，导航栏会出现「Debug模式」入口。");
+        public static string SettingsTitle => G("ui.settings.title");
+        public static string SettingsHint => G("ui.settings.hint");
+        public static string SaveCardData => G("ui.settings.save_cards");
+        public static string ClearCardsDebug => G("ui.settings.clear_cards");
+        public static string ReturnMainMenu => G("ui.settings.return_menu");
+        public static string Language => G("ui.settings.language");
+        public static string LanguageEnglish => G("ui.settings.lang_en");
+        public static string LanguageChinese => G("ui.settings.lang_zh");
+        public static string CurrentPlayer(string name) => F("ui.settings.current_player", name);
+        public static string GiftCodeSection => G("ui.settings.gift_section");
+        public static string GiftCodeHint => G("ui.settings.gift_hint");
+        public static string GiftCodePlaceholder => G("ui.settings.gift_placeholder");
+        public static string GiftCodeRedeem => G("ui.settings.gift_redeem");
+        public static string DebugModeSection => G("ui.settings.debug_section");
+        public static string DebugModeToggleOn => G("ui.settings.debug_on");
+        public static string DebugModeToggleOff => G("ui.settings.debug_off");
+        public static string DebugModeHint => G("ui.settings.debug_hint");
 
         // Debug screen
-        public static string DebugTitle => T("Debug Mode", "Debug模式");
-        public static string DebugHint => T(
-            "Edit local item quantities and add / upgrade cards. Changes persist to the current save.",
-            "修改本地道具数量，新增或升级卡牌。变更会写入当前存档。");
-        public static string DebugHintAllItems => T(
-            "Set credits and any catalog item quantity. Inventory tabs filter by type / quality.",
-            "可修改信用点与全部图鉴物品数量。仓库页签按类型/品质筛选。");
-        public static string DebugCreditsHeader => T("Credits", "信用点");
-        public static string DebugCreditsUpdated(int n) => T($"Credits set to {n}₵", $"信用点已设为 {n}₵");
-        public static string DebugItemsHeader => T("All items (local inventory)", "全部物品（本地仓库）");
-        public static string DebugCardsHeader => T("Cards", "卡牌");
-        public static string DebugApplyQty => T("Apply", "应用");
-        public static string DebugInvalidNumber => T("Invalid quantity.", "数量无效。");
-        public static string DebugItemUpdated(string name, int qty) => T(
-            $"Set {name} × {qty}",
-            $"已设置 {name} × {qty}");
-        public static string DebugItemFailed => T("Failed to update item.", "更新道具失败。");
-        public static string DebugAddRandomCard => T("Add Random Card", "新增随机卡牌");
-        public static string DebugUpgradeFirstCard => T("Upgrade First Card", "升级第一张卡");
-        public static string DebugAddExpFirstCard => T("Level-Up First Card", "第一张卡升一级");
-        public static string DebugRefresh => T("Refresh List", "刷新列表");
-        public static string DebugNoCards => T("No cards in roster.", "当前没有卡牌。");
-        public static string DebugCardAdded(string name) => T($"Added card: {name}", $"已新增卡牌：{name}");
-        public static string DebugCardFailed => T("Could not create a card.", "无法创建卡牌。");
-        public static string DebugCardUpgraded(string name) => T($"Upgraded: {name}", $"已升级：{name}");
-        public static string DebugCardLeveled(string name, int level) => T(
-            $"{name} → Lv.{level}",
-            $"{name} → Lv.{level}");
-        public static string DebugDisable => T("Turn Off Debug Mode", "关闭 Debug 模式");
+        public static string DebugTitle => G("ui.debug.title");
+        public static string DebugHint => G("ui.debug.hint");
+        public static string DebugHintAllItems => G("ui.debug.hint_items");
+        public static string DebugCreditsHeader => G("ui.debug.credits_header");
+        public static string DebugCreditsUpdated(int n) => F("ui.debug.credits_updated", n);
+        public static string DebugItemsHeader => G("ui.debug.items_header");
+        public static string DebugCardsHeader => G("ui.debug.cards_header");
+        public static string DebugApplyQty => G("ui.debug.apply");
+        public static string DebugInvalidNumber => G("ui.debug.invalid_qty");
+        public static string DebugItemUpdated(string name, int qty) => F("ui.debug.item_updated", name, qty);
+        public static string DebugItemFailed => G("ui.debug.item_failed");
+        public static string DebugAddRandomCard => G("ui.debug.add_card");
+        public static string DebugUpgradeFirstCard => G("ui.debug.upgrade_card");
+        public static string DebugAddExpFirstCard => G("ui.debug.level_card");
+        public static string DebugRefresh => G("ui.debug.refresh");
+        public static string DebugNoCards => G("ui.debug.no_cards");
+        public static string DebugCardAdded(string name) => F("ui.debug.card_added", name);
+        public static string DebugCardFailed => G("ui.debug.card_failed");
+        public static string DebugCardUpgraded(string name) => F("ui.debug.card_upgraded", name);
+        public static string DebugCardLeveled(string name, int level) => F("ui.debug.card_leveled", name, level);
+        public static string DebugDisable => G("ui.debug.disable");
 
         // Missions / onboarding
-        public static string MissionsTitle => T("Missions", "任务");
-        public static string MissionsBody => T(
-            "Mission domain expands later.\nUse Explore for automatic sector combat.",
-            "任务系统后续扩展。\n使用探索进行星域全自动战斗。");
-        public static string MissionsOnboardingHint => T(
-            "Starter route: Formation → First battle → Gather → Craft → Starport shop. No player market in Solo.",
-            "新手航线：编队 → 首战 → 采集 → 制造 → 星港商店。单机无玩家市场。");
-        public static string MissionsChainComplete => T(
-            "Starter route complete. Keep exploring, farming, and upgrading your ship.",
-            "新手航线已完成。可继续探索、刷取并升级舰船。");
-        public static string MissionsStatusActive => T("ACTIVE", "进行中");
-        public static string MissionsStatusDone => T("DONE", "已完成");
-        public static string MissionsStatusLocked => T("LOCKED", "未解锁");
-        public static string MissionsClaim => T("Claim", "领取");
-        public static string MissionsGo => T("Go", "前往");
-        public static string MissionsClaimed(string title) => T(
-            $"Claimed: {title}",
-            $"已领取：{title}");
-        public static string MissionsNextStep(string title) => T(
-            $"Next: {title}",
-            $"下一步：{title}");
-        public static string MissionsOpenMissions => T("Open Missions", "打开任务");
-        public static string MissionsStepBanner(string title) => T(
-            $"Mission · {title}",
-            $"任务 · {title}");
-        public static string EnterExploreBattle => T("Open Explore", "打开探索");
+        public static string MissionsTitle => G("ui.missions.title");
+        public static string MissionsBody => G("ui.missions.body");
+        public static string MissionsOnboardingHint => G("ui.missions.onboarding_hint");
+        public static string MissionsChainComplete => G("ui.missions.chain_complete");
+        public static string MissionsStatusActive => G("ui.missions.active");
+        public static string MissionsStatusDone => G("ui.missions.done");
+        public static string MissionsStatusLocked => G("ui.missions.locked");
+        public static string MissionsClaim => G("ui.missions.claim");
+        public static string MissionsGo => G("ui.missions.go");
+        public static string MissionsClaimed(string title) => F("ui.missions.claimed", title);
+        public static string MissionsNextStep(string title) => F("ui.missions.next", title);
+        public static string MissionsOpenMissions => G("ui.missions.open");
+        public static string MissionsStepBanner(string title) => F("ui.missions.step_banner", title);
+        public static string EnterExploreBattle => G("ui.missions.open_explore");
 
-        public static string RecruitTitle => T("RECRUITMENT", "招募站");
-        public static string RecruitHint => T(
-            "Standard pool. Each pull costs 1 Recruit Ticket from the warehouse. Cards enter at Lv.1. Soft pity forces A+ after 40 misses.",
-            "标准池。每次消耗仓库 1 张招募券。抽出角色为 1 级。连续 40 次未出 A 及以上时触发软保底。");
-        public static string RecruitSubtitle(int tickets, int pity, int threshold) => T(
-            $"Tickets {tickets} · Pity {pity}/{threshold} · Pool: Standard",
-            $"招募券 {tickets} · 保底 {pity}/{threshold} · 卡池：标准");
-        public static string RecruitPullOne => T("Pull ×1", "单抽");
-        public static string RecruitPullTen => T("Pull ×10", "十连");
-        public static string RecruitBuyTickets => T("Buy Tickets", "购买招募券");
-        public static string RecruitNeedTickets => T(
-            "Not enough tickets. Buy them at the Starport shop.",
-            "招募券不足。可前往星港商店购买。");
-        public static string RecruitResultHeader(int spent, int pity) => T(
-            $"Granted. Spent {spent} ticket(s). Pity now {pity}.",
-            $"已入池。消耗 {spent} 张券。当前保底 {pity}。");
-        public static string BridgeOpenRecruit => T("Recruit", "招募");
+        public static string RecruitTitle => G("ui.recruit.title");
+        public static string RecruitHint => G("ui.recruit.hint");
+        public static string RecruitSubtitle(int tickets, int pity, int threshold) =>
+            F("ui.recruit.subtitle", tickets, pity, threshold);
+        public static string RecruitPullOne => G("ui.recruit.pull_one");
+        public static string RecruitPullTen => G("ui.recruit.pull_ten");
+        public static string RecruitBuyTickets => G("ui.recruit.buy_tickets");
+        public static string RecruitNeedTickets => G("ui.recruit.need_tickets");
+        public static string RecruitResultHeader(int spent, int pity) => F("ui.recruit.result", spent, pity);
+        public static string BridgeOpenRecruit => G("ui.bridge.open_recruit");
 
         // Battle chrome
-        public static string BattleBreadcrumb => T("NEXUS › EXPLORE / AUTO BATTLE", "NEXUS › 探索 / 自动战斗");
-        public static string AutoBattle => T("AUTO BATTLE", "自动战斗");
-        public static string BattleEnd => T("BATTLE END", "战斗结束");
-        public static string BattleVictory => T("VICTORY", "胜利");
-        public static string BattleDefeat => T("DEFEAT", "失败");
-        public static string ReturnToBridge => T("Return to Bridge", "返回舰桥");
-        public static string BattleStatusHint => T(
-            "Fully automatic combat · Esc returns to Bridge · Confirm on report returns to Explore",
-            "全自动战斗 · Esc 返回舰桥 · 战报确认后返回探索");
-        public static string BattleLogHeader => T("BATTLE LOG", "战斗日志");
-        public static string BattleLogStart => T("Auto combat started.\nResolving rounds…", "自动战斗开始。\n正在结算回合…");
-        public static string BattleLogRound(int round) => T($"— Round {round} —", $"— 第 {round} 回合 —");
-        public static string BattleLogEnded => T(
-            "Battle ended. Confirm the report to return to Explore.",
-            "战斗结束。确认战报后返回探索。");
-        public static string Turn(int round) => round > 0 ? T($"TURN  {round}", $"回合  {round}") : T("TURN  —", "回合  —");
+        public static string BattleBreadcrumb => G("ui.battle.breadcrumb");
+        public static string AutoBattle => G("ui.battle.auto");
+        public static string BattleEnd => G("ui.battle.end");
+        public static string BattleVictory => G("ui.battle.victory");
+        public static string BattleDefeat => G("ui.battle.defeat");
+        public static string ReturnToBridge => G("ui.battle.return_bridge");
+        public static string BattleStatusHint => G("ui.battle.status_hint");
+        public static string BattleLogHeader => G("ui.battle.log_header");
+        public static string BattleLogStart => G("ui.battle.log_start");
+        public static string BattleLogRound(int round) => F("ui.battle.log_round", round);
+        public static string BattleLogEnded => G("ui.battle.log_ended");
+        public static string Turn(int round) => round > 0 ? F("ui.battle.turn", round) : G("ui.battle.turn_empty");
     }
 }

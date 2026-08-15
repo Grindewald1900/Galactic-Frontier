@@ -117,13 +117,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
                 have = CountLocal(input.itemDefId, input.minQuality);
                 var def = ItemCatalog.Get(input.itemDefId);
-                inputs.AppendLine($"  · {def?.displayNameEn ?? input.itemDefId} x{input.quantity} (Q≥{input.minQuality})  have {have}");
+                var inputName = def != null
+                    ? UiText.T(def.displayNameEn, def.displayNameZh)
+                    : input.itemDefId;
+                inputs.AppendLine($"  · {inputName} x{input.quantity} (Q≥{input.minQuality})  have {have}");
             }
 
             var outDef = ItemCatalog.Get(recipe.outputDefId);
+            var outputName = outDef != null
+                ? UiText.T(outDef.displayNameEn, outDef.displayNameZh)
+                : recipe.outputDefId;
             inputs.AppendLine();
             inputs.AppendLine(UiText.CraftingOutputs);
-            inputs.AppendLine($"  · {outDef?.displayNameEn ?? recipe.outputDefId} x{recipe.outputQty}");
+            inputs.AppendLine($"  · {outputName} x{recipe.outputQty}");
             inputs.AppendLine(UiText.CraftingExpectedQuality(
                 ProductionService.PreviewQuality(recipe.recipeId, CardListManager.Instance?.cardEntities)));
 

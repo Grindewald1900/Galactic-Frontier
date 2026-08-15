@@ -242,7 +242,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public static TMP_FontAsset GetRuntimeFont()
         {
-            return TMP_Settings.defaultFontAsset;
+            return CjkFontBootstrap.GetRuntimeFont();
         }
     }
 }

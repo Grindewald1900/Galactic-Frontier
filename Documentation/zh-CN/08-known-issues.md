@@ -53,7 +53,7 @@
 
 ### 本地化数据编码
 
-`SkillData.json` 中可观察到中文乱码。需要确认文件原始编码、重新导出中文文本，并验证生成的 `.bytes` 数据。
+~~`SkillData.json` 中可观察到中文乱码。~~ → **已核对**：明文 `SkillData.json` 为 UTF-8（示例 `"火球"`）；并已用同一 AES 密钥重生成 `SkillData_encrypted.bytes`，解密后中文正常。UI 文案见 `UiStrings.json` + `CjkFontBootstrap`（Noto Sans SC 动态 fallback）。
 
 ## 低优先级或未完成功能
 

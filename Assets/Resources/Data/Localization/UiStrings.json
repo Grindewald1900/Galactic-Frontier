@@ -1,0 +1,1449 @@
+{
+  "entries": [
+    {
+      "id": "ui.nav.bridge",
+      "en": "Bridge",
+      "zh": "舰桥"
+    },
+    {
+      "id": "ui.nav.explore",
+      "en": "Explore",
+      "zh": "探索"
+    },
+    {
+      "id": "ui.nav.formation",
+      "en": "Formation",
+      "zh": "编队"
+    },
+    {
+      "id": "ui.nav.characters",
+      "en": "Characters",
+      "zh": "角色"
+    },
+    {
+      "id": "ui.nav.cards",
+      "en": "Cards",
+      "zh": "卡牌"
+    },
+    {
+      "id": "ui.nav.inventory",
+      "en": "Inventory",
+      "zh": "仓库"
+    },
+    {
+      "id": "ui.nav.starport",
+      "en": "Starport",
+      "zh": "星港"
+    },
+    {
+      "id": "ui.nav.crafting",
+      "en": "Crafting",
+      "zh": "制造"
+    },
+    {
+      "id": "ui.nav.missions",
+      "en": "Missions",
+      "zh": "任务"
+    },
+    {
+      "id": "ui.nav.recruit",
+      "en": "Recruit",
+      "zh": "招募"
+    },
+    {
+      "id": "ui.nav.settings",
+      "en": "Settings",
+      "zh": "设置"
+    },
+    {
+      "id": "ui.nav.debug",
+      "en": "Debug Mode",
+      "zh": "Debug模式"
+    },
+    {
+      "id": "ui.inventory.title",
+      "en": "Warehouse",
+      "zh": "仓库"
+    },
+    {
+      "id": "ui.inventory.hint",
+      "en": "Items from gathering, crafting, shops, and Debug Mode. Switch tabs by type or quality.",
+      "zh": "采集、制造、商店与 Debug 获得的物品会显示在此。按类型或品质切换页签。"
+    },
+    {
+      "id": "ui.inventory.tab_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.inventory.tab_equipment",
+      "en": "Equipment",
+      "zh": "装备"
+    },
+    {
+      "id": "ui.inventory.tab_material",
+      "en": "Material",
+      "zh": "材料"
+    },
+    {
+      "id": "ui.inventory.tab_consumable",
+      "en": "Consumable",
+      "zh": "消耗品"
+    },
+    {
+      "id": "ui.inventory.quality_all",
+      "en": "All Q",
+      "zh": "全部品质"
+    },
+    {
+      "id": "ui.inventory.empty",
+      "en": "No items in this tab.",
+      "zh": "此页签没有物品。"
+    },
+    {
+      "id": "ui.inventory.qty",
+      "en": "Q{0} × {1}",
+      "zh": "Q{0} × {1}"
+    },
+    {
+      "id": "ui.breadcrumb.bridge",
+      "en": "Bridge",
+      "zh": "舰桥"
+    },
+    {
+      "id": "ui.breadcrumb.battle",
+      "en": "Explore / Card Battle",
+      "zh": "探索 / 卡牌战斗"
+    },
+    {
+      "id": "ui.breadcrumb.formation",
+      "en": "Formation",
+      "zh": "编队"
+    },
+    {
+      "id": "ui.breadcrumb.ship",
+      "en": "Ship Bay",
+      "zh": "舰船舱"
+    },
+    {
+      "id": "ui.breadcrumb.characters",
+      "en": "Characters",
+      "zh": "角色"
+    },
+    {
+      "id": "ui.breadcrumb.cards",
+      "en": "Cards",
+      "zh": "卡牌"
+    },
+    {
+      "id": "ui.breadcrumb.inventory",
+      "en": "Inventory",
+      "zh": "仓库"
+    },
+    {
+      "id": "ui.breadcrumb.market",
+      "en": "Starport Shop",
+      "zh": "星港商店"
+    },
+    {
+      "id": "ui.breadcrumb.recruit",
+      "en": "Recruitment",
+      "zh": "招募站"
+    },
+    {
+      "id": "ui.breadcrumb.crafting",
+      "en": "Crafting",
+      "zh": "制造"
+    },
+    {
+      "id": "ui.breadcrumb.missions",
+      "en": "Missions",
+      "zh": "任务"
+    },
+    {
+      "id": "ui.breadcrumb.settings",
+      "en": "Settings",
+      "zh": "设置"
+    },
+    {
+      "id": "ui.breadcrumb.debug",
+      "en": "Debug Mode",
+      "zh": "Debug模式"
+    },
+    {
+      "id": "ui.status.shortcuts",
+      "en": "F1 Bridge  F2 Explore  F3 Formation  F4 Characters  F5 Inventory  F6 Crafting  F7 Starport  F8 Missions  F9 Recruit",
+      "zh": "F1 舰桥  F2 探索  F3 编队  F4 角色  F5 仓库  F6 制造  F7 星港  F8 任务  F9 招募"
+    },
+    {
+      "id": "ui.status.version",
+      "en": "NEXUS COMMAND · Fully automatic combat",
+      "zh": "NEXUS COMMAND · 全自动战斗"
+    },
+    {
+      "id": "ui.main.tagline",
+      "en": "FULL UI REWRITE · AUTO COMBAT",
+      "zh": "界面重写 · 全自动战斗"
+    },
+    {
+      "id": "ui.bridge.title",
+      "en": "Bridge",
+      "zh": "舰桥"
+    },
+    {
+      "id": "ui.bridge.subtitle",
+      "en": "Commander {0} — live fleet & sector status",
+      "zh": "指挥官 {0} — 舰队与星域状态"
+    },
+    {
+      "id": "ui.bridge.auto_badge",
+      "en": "● AUTO COMBAT ONLINE",
+      "zh": "● 全自动战斗已启用"
+    },
+    {
+      "id": "ui.bridge.banner",
+      "en": "Combat is fully automatic. Configure formation, pick a sector, then watch or skip the battle.",
+      "zh": "战斗为全自动结算。配置编队、选择星域后发起战斗，可观看或跳过演出。"
+    },
+    {
+      "id": "ui.stat.combat_power",
+      "en": "COMBAT POWER",
+      "zh": "战力"
+    },
+    {
+      "id": "ui.stat.exploration",
+      "en": "EXPLORATION",
+      "zh": "探索进度"
+    },
+    {
+      "id": "ui.stat.credits",
+      "en": "CREDITS",
+      "zh": "信用点"
+    },
+    {
+      "id": "ui.stat.roster",
+      "en": "ROSTER",
+      "zh": "编成"
+    },
+    {
+      "id": "ui.bridge.roster_summary",
+      "en": "{0} cards · {1} in line",
+      "zh": "{0} 张卡 · {1} 上阵"
+    },
+    {
+      "id": "ui.bridge.active_fleet",
+      "en": "ACTIVE COMBAT DECK",
+      "zh": "当前战斗卡组"
+    },
+    {
+      "id": "ui.bridge.running_ops",
+      "en": "RUNNING OPS",
+      "zh": "运行中行动"
+    },
+    {
+      "id": "ui.bridge.parallel_ops",
+      "en": "Parallel {0} / {1}",
+      "zh": "并行 {0} / {1}"
+    },
+    {
+      "id": "ui.bridge.sectors",
+      "en": "NEARBY SECTORS",
+      "zh": "邻近星域"
+    },
+    {
+      "id": "ui.bridge.event_log",
+      "en": "EVENT LOG",
+      "zh": "战情日志"
+    },
+    {
+      "id": "ui.bridge.empty_fleet",
+      "en": "No units in formation. Open Formation to assign cards.",
+      "zh": "当前没有上阵单位。请打开编队配置。"
+    },
+    {
+      "id": "ui.bridge.no_running_ops",
+      "en": "No decks running. Idle presets do not occupy cards.",
+      "zh": "没有运行中的卡组。未启动的备用编队不占用角色。"
+    },
+    {
+      "id": "ui.bridge.stop_action",
+      "en": "Stop",
+      "zh": "停止"
+    },
+    {
+      "id": "ui.bridge.stop_confirm",
+      "en": "Tap Stop again: keep settled rewards, discard unsettled cycle progress.",
+      "zh": "再点一次停止：保留已结算收益，丢弃未完成周期进度。"
+    },
+    {
+      "id": "ui.bridge.missions",
+      "en": "MISSIONS",
+      "zh": "任务"
+    },
+    {
+      "id": "ui.bridge.open_formation",
+      "en": "Open Formation",
+      "zh": "打开编队"
+    },
+    {
+      "id": "ui.bridge.start_auto_battle",
+      "en": "Explore / Auto Battle",
+      "zh": "探索 / 自动战斗"
+    },
+    {
+      "id": "ui.bridge.ops_hint",
+      "en": "Manage multiple decks in Formation. Running decks occupy members; idle backup presets do not.",
+      "zh": "在编队中管理多套卡组。运行中卡组占用成员；未运行的备用预设不占用。"
+    },
+    {
+      "id": "ui.bridge.slot",
+      "en": "Slot {0}",
+      "zh": "槽位 {0}"
+    },
+    {
+      "id": "ui.sector.0",
+      "en": "Outer Belt",
+      "zh": "外缘带"
+    },
+    {
+      "id": "ui.sector.1",
+      "en": "Mining Spur",
+      "zh": "矿脉支线"
+    },
+    {
+      "id": "ui.sector.2",
+      "en": "Quantum Rift",
+      "zh": "量子裂隙"
+    },
+    {
+      "id": "ui.sector.3",
+      "en": "Abyssal Edge",
+      "zh": "深渊边界"
+    },
+    {
+      "id": "ui.sector.4",
+      "en": "Convoy Lane",
+      "zh": "护航航道"
+    },
+    {
+      "id": "ui.sector.n",
+      "en": "Sector {0}",
+      "zh": "星域 {0}"
+    },
+    {
+      "id": "ui.bridge.log.0",
+      "en": "Fleet status: {0} units deployed · roster {1}",
+      "zh": "舰队状态：{0} 人上阵 · 卡池 {1}"
+    },
+    {
+      "id": "ui.bridge.log.1",
+      "en": "Exploration {0}% · credits {1:N0}₵",
+      "zh": "探索进度 {0}% · 信用点 {1:N0}₵"
+    },
+    {
+      "id": "ui.bridge.log.2",
+      "en": "Combat power estimate {0:N0}",
+      "zh": "预估战力 {0:N0}"
+    },
+    {
+      "id": "ui.bridge.log.3",
+      "en": "Auto-battle rules active — no manual turns required",
+      "zh": "全自动战斗规则生效 — 无需手动回合"
+    },
+    {
+      "id": "ui.bridge.log.default",
+      "en": "Ship gates & offline caps unlock with progression",
+      "zh": "舰船门槛与离线上限随成长解锁"
+    },
+    {
+      "id": "ui.explore.title",
+      "en": "Explore / Auto Battle",
+      "zh": "探索 / 自动战斗"
+    },
+    {
+      "id": "ui.explore.hint",
+      "en": "Select a sector to start fully automatic combat. First clear and farm both resolve without turn-by-turn input.",
+      "zh": "选择星域发起全自动战斗。首次通关与挂机刷取均无需逐回合操作。"
+    },
+    {
+      "id": "ui.explore.fleet_ready",
+      "en": "Formation ready: {0} / 5",
+      "zh": "编队就绪：{0} / 5"
+    },
+    {
+      "id": "ui.explore.fleet_empty",
+      "en": "Formation empty — assign cards before battle",
+      "zh": "编队为空 — 开战前请先上阵"
+    },
+    {
+      "id": "ui.explore.region_meta",
+      "en": "Auto combat · Region #{0}",
+      "zh": "全自动战斗 · 星域 #{0}"
+    },
+    {
+      "id": "ui.explore.challenge",
+      "en": "Challenge",
+      "zh": "挑战"
+    },
+    {
+      "id": "ui.explore.farm",
+      "en": "AFK Farm",
+      "zh": "挂机刷取"
+    },
+    {
+      "id": "ui.explore.gather",
+      "en": "Gather",
+      "zh": "采集"
+    },
+    {
+      "id": "ui.common.locked",
+      "en": "LOCKED",
+      "zh": "未解锁"
+    },
+    {
+      "id": "ui.explore.farm_available",
+      "en": "Farm unlocked",
+      "zh": "可挂机刷取"
+    },
+    {
+      "id": "ui.explore.pending_loot_title",
+      "en": "PENDING LOOT ({0})",
+      "zh": "待领取收益（{0}）"
+    },
+    {
+      "id": "ui.explore.pending_loot_hint",
+      "en": "Offline settlement ready. Claim into warehouse.",
+      "zh": "离线结算已就绪，领取至仓库。"
+    },
+    {
+      "id": "ui.explore.pending_loot_empty",
+      "en": "No pending loot.",
+      "zh": "暂无待领取收益。"
+    },
+    {
+      "id": "ui.explore.claim_all",
+      "en": "Claim All",
+      "zh": "全部领取"
+    },
+    {
+      "id": "ui.explore.rec_power",
+      "en": "Rec power {0}",
+      "zh": "推荐战力 {0}"
+    },
+    {
+      "id": "ui.crafting.title",
+      "en": "CRAFTING",
+      "zh": "制造"
+    },
+    {
+      "id": "ui.crafting.hint",
+      "en": "Three chains: metal / energy / synth. Start consumes materials and adds the output to Inventory immediately.",
+      "zh": "三条产线：金属 / 能源 / 合成。点击开始会预扣材料，并立刻将产出放入仓库。"
+    },
+    {
+      "id": "ui.crafting.delivered",
+      "en": "Added {0}× {1} to Inventory.",
+      "zh": "已将 {0}× {1} 放入仓库。"
+    },
+    {
+      "id": "ui.crafting.select_recipe",
+      "en": "Select a recipe",
+      "zh": "选择配方"
+    },
+    {
+      "id": "ui.crafting.inputs",
+      "en": "Inputs",
+      "zh": "材料"
+    },
+    {
+      "id": "ui.crafting.outputs",
+      "en": "Output",
+      "zh": "产出"
+    },
+    {
+      "id": "ui.crafting.expected_quality",
+      "en": "Expected quality: {0}",
+      "zh": "预期品质：{0}"
+    },
+    {
+      "id": "ui.crafting.start",
+      "en": "Start Craft",
+      "zh": "开始制造"
+    },
+    {
+      "id": "ui.crafting.missing_mats",
+      "en": "(missing mats)",
+      "zh": "（材料不足）"
+    },
+    {
+      "id": "ui.crafting.auto_repair",
+      "en": "Auto-Repair Gear",
+      "zh": "自动维修装备"
+    },
+    {
+      "id": "ui.crafting.repair_first",
+      "en": "Repair Damaged",
+      "zh": "维修一件"
+    },
+    {
+      "id": "ui.crafting.equip_to_selected",
+      "en": "Equip Gear → Card",
+      "zh": "装备到角色"
+    },
+    {
+      "id": "ui.starport.title",
+      "en": "STARPORT SHOP",
+      "zh": "星港商店"
+    },
+    {
+      "id": "ui.starport.hint",
+      "en": "Buy and sell materials with the starport merchant. Solo mode has no player market.",
+      "zh": "与星港商人买卖材料。单机模式无玩家市场。"
+    },
+    {
+      "id": "ui.starport.credits",
+      "en": "Credits {0}₵",
+      "zh": "信用点 {0}₵"
+    },
+    {
+      "id": "ui.starport.bound",
+      "en": "Bound {0}",
+      "zh": "绑定币 {0}"
+    },
+    {
+      "id": "ui.starport.player_market_disabled",
+      "en": "Player market disabled (Solo)",
+      "zh": "玩家市场已禁用（单机）"
+    },
+    {
+      "id": "ui.starport.player_exchange",
+      "en": "Player Exchange",
+      "zh": "玩家交易所"
+    },
+    {
+      "id": "ui.starport.player_market_soon",
+      "en": "Player market is Online-only (not in MVP).",
+      "zh": "玩家市场仅线上（非 MVP）。"
+    },
+    {
+      "id": "ui.starport.select_offer",
+      "en": "Select an offer",
+      "zh": "选择商品"
+    },
+    {
+      "id": "ui.starport.buy",
+      "en": "Buy ×1",
+      "zh": "购买 ×1"
+    },
+    {
+      "id": "ui.starport.sell",
+      "en": "Sell ×1",
+      "zh": "回收 ×1"
+    },
+    {
+      "id": "ui.starport.buy_x",
+      "en": "Buy ×{0}",
+      "zh": "购买 ×{0}"
+    },
+    {
+      "id": "ui.starport.sell_x",
+      "en": "Sell ×{0}",
+      "zh": "回收 ×{0}"
+    },
+    {
+      "id": "ui.starport.prices",
+      "en": "Buy {0}₵ · Sell-back {1}₵",
+      "zh": "购入 {0}₵ · 回收 {1}₵"
+    },
+    {
+      "id": "ui.explore.sector_complete",
+      "en": "Sector first loop complete",
+      "zh": "星域首圈完成"
+    },
+    {
+      "id": "ui.region.challengeable",
+      "en": "Challengeable",
+      "zh": "可挑战"
+    },
+    {
+      "id": "ui.region.cleared",
+      "en": "Cleared",
+      "zh": "已通关"
+    },
+    {
+      "id": "ui.region.boss_available",
+      "en": "Boss available",
+      "zh": "首领可挑战"
+    },
+    {
+      "id": "ui.region.boss_defeated",
+      "en": "Boss defeated",
+      "zh": "首领已击败"
+    },
+    {
+      "id": "ui.region.locked",
+      "en": "Locked",
+      "zh": "锁定"
+    },
+    {
+      "id": "ui.ship.open",
+      "en": "Ship Bay",
+      "zh": "舰船舱"
+    },
+    {
+      "id": "ui.ship.title",
+      "en": "SHIP BAY",
+      "zh": "舰船舱"
+    },
+    {
+      "id": "ui.ship.upgrade",
+      "en": "Upgrade ship level ({0} scrap / {1}₵)",
+      "zh": "升级舰船等级（{0} 废料 / {1}₵）"
+    },
+    {
+      "id": "ui.ship.strategy",
+      "en": "Combat strategy",
+      "zh": "战前策略"
+    },
+    {
+      "id": "ui.ship.cycle_strategy",
+      "en": "Cycle Strategy",
+      "zh": "切换策略"
+    },
+    {
+      "id": "ui.ship.back",
+      "en": "Back",
+      "zh": "返回"
+    },
+    {
+      "id": "ui.explore.side_title",
+      "en": "AUTO COMBAT",
+      "zh": "全自动战斗"
+    },
+    {
+      "id": "ui.explore.side_body",
+      "en": "Frontier Sector VII — Bureau trial sector after the Severance.\n• Gates: clear previous + ship stats (Entropy Fog)\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
+      "zh": "群星边境·第七前沿——断航后开拓局试验星域。\n• 门槛：通关前置 + 舰船分项（抗熵雾）\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。"
+    },
+    {
+      "id": "ui.formation.available",
+      "en": "Available Characters",
+      "zh": "可用角色"
+    },
+    {
+      "id": "ui.formation.title",
+      "en": "FORMATION",
+      "zh": "编队配置"
+    },
+    {
+      "id": "ui.formation.stats",
+      "en": "Formation Stats",
+      "zh": "编队属性"
+    },
+    {
+      "id": "ui.formation.save",
+      "en": "Save Formation",
+      "zh": "保存编队"
+    },
+    {
+      "id": "ui.formation.set_combat",
+      "en": "Set Active Combat Deck",
+      "zh": "设为战斗卡组"
+    },
+    {
+      "id": "ui.formation.combat_badge",
+      "en": "COMBAT",
+      "zh": "战斗"
+    },
+    {
+      "id": "ui.formation.deck_slots",
+      "en": "DECK SLOTS",
+      "zh": "卡组槽"
+    },
+    {
+      "id": "ui.formation.add",
+      "en": "+ Add",
+      "zh": "+ 添加"
+    },
+    {
+      "id": "ui.formation.join",
+      "en": "Join Deck",
+      "zh": "加入卡组"
+    },
+    {
+      "id": "ui.formation.leave",
+      "en": "Leave Deck",
+      "zh": "退出卡组"
+    },
+    {
+      "id": "ui.formation.inspect_hint",
+      "en": "Select a character from the list, or tap a slot below.",
+      "zh": "从左侧名单选择角色，或点击下方卡槽。"
+    },
+    {
+      "id": "ui.formation.equipped_gear",
+      "en": "Equipped Gear",
+      "zh": "已穿戴装备"
+    },
+    {
+      "id": "ui.formation.empty_gear",
+      "en": "Empty",
+      "zh": "空"
+    },
+    {
+      "id": "ui.formation.skills",
+      "en": "Skills",
+      "zh": "技能"
+    },
+    {
+      "id": "ui.formation.expertise",
+      "en": "Expertise",
+      "zh": "专长"
+    },
+    {
+      "id": "ui.formation.combat_stats",
+      "en": "Combat Stats",
+      "zh": "战斗属性"
+    },
+    {
+      "id": "ui.formation.no_empty_slot",
+      "en": "This deck has no empty slot.",
+      "zh": "该卡组没有空槽。"
+    },
+    {
+      "id": "ui.equip.weapon",
+      "en": "Weapon",
+      "zh": "武器"
+    },
+    {
+      "id": "ui.equip.armor",
+      "en": "Armor",
+      "zh": "护甲"
+    },
+    {
+      "id": "ui.equip.accessory",
+      "en": "Accessory",
+      "zh": "配件"
+    },
+    {
+      "id": "ui.equip.tool",
+      "en": "Tool",
+      "zh": "工具"
+    },
+    {
+      "id": "ui.equip.gear",
+      "en": "Gear",
+      "zh": "装备"
+    },
+    {
+      "id": "ui.formation.hint",
+      "en": "Select a deck tab, then assign cards to its 5 slots.\nIdle backup decks may share cards; running decks occupy them.\nTap Stop twice to cancel a running action.",
+      "zh": "先选卡组页签，再为 5 个槽位上阵。\n未运行的备用卡组可共享卡牌；运行中会占用。\n运行中行动需点两次停止。"
+    },
+    {
+      "id": "ui.formation.filter_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.formation.roster_empty",
+      "en": "No characters match these filters.",
+      "zh": "没有符合筛选条件的角色。"
+    },
+    {
+      "id": "ui.formation.assigned_to",
+      "en": "In {0}",
+      "zh": "已编入 {0}"
+    },
+    {
+      "id": "ui.formation.already_assigned",
+      "en": "Already in {0}. Remove it from that deck first.",
+      "zh": "已在 {0} 中。请先从该卡组下阵。"
+    },
+    {
+      "id": "ui.formation.type_chip",
+      "en": "Type · {0}",
+      "zh": "类型 · {0}"
+    },
+    {
+      "id": "ui.formation.faction_chip",
+      "en": "Faction · {0}",
+      "zh": "阵营 · {0}"
+    },
+    {
+      "id": "ui.formation.rarity_chip",
+      "en": "Rarity · {0}",
+      "zh": "稀有 · {0}"
+    },
+    {
+      "id": "ui.formation.sort_chip",
+      "en": "Sort · {0}",
+      "zh": "排序 · {0}"
+    },
+    {
+      "id": "ui.sort.rarity",
+      "en": "Rarity",
+      "zh": "稀有度"
+    },
+    {
+      "id": "ui.sort.level",
+      "en": "Level",
+      "zh": "等级"
+    },
+    {
+      "id": "ui.sort.name",
+      "en": "Name",
+      "zh": "名称"
+    },
+    {
+      "id": "ui.sort.type",
+      "en": "Type",
+      "zh": "类型"
+    },
+    {
+      "id": "ui.sort.power",
+      "en": "Power",
+      "zh": "战力"
+    },
+    {
+      "id": "ui.faction.guard",
+      "en": "Guard",
+      "zh": "卫队"
+    },
+    {
+      "id": "ui.faction.syndicate",
+      "en": "Syndicate",
+      "zh": "商盟"
+    },
+    {
+      "id": "ui.archetype.assassin",
+      "en": "Assassin",
+      "zh": "刺客"
+    },
+    {
+      "id": "ui.archetype.magician",
+      "en": "Magician",
+      "zh": "法师"
+    },
+    {
+      "id": "ui.archetype.mechanician",
+      "en": "Mechanician",
+      "zh": "机师"
+    },
+    {
+      "id": "ui.archetype.monster",
+      "en": "Monster",
+      "zh": "魔物"
+    },
+    {
+      "id": "ui.archetype.potioneer",
+      "en": "Potioneer",
+      "zh": "药剂师"
+    },
+    {
+      "id": "ui.archetype.warrior",
+      "en": "Warrior",
+      "zh": "战士"
+    },
+    {
+      "id": "ui.archetype.unknown",
+      "en": "Unknown",
+      "zh": "未知"
+    },
+    {
+      "id": "ui.formation.deck_busy",
+      "en": "This deck is running — stop it before editing membership.",
+      "zh": "该卡组正在行动 — 停止后才能改编制。"
+    },
+    {
+      "id": "ui.occupation.main_combat",
+      "en": "In combat",
+      "zh": "战斗中"
+    },
+    {
+      "id": "ui.occupation.auto_combat",
+      "en": "Farming",
+      "zh": "挂机刷取"
+    },
+    {
+      "id": "ui.occupation.gathering",
+      "en": "Gathering",
+      "zh": "采集中"
+    },
+    {
+      "id": "ui.occupation.processing",
+      "en": "Processing",
+      "zh": "加工中"
+    },
+    {
+      "id": "ui.occupation.manufacturing",
+      "en": "Crafting",
+      "zh": "制造中"
+    },
+    {
+      "id": "ui.occupation.researching",
+      "en": "Research",
+      "zh": "研究中"
+    },
+    {
+      "id": "ui.occupation.in_transit",
+      "en": "Transit",
+      "zh": "运输中"
+    },
+    {
+      "id": "ui.purpose.combat",
+      "en": "Combat",
+      "zh": "战斗"
+    },
+    {
+      "id": "ui.purpose.gather",
+      "en": "Gather",
+      "zh": "采集"
+    },
+    {
+      "id": "ui.purpose.produce",
+      "en": "Produce",
+      "zh": "生产"
+    },
+    {
+      "id": "ui.purpose.research",
+      "en": "Research",
+      "zh": "研究"
+    },
+    {
+      "id": "ui.purpose.transit",
+      "en": "Transit",
+      "zh": "运输"
+    },
+    {
+      "id": "ui.purpose.flexible",
+      "en": "Flexible",
+      "zh": "通用"
+    },
+    {
+      "id": "ui.deck.running",
+      "en": "Running · {0}",
+      "zh": "运行中 · {0}"
+    },
+    {
+      "id": "ui.deck.paused_cap",
+      "en": "Paused (cap) · {0}",
+      "zh": "已暂停（上限）· {0}"
+    },
+    {
+      "id": "ui.deck.completing",
+      "en": "Completing…",
+      "zh": "结算中…"
+    },
+    {
+      "id": "ui.deck.idle",
+      "en": "Idle (backup OK)",
+      "zh": "空闲（可作备用）"
+    },
+    {
+      "id": "ui.formation.slot_fl",
+      "en": "Front Left",
+      "zh": "前排左"
+    },
+    {
+      "id": "ui.formation.slot_fr",
+      "en": "Front Right",
+      "zh": "前排右"
+    },
+    {
+      "id": "ui.formation.slot_mid",
+      "en": "Mid",
+      "zh": "中排"
+    },
+    {
+      "id": "ui.formation.slot_bl",
+      "en": "Back Left",
+      "zh": "后排左"
+    },
+    {
+      "id": "ui.formation.slot_br",
+      "en": "Back Right",
+      "zh": "后排右"
+    },
+    {
+      "id": "ui.formation.deck_lineup",
+      "en": "Deck lineup",
+      "zh": "卡组编制"
+    },
+    {
+      "id": "ui.common.lv",
+      "en": "Lv.",
+      "zh": "Lv."
+    },
+    {
+      "id": "ui.common.list_sep",
+      "en": ", ",
+      "zh": "、"
+    },
+    {
+      "id": "ui.stat.hp",
+      "en": "HP",
+      "zh": "生命"
+    },
+    {
+      "id": "ui.stat.atk",
+      "en": "ATK",
+      "zh": "攻击"
+    },
+    {
+      "id": "ui.stat.def",
+      "en": "DEF",
+      "zh": "防御"
+    },
+    {
+      "id": "ui.stat.acc",
+      "en": "ACC",
+      "zh": "命中"
+    },
+    {
+      "id": "ui.stat.dodge",
+      "en": "Dodge",
+      "zh": "闪避"
+    },
+    {
+      "id": "ui.stat.crit",
+      "en": "Crit",
+      "zh": "暴击"
+    },
+    {
+      "id": "ui.stat.crit_dmg",
+      "en": "Crit DMG",
+      "zh": "暴伤"
+    },
+    {
+      "id": "ui.stat.dr",
+      "en": "DR",
+      "zh": "减伤"
+    },
+    {
+      "id": "ui.stat.energy",
+      "en": "Energy",
+      "zh": "能量"
+    },
+    {
+      "id": "ui.stat.speed",
+      "en": "Speed",
+      "zh": "速度"
+    },
+    {
+      "id": "ui.common.none",
+      "en": "None",
+      "zh": "无"
+    },
+    {
+      "id": "ui.formation.select_roster",
+      "en": "Select a roster card first.",
+      "zh": "请先选择角色。"
+    },
+    {
+      "id": "ui.formation.no_unequipped",
+      "en": "No unequipped weapon/armor in bag.",
+      "zh": "仓库中无未装备武器/护甲。"
+    },
+    {
+      "id": "ui.formation.equipped",
+      "en": "Equipped {0}",
+      "zh": "已装备 {0}"
+    },
+    {
+      "id": "ui.formation.equip_failed",
+      "en": "Equip failed.",
+      "zh": "装备失败。"
+    },
+    {
+      "id": "ui.formation.action_stopped",
+      "en": "Action stopped.",
+      "zh": "行动已停止。"
+    },
+    {
+      "id": "ui.formation.selected_deck",
+      "en": "Selected deck",
+      "zh": "当前卡组"
+    },
+    {
+      "id": "ui.formation.in_formation",
+      "en": "In formation",
+      "zh": "上阵人数"
+    },
+    {
+      "id": "ui.formation.total_power",
+      "en": "Total power",
+      "zh": "综合战力"
+    },
+    {
+      "id": "ui.settings.title",
+      "en": "Settings",
+      "zh": "设置"
+    },
+    {
+      "id": "ui.settings.hint",
+      "en": "Language, save, gift codes, and developer Debug Mode.",
+      "zh": "语言、存档、礼品码，以及开发用 Debug 模式。"
+    },
+    {
+      "id": "ui.settings.save_cards",
+      "en": "Save Card Data",
+      "zh": "保存卡牌数据"
+    },
+    {
+      "id": "ui.settings.clear_cards",
+      "en": "Clear Cards (Debug)",
+      "zh": "清空卡牌（调试）"
+    },
+    {
+      "id": "ui.settings.return_menu",
+      "en": "Return to Main Menu",
+      "zh": "返回主菜单"
+    },
+    {
+      "id": "ui.settings.language",
+      "en": "Language",
+      "zh": "语言"
+    },
+    {
+      "id": "ui.settings.lang_en",
+      "en": "English",
+      "zh": "English"
+    },
+    {
+      "id": "ui.settings.lang_zh",
+      "en": "简体中文",
+      "zh": "简体中文"
+    },
+    {
+      "id": "ui.settings.current_player",
+      "en": "Current player: {0}",
+      "zh": "当前玩家：{0}"
+    },
+    {
+      "id": "ui.settings.gift_section",
+      "en": "Gift Code",
+      "zh": "礼品码"
+    },
+    {
+      "id": "ui.settings.gift_hint",
+      "en": "Enter a code to claim reward items (once per save).",
+      "zh": "输入礼品码领取奖励道具（每个存档限领一次）。"
+    },
+    {
+      "id": "ui.settings.gift_placeholder",
+      "en": "Enter gift code…",
+      "zh": "输入礼品码…"
+    },
+    {
+      "id": "ui.settings.gift_redeem",
+      "en": "Redeem",
+      "zh": "领取"
+    },
+    {
+      "id": "ui.settings.debug_section",
+      "en": "Developer",
+      "zh": "开发者"
+    },
+    {
+      "id": "ui.settings.debug_on",
+      "en": "Enable Debug Mode",
+      "zh": "开启 Debug 模式"
+    },
+    {
+      "id": "ui.settings.debug_off",
+      "en": "Disable Debug Mode",
+      "zh": "关闭 Debug 模式"
+    },
+    {
+      "id": "ui.settings.debug_hint",
+      "en": "When on, a Debug Mode tab appears in the nav bar.",
+      "zh": "开启后，导航栏会出现「Debug模式」入口。"
+    },
+    {
+      "id": "ui.debug.title",
+      "en": "Debug Mode",
+      "zh": "Debug模式"
+    },
+    {
+      "id": "ui.debug.hint",
+      "en": "Edit local item quantities and add / upgrade cards. Changes persist to the current save.",
+      "zh": "修改本地道具数量，新增或升级卡牌。变更会写入当前存档。"
+    },
+    {
+      "id": "ui.debug.hint_items",
+      "en": "Set credits and any catalog item quantity. Inventory tabs filter by type / quality.",
+      "zh": "可修改信用点与全部图鉴物品数量。仓库页签按类型/品质筛选。"
+    },
+    {
+      "id": "ui.debug.credits_header",
+      "en": "Credits",
+      "zh": "信用点"
+    },
+    {
+      "id": "ui.debug.credits_updated",
+      "en": "Credits set to {0}₵",
+      "zh": "信用点已设为 {0}₵"
+    },
+    {
+      "id": "ui.debug.items_header",
+      "en": "All items (local inventory)",
+      "zh": "全部物品（本地仓库）"
+    },
+    {
+      "id": "ui.debug.cards_header",
+      "en": "Cards",
+      "zh": "卡牌"
+    },
+    {
+      "id": "ui.debug.apply",
+      "en": "Apply",
+      "zh": "应用"
+    },
+    {
+      "id": "ui.debug.invalid_qty",
+      "en": "Invalid quantity.",
+      "zh": "数量无效。"
+    },
+    {
+      "id": "ui.debug.item_updated",
+      "en": "Set {0} × {1}",
+      "zh": "已设置 {0} × {1}"
+    },
+    {
+      "id": "ui.debug.item_failed",
+      "en": "Failed to update item.",
+      "zh": "更新道具失败。"
+    },
+    {
+      "id": "ui.debug.add_card",
+      "en": "Add Random Card",
+      "zh": "新增随机卡牌"
+    },
+    {
+      "id": "ui.debug.upgrade_card",
+      "en": "Upgrade First Card",
+      "zh": "升级第一张卡"
+    },
+    {
+      "id": "ui.debug.level_card",
+      "en": "Level-Up First Card",
+      "zh": "第一张卡升一级"
+    },
+    {
+      "id": "ui.debug.refresh",
+      "en": "Refresh List",
+      "zh": "刷新列表"
+    },
+    {
+      "id": "ui.debug.no_cards",
+      "en": "No cards in roster.",
+      "zh": "当前没有卡牌。"
+    },
+    {
+      "id": "ui.debug.card_added",
+      "en": "Added card: {0}",
+      "zh": "已新增卡牌：{0}"
+    },
+    {
+      "id": "ui.debug.card_failed",
+      "en": "Could not create a card.",
+      "zh": "无法创建卡牌。"
+    },
+    {
+      "id": "ui.debug.card_upgraded",
+      "en": "Upgraded: {0}",
+      "zh": "已升级：{0}"
+    },
+    {
+      "id": "ui.debug.card_leveled",
+      "en": "{0} → Lv.{1}",
+      "zh": "{0} → Lv.{1}"
+    },
+    {
+      "id": "ui.debug.disable",
+      "en": "Turn Off Debug Mode",
+      "zh": "关闭 Debug 模式"
+    },
+    {
+      "id": "ui.missions.title",
+      "en": "Missions",
+      "zh": "任务"
+    },
+    {
+      "id": "ui.missions.body",
+      "en": "Mission domain expands later.\nUse Explore for automatic sector combat.",
+      "zh": "任务系统后续扩展。\n使用探索进行星域全自动战斗。"
+    },
+    {
+      "id": "ui.missions.onboarding_hint",
+      "en": "Starter route: Formation → First battle → Gather → Craft → Starport shop. No player market in Solo.",
+      "zh": "新手航线：编队 → 首战 → 采集 → 制造 → 星港商店。单机无玩家市场。"
+    },
+    {
+      "id": "ui.missions.chain_complete",
+      "en": "Starter route complete. Keep exploring, farming, and upgrading your ship.",
+      "zh": "新手航线已完成。可继续探索、刷取并升级舰船。"
+    },
+    {
+      "id": "ui.missions.active",
+      "en": "ACTIVE",
+      "zh": "进行中"
+    },
+    {
+      "id": "ui.missions.done",
+      "en": "DONE",
+      "zh": "已完成"
+    },
+    {
+      "id": "ui.missions.locked",
+      "en": "LOCKED",
+      "zh": "未解锁"
+    },
+    {
+      "id": "ui.missions.claim",
+      "en": "Claim",
+      "zh": "领取"
+    },
+    {
+      "id": "ui.missions.go",
+      "en": "Go",
+      "zh": "前往"
+    },
+    {
+      "id": "ui.missions.claimed",
+      "en": "Claimed: {0}",
+      "zh": "已领取：{0}"
+    },
+    {
+      "id": "ui.missions.next",
+      "en": "Next: {0}",
+      "zh": "下一步：{0}"
+    },
+    {
+      "id": "ui.missions.open",
+      "en": "Open Missions",
+      "zh": "打开任务"
+    },
+    {
+      "id": "ui.missions.step_banner",
+      "en": "Mission · {0}",
+      "zh": "任务 · {0}"
+    },
+    {
+      "id": "ui.missions.open_explore",
+      "en": "Open Explore",
+      "zh": "打开探索"
+    },
+    {
+      "id": "ui.recruit.title",
+      "en": "RECRUITMENT",
+      "zh": "招募站"
+    },
+    {
+      "id": "ui.recruit.hint",
+      "en": "Standard pool. Each pull costs 1 Recruit Ticket from the warehouse. Cards enter at Lv.1. Soft pity forces A+ after 40 misses.",
+      "zh": "标准池。每次消耗仓库 1 张招募券。抽出角色为 1 级。连续 40 次未出 A 及以上时触发软保底。"
+    },
+    {
+      "id": "ui.recruit.subtitle",
+      "en": "Tickets {0} · Pity {1}/{2} · Pool: Standard",
+      "zh": "招募券 {0} · 保底 {1}/{2} · 卡池：标准"
+    },
+    {
+      "id": "ui.recruit.pull_one",
+      "en": "Pull ×1",
+      "zh": "单抽"
+    },
+    {
+      "id": "ui.recruit.pull_ten",
+      "en": "Pull ×10",
+      "zh": "十连"
+    },
+    {
+      "id": "ui.recruit.buy_tickets",
+      "en": "Buy Tickets",
+      "zh": "购买招募券"
+    },
+    {
+      "id": "ui.recruit.need_tickets",
+      "en": "Not enough tickets. Buy them at the Starport shop.",
+      "zh": "招募券不足。可前往星港商店购买。"
+    },
+    {
+      "id": "ui.recruit.result",
+      "en": "Granted. Spent {0} ticket(s). Pity now {1}.",
+      "zh": "已入池。消耗 {0} 张券。当前保底 {1}。"
+    },
+    {
+      "id": "ui.bridge.open_recruit",
+      "en": "Recruit",
+      "zh": "招募"
+    },
+    {
+      "id": "ui.battle.breadcrumb",
+      "en": "NEXUS › EXPLORE / AUTO BATTLE",
+      "zh": "NEXUS › 探索 / 自动战斗"
+    },
+    {
+      "id": "ui.battle.auto",
+      "en": "AUTO BATTLE",
+      "zh": "自动战斗"
+    },
+    {
+      "id": "ui.battle.end",
+      "en": "BATTLE END",
+      "zh": "战斗结束"
+    },
+    {
+      "id": "ui.battle.victory",
+      "en": "VICTORY",
+      "zh": "胜利"
+    },
+    {
+      "id": "ui.battle.defeat",
+      "en": "DEFEAT",
+      "zh": "失败"
+    },
+    {
+      "id": "ui.battle.return_bridge",
+      "en": "Return to Bridge",
+      "zh": "返回舰桥"
+    },
+    {
+      "id": "ui.battle.status_hint",
+      "en": "Fully automatic combat · Esc returns to Bridge · Confirm on report returns to Explore",
+      "zh": "全自动战斗 · Esc 返回舰桥 · 战报确认后返回探索"
+    },
+    {
+      "id": "ui.battle.log_header",
+      "en": "BATTLE LOG",
+      "zh": "战斗日志"
+    },
+    {
+      "id": "ui.battle.log_start",
+      "en": "Auto combat started.\nResolving rounds…",
+      "zh": "自动战斗开始。\n正在结算回合…"
+    },
+    {
+      "id": "ui.battle.log_round",
+      "en": "— Round {0} —",
+      "zh": "— 第 {0} 回合 —"
+    },
+    {
+      "id": "ui.battle.log_ended",
+      "en": "Battle ended. Confirm the report to return to Explore.",
+      "zh": "战斗结束。确认战报后返回探索。"
+    },
+    {
+      "id": "ui.battle.turn",
+      "en": "TURN  {0}",
+      "zh": "回合  {0}"
+    },
+    {
+      "id": "ui.battle.turn_empty",
+      "en": "TURN  —",
+      "zh": "回合  —"
+    }
+  ]
+}

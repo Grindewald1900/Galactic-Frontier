@@ -209,7 +209,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var sb = new StringBuilder();
             sb.Append(UiText.RegionProgressLabel(view.Progress.ToString()));
             sb.Append(" · ");
-            sb.Append(UiText.T($"Rec power {view.Config.recommendedPower}", $"推荐战力 {view.Config.recommendedPower}"));
+            sb.Append(UiText.ExploreRecPower(view.Config.recommendedPower));
             var faction = FactionTags.DisplayEn(view.Config.factionTag);
             var factionZh = FactionTags.DisplayZh(view.Config.factionTag);
             if (!string.IsNullOrEmpty(faction))

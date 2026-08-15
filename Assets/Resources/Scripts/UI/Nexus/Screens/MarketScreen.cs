@@ -154,7 +154,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             var def = ItemCatalog.Get(offer.itemDefId);
-            var name = def != null ? def.displayNameEn : offer.itemDefId;
+            var name = def != null
+                ? UiText.T(def.displayNameEn, def.displayNameZh)
+                : offer.itemDefId;
             var unlocked = NpcShopRules.IsUnlocked(offer, ctx);
             NexusUiFactory.CreateText(
                 box.transform, "Name", $"{name} · Q{offer.quality}",

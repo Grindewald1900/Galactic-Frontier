@@ -103,7 +103,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             NexusUiFactory.CreateButton(
-                root, "Back", UiText.T("Back", "返回"),
+                root, "Back", UiText.Back,
                 new Vector2(28f, 900f), new Vector2(200f, 44f),
                 () => onClose?.Invoke(),
                 NexusTheme.SurfaceRaised, NexusTheme.MutedText, 14f);
