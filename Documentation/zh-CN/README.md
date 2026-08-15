@@ -64,7 +64,10 @@
 | 默认分辨率 | `1920 × 1080` |
 | 主要代码目录 | `Assets/Resources/Scripts` |
 | 主要场景目录 | `Assets/Resources/Scenes` |
-| 运行时配置目录 | `Assets/Resources/data` |
-| 相对 MVP 进度 | 约 25%–35%（战斗/壳层较强，经济循环未开工） |
+| 运行时配置目录 | `Assets/Resources/Data` |
+| 系统规则文档 | MVP 首波 01–09 + P5 管线 10/11/15/16/18/19 已齐；`12` 待写；14/17/20 方向稿 |
+| 代码相对 MVP | **约 80%–85%**（P0–P4 与 P5 主切片已通；M5 接近） |
+| 下一工作 | 可选：角色→50、卡牌分解、Characters/Cards 原生页；后置 Online / 星域地图 |
+| 进度快照日期 | 2026-08-15 |
 
-> 注意：项目仍处于原型阶段。样例 / FakeData 已隔离到 Dev Data Mode（默认关闭，见 `systems/08-save-and-seed-data.md`）；正式流程不再启动覆写背包。详细进度见 [11-mvp-development-plan.md](11-mvp-development-plan.md)。
+> 注意：正式流程默认关闭 Dev Data Mode（见 `systems/08-save-and-seed-data.md`），不再启动覆写背包。详细进度与阶段表见 [11-mvp-development-plan.md](11-mvp-development-plan.md)（v2.1）。
