@@ -1,6 +1,7 @@
 # 已知问题与技术债
 
-本页记录当前代码可观察到的限制，用于规划工作；它不是已修复清单。
+本页记录当前代码可观察到的限制，用于规划工作；它不是已修复清单。  
+整体进度（文档 / 代码）见 [11-mvp-development-plan.md](11-mvp-development-plan.md) §2（快照日期 2026-08-15）。
 
 ## 高优先级
 
@@ -54,7 +55,7 @@
 ## 低优先级或未完成功能
 
 - `MainMenu.OnSettingsButtonClick()` 为空。
-- 战斗结束后目前显示战报，但返回 `MainScene` 的调用被注释。
+- 战斗结束后目前显示战报，但 `BattleController` 返回 `MainScene` 的调用被注释；`BattleChrome` 仅支持 Esc 返回，不满足战报主流程闭环。
 - `HomeScene` 未加入构建。
 - 设置、礼品码、成就、事件和星球系统仍有占位逻辑。
 - 多个公开 Inspector 字段缺少统一命名与空值验证。
