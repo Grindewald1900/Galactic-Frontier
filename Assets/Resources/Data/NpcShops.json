@@ -20,6 +20,17 @@
           "unlock": { "requireRegionCleared": "", "minShipLevel": 0, "minModuleLevel": 0, "requireModuleId": "" }
         },
         {
+          "offerId": "offer_ticket",
+          "itemDefId": "con_recruit_ticket",
+          "quality": 2,
+          "buyPrice": 40,
+          "sellPrice": -1,
+          "canBuy": true,
+          "canSell": true,
+          "purchaseLimit": 0,
+          "unlock": { "requireRegionCleared": "", "minShipLevel": 0, "minModuleLevel": 0, "requireModuleId": "" }
+        },
+        {
           "offerId": "offer_iron",
           "itemDefId": "mat_iron_ore",
           "quality": 2,

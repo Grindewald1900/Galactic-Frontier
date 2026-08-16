@@ -118,8 +118,11 @@ namespace Assets.Resources.Scripts.Deck
             return DeckCommandResult.Ok();
         }
 
-        /// <summary>Marks an unlocked deck as the Explore / main-combat default.</summary>
-        public static DeckCommandResult TrySetActiveCombatDeck(string deckId, IList<CardEntity> cards = null)
+        /// <summary>
+        /// Makes a deck the combat deck by moving its lineup into the first unlocked slot, which is
+        /// where battle always reads from. The lineup that occupied slot 1 moves to the promoted deck.
+        /// </summary>
+        public static DeckCommandResult TryPromoteToCombatSlot(string deckId, IList<CardEntity> cards = null)
         {
             EnsureState();
             var deck = DeckRules.FindDeck(State, deckId);
@@ -128,8 +131,22 @@ namespace Assets.Resources.Scripts.Deck
             if (!deck.unlocked)
                 return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
 
-            State.activeCombatDeckId = deck.deckId;
-            editingDeckId = deck.deckId;
+            var first = State.decks?.FirstOrDefault(d => d != null && d.unlocked);
+            if (first == null)
+                return DeckCommandResult.Fail(DeckCommandError.DeckNotFound, "No unlocked deck.");
+
+            if (!ReferenceEquals(first, deck))
+            {
+                if (deck.IsActionBusy || first.IsActionBusy)
+                    return DeckCommandResult.Fail(
+                        DeckCommandError.DeckBusy, "Stop running actions before swapping decks.");
+
+                (first.slotCardIds, deck.slotCardIds) = (deck.slotCardIds, first.slotCardIds);
+                (first.combatStrategyId, deck.combatStrategyId) = (deck.combatStrategyId, first.combatStrategyId);
+            }
+
+            State.activeCombatDeckId = first.deckId;
+            editingDeckId = first.deckId;
             SyncLegacyLineupPositions(cards ?? CardListFallback());
             Save();
             return DeckCommandResult.Ok();

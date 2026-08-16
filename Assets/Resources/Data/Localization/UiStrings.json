@@ -486,11 +486,6 @@
       "zh": "维修一件"
     },
     {
-      "id": "ui.crafting.equip_to_selected",
-      "en": "Equip Gear → Card",
-      "zh": "装备到角色"
-    },
-    {
       "id": "ui.starport.title",
       "en": "STARPORT SHOP",
       "zh": "星港商店"
@@ -639,11 +634,6 @@
       "id": "ui.formation.stats",
       "en": "Formation Stats",
       "zh": "编队属性"
-    },
-    {
-      "id": "ui.formation.save",
-      "en": "Save Formation",
-      "zh": "保存编队"
     },
     {
       "id": "ui.formation.set_combat",
@@ -1041,11 +1031,6 @@
       "zh": "请先选择角色。"
     },
     {
-      "id": "ui.formation.no_unequipped",
-      "en": "No unequipped weapon/armor in bag.",
-      "zh": "仓库中无未装备武器/护甲。"
-    },
-    {
       "id": "ui.formation.equipped",
       "en": "Equipped {0}",
       "zh": "已装备 {0}"
@@ -1054,6 +1039,86 @@
       "id": "ui.formation.equip_failed",
       "en": "Equip failed.",
       "zh": "装备失败。"
+    },
+    {
+      "id": "ui.formation.auto_equip",
+      "en": "Auto-Equip",
+      "zh": "自动装备"
+    },
+    {
+      "id": "ui.formation.auto_equip_done",
+      "en": "Auto-equipped {0} item(s).",
+      "zh": "已自动装备 {0} 件。"
+    },
+    {
+      "id": "ui.formation.auto_equip_none",
+      "en": "No better gear in the warehouse.",
+      "zh": "仓库中没有更好的装备。"
+    },
+    {
+      "id": "ui.formation.gear_detail",
+      "en": "Gear Detail",
+      "zh": "装备详情"
+    },
+    {
+      "id": "ui.formation.gear_replace",
+      "en": "Replacements in warehouse",
+      "zh": "仓库可替换装备"
+    },
+    {
+      "id": "ui.formation.gear_none_available",
+      "en": "No gear for this slot in the warehouse.",
+      "zh": "仓库中没有该部位的装备。"
+    },
+    {
+      "id": "ui.formation.unequip",
+      "en": "Unequip",
+      "zh": "卸下"
+    },
+    {
+      "id": "ui.formation.unequipped",
+      "en": "Unequipped {0}",
+      "zh": "已卸下 {0}"
+    },
+    {
+      "id": "ui.formation.gear_score",
+      "en": "Score {0}",
+      "zh": "评分 {0}"
+    },
+    {
+      "id": "ui.formation.gear_durability",
+      "en": "Durability {0}/{1}",
+      "zh": "耐久 {0}/{1}"
+    },
+    {
+      "id": "ui.formation.gear_quality",
+      "en": "Quality {0}",
+      "zh": "品质 {0}"
+    },
+    {
+      "id": "ui.formation.gear_equipped_badge",
+      "en": "Equipped",
+      "zh": "已装备"
+    },
+    {
+      "id": "ui.formation.deck_promoted",
+      "en": "Swapped into combat slot 1.",
+      "zh": "已与第一卡组交换并设为战斗卡组。"
+    },
+    {
+      "id": "ui.formation.deck_swap_busy",
+      "en": "Stop running actions before swapping decks.",
+      "zh": "请先停止运行中的行动再交换卡组。"
+    },
+    {
+      "id": "ui.common.close",
+      "en": "Close",
+      "zh": "关闭"
+    },
+    {
+      "id": "ui.bridge.edit_formation_hint",
+      "en": "Click to edit formation",
+      "zh": "点击编辑编队"
     },
     {
       "id": "ui.formation.action_stopped",

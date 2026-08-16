@@ -71,6 +71,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string RosterSummary(int cards, int inLine) => F("ui.bridge.roster_summary", cards, inLine);
 
         public static string ActiveFleet => G("ui.bridge.active_fleet");
+        public static string EditFormationHint => G("ui.bridge.edit_formation_hint");
         public static string RunningOps => G("ui.bridge.running_ops");
         public static string ParallelOps(int current, int max) => F("ui.bridge.parallel_ops", current, max);
         public static string BridgeSectors => G("ui.bridge.sectors");
@@ -135,7 +136,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CraftingMissingMats => G("ui.crafting.missing_mats");
         public static string CraftingAutoRepair => G("ui.crafting.auto_repair");
         public static string CraftingRepairFirst => G("ui.crafting.repair_first");
-        public static string EquipToSelected => G("ui.crafting.equip_to_selected");
         public static string StarportShopTitle => G("ui.starport.title");
         public static string StarportShopHint => G("ui.starport.hint");
         public static string CreditsLabel(int n) => F("ui.starport.credits", n);
@@ -172,7 +172,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string AvailableCharacters => G("ui.formation.available");
         public static string FormationTitle => G("ui.formation.title");
         public static string FormationStats => G("ui.formation.stats");
-        public static string SaveFormation => G("ui.formation.save");
         public static string SetCombatDeck => G("ui.formation.set_combat");
         public static string ActiveCombatBadge => G("ui.formation.combat_badge");
         public static string DeckLocked => G("ui.common.locked");
@@ -292,10 +291,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StatEnergy => G("ui.stat.energy");
         public static string StatSpeed => G("ui.stat.speed");
         public static string None => G("ui.common.none");
+        public static string Close => G("ui.common.close");
         public static string SelectRosterFirst => G("ui.formation.select_roster");
-        public static string NoUnequippedGear => G("ui.formation.no_unequipped");
         public static string EquippedItem(string name) => F("ui.formation.equipped", name);
         public static string EquipFailed => G("ui.formation.equip_failed");
+        public static string AutoEquip => G("ui.formation.auto_equip");
+        public static string AutoEquipDone(int count) => F("ui.formation.auto_equip_done", count);
+        public static string AutoEquipNone => G("ui.formation.auto_equip_none");
+        public static string GearDetail => G("ui.formation.gear_detail");
+        public static string GearReplacements => G("ui.formation.gear_replace");
+        public static string GearNoneAvailable => G("ui.formation.gear_none_available");
+        public static string UnequipGear => G("ui.formation.unequip");
+        public static string UnequippedItem(string name) => F("ui.formation.unequipped", name);
+        public static string GearScore(int score) => F("ui.formation.gear_score", score);
+        public static string GearDurability(int current, int max) => F("ui.formation.gear_durability", current, max);
+        public static string GearQuality(int quality) => F("ui.formation.gear_quality", quality);
+        public static string GearEquippedBadge => G("ui.formation.gear_equipped_badge");
+        public static string DeckPromotedToCombat => G("ui.formation.deck_promoted");
+        public static string DeckSwapBusy => G("ui.formation.deck_swap_busy");
         public static string ActionStopped => G("ui.formation.action_stopped");
         public static string SelectedDeckLabel => G("ui.formation.selected_deck");
         public static string InFormationLabel => G("ui.formation.in_formation");

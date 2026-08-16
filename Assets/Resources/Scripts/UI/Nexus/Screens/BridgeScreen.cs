@@ -28,6 +28,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action<AppScreen> navigate;
         private string pendingStopDeckId = "";
 
+        /// <summary>Desaturated wash applied to locked sector art.</summary>
+        private static readonly Color LockedTint = new Color(0.36f, 0.40f, 0.48f, 0.55f);
+
         private BridgeScreen(
             Transform root,
             System.Action openMissions,
@@ -232,6 +235,27 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                fleet.transform,
+                "EditHint",
+                UiText.EditFormationHint,
+                new Vector2(760f, 14f),
+                new Vector2(260f, 24f),
+                12f,
+                NexusTheme.Cyan,
+                TextAlignmentOptions.Right);
+
+            var fleetImage = fleet.GetComponent<Image>();
+            fleetImage.raycastTarget = true;
+            var fleetButton = fleet.AddComponent<Button>();
+            var fleetColors = fleetButton.colors;
+            fleetColors.normalColor = NexusTheme.Surface;
+            fleetColors.highlightedColor = NexusTheme.SurfaceHover;
+            fleetColors.pressedColor = NexusTheme.SurfaceRaised;
+            fleetColors.selectedColor = NexusTheme.SurfaceHover;
+            fleetColors.colorMultiplier = 1f;
+            fleetButton.colors = fleetColors;
+            fleetButton.onClick.AddListener(() => openFormation?.Invoke());
 
             float x = 20f;
             if (lineup != null && lineup.Count > 0)
@@ -441,6 +465,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             contentRect.anchoredPosition = Vector2.zero;
 
             var regions = RegionCatalog.All;
+            var unlocked = CollectUnlockedRegionIds();
             int unique = regions != null && regions.Count > 0 ? regions.Count : 5;
             const float itemW = 188f;
             const float itemH = 168f;
@@ -465,13 +490,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 string faction = region != null && !string.IsNullOrEmpty(region.factionTag)
                     ? UiText.T(FactionTags.ShortEn(region.factionTag), FactionTags.ShortZh(region.factionTag))
                     : "";
+                bool locked = region != null && !unlocked.Contains(region.regionId);
 
                 GameObject cell = NexusUiFactory.CreateBox(
                     content.transform,
                     $"Sector {i}",
                     Vector2.zero,
                     new Vector2(itemW, itemH),
-                    NexusTheme.SurfaceRaised,
+                    locked ? NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.45f) : NexusTheme.SurfaceRaised,
                     NexusTheme.BorderSoft);
                 var cellRect = cell.GetComponent<RectTransform>();
                 cellRect.anchorMin = new Vector2(0f, 0.5f);
@@ -488,7 +514,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     NexusCardVisual.PlanetSprite(index * 3),
                     new Vector2(44f, 10f),
                     new Vector2(100f, 86f),
-                    Color.white);
+                    locked ? LockedTint : Color.white);
                 NexusUiFactory.CreateText(
                     cell.transform,
                     "Name",
@@ -496,7 +522,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(8f, 102f),
                     new Vector2(itemW - 16f, 28f),
                     13f,
-                    NexusTheme.Text,
+                    locked ? NexusTheme.DimText : NexusTheme.Text,
                     TextAlignmentOptions.Center,
                     FontStyles.Bold);
                 if (!string.IsNullOrEmpty(faction))
@@ -508,8 +534,34 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         new Vector2(8f, 132f),
                         new Vector2(itemW - 16f, 22f),
                         11f,
-                        NexusTheme.Cyan,
+                        locked ? NexusTheme.DimText : NexusTheme.Cyan,
                         TextAlignmentOptions.Center);
+                }
+
+                if (locked)
+                {
+                    Sprite lockSprite = NexusCardVisual.UiIcon("Lock");
+                    if (lockSprite != null)
+                    {
+                        NexusUiFactory.CreateIcon(
+                            cell.transform,
+                            "LockIcon",
+                            lockSprite,
+                            new Vector2(itemW * 0.5f - 16f, 30f),
+                            new Vector2(32f, 32f),
+                            NexusTheme.Text);
+                    }
+
+                    NexusUiFactory.CreateText(
+                        cell.transform,
+                        "LockLabel",
+                        UiText.RegionLocked,
+                        new Vector2(8f, 74f),
+                        new Vector2(itemW - 16f, 20f),
+                        11f,
+                        NexusTheme.MutedText,
+                        TextAlignmentOptions.Center,
+                        FontStyles.Bold);
                 }
 
                 var item = cell.AddComponent<BridgeSectorCarouselItem>();
@@ -518,6 +570,34 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             contentRect.sizeDelta = new Vector2(copies * stride + 16f, itemH);
+        }
+
+        /// <summary>
+        /// Region ids the player may currently enter. On any world-state failure every region is
+        /// treated as unlocked so the strip degrades to its previous look instead of showing all locks.
+        /// </summary>
+        private static HashSet<string> CollectUnlockedRegionIds()
+        {
+            var ids = new HashSet<string>();
+            try
+            {
+                foreach (RegionView view in WorldService.GetAllRegionViews())
+                {
+                    if (view?.Config == null || !view.CanEnter) continue;
+                    ids.Add(view.Config.regionId);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[BRIDGE] Sector lock state unavailable: {ex.Message}");
+                foreach (var config in RegionCatalog.All)
+                {
+                    if (config != null)
+                        ids.Add(config.regionId);
+                }
+            }
+
+            return ids;
         }
 
         private void BuildLog(int inLine, int cards, int progress, int credits, int power)

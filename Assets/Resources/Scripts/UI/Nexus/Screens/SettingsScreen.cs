@@ -91,6 +91,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(280f, 48f),
                 () =>
                 {
+                    DataUtil.Instance?.TrySaveGameData();
                     if (SceneLoader.Instance != null)
                         SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainMenuScene));
                     else

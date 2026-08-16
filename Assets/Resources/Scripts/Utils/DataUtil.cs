@@ -231,6 +231,13 @@ namespace Assets.Resources.Scripts.Utils
 
         public bool SavePlayerData(PlayerEntity playerEntity)
         {
+            if (playerEntity == null || string.IsNullOrWhiteSpace(playerEntity.playerID))
+            {
+                LastSaveError = "Refused to write a player profile without an ID.";
+                Debug.LogError("[SAVE] " + LastSaveError);
+                return false;
+            }
+
             var ok = SaveData(playerEntity, playerSavePath, DefaultProperty.PLAYER_DATA);
             LoadPlayerEntities();
             if (ok)
@@ -244,22 +251,71 @@ namespace Assets.Resources.Scripts.Utils
         }
 
         /// <summary>
-        /// Saves player profile, cards, both inventories (when managers exist), and refreshes meta.
+        /// Saves the player profile, cards, domain state, and both inventories, then refreshes meta.
         /// </summary>
+        /// <remarks>
+        /// Empty in-memory collections are skipped rather than written. A manager whose scene has been
+        /// unloaded still answers through its static instance but reports no contents, and flushing that
+        /// would blank a healthy file. Every subsystem already persists on mutation, so the emptied case
+        /// is on disk by the time this runs and nothing is lost by skipping it.
+        /// </remarks>
         public void SaveGameData()
         {
-            SavePlayerData(CharacterInfoManager.Instance.playerData);
-            SaveCardData(CardListManager.Instance.cardEntities);
+            SavePlayerData(currentPlayer);
+
+            var cards = CardListManager.Instance?.cardEntities;
+            if (cards != null && cards.Count > 0)
+                SaveCardData(cards);
+
             DeckService.Save(this);
             WorldService.Save(this);
             ShipService.Save(this);
 
-            if (ItemManager.Instance != null)
-                SaveInventory(InventoryStore.Local, ItemManager.Instance.GetItems(), touchMeta: false);
-            if (RemoteItemManager.Instance != null)
-                SaveInventory(InventoryStore.Remote, RemoteItemManager.Instance.GetItems(), touchMeta: false);
+            SaveInventoryIfPopulated(InventoryStore.Local, ItemManager.Instance?.GetItems());
+            SaveInventoryIfPopulated(InventoryStore.Remote, RemoteItemManager.Instance?.GetItems());
 
             TouchMetaLastSaved();
+        }
+
+        private void SaveInventoryIfPopulated(InventoryStore store, List<ItemEntity> items)
+        {
+            if (items != null && items.Count > 0)
+                SaveInventory(store, items, touchMeta: false);
+        }
+
+        /// <summary>
+        /// Autosave entry point for lifecycle hooks (quit, backgrounding, leaving for the main menu).
+        /// Never throws: a save failure must not block the shutdown or scene change that triggered it.
+        /// </summary>
+        public bool TrySaveGameData()
+        {
+            if (currentPlayer == null ||
+                string.IsNullOrWhiteSpace(currentPlayer.playerID) ||
+                string.IsNullOrWhiteSpace(playerSavePath))
+                return false;
+
+            try
+            {
+                SaveGameData();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LastSaveError = ex.Message;
+                Debug.LogError($"[SAVE] Autosave failed: {ex}");
+                return false;
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            TrySaveGameData();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+                TrySaveGameData();
         }
 
         public bool SaveDeckState(PlayerDeckState state, bool touchMeta = true)
@@ -603,12 +659,45 @@ namespace Assets.Resources.Scripts.Utils
 
             foreach (string id in GetAllPlayerIDs())
             {
-                PlayerEntity player = LoadPlayerData(GetPlayerDataPath(id));
-                if (player != null)
-                    playerEntities.Add(player);
+                PlayerEntity player = ReadPlayerProfile(GetPlayerDataPath(id));
+                if (player == null)
+                {
+                    Debug.LogWarning($"[SAVE] Skipping save '{id}': playerData.json is missing or unreadable.");
+                    continue;
+                }
+
+                // The directory name is the authoritative id, so a profile written without one is
+                // recoverable rather than fatal to the load screen.
+                if (string.IsNullOrWhiteSpace(player.playerID))
+                {
+                    Debug.LogWarning($"[SAVE] Save '{id}' has no player ID; recovering it from the directory name.");
+                    player.playerID = id;
+                    if (string.IsNullOrWhiteSpace(player.playerName))
+                        player.playerName = "Player";
+                    SaveData(player, GetPlayerSavePath(id), DefaultProperty.PLAYER_DATA);
+                }
+
+                playerEntities.Add(player);
             }
             Debug.Log("已加载存档数据：共" + playerEntities.Count + "个存档");
             return playerEntities;
+        }
+
+        /// <summary>Reads one profile file, returning null when it is absent or cannot be parsed.</summary>
+        private PlayerEntity ReadPlayerProfile(string dataPath)
+        {
+            if (!File.Exists(dataPath))
+                return null;
+
+            try
+            {
+                return JsonUtility.FromJson<PlayerEntity>(DecryptBase64(File.ReadAllText(dataPath)));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SAVE] Failed to parse {dataPath}: {ex.Message}");
+                return null;
+            }
         }
 
         public List<string> GetAllPlayerIDs()

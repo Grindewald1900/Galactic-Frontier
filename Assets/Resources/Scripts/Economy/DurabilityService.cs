@@ -204,6 +204,24 @@ namespace Assets.Resources.Scripts.Economy
             return true;
         }
 
+        public static bool TryUnequip(string itemInstanceId)
+        {
+            var items = ProductionService.GetLocalItems();
+            if (items == null || string.IsNullOrEmpty(itemInstanceId))
+                return false;
+
+            foreach (var item in items)
+            {
+                if (item == null || item.itemInstanceId != itemInstanceId) continue;
+                if (string.IsNullOrEmpty(item.equippedToCardId)) return false;
+                item.equippedToCardId = "";
+                Persist(items);
+                return true;
+            }
+
+            return false;
+        }
+
         private static void Persist(List<ItemEntity> items)
         {
             if (ItemManager.Instance != null)

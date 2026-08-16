@@ -29,6 +29,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly Transform detailRoot;
         private readonly TextMeshProUGUI statsText;
         private readonly TextMeshProUGUI statusText;
+        private Button setCombatButton;
+        private Button strategyButton;
+        private Button stopButton;
         private int selectedSlot = -1;
         private CardEntity selectedCard;
         private string pendingStopDeckId = "";
@@ -47,6 +50,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             Archetype.Assassin, Archetype.Magician, Archetype.Mechanician,
             Archetype.Monster, Archetype.Potioneer, Archetype.Warrior
+        };
+
+        private static readonly EquipSlot[] GearSlots =
+        {
+            EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory, EquipSlot.Tool
         };
 
         private static readonly CharacterTier[] RarityMins =
@@ -265,22 +273,40 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.12f),
                 NexusTheme.Gold,
                 13f);
-            var saveBtn = NexusUiFactory.CreateButton(
-                stats.transform,
-                "Save",
-                UiText.SaveFormation,
-                new Vector2(16f, 484f),
-                new Vector2(StatsW - 32f, 40f),
-                () => screen.Persist(),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
-                NexusTheme.Gold,
-                14f);
-            PinBottomLeft(setCombat, 16f, 144f, new Vector2(StatsW - 32f, 40f));
-            PinBottomLeft(strategyBtn, 16f, 100f, new Vector2(StatsW - 32f, 40f));
-            PinBottomLeft(stopBtn, 16f, 56f, new Vector2(StatsW - 32f, 40f));
-            PinBottomLeft(saveBtn, 16f, 12f, new Vector2(StatsW - 32f, 40f));
+
+            screen.setCombatButton = setCombat;
+            screen.strategyButton = strategyBtn;
+            screen.stopButton = stopBtn;
+            screen.LayoutDeckButtons();
 
             return screen;
+        }
+
+        /// <summary>
+        /// Stacks the stats-panel buttons from the bottom up. Combat controls only exist for the
+        /// active combat deck; every other deck just offers promotion into the combat slot.
+        /// </summary>
+        private void LayoutDeckButtons()
+        {
+            if (setCombatButton == null) return;
+
+            var editing = DeckService.GetEditingDeck();
+            bool isCombatDeck = editing != null && editing.deckId == DeckService.GetActiveCombatDeck()?.deckId;
+            var size = new Vector2(StatsW - 32f, 40f);
+            float bottom = 12f;
+
+            void Stack(Component button, bool visible)
+            {
+                if (button == null) return;
+                button.gameObject.SetActive(visible);
+                if (!visible) return;
+                PinBottomLeft(button, 16f, bottom, size);
+                bottom += 44f;
+            }
+
+            Stack(stopButton, isCombatDeck);
+            Stack(strategyButton, isCombatDeck);
+            Stack(setCombatButton, !isCombatDeck);
         }
 
         public GameObject Root => root.gameObject;
@@ -288,6 +314,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void Rebuild()
         {
             CloseFilterMenu();
+            CloseGearPicker();
             ClearChildren(deckTabsRoot, keepHeader: true);
             ClearChildren(rosterRoot, keepHeader: true);
             ClearChildren(detailRoot, keepHeader: true);
@@ -302,6 +329,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildDetail(all);
             BuildSlots(all);
             RefreshStats(all);
+            LayoutDeckButtons();
         }
 
         private void BuildDeckTabs()
@@ -1108,44 +1136,316 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 }
             }
 
-            EquipSlot[] slots = { EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory, EquipSlot.Tool };
             float rowY = y + 26f;
             float rowH = 34f;
-            foreach (var slot in slots)
+            foreach (var slot in GearSlots)
             {
                 equipped.TryGetValue(slot, out var item);
-                string line;
-                if (item == null)
-                {
-                    line = $"{UiText.EquipSlotLabel(slot.ToString())}  ·  {UiText.NoGearInSlot}";
-                }
-                else
-                {
-                    var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
-                    string itemName = def != null
-                        ? UiText.T(def.displayNameEn, def.displayNameZh)
-                        : item.itemName;
-                    line = $"{UiText.EquipSlotLabel(slot.ToString())}  ·  {itemName}  {item.durability}/{item.maxDurability}";
-                }
+                string line = item == null
+                    ? $"{UiText.EquipSlotLabel(slot.ToString())}  ·  {UiText.NoGearInSlot}"
+                    : $"{UiText.EquipSlotLabel(slot.ToString())}  ·  {GearDisplayName(item)}  {item.durability}/{item.maxDurability}";
 
-                NexusUiFactory.CreateBox(
+                EquipSlot captured = slot;
+                var row = NexusUiFactory.CreateButton(
                     detailRoot,
                     "Gear " + slot,
+                    line,
                     new Vector2(x, rowY),
                     new Vector2(width, rowH),
+                    () => OpenGearPicker(captured),
                     NexusTheme.SurfaceRaised,
-                    NexusTheme.BorderSoft);
-                var gearLabel = NexusUiFactory.CreateText(
-                    detailRoot,
-                    "GearLabel " + slot,
-                    line,
-                    new Vector2(x + 8f, rowY + 6f),
-                    new Vector2(width - 16f, 22f),
-                    11f,
-                    item == null ? NexusTheme.DimText : NexusTheme.Text);
-                gearLabel.overflowMode = TextOverflowModes.Ellipsis;
+                    item == null ? NexusTheme.DimText : NexusTheme.Text,
+                    11f);
+                var rowLabel = row.GetComponentInChildren<TextMeshProUGUI>();
+                if (rowLabel != null)
+                {
+                    rowLabel.alignment = TextAlignmentOptions.Left;
+                    rowLabel.fontStyle = FontStyles.Normal;
+                    rowLabel.margin = new Vector4(8f, 0f, 8f, 0f);
+                    rowLabel.overflowMode = TextOverflowModes.Ellipsis;
+                }
+
                 rowY += rowH + 6f;
             }
+        }
+
+        private static string GearDisplayName(ItemEntity item)
+        {
+            if (item == null) return "";
+            var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
+            return def != null ? UiText.T(def.displayNameEn, def.displayNameZh) : item.itemName;
+        }
+
+        private void CloseGearPicker()
+        {
+            Transform overlay = root.Find("GearOverlay");
+            if (overlay != null)
+                UnityEngine.Object.DestroyImmediate(overlay.gameObject);
+        }
+
+        /// <summary>
+        /// Modal for one equip slot: what the card wears now, plus every warehouse alternative laid
+        /// out in a scrollable grid. Picking a tile swaps the gear and reopens on the same slot.
+        /// </summary>
+        private void OpenGearPicker(EquipSlot slot)
+        {
+            if (selectedCard == null)
+            {
+                statusText.text = UiText.SelectRosterFirst;
+                return;
+            }
+
+            CloseGearPicker();
+            CardEntity card = selectedCard;
+
+            GameObject overlay = NexusUiFactory.CreatePanel(
+                root,
+                "GearOverlay",
+                NexusTheme.WithAlpha(Color.black, 0.55f),
+                Vector2.zero,
+                Vector2.one,
+                Vector2.zero,
+                Vector2.zero,
+                true);
+            overlay.transform.SetAsLastSibling();
+            var dismiss = overlay.AddComponent<Button>();
+            dismiss.transition = Selectable.Transition.None;
+            dismiss.onClick.AddListener(CloseGearPicker);
+
+            const float dialogW = 760f;
+            const float dialogH = 540f;
+            GameObject dialog = NexusUiFactory.CreateBox(
+                overlay.transform,
+                "GearDialog",
+                Vector2.zero,
+                new Vector2(dialogW, dialogH),
+                NexusTheme.Surface,
+                NexusTheme.Gold);
+            var dialogRect = dialog.GetComponent<RectTransform>();
+            dialogRect.anchorMin = new Vector2(0.5f, 0.5f);
+            dialogRect.anchorMax = new Vector2(0.5f, 0.5f);
+            dialogRect.pivot = new Vector2(0.5f, 0.5f);
+            dialogRect.anchoredPosition = Vector2.zero;
+            dialogRect.sizeDelta = new Vector2(dialogW, dialogH);
+            dialog.GetComponent<Image>().raycastTarget = true;
+
+            NexusUiFactory.CreateText(
+                dialog.transform,
+                "Title",
+                $"{UiText.GearDetail}  ·  {UiText.EquipSlotLabel(slot.ToString())}  ·  {DisplayName(card)}",
+                new Vector2(20f, 14f),
+                new Vector2(dialogW - 140f, 26f),
+                16f,
+                NexusTheme.Gold,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            NexusUiFactory.CreateButton(
+                dialog.transform,
+                "Close",
+                UiText.Close,
+                new Vector2(dialogW - 100f, 12f),
+                new Vector2(80f, 28f),
+                CloseGearPicker,
+                NexusTheme.SurfaceRaised,
+                NexusTheme.Text,
+                12f);
+
+            DrawGearPickerCurrent(dialog.transform, card, slot, dialogW);
+            DrawGearPickerGrid(dialog.transform, card, slot, dialogW, dialogH);
+        }
+
+        private void DrawGearPickerCurrent(Transform dialog, CardEntity card, EquipSlot slot, float dialogW)
+        {
+            ItemEntity current = FindEquippedInSlot(card.id, slot);
+            NexusUiFactory.CreateBox(
+                dialog,
+                "Current",
+                new Vector2(20f, 50f),
+                new Vector2(dialogW - 40f, 104f),
+                NexusTheme.SurfaceRaised,
+                NexusTheme.BorderSoft);
+
+            if (current == null)
+            {
+                NexusUiFactory.CreateText(
+                    dialog,
+                    "CurrentEmpty",
+                    UiText.NoGearInSlot,
+                    new Vector2(36f, 88f),
+                    new Vector2(dialogW - 72f, 24f),
+                    13f,
+                    NexusTheme.DimText);
+                return;
+            }
+
+            NexusUiFactory.CreateText(
+                dialog,
+                "CurrentName",
+                GearDisplayName(current),
+                new Vector2(36f, 64f),
+                new Vector2(dialogW - 220f, 26f),
+                15f,
+                NexusTheme.Text,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                dialog,
+                "CurrentStats",
+                $"{UiText.GearQuality(current.quality)}   ·   " +
+                $"{UiText.GearDurability(current.durability, current.maxDurability)}   ·   " +
+                UiText.GearScore(GearScore(current)),
+                new Vector2(36f, 94f),
+                new Vector2(dialogW - 220f, 24f),
+                12f,
+                NexusTheme.MutedText);
+
+            string instanceId = current.itemInstanceId;
+            string itemName = GearDisplayName(current);
+            NexusUiFactory.CreateButton(
+                dialog,
+                "Unequip",
+                UiText.UnequipGear,
+                new Vector2(dialogW - 160f, 70f),
+                new Vector2(124f, 34f),
+                () =>
+                {
+                    statusText.text = DurabilityService.TryUnequip(instanceId)
+                        ? UiText.UnequippedItem(itemName)
+                        : UiText.EquipFailed;
+                    Rebuild();
+                    OpenGearPicker(slot);
+                },
+                NexusTheme.WithAlpha(NexusTheme.Red, 0.16f),
+                NexusTheme.Red,
+                12f);
+        }
+
+        private void DrawGearPickerGrid(
+            Transform dialog, CardEntity card, EquipSlot slot, float dialogW, float dialogH)
+        {
+            NexusUiFactory.CreateText(
+                dialog,
+                "GridHeader",
+                UiText.GearReplacements,
+                new Vector2(20f, 166f),
+                new Vector2(dialogW - 40f, 22f),
+                13f,
+                NexusTheme.MutedText,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+
+            var candidates = CollectSlotCandidates(slot);
+            candidates.RemoveAll(item => item.equippedToCardId == card.id);
+            if (candidates.Count == 0)
+            {
+                NexusUiFactory.CreateText(
+                    dialog,
+                    "GridEmpty",
+                    UiText.GearNoneAvailable,
+                    new Vector2(24f, 200f),
+                    new Vector2(dialogW - 48f, 24f),
+                    12f,
+                    NexusTheme.DimText);
+                return;
+            }
+
+            float gridW = dialogW - 40f;
+            float gridH = dialogH - 194f - 20f;
+            GameObject scrollHost = NexusUiFactory.CreateBox(
+                dialog,
+                "GearGrid",
+                new Vector2(20f, 194f),
+                new Vector2(gridW, gridH),
+                NexusTheme.WithAlpha(NexusTheme.Background, 0.55f),
+                NexusTheme.BorderSoft);
+            scrollHost.AddComponent<RectMask2D>();
+            var scroll = scrollHost.AddComponent<ScrollRect>();
+
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(scrollHost.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = Vector2.zero;
+
+            const int columns = 4;
+            var grid = content.AddComponent<GridLayoutGroup>();
+            grid.padding = new RectOffset(10, 10, 10, 10);
+            grid.spacing = new Vector2(10f, 10f);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = columns;
+            grid.cellSize = new Vector2((gridW - 20f - (columns - 1) * 10f) / columns, 92f);
+
+            var fitter = content.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            scroll.content = contentRect;
+            scroll.viewport = scrollHost.GetComponent<RectTransform>();
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 28f;
+
+            string muted = ColorUtility.ToHtmlStringRGB(NexusTheme.MutedText);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                ItemEntity item = candidates[i];
+                string holder = DescribeGearHolder(item);
+                string label =
+                    $"<b>{Truncate(GearDisplayName(item), 16)}</b>\n" +
+                    $"<color=#{muted}>{UiText.GearQuality(item.quality)} · " +
+                    $"{UiText.GearDurability(item.durability, item.maxDurability)}</color>\n" +
+                    $"{UiText.GearScore(GearScore(item))}" +
+                    (string.IsNullOrEmpty(holder) ? "" : $"\n<color=#{muted}>{holder}</color>");
+
+                string instanceId = item.itemInstanceId;
+                string itemName = GearDisplayName(item);
+                var cell = NexusUiFactory.CreateButton(
+                    content.transform,
+                    "Gear " + i,
+                    label,
+                    Vector2.zero,
+                    grid.cellSize,
+                    () =>
+                    {
+                        statusText.text = DurabilityService.TryEquip(instanceId, card.id)
+                            ? UiText.EquippedItem(itemName)
+                            : UiText.EquipFailed;
+                        Rebuild();
+                        OpenGearPicker(slot);
+                    },
+                    NexusTheme.SurfaceRaised,
+                    NexusTheme.Text,
+                    10f);
+                var cellLabel = cell.GetComponentInChildren<TextMeshProUGUI>();
+                if (cellLabel != null)
+                {
+                    cellLabel.alignment = TextAlignmentOptions.TopLeft;
+                    cellLabel.fontStyle = FontStyles.Normal;
+                    cellLabel.textWrappingMode = TextWrappingModes.NoWrap;
+                    cellLabel.margin = new Vector4(8f, 6f, 6f, 4f);
+                }
+            }
+        }
+
+        /// <summary>Name of the character already wearing an item, or empty when it sits in the bag.</summary>
+        private static string DescribeGearHolder(ItemEntity item)
+        {
+            if (item == null || string.IsNullOrEmpty(item.equippedToCardId))
+                return "";
+            var all = CardListManager.Instance?.GetCardEntities();
+            if (all != null)
+            {
+                foreach (var entity in all)
+                {
+                    if (entity != null && entity.id == item.equippedToCardId)
+                        return $"{UiText.GearEquippedBadge}: {Truncate(DisplayName(entity), 12)}";
+                }
+            }
+
+            return UiText.GearEquippedBadge;
         }
 
         private void DrawDeckActions(bool canJoin, bool canLeave)
@@ -1186,10 +1486,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var equip = NexusUiFactory.CreateButton(
                 detailRoot,
                 "Equip",
-                UiText.EquipToSelected,
+                UiText.AutoEquip,
                 new Vector2(pad, 500f),
                 new Vector2(btnW, btnH),
-                () => TryEquipSelected(),
+                () => AutoEquipSelected(),
                 NexusTheme.WithAlpha(NexusTheme.Green, 0.16f),
                 NexusTheme.Green,
                 13f);
@@ -1419,12 +1719,25 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var editing = DeckService.GetEditingDeck();
             if (editing == null) return;
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities();
-            var result = DeckService.TrySetActiveCombatDeck(editing.deckId, all);
-            statusText.text = result.Success
-                ? UiText.ActiveCombatBadge
-                : result.Message;
+            bool swapped = editing.deckId != FirstUnlockedDeckId();
+            var result = DeckService.TryPromoteToCombatSlot(editing.deckId, all);
+            if (result.Success)
+                statusText.text = swapped ? UiText.DeckPromotedToCombat : UiText.ActiveCombatBadge;
+            else
+                statusText.text = result.Error == DeckCommandError.DeckBusy ? UiText.DeckSwapBusy : result.Message;
             Persist();
             Rebuild();
+        }
+
+        private static string FirstUnlockedDeckId()
+        {
+            foreach (var deck in DeckService.GetDecks())
+            {
+                if (deck != null && deck.unlocked)
+                    return deck.deckId;
+            }
+
+            return "";
         }
 
         private void CycleStrategy()
@@ -1438,7 +1751,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Rebuild();
         }
 
-        private void TryEquipSelected()
+        /// <summary>
+        /// Fills every equip slot on the selected card with the highest-scoring free item in the
+        /// warehouse, leaving a slot untouched when nothing beats what is already worn.
+        /// </summary>
+        private void AutoEquipSelected()
         {
             if (selectedCard == null)
             {
@@ -1446,31 +1763,72 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             }
 
-            ItemEntity candidate = null;
-            foreach (var item in Economy.ProductionService.GetLocalItems())
+            int equipped = 0;
+            foreach (var slot in GearSlots)
+            {
+                ItemEntity current = FindEquippedInSlot(selectedCard.id, slot);
+                int bestScore = current != null ? GearScore(current) : int.MinValue;
+                ItemEntity best = null;
+
+                foreach (var candidate in CollectSlotCandidates(slot))
+                {
+                    if (!string.IsNullOrEmpty(candidate.equippedToCardId)) continue;
+                    int score = GearScore(candidate);
+                    if (score <= bestScore) continue;
+                    bestScore = score;
+                    best = candidate;
+                }
+
+                if (best != null && DurabilityService.TryEquip(best.itemInstanceId, selectedCard.id))
+                    equipped++;
+            }
+
+            statusText.text = equipped > 0 ? UiText.AutoEquipDone(equipped) : UiText.AutoEquipNone;
+            Rebuild();
+        }
+
+        /// <summary>Ranks gear by quality first, then base value, then remaining durability.</summary>
+        private static int GearScore(ItemEntity item)
+        {
+            if (item == null) return 0;
+            var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
+            int baseCost = def?.baseCost ?? item.itemCost;
+            return Mathf.Max(1, item.quality) * 1000 + baseCost * 2 + item.durability;
+        }
+
+        private static ItemEntity FindEquippedInSlot(string cardId, EquipSlot slot)
+        {
+            var items = ProductionService.GetLocalItems();
+            if (items == null || string.IsNullOrEmpty(cardId)) return null;
+            foreach (var item in items)
+            {
+                if (item == null || item.equippedToCardId != cardId) continue;
+                var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
+                if (def != null && def.equipSlot == slot)
+                    return item;
+            }
+
+            return null;
+        }
+
+        /// <summary>Warehouse equipment for a slot, excluding broken pieces, best score first.</summary>
+        private static List<ItemEntity> CollectSlotCandidates(EquipSlot slot)
+        {
+            var result = new List<ItemEntity>();
+            var items = ProductionService.GetLocalItems();
+            if (items == null) return result;
+
+            foreach (var item in items)
             {
                 if (item == null || string.IsNullOrEmpty(item.itemInstanceId)) continue;
-                var def = Economy.Domain.ItemCatalog.Get(Economy.ItemFactory.ResolveDefId(item));
-                if (def == null || def.category != Economy.Domain.ItemCategory.Equipment) continue;
-                if (def.equipSlot != Economy.Domain.EquipSlot.Weapon
-                    && def.equipSlot != Economy.Domain.EquipSlot.Armor)
-                    continue;
-                if (!string.IsNullOrEmpty(item.equippedToCardId)) continue;
-                candidate = item;
-                break;
+                var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
+                if (def == null || def.category != ItemCategory.Equipment || def.equipSlot != slot) continue;
+                if (DurabilityRules.IsBroken(item.durability)) continue;
+                result.Add(item);
             }
 
-            if (candidate == null)
-            {
-                statusText.text = UiText.NoUnequippedGear;
-                return;
-            }
-
-            var ok = Economy.DurabilityService.TryEquip(candidate.itemInstanceId, selectedCard.id);
-            statusText.text = ok
-                ? UiText.EquippedItem(candidate.itemName)
-                : UiText.EquipFailed;
-            Rebuild();
+            result.Sort((a, b) => GearScore(b).CompareTo(GearScore(a)));
+            return result;
         }
 
         private void TryStopEditingDeck()

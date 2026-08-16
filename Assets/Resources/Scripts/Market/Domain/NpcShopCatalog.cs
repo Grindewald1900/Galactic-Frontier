@@ -61,6 +61,7 @@ namespace Assets.Resources.Scripts.Market.Domain
             }
 
             loaded = true;
+            MergeMissingDefaultOffers();
         }
 
         public static void ResetToDefaultsForTests()
@@ -76,6 +77,25 @@ namespace Assets.Resources.Scripts.Market.Domain
             if (loaded) return;
             loaded = true;
             Add(BuildStarportShop());
+        }
+
+        private static void MergeMissingDefaultOffers()
+        {
+            var defaults = BuildStarportShop();
+            var shop = Get(defaults.shopId);
+            if (shop == null)
+            {
+                Add(defaults);
+                return;
+            }
+
+            shop.offers ??= new List<NpcShopOfferDef>();
+            foreach (var offer in defaults.offers)
+            {
+                if (offer == null || string.IsNullOrEmpty(offer.offerId)) continue;
+                if (FindOffer(shop.shopId, offer.offerId) != null) continue;
+                shop.offers.Add(offer);
+            }
         }
 
         private static void Add(NpcShopDef shop)
