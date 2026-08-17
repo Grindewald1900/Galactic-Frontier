@@ -79,9 +79,9 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                 "钢材货运",
                 new GiftReward("Steel", "Steel", 50)),
             new(
-                "NEXUS-BETA",
-                "NEXUS Beta Pack",
-                "NEXUS 内测礼包",
+                "GF-BETA",
+                "Galactic Frontier Beta Pack",
+                "星际前线内测礼包",
                 new GiftReward("Copper", "Copper", 30),
                 new GiftReward("Steel", "Steel", 20),
                 new GiftReward("GoldBar", "GoldBar", 5),

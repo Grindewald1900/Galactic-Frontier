@@ -43,6 +43,8 @@ namespace Assets.Resources.Scripts.World.Domain
         public int level = 1;
         public ShipStats stats = new ShipStats();
         public List<ShipModuleState> modules = new List<ShipModuleState>();
+        /// <summary>Card the player picked to represent the ship; empty when none is chosen.</summary>
+        public string mascotCardId = "";
         public int count;
     }
 

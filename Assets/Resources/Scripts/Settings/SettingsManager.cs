@@ -106,7 +106,7 @@ namespace Assets.Resources.Scripts.Settings
             {
                 Debug.LogWarning(
                     "[GIFT] Codes 000/001 no longer toggle Debug/Dev Data. " +
-                    "Enable Debug Mode in Nexus Settings → Developer.");
+                    "Enable Debug Mode in Settings → Developer.");
                 return;
             }
 

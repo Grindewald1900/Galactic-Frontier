@@ -38,6 +38,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public const int WarehouseCapacity = 60;
         public const int DefaultQuality = 2;
         public const int GatherCycleSeconds = 30; // playtest; design default 300
+        /// <summary>Units a gather job may bank before it stalls waiting to be collected.</summary>
+        public const int GatherBankCap = 200;
         public const int CraftCycleSeconds = 30;
         public const int OnlineFarmCycleSeconds = 45;
         public const int OfflineCapBaseSeconds = 7200;

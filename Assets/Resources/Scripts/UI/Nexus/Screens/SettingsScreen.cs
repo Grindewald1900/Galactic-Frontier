@@ -92,10 +92,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 () =>
                 {
                     DataUtil.Instance?.TrySaveGameData();
-                    if (SceneLoader.Instance != null)
-                        SceneLoader.Instance.LoadScene(nameof(SceneLoader.SceneName.MainMenuScene));
-                    else
-                        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
+                    LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.MainMenuScene));
                 },
                 NexusTheme.SurfaceRaised,
                 NexusTheme.Text,

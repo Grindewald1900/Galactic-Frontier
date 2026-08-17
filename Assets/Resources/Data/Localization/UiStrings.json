@@ -177,8 +177,23 @@
     },
     {
       "id": "ui.status.version",
-      "en": "NEXUS COMMAND · Fully automatic combat",
-      "zh": "NEXUS COMMAND · 全自动战斗"
+      "en": "GALACTIC FRONTIER · Fully automatic combat",
+      "zh": "星际前线 · 全自动战斗"
+    },
+    {
+      "id": "ui.brand.title",
+      "en": "GALACTIC FRONTIER",
+      "zh": "星际前线"
+    },
+    {
+      "id": "ui.brand.title_alt",
+      "en": "星际前线",
+      "zh": "GALACTIC FRONTIER"
+    },
+    {
+      "id": "ui.common.loading",
+      "en": "Loading",
+      "zh": "加载中"
     },
     {
       "id": "ui.main.tagline",
@@ -426,6 +441,56 @@
       "zh": "全部领取"
     },
     {
+      "id": "ui.explore.gather_bank_title",
+      "en": "GATHER BANK",
+      "zh": "采集收获"
+    },
+    {
+      "id": "ui.explore.gather_bank_hint",
+      "en": "Collect to move everything into your warehouse.",
+      "zh": "领取后全部存入仓库。"
+    },
+    {
+      "id": "ui.explore.gather_bank_empty",
+      "en": "Nothing gathered yet.",
+      "zh": "暂无采集收获。"
+    },
+    {
+      "id": "ui.explore.gather_bank_full",
+      "en": "Bank full — collect to resume gathering.",
+      "zh": "采集仓已满，领取后继续采集。"
+    },
+    {
+      "id": "ui.explore.collect_gather",
+      "en": "Collect ×{0}",
+      "zh": "领取 ×{0}"
+    },
+    {
+      "id": "ui.reward.title",
+      "en": "REWARDS CLAIMED",
+      "zh": "获得奖励"
+    },
+    {
+      "id": "ui.reward.hint",
+      "en": "Added to your warehouse.",
+      "zh": "已存入仓库。"
+    },
+    {
+      "id": "ui.reward.empty",
+      "en": "Nothing was collected.",
+      "zh": "没有获得任何物品。"
+    },
+    {
+      "id": "ui.reward.confirm",
+      "en": "Confirm",
+      "zh": "确认"
+    },
+    {
+      "id": "ui.reward.dismiss_hint",
+      "en": "Click Confirm or anywhere outside to close.",
+      "zh": "点击确认或弹窗外空白处关闭。"
+    },
+    {
       "id": "ui.explore.rec_power",
       "en": "Rec power {0}",
       "zh": "推荐战力 {0}"
@@ -609,6 +674,111 @@
       "id": "ui.ship.back",
       "en": "Back",
       "zh": "返回"
+    },
+    {
+      "id": "ui.ship.appearance",
+      "en": "HULL APPEARANCE",
+      "zh": "舰船外观"
+    },
+    {
+      "id": "ui.ship.hull_class",
+      "en": "{0} · Hull Class {1}",
+      "zh": "{0} · 舰体等级 {1}"
+    },
+    {
+      "id": "ui.ship.appearance_hint",
+      "en": "The hull reflects your current level and modules.",
+      "zh": "舰体外观会随等级与模块升级而变化。"
+    },
+    {
+      "id": "ui.ship.modules",
+      "en": "MODULE UPGRADES",
+      "zh": "模块升级"
+    },
+    {
+      "id": "ui.ship.summary",
+      "en": "Lv.{0} · {1}₵ available",
+      "zh": "等级 {0} · 可用 {1}₵"
+    },
+    {
+      "id": "ui.ship.stat_range",
+      "en": "Range",
+      "zh": "航程"
+    },
+    {
+      "id": "ui.ship.stat_energy",
+      "en": "Energy",
+      "zh": "能源"
+    },
+    {
+      "id": "ui.ship.stat_hull",
+      "en": "Hull",
+      "zh": "舰体"
+    },
+    {
+      "id": "ui.ship.stat_entropy",
+      "en": "Entropy",
+      "zh": "抗熵"
+    },
+    {
+      "id": "ui.ship.stat_cargo",
+      "en": "Cargo",
+      "zh": "货舱"
+    },
+    {
+      "id": "ui.ship.stat_scan",
+      "en": "Scan",
+      "zh": "扫描"
+    },
+    {
+      "id": "ui.ship.stat_life",
+      "en": "Life Support",
+      "zh": "生命维持"
+    },
+    {
+      "id": "ui.ship.mascot",
+      "en": "MASCOT",
+      "zh": "看板娘"
+    },
+    {
+      "id": "ui.ship.mascot_hint",
+      "en": "Your favourite card represents the ship.",
+      "zh": "你最喜欢的卡牌将作为舰船的门面。"
+    },
+    {
+      "id": "ui.ship.mascot_empty",
+      "en": "No mascot chosen yet.",
+      "zh": "还没有选择看板娘。"
+    },
+    {
+      "id": "ui.ship.mascot_choose",
+      "en": "Choose Mascot",
+      "zh": "选择看板娘"
+    },
+    {
+      "id": "ui.ship.mascot_change",
+      "en": "Change Mascot",
+      "zh": "更换看板娘"
+    },
+    {
+      "id": "ui.ship.mascot_clear",
+      "en": "Clear",
+      "zh": "取消设置"
+    },
+    {
+      "id": "ui.ship.mascot_picker",
+      "en": "Pick your favourite card",
+      "zh": "挑选最喜欢的卡牌"
+    },
+    {
+      "id": "ui.ship.mascot_none_owned",
+      "en": "No cards owned yet.",
+      "zh": "暂无可选卡牌。"
+    },
+    {
+      "id": "ui.nav.ship",
+      "en": "Ship",
+      "zh": "舰船"
     },
     {
       "id": "ui.explore.side_title",
@@ -1447,8 +1617,8 @@
     },
     {
       "id": "ui.battle.breadcrumb",
-      "en": "NEXUS › EXPLORE / AUTO BATTLE",
-      "zh": "NEXUS › 探索 / 自动战斗"
+      "en": "GALACTIC FRONTIER › EXPLORE / AUTO BATTLE",
+      "zh": "星际前线 › 探索 / 自动战斗"
     },
     {
       "id": "ui.battle.auto",

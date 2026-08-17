@@ -4,6 +4,7 @@ using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Main;
+using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
@@ -47,8 +48,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private MainScrollController mainController;
         private AppScreen activeScreen = AppScreen.Bridge;
         private bool mainReady;
-        private bool navExpanded;
-        private float navWidth = NexusTheme.NavCollapsedWidth;
+        private bool navExpanded = true;
+        private float navWidth = NexusTheme.NavExpandedWidth;
         private Transform chromeRoot;
         private Transform backdropRoot;
         private Transform menuBrandRoot;
@@ -83,6 +84,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 case "MainMenuScene":
                     BuildMainMenuBranding();
+                    LoadingOverlay.NotifySceneReady();
                     break;
                 case "MainScene":
                     BuildChrome(true);
@@ -102,6 +104,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     PendingScreen = AppScreen.Bridge;
                     ShowScreen(initial);
                     mainReady = true;
+                    LoadingOverlay.NotifySceneReady();
                     break;
             }
         }
@@ -145,6 +148,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (!mainReady && SceneManager.GetActiveScene().name != "MainScene")
                 return;
 
+            RewardPopup.Close();
             AppScreen restore = activeScreen;
             if (restore == AppScreen.Debug && DebugModeController.Instance?.IsEnabled != true)
                 restore = AppScreen.Settings;
@@ -183,6 +187,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         /// <summary>Rebuilds chrome and the active content screen after a locale change.</summary>
         public void ReloadLocalizedUi()
         {
+            RewardPopup.Close();
             AppScreen restore = activeScreen;
             if (chromeRoot != null) Destroy(chromeRoot.gameObject);
             if (contentCanvas != null) Destroy(contentCanvas.gameObject);
@@ -261,7 +266,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             else
             {
                 PendingScreen = screen;
-                SceneManager.LoadScene("MainScene");
+                LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.MainScene));
             }
         }
 
@@ -532,12 +537,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildBreadcrumb(Transform parent)
         {
-            NexusUiFactory.CreateText(parent, "Brand", "NEXUS ›", new Vector2(18f, 6f), new Vector2(90f, 20f), 11f, NexusTheme.DimText);
+            NexusUiFactory.CreateText(parent, "Brand", $"{UiText.BrandTitle} ›", new Vector2(18f, 6f), new Vector2(180f, 20f), 11f, NexusTheme.DimText);
             breadcrumbTitle = NexusUiFactory.CreateText(
                 parent,
                 "Current",
                 UiText.Breadcrumb(AppScreen.Bridge),
-                new Vector2(110f, 6f),
+                new Vector2(206f, 6f),
                 new Vector2(640f, 20f),
                 12f,
                 NexusTheme.Gold,
@@ -573,6 +578,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             float y = 70f;
             AddNav(parent, AppScreen.Bridge, y); y += 52f;
             AddNav(parent, AppScreen.Battle, y); y += 52f;
+            AddNav(parent, AppScreen.Ship, y); y += 52f;
             AddNav(parent, AppScreen.Formation, y); y += 52f;
             AddNav(parent, AppScreen.Characters, y); y += 52f;
             AddNav(parent, AppScreen.Cards, y); y += 52f;
@@ -637,13 +643,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
             brandTitle = NexusUiFactory.CreateText(
                 brand.transform,
                 "Brand Title",
-                "NEXUS",
+                UiText.BrandTitle,
                 new Vector2(40f, 6f),
-                new Vector2(140f, 28f),
-                18f,
+                new Vector2(126f, 28f),
+                16f,
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+            // The English name is far longer than the Chinese one, so let it shrink into the rail.
+            brandTitle.textWrappingMode = TextWrappingModes.NoWrap;
+            brandTitle.enableAutoSizing = true;
+            brandTitle.fontSizeMin = 10f;
+            brandTitle.fontSizeMax = 18f;
 
             // Toggle: › when collapsed, ‹ when expanded (matches Figma screenshots).
             Button toggle = NexusUiFactory.CreateButton(
@@ -715,6 +726,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 AppScreen.Bridge => "Bell",
                 AppScreen.Battle => "Battle",
+                AppScreen.Ship => "World",
                 AppScreen.Formation => "Character",
                 AppScreen.Characters => "Character",
                 AppScreen.Cards => "Cards",
@@ -734,6 +746,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             AppScreen.Bridge => UiText.ScreenBridge,
             AppScreen.Battle => UiText.ScreenBattle,
+            AppScreen.Ship => UiText.ScreenShip,
             AppScreen.Formation => UiText.ScreenFormation,
             AppScreen.Characters => UiText.ScreenCharacters,
             AppScreen.Cards => UiText.ScreenCards,
@@ -797,7 +810,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 brandGroupRect.gameObject.SetActive(navExpanded);
 
             if (brandTitle != null)
-                brandTitle.text = "NEXUS";
+                brandTitle.text = UiText.BrandTitle;
 
             if (toggleRect == null || toggleLabel == null)
                 return;
@@ -936,8 +949,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Canvas canvas = NexusUiFactory.CreateCanvas("App Main Menu Branding", 40, false);
             canvas.transform.SetParent(transform, false);
             menuBrandRoot = canvas.transform;
-            NexusUiFactory.CreateText(canvas.transform, "Nexus", "NEXUS", new Vector2(116f, 104f), new Vector2(700f, 90f), 58f, NexusTheme.Gold, TextAlignmentOptions.Left, FontStyles.Bold);
-            NexusUiFactory.CreateText(canvas.transform, "Command", "GALACTIC FRONTIER COMMAND", new Vector2(122f, 194f), new Vector2(760f, 42f), 21f, NexusTheme.Text, TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(canvas.transform, "Brand Title", UiText.BrandTitle, new Vector2(116f, 104f), new Vector2(700f, 90f), 58f, NexusTheme.Gold, TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(canvas.transform, "Brand Title Alt", UiText.BrandTitleAlt, new Vector2(122f, 194f), new Vector2(760f, 42f), 24f, NexusTheme.Text, TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(canvas.transform, "Build", UiText.MainMenuTagline, new Vector2(122f, 244f), new Vector2(760f, 28f), 12f, NexusTheme.MutedText);
         }
     }

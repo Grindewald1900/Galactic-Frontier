@@ -171,7 +171,12 @@ namespace Assets.Resources.Scripts.World
                 return;
             }
 
-            if (ItemManager.Instance != null && ItemManager.Instance.IsFull)
+            Economy.IdleSettlementService.EnsureLoaded();
+
+            // Output is banked on the job rather than dropped into the warehouse, so the player
+            // collects it from Explore and sees exactly what the run produced.
+            if (Economy.IdleSettlementService.IsGatherBankFull
+                || Economy.DurabilityService.HasCriticalBrokenEquipped())
             {
                 ActionScheduler.TryPauseBlock(
                     DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
@@ -179,23 +184,7 @@ namespace Assets.Resources.Scripts.World
                 return;
             }
 
-            if (Economy.DurabilityService.HasCriticalBrokenEquipped())
-            {
-                ActionScheduler.TryPauseBlock(
-                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-                DeckService.Save();
-                return;
-            }
-
-            var granted = Economy.ItemFactory.FromDef(node.outputDefId, node.outputQty, node.outputQuality);
-            if (!Economy.ProductionService.TryAddLocal(granted))
-            {
-                ActionScheduler.TryPauseBlock(
-                    DeckService.State, deck.deckId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-                DeckService.Save();
-                return;
-            }
-
+            Economy.IdleSettlementService.BankGather(node.outputDefId, node.outputQuality, node.outputQty);
             Economy.DurabilityService.ApplyGatherWear(node.riskLevel);
             deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             DeckService.Save();

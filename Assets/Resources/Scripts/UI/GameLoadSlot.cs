@@ -6,7 +6,7 @@ using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Planet;
 using Assets.Resources.Scripts.Main;
-using UnityEngine.SceneManagement;
+using Assets.Resources.Scripts.Scene;
 
 namespace Assets.Resources.Scripts.UI
 {
@@ -53,7 +53,7 @@ namespace Assets.Resources.Scripts.UI
             }
             else
             {
-                SceneManager.LoadScene("MainScene");
+                LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.MainScene));
             }
         }
     }

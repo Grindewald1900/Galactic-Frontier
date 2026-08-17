@@ -69,6 +69,25 @@ namespace Assets.Resources.Scripts.World
             return ShipRules.MeetsGate(State, gate);
         }
 
+        /// <summary>Card id the player picked as the ship mascot, or empty.</summary>
+        public static string MascotCardId
+        {
+            get
+            {
+                EnsureReady();
+                return State?.mascotCardId ?? "";
+            }
+        }
+
+        /// <summary>Sets (or clears, with an empty id) the mascot card shown in the ship bay.</summary>
+        public static void SetMascot(string cardId)
+        {
+            EnsureReady();
+            if (State == null) return;
+            State.mascotCardId = cardId ?? "";
+            Save();
+        }
+
         public static WorldCommandResult TryUpgradeModule(string moduleId)
         {
             EnsureReady();

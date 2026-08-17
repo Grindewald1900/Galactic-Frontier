@@ -31,7 +31,7 @@ namespace Assets.Resources.Scripts.Scene
         }
 
         /// <summary>
-        /// Loads the specified scene directly.
+        /// Loads the specified scene behind the loading cover.
         /// </summary>
         /// <param name="sceneName">Scene to load.</param>
         public void LoadScene(string sceneName)
@@ -39,7 +39,7 @@ namespace Assets.Resources.Scripts.Scene
             if (string.IsNullOrEmpty(sceneName))
                 throw new System.ArgumentException("Scene name cannot be null or empty.", nameof(sceneName));
 
-            SceneManager.LoadScene(sceneName);
+            LoadingOverlay.LoadScene(sceneName);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Assets.Resources.Scripts.Scene
                 transitionAnimator.SetTrigger("Start");
                 yield return new WaitForSeconds(transitionTime);
             }
-            SceneManager.LoadScene(sceneName);
+            LoadingOverlay.LoadScene(sceneName);
         }
 
         public enum SceneName

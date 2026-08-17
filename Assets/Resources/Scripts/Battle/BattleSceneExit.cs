@@ -3,7 +3,6 @@ using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.UI.Nexus;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Battle
 {
@@ -38,10 +37,7 @@ namespace Assets.Resources.Scripts.Battle
             AppShell.RequestScreen(screen);
 
             var sceneName = nameof(SceneLoader.SceneName.MainScene);
-            if (SceneLoader.Instance != null)
-                SceneLoader.Instance.LoadScene(sceneName);
-            else
-                SceneManager.LoadScene(sceneName);
+            LoadingOverlay.LoadScene(sceneName);
 
             Debug.Log($"[BATTLE] Leaving BattleScene → MainScene ({screen}).");
         }

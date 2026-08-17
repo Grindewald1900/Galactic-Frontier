@@ -415,8 +415,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(186f, 44f),
                     () =>
                     {
-                        var r = IdleSettlementService.ClaimAllPending();
+                        var r = IdleSettlementService.ClaimAllPending(out var claimed);
                         Debug.Log("[IDLE] claim: " + (r.Success ? "ok" : r.Message));
+                        RewardPopup.Show(UiText.RewardTitle, RewardPopup.FromPending(claimed));
                         Rebuild();
                     },
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),

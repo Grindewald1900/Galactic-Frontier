@@ -58,6 +58,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StatusVersion => G("ui.status.version");
         public static string MainMenuTagline => G("ui.main.tagline");
 
+        // Reward popup
+        public static string RewardTitle => G("ui.reward.title");
+        public static string RewardHint => G("ui.reward.hint");
+        public static string RewardEmpty => G("ui.reward.empty");
+        public static string RewardConfirm => G("ui.reward.confirm");
+        public static string RewardDismissHint => G("ui.reward.dismiss_hint");
+
+        // Branding
+        public static string BrandTitle => G("ui.brand.title");
+        /// <summary>The game name in the other language, shown under the title on the main menu.</summary>
+        public static string BrandTitleAlt => G("ui.brand.title_alt");
+        public static string Loading => G("ui.common.loading");
+
         // Bridge
         public static string BridgeTitle => G("ui.bridge.title");
         public static string BridgeSubtitle(string commander) => F("ui.bridge.subtitle", commander);
@@ -118,6 +131,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StartAutoBattle => G("ui.explore.challenge");
         public static string StartFarm => G("ui.explore.farm");
         public static string StartGather => G("ui.explore.gather");
+        public static string GatherBankTitle => G("ui.explore.gather_bank_title");
+        public static string GatherBankHint => G("ui.explore.gather_bank_hint");
+        public static string GatherBankEmpty => G("ui.explore.gather_bank_empty");
+        public static string GatherBankFull => G("ui.explore.gather_bank_full");
+        public static string CollectGather(int total) => F("ui.explore.collect_gather", total);
         public static string RegionLocked => G("ui.common.locked");
         public static string FarmAvailable => G("ui.explore.farm_available");
         public static string PendingLootTitle(int count) => F("ui.explore.pending_loot_title", count);
@@ -165,6 +183,27 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CombatStrategyLabel => G("ui.ship.strategy");
         public static string CycleStrategy => G("ui.ship.cycle_strategy");
         public static string Back => G("ui.ship.back");
+        public static string ScreenShip => G("ui.nav.ship");
+        public static string ShipAppearance => G("ui.ship.appearance");
+        public static string ShipHullClass(string name, int level) => F("ui.ship.hull_class", name, level);
+        public static string ShipAppearanceHint => G("ui.ship.appearance_hint");
+        public static string ShipModules => G("ui.ship.modules");
+        public static string ShipSummary(int level, int credits) => F("ui.ship.summary", level, credits);
+        public static string ShipStatRange => G("ui.ship.stat_range");
+        public static string ShipStatEnergy => G("ui.ship.stat_energy");
+        public static string ShipStatHull => G("ui.ship.stat_hull");
+        public static string ShipStatEntropy => G("ui.ship.stat_entropy");
+        public static string ShipStatCargo => G("ui.ship.stat_cargo");
+        public static string ShipStatScan => G("ui.ship.stat_scan");
+        public static string ShipStatLife => G("ui.ship.stat_life");
+        public static string ShipMascot => G("ui.ship.mascot");
+        public static string ShipMascotHint => G("ui.ship.mascot_hint");
+        public static string ShipMascotEmpty => G("ui.ship.mascot_empty");
+        public static string ShipMascotChoose => G("ui.ship.mascot_choose");
+        public static string ShipMascotChange => G("ui.ship.mascot_change");
+        public static string ShipMascotClear => G("ui.ship.mascot_clear");
+        public static string ShipMascotPicker => G("ui.ship.mascot_picker");
+        public static string ShipMascotNoneOwned => G("ui.ship.mascot_none_owned");
         public static string ExploreSideTitle => G("ui.explore.side_title");
         public static string ExploreSideBody => G("ui.explore.side_body");
 

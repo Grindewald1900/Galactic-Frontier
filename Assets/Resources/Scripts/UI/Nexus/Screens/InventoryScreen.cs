@@ -36,8 +36,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void Rebuild()
         {
             IdleSettlementService.EnsureLoaded();
+            List<RewardPopup.Line> claimedLines = null;
             if (IdleSettlementService.PendingCount > 0)
-                IdleSettlementService.ClaimAllPending();
+            {
+                IdleSettlementService.ClaimAllPending(out var claimed);
+                claimedLines = RewardPopup.FromPending(claimed);
+            }
 
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
@@ -54,6 +58,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             DrawTypeTabs();
             DrawQualityTabs();
             DrawGrid(VisibleItems());
+
+            if (claimedLines != null && claimedLines.Count > 0)
+                RewardPopup.Show(UiText.RewardTitle, claimedLines);
         }
 
         private void DrawTypeTabs()

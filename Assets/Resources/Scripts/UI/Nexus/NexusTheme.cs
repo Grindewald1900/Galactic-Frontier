@@ -3,13 +3,12 @@ using UnityEngine;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Visual tokens aligned with the Figma Make NEXUS COMMAND theme (index.css).
+    /// Visual tokens aligned with the Figma Make command theme (index.css).
     /// </summary>
     public static class NexusTheme
     {
         public const float NavCollapsedWidth = 64f;
         public const float NavExpandedWidth = 220f;
-        public const float NavigationWidth = NavCollapsedWidth;
         public const float TopBarHeight = 48f;
         public const float BreadcrumbHeight = 32f;
         public const float StatusBarHeight = 22f;

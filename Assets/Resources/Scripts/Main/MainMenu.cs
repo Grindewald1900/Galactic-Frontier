@@ -1,6 +1,6 @@
+using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.Main
@@ -49,7 +49,7 @@ namespace Assets.Resources.Scripts.Main
             if (success)
             {
                 Debug.Log("New game created successfully");
-                SceneManager.LoadScene("MainScene");
+                LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.MainScene));
             }
             else
             {

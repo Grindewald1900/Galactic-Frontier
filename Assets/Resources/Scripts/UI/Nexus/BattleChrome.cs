@@ -1,6 +1,7 @@
 using System.Collections;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Main;
+using Assets.Resources.Scripts.Scene;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
     /// Figma-style chrome for BattleScene under Option A: keep Unity auto-combat,
-    /// add NEXUS frame, round HUD, battle log strip, and return navigation.
+    /// add the app frame, round HUD, battle log strip, and return navigation.
     /// </summary>
     public sealed class BattleChrome : MonoBehaviour
     {
@@ -24,6 +25,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             LocalizationUtil.Initialize();
             yield return null;
             Build();
+            LoadingOverlay.NotifySceneReady();
             StartCoroutine(PollRound());
         }
 

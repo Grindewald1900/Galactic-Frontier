@@ -90,8 +90,12 @@ namespace Assets.Resources.Scripts.Economy
 
         public static int PendingCount => State?.pendingLoot?.Count ?? 0;
 
-        public static EconomyCommandResult ClaimAllPending()
+        public static EconomyCommandResult ClaimAllPending() => ClaimAllPending(out _);
+
+        /// <summary>Claims pending loot and reports the stacks that actually reached the warehouse.</summary>
+        public static EconomyCommandResult ClaimAllPending(out List<PendingLootEntry> claimed)
         {
+            claimed = new List<PendingLootEntry>();
             EnsureLoaded();
             if (State.pendingLoot == null || State.pendingLoot.Count == 0)
                 return EconomyCommandResult.Fail("No pending loot.");
@@ -107,7 +111,9 @@ namespace Assets.Resources.Scripts.Economy
                     item.durability = loot.maxDurability;
                 }
 
-                if (!ProductionService.TryAddLocal(item))
+                if (ProductionService.TryAddLocal(item))
+                    claimed.Add(loot);
+                else
                     remaining.Add(loot);
             }
 
@@ -116,6 +122,102 @@ namespace Assets.Resources.Scripts.Economy
             return remaining.Count == 0
                 ? EconomyCommandResult.Ok()
                 : EconomyCommandResult.Fail("Warehouse full; some loot remains pending.");
+        }
+
+        /// <summary>Total units waiting in the gather bank.</summary>
+        public static int GatherBankTotal
+        {
+            get
+            {
+                var total = 0;
+                if (State?.gatherBank == null) return 0;
+                foreach (var entry in State.gatherBank)
+                    if (entry != null) total += entry.quantity;
+                return total;
+            }
+        }
+
+        public static bool IsGatherBankFull => GatherBankTotal >= EconomyConstants.GatherBankCap;
+
+        /// <summary>
+        /// Holds one online gather cycle back from the warehouse so the player collects it explicitly.
+        /// </summary>
+        public static void BankGather(string defId, int quality, int qty)
+        {
+            if (string.IsNullOrEmpty(defId) || qty <= 0) return;
+            EnsureLoaded();
+            State.gatherBank ??= new List<PendingLootEntry>();
+
+            foreach (var entry in State.gatherBank)
+            {
+                if (entry != null && entry.itemDefId == defId && entry.quality == quality)
+                {
+                    entry.quantity += qty;
+                    Save();
+                    return;
+                }
+            }
+
+            var def = ItemCatalog.Get(defId);
+            State.gatherBank.Add(new PendingLootEntry
+            {
+                itemDefId = defId,
+                quality = quality,
+                quantity = qty,
+                displayName = def?.displayNameEn ?? defId
+            });
+            Save();
+        }
+
+        /// <summary>
+        /// Moves the gather bank into the warehouse and reports the stacks that landed.
+        /// Gather jobs stalled on a full bank resume once space frees up.
+        /// </summary>
+        public static EconomyCommandResult CollectGatherBank(out List<PendingLootEntry> collected)
+        {
+            collected = new List<PendingLootEntry>();
+            EnsureLoaded();
+            if (State.gatherBank == null || State.gatherBank.Count == 0)
+                return EconomyCommandResult.Fail("Nothing gathered yet.");
+
+            var remaining = new List<PendingLootEntry>();
+            foreach (var entry in State.gatherBank)
+            {
+                if (entry == null) continue;
+                var item = ItemFactory.FromDef(entry.itemDefId, entry.quantity, entry.quality);
+                if (ProductionService.TryAddLocal(item))
+                    collected.Add(entry);
+                else
+                    remaining.Add(entry);
+            }
+
+            State.gatherBank = remaining;
+            Save();
+
+            if (collected.Count > 0)
+                ResumeStalledGatherDecks();
+
+            return remaining.Count == 0
+                ? EconomyCommandResult.Ok()
+                : EconomyCommandResult.Fail("Warehouse full; some gathered items remain.");
+        }
+
+        private static void ResumeStalledGatherDecks()
+        {
+            if (!DeckService.IsLoaded) return;
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var resumed = false;
+            foreach (var deck in DeckService.GetBusyDecks())
+            {
+                if (deck?.action == null) continue;
+                if (deck.action.actionType != DeckActionType.Gather) continue;
+                if (deck.action.status != DeckActionStatus.PausedBlock) continue;
+                if (ActionScheduler.TryResume(DeckService.State, deck.deckId, now).Success)
+                    resumed = true;
+            }
+
+            if (resumed)
+                DeckService.Save();
         }
 
         private static void SettleOffline(long elapsedSeconds, IList<CardEntity> cards)

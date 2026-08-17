@@ -81,6 +81,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public long lastSeenAtUtc;
         public long lastPauseAtUtc;
         public List<PendingLootEntry> pendingLoot = new List<PendingLootEntry>();
+        /// <summary>Online gather output held back until the player collects it from Explore.</summary>
+        public List<PendingLootEntry> gatherBank = new List<PendingLootEntry>();
         public List<RecipeMasteryEntry> mastery = new List<RecipeMasteryEntry>();
         public int count;
     }

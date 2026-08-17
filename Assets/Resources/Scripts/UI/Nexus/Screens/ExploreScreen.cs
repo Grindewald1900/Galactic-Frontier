@@ -4,12 +4,12 @@ using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.UI.Nexus
 {
@@ -118,6 +118,55 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(20f, 380f), new Vector2(420f, 48f),
                 () => openShip?.Invoke(),
                 NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan, 14f);
+
+            BuildGatherBank(side.transform);
+        }
+
+        /// <summary>
+        /// Gather output waits here instead of trickling into the warehouse, so collecting it is an
+        /// explicit act with a reward summary.
+        /// </summary>
+        private void BuildGatherBank(Transform side)
+        {
+            Economy.IdleSettlementService.EnsureLoaded();
+            int total = Economy.IdleSettlementService.GatherBankTotal;
+            bool full = Economy.IdleSettlementService.IsGatherBankFull;
+
+            NexusUiFactory.CreateBox(
+                side, "GatherBank", new Vector2(20f, 450f), new Vector2(420f, 150f),
+                NexusTheme.SurfaceRaised, NexusTheme.BorderSoft);
+            NexusUiFactory.CreateText(
+                side, "GatherBankTitle", UiText.GatherBankTitle,
+                new Vector2(36f, 466f), new Vector2(388f, 24f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            string body = total <= 0
+                ? UiText.GatherBankEmpty
+                : full ? UiText.GatherBankFull : UiText.GatherBankHint;
+            var bodyText = NexusUiFactory.CreateText(
+                side, "GatherBankBody", body,
+                new Vector2(36f, 494f), new Vector2(388f, 40f), 12f,
+                full ? NexusTheme.Red : NexusTheme.MutedText);
+            bodyText.textWrappingMode = TextWrappingModes.Normal;
+
+            if (total <= 0)
+                return;
+
+            NexusUiFactory.CreateButton(
+                side, "CollectGather", UiText.CollectGather(total),
+                new Vector2(36f, 540f), new Vector2(388f, 44f),
+                CollectGather,
+                NexusTheme.WithAlpha(NexusTheme.Green, 0.2f), NexusTheme.Green, 13f);
+        }
+
+        private void CollectGather()
+        {
+            var result = Economy.IdleSettlementService.CollectGatherBank(out var collected);
+            if (!result.Success)
+                Debug.LogWarning("[GATHER] collect: " + result.Message);
+
+            RewardPopup.Show(UiText.RewardTitle, RewardPopup.FromPending(collected));
+            Rebuild();
         }
 
         private void BuildRegionRow(RegionView view, float y, int visualIndex)
@@ -270,7 +319,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BattleController.PendingEncounterId = view.Config.mainEncounterId;
             BattleController.PendingBattleSeed =
                 unchecked(regionId.GetHashCode() * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
-            SceneManager.LoadScene("BattleScene");
+            LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
         }
 
         private void StartFarm(string regionId)
