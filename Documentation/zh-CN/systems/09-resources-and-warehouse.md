@@ -1,11 +1,12 @@
 # 系统文档：资源表、生产链与仓库
 
-> 文档版本：v1.0  
+> 文档版本：v1.2  
 > 状态：**P3 内容契约（MVP）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §20 / §22  
-> 关联：`05-production-and-quality.md`（规则与公式）、`03-region-and-ship.md`（舰船模块）、`04-idle-and-offline.md`（满仓 / Pending）、`06-durability-and-repair.md`（维修耗材）、`08-save-and-seed-data.md`（种子物资）  
-> 实现权威：`ItemCatalog` / `RecipeCatalog` / `GatherNodeCatalog` / `ShipModuleCatalog` / `QualityRules` / `ProductionService`  
-> 更新日期：2026-08-10
+> 关联：`05-production-and-quality.md`（规则与公式）、`03-region-and-ship.md`（舰船模块）、`04-idle-and-offline.md`（满仓 / Pending）、`06-durability-and-repair.md`（维修耗材）、`08-save-and-seed-data.md`（种子物资）、`00-setting-and-lore.md`（断航叙事口吻）  
+> 实现权威：`ItemCatalog` / `ItemAcquireCatalog` / `RecipeCatalog` / `GatherNodeCatalog` / `ShipModuleCatalog` / `QualityRules` / `ProductionService`  
+> 更新日期：2026-08-16  
+> 变更：v1.2 — 仓库悬停提示 + 获取渠道跳转；舰船模块图/升级弹窗；v1.1 — 双语说明与招募券
 
 ---
 
@@ -20,7 +21,7 @@
 
 | 主题 | 本文件职责 |
 | --- | --- |
-| **资源（Resource）** | 18 种可堆叠物 + 12 种装备/模块定义清单 |
+| **资源（Resource）** | 可堆叠物 + 装备/模块定义清单（含**物品说明**） |
 | **配方（Recipe）** | 全量表：输入 / 产出 / 工时 / 设施门槛 |
 | **生产链（Chain）** | 3 条完整链的路径与验收 |
 | **加工（Process）** | 材料→中间件配方集合 |
@@ -60,12 +61,13 @@
 
 ## 3. 硬约束
 
-1. MVP 至少 **18** 种可堆叠资源、**12** 种装备/模块定义、**3** 条完整链。  
+1. MVP 至少 **18** 种可堆叠资源、**12** 种装备/模块定义、**3** 条完整链（当前目录含招募券共 **19** 可堆叠）。  
 2. 每条链至少：原料来源（采集或战斗掉落）→ **Process** → **Manufacture** 成品。  
 3. 配方必须声明 `facilityModuleId`；启动时校验 **模块等级 ≥ requiredLevel**。  
 4. 同定义不同品质**不可**合并堆叠。  
 5. 仓库满：不丢已产出；行动 `PausedBlock`；可进 Pending。  
-6. 首发循环可单人完成，不依赖公会订单或玩家市场。
+6. 首发循环可单人完成，不依赖公会订单或玩家市场。  
+7. **每件 `ItemDef` 必须有非空 `descriptionEn` + `descriptionZh`**（见 §4.1a / §4.7）。
 
 ---
 
@@ -77,10 +79,31 @@
 | --- | --- | --- | --- |
 | `Material` | 8 | 是（999） | 原料与基础板材/芯/零件 |
 | `Intermediate` | 6 | 是（999） | 加工产物 |
-| `Consumable` | 4 | 是（99） | 维修包等 |
+| `Consumable` | 5 | 是（99） | 维修包、军粮、战剂、纳米膏、**招募券** |
 | `Equipment` | 8 | 否 | 武器 / 护甲 / 配件 / 工具 |
 | `ShipModule`（物品） | 4 | 否 | 可制造的模块组件（入库实例） |
-| **合计** | **30** | — | 其中可堆叠 **18**，装备/模块 **12** |
+| **合计** | **31** | — | 其中可堆叠 **19**，装备/模块 **12** |
+
+### 4.1a 物品说明（硬契约）
+
+每条 `ItemDef` **必须**同时提供：
+
+| 字段 | 用途 |
+| --- | --- |
+| `displayNameEn` / `displayNameZh` | UI 名称 |
+| `descriptionEn` / `descriptionZh` | 物品说明（叙事 + 用途一句） |
+
+规则：
+
+1. 说明权威在 `ItemCatalog`；`ItemEntity.itemDescription` 由工厂/归一化回填英文底稿，**展示时**用 `UiText.ItemDescription(def)` 做中英切换。  
+2. 语气对齐 `00-setting-and-lore.md`（断航 / 熵雾 / 开拓局 / 第七前沿），避免纯系统腔。  
+3. 长度建议 1–2 句；中英语义对等，不必逐字翻译。  
+4. 新增物品未写说明 = **不可合并主线内容**。  
+5. **仓库 UI**：格子只显示 **图标 / 名称 / 数量**；鼠标悬停弹出临时提示，展示说明、品质（等级）、耐久（若有）与 **获取渠道**。  
+6. **获取渠道**：`ItemAcquireCatalog` 登记；可点击跳转 Explore / Crafting / Market / Recruit / Missions；区域未解锁时 **灰显不可点**。  
+7. **舰船模块 UI**：每行显示模块图、名称、等级与 **升级** 按钮；升级弹窗列出所需废料（图标+数量，可悬停）与信用点。
+
+完整说明表见 **§4.7**；获取渠道实现：`ItemAcquireCatalog` / `ItemTooltip`。
 
 ### 4.2 材料 `Material`（8）
 
@@ -106,7 +129,7 @@
 | `int_synth_mesh` | 合成网 | Synth Mesh | 14 | `rcp_weave_mesh` |
 | `int_nano_thread` | 纳米丝 | Nano Thread | 18 | `rcp_spin_thread` |
 
-### 4.4 消耗品 `Consumable`（4）
+### 4.4 消耗品 `Consumable`（5）
 
 | itemDefId | 中文 | 英文 | baseCost | 用途 |
 | --- | --- | --- | ---: | --- |
@@ -114,6 +137,7 @@
 | `con_field_ration` | 军粮 | Field Ration | 4 | 预留消耗 / 任务 |
 | `con_stim` | 战剂 | Combat Stim | 12 | 预留战斗增益 |
 | `con_nano_paste` | 纳米膏 | Nano Paste | 10 | 预留再加工试剂（`05` §4.6） |
+| `con_recruit_ticket` | 招募券 | Recruit Ticket | 40 | 抽卡消耗（`15`）；星港可购 |
 
 ### 4.5 装备 `Equipment`（8）
 
@@ -141,7 +165,45 @@ MVP 验收：**至少 3 件**可由制造产出（步枪 / 复合装甲 / 合成
 
 > **命名约定**：`itemDefId` 与 `ShipModule.moduleId` 可同名；仓库里的模块**物品**是制造/交易对象，舰船上的模块**等级**是设施成长状态。安装/消耗物品升级模块可后置；MVP 升级可直接扣信用点 + 废料（见 `03`）。
 
-### 4.7 采集节点（原料入口）
+### 4.7 物品说明全文（中英）
+
+权威实现：`Assets/Resources/Scripts/Economy/Domain/ItemCatalog.cs`。
+
+| itemDefId | 中文说明 | English description |
+| --- | --- | --- |
+| `mat_scrap` | 断航残骸上拆下的扭曲壳体与被熵雾灼蚀的板材。廉价填料，适合早期精炼。 | Twisted hull fragments and entropy-scored plating salvaged from Severance wrecks. Cheap filler for early smelting. |
+| `mat_iron_ore` | 从第七前沿外缘带矿脉采出的致密矿石。金属工坊链的基础原料。 | Dense ore pulled from Frontier VII outer-belt veins. The backbone of the metal workshop chain. |
+| `mat_crystal_sand` | 仍微微共振着航网残波的折射细砂。充能与能源链的关键原料。 | Fine refractive grit that still resonates with dead Astral Grid harmonics. Feeds energy cores. |
+| `mat_fungal` | 矿脉支线洞穴中采收的富孢子生物毯。合成编织链的原料。 | Spore-rich biomass mats harvested from mining-spur caverns. Feedstock for synth weaving. |
+| `mat_alloy_plate` | 经星港流通的边境预制合金板。锻造装甲框架时的加固材料。 | Pre-forged frontier plating traded through starports. Reinforces frames before final armor assembly. |
+| `mat_energy_cell` | 能短暂储能的紧凑芯体。多来自裂隙残骸或认证商人货架。 | Compact cells that hold a short-lived charge. Recovered from rift debris or sold by certified vendors. |
+| `mat_biofiber` | 用于固定合成网的强韧有机纤维。护航航道上常见的打捞物。 | Tough organic strands used to bind synth meshes. Common convoy salvage across the frontier lanes. |
+| `mat_repair_parts` | 野外维修用的紧固件、密封圈与微型执行器。组装维修包的必备零件。 | Assorted fasteners, seals, and micro-actuators for field maintenance. Essential for repair kits. |
+| `int_refined_ingot` | 去除熵雾杂质后的精炼金属锭。可继续锻造成装甲框架。 | Smelted metal purged of entropy grit. Ready to be shaped into armor frames. |
+| `int_charged_core` | 保持稳定电荷的晶格核心。反应线圈与脉冲武器的心脏。 | A crystal lattice holding a stable charge. The heart of reactor coils and pulse weapons. |
+| `int_synth_mesh` | 带轻度自适应编织的生物纤维网。抽丝纳米丝前的中间件。 | Woven biofiber mesh with light adaptive weave. Intermediate for nano-thread spinning. |
+| `int_armor_frame` | 可覆复合板材的刚性骨架。进入可穿戴装甲前的最后中间件。 | Rigid chassis ready for composite plating. Marks the last step before wearable armor. |
+| `int_reactor_coil` | 将充能核心的能量导入舰船系统或武器的绕制线圈。 | Wound coil that meters power from charged cores into ship systems or weapons. |
+| `int_nano_thread` | 抽丝得到的超细合成丝线，用于斗篷、密封与精密装配。 | Ultra-fine synth filament spun for cloaks, seals, and precision fittings. |
+| `con_repair_kit` | 恢复装备耐久的野外维修包。开拓局发给舰长编制的标准补给。 | Field kit that restores equipment durability. Standard Bureau issue for pioneer crews. |
+| `con_field_ration` | 适合长途出动的压缩口粮。厨房停摆时维持编制运转。 | Compressed rations for long sorties. Keeps crews working when the galley is offline. |
+| `con_stim` | 抗熵雾封装的短时战剂。预留给后续战斗增益效果。 | Short-burst combat stimulant sealed against entropy fog. Reserved for future battle buffs. |
+| `con_nano_paste` | 可自结合的纳米膏体，用作高阶再加工配方的试剂。 | Self-binding paste used as a rework reagent in advanced crafting recipes. |
+| `con_recruit_ticket` | 开拓局签发的招募凭证，可兑换一次边境征募抽取。 | Bureau voucher authorizing one pull from the Frontier recruit pool. |
+| `eq_pulse_rifle` | 以反应线圈供能的制式能量步枪。边境卡组可靠的中距火力。 | Standard-issue energy rifle fed by reactor coils. Reliable mid-range firepower for frontier decks. |
+| `eq_plasma_blade` | 刃缘覆等离子的近战武器。登舰清残骸时突击队员的偏爱。 | Close-quarters blade sheathed in a plasma edge. Favored by shock troopers boarding wrecks. |
+| `eq_composite_armor` | 锻框覆层合金板的复合装甲。金属工坊链的核心成品。 | Layered alloy plating on a forged frame. Core product of the metal workshop chain. |
+| `eq_shield_vest` | 带短时动能屏障的个人背心。适合侦察编制的轻防护。 | Personal vest with a short-lived kinetic barrier. Light protection for scouts. |
+| `eq_scope` | 可穿透熵雾霾的稳定瞄具。长线交火时提升瞄准纪律。 | Stabilized optic that cuts through fog haze. Improves aim discipline on long engagements. |
+| `eq_gather_drill` | 手持采矿钻。品质越高，资源节点的采集周期越短。 | Handheld mining drill. Higher quality shortens gather cycle time on resource nodes. |
+| `eq_energy_pack` | 可在出动途中为个人装备补能的便携芯架。 | Portable cell rack that tops up personal gear mid-sortie. |
+| `eq_synth_cloak` | 由纳米丝织成的自适应斗篷。合成工坊链的标志成品。 | Adaptive cloak spun from nano-thread. Signature finish of the synth workshop chain. |
+| `mod_armor` | 解锁金属加工并强化舰体抗熵磨损的工坊模块。 | Workshop module that unlocks metal processing and hardens the hull against entropy abrasion. |
+| `mod_reactor` | 支撑能源链制造与高耗能区域门槛的动力模块。 | Power plant module for energy-chain crafting and high-draw region gates. |
+| `mod_cargo` | 扩大货舱容积的模块板材，提升长途开拓时的仓库容量。 | Expanded hold plating that raises warehouse capacity for long frontier runs. |
+| `mod_synth` | 合成网编织、纳米抽丝与斗篷制造所需的生物合成舱。 | Bio-synth bay required for mesh weaving, nano-thread spinning, and cloak manufacture. |
+
+### 4.8 采集节点（原料入口）
 
 | nodeId | 区域 | 产出 | qty/周期 | 默认品质 | 风险 |
 | --- | --- | --- | ---: | ---: | ---: |
@@ -430,7 +492,9 @@ recipeMastery    → PlayerIdleState.mastery[]
 
 ## 10. 验收清单
 
-- [ ] 仓库可展示并堆叠全部 18 种资源（按品质分堆）
+- [ ] 仓库可展示并堆叠全部可堆叠资源（按品质分堆），并显示**物品说明**
+- [ ] 星港货架详情与编队已装装备详情展示说明
+- [ ] `ItemCatalog` 每条定义 `descriptionEn` / `descriptionZh` 非空
 - [ ] 3 条链均可：采集原料 → Process → Manufacture 成品入库
 - [ ] 设施 Lv.0 无法开对应配方；Lv.1/2/3 按 §8.2 解锁
 - [ ] 提高设施等级后，同材料连续制造的品质区间上移（预览与实装一致）
@@ -445,6 +509,7 @@ recipeMastery    → PlayerIdleState.mastery[]
 
 | 项 | 现状 | 本文要求 |
 | --- | --- | --- |
+| 物品说明 | `descriptionEn` 曾为空 | v1.1：`descriptionEn`/`descriptionZh` 全量；UI 用 `UiText.ItemDescription` |
 | `RecipeDef.requiredFacilityLevel` | 可能未入模型 | 按 §6 / §8.2 补字段并在 `TryStartRecipe` 校验 |
 | `mod_synth` 舰船模块 | `ItemCatalog` 有物品；`ShipModuleCatalog` 可能缺失 | 补模块定义与升级消耗 |
 | 速度乘区 | 周期常数为主 | 接入 §8.3 `speedMultiplier` |

@@ -141,7 +141,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void BuildActions(NpcShopDef shop, ShopUnlockContext ctx)
         {
             GameObject box = NexusUiFactory.CreateBox(
-                root, "Actions", new Vector2(980f, 130f), new Vector2(700f, 280f),
+                root, "Actions", new Vector2(980f, 130f), new Vector2(700f, 340f),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
 
             var offer = shop != null ? NpcShopCatalog.FindOffer(shop.shopId, selectedOfferId) : null;
@@ -154,23 +154,29 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             var def = ItemCatalog.Get(offer.itemDefId);
-            var name = def != null
-                ? UiText.T(def.displayNameEn, def.displayNameZh)
-                : offer.itemDefId;
+            var name = def != null ? UiText.ItemName(def) : offer.itemDefId;
             var unlocked = NpcShopRules.IsUnlocked(offer, ctx);
             NexusUiFactory.CreateText(
                 box.transform, "Name", $"{name} · Q{offer.quality}",
-                new Vector2(24f, 20f), new Vector2(640f, 32f), 16f, NexusTheme.Text,
+                new Vector2(24f, 16f), new Vector2(640f, 28f), 16f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
+
+            var description = def != null ? UiText.ItemDescription(def) : "";
+            if (!string.IsNullOrEmpty(description))
+            {
+                NexusUiFactory.CreateText(
+                    box.transform, "Desc", description,
+                    new Vector2(24f, 48f), new Vector2(640f, 56f), 12f, NexusTheme.MutedText);
+            }
 
             NexusUiFactory.CreateText(
                 box.transform, "Prices",
                 UiText.ShopPrices(offer.buyPrice, NpcShopRules.ResolveSellPrice(shop, offer)),
-                new Vector2(24f, 56f), new Vector2(640f, 28f), 13f, NexusTheme.MutedText);
+                new Vector2(24f, 110f), new Vector2(640f, 28f), 13f, NexusTheme.DimText);
 
             NexusUiFactory.CreateButton(
                 box.transform, "Buy", UiText.ShopBuy,
-                new Vector2(24f, 120f), new Vector2(200f, 48f),
+                new Vector2(24f, 160f), new Vector2(200f, 48f),
                 () =>
                 {
                     if (!unlocked)
@@ -188,7 +194,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 box.transform, "Sell", UiText.ShopSell,
-                new Vector2(240f, 120f), new Vector2(200f, 48f),
+                new Vector2(240f, 160f), new Vector2(200f, 48f),
                 () =>
                 {
                     var r = NpcShopService.TrySell(shop.shopId, offer.offerId, 1);
@@ -199,7 +205,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 box.transform, "Buy5", UiText.ShopBuyX(5),
-                new Vector2(24f, 184f), new Vector2(200f, 44f),
+                new Vector2(24f, 220f), new Vector2(200f, 44f),
                 () =>
                 {
                     var r = NpcShopService.TryBuy(shop.shopId, offer.offerId, 5);
@@ -210,7 +216,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 box.transform, "Sell5", UiText.ShopSellX(5),
-                new Vector2(240f, 184f), new Vector2(200f, 44f),
+                new Vector2(240f, 220f), new Vector2(200f, 44f),
                 () =>
                 {
                     var r = NpcShopService.TrySell(shop.shopId, offer.offerId, 5);

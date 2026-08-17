@@ -36,6 +36,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void Rebuild()
         {
             IdleSettlementService.EnsureLoaded();
+            ItemTooltip.Hide();
             List<RewardPopup.Line> claimedLines = null;
             if (IdleSettlementService.PendingCount > 0)
             {
@@ -52,7 +53,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
             NexusUiFactory.CreateText(
-                root, "Hint", UiText.InventoryHint,
+                root, "Hint", UiText.InventoryHintHover,
                 new Vector2(28f, 48f), new Vector2(1200f, 24f), 12f, NexusTheme.MutedText);
 
             DrawTypeTabs();
@@ -119,13 +120,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             }
 
-            const int cols = 2;
-            const float rowH = 72f;
+            const int cols = 4;
+            const float rowH = 110f;
+            const float colW = 360f;
             for (var i = 0; i < visible.Count; i++)
             {
                 int col = i % cols;
                 int row = i / cols;
-                DrawItemCard(content, visible[i], 8f + col * 720f, 8f + row * rowH);
+                DrawItemCard(content, visible[i], 8f + col * colW, 8f + row * rowH);
             }
 
             var contentRect = content.GetComponent<RectTransform>();
@@ -139,36 +141,34 @@ namespace Assets.Resources.Scripts.UI.Nexus
             ItemFactory.NormalizeLegacy(item);
 
             var def = ItemCatalog.Get(ItemFactory.ResolveDefId(item));
-            var name = def != null ? UiText.T(def.displayNameEn, def.displayNameZh) : item.itemName;
-            var typeLabel = item.itemType switch
-            {
-                ItemType.Equipment => UiText.InventoryTabEquipment,
-                ItemType.Food => UiText.InventoryTabConsumable,
-                _ => UiText.InventoryTabMaterial
-            };
-            var quality = item.quality > 0 ? item.quality : 2;
+            var name = def != null ? UiText.ItemName(def) : item.itemName;
             var iconName = ItemFactory.ResolveIcon(
                 string.IsNullOrEmpty(item.itemIcon) ? def?.icon : item.itemIcon);
 
-            NexusUiFactory.CreateBox(
+            var box = NexusUiFactory.CreateBox(
                 parent, "Item " + (item.itemDefId ?? item.itemName),
-                new Vector2(x, y), new Vector2(700f, 64f),
+                new Vector2(x, y), new Vector2(340f, 96f),
                 NexusTheme.SurfaceRaised, NexusTheme.BorderSoft);
+            var image = box.GetComponent<Image>();
+            image.raycastTarget = true;
 
             var sprite = ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, iconName ?? "Steel");
             NexusUiFactory.CreateIcon(
-                parent, "Icon " + name, sprite,
-                new Vector2(x + 8f, y + 6f), new Vector2(52f, 52f), Color.white);
+                box.transform, "Icon", sprite,
+                new Vector2(12f, 18f), new Vector2(60f, 60f), Color.white);
 
             NexusUiFactory.CreateText(
-                parent, "Name " + name, name ?? "",
-                new Vector2(x + 72f, y + 8f), new Vector2(400f, 24f), 15f, NexusTheme.Text,
+                box.transform, "Name", name ?? "",
+                new Vector2(84f, 18f), new Vector2(240f, 28f), 15f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
             NexusUiFactory.CreateText(
-                parent, "Meta " + name,
-                $"{typeLabel}  ·  {UiText.InventoryQty(quality, item.quantity)}",
-                new Vector2(x + 72f, y + 34f), new Vector2(500f, 22f), 12f, NexusTheme.MutedText);
+                box.transform, "Qty", UiText.InventoryQtyOnly(item.quantity),
+                new Vector2(84f, 52f), new Vector2(240f, 24f), 13f, NexusTheme.MutedText);
+
+            var tip = box.AddComponent<ItemTooltipAnchor>();
+            tip.Def = def;
+            tip.Entity = item;
         }
 
         private List<ItemEntity> VisibleItems()

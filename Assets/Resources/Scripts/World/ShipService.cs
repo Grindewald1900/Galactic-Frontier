@@ -1,10 +1,6 @@
 using System;
-using Assets.Resources.Scripts.Entity;
-using Assets.Resources.Scripts.Inventory;
-using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World.Domain;
-using UnityEngine;
 
 namespace Assets.Resources.Scripts.World
 {
@@ -88,6 +84,20 @@ namespace Assets.Resources.Scripts.World
             Save();
         }
 
+        public static int GetModuleLevel(string moduleId)
+        {
+            EnsureReady();
+            if (State?.modules == null || string.IsNullOrEmpty(moduleId))
+                return 0;
+            foreach (var m in State.modules)
+            {
+                if (m != null && m.moduleId == moduleId)
+                    return m.level;
+            }
+
+            return 0;
+        }
+
         public static WorldCommandResult TryUpgradeModule(string moduleId)
         {
             EnsureReady();
@@ -95,16 +105,7 @@ namespace Assets.Resources.Scripts.World
             if (def == null)
                 return WorldCommandResult.Fail("Unknown module.");
 
-            var current = 0;
-            if (State.modules != null)
-            {
-                foreach (var m in State.modules)
-                {
-                    if (m != null && m.moduleId == moduleId)
-                        current = m.level;
-                }
-            }
-
+            var current = GetModuleLevel(moduleId);
             var next = current + 1;
             var scrap = ShipRules.ScrapCostForModule(moduleId, next);
             var credit = ShipRules.CreditCostForModule(moduleId, next);
@@ -132,54 +133,71 @@ namespace Assets.Resources.Scripts.World
             return result;
         }
 
-        private static bool TryPay(int scrap, int credit, out string error)
+        /// <summary>True when the player can pay scrap + credits for the next module level.</summary>
+        public static bool CanAffordModuleUpgrade(string moduleId)
         {
-            error = null;
-            if (DataUtil.Instance?.currentPlayer != null && credit > 0)
-            {
-                if (!Market.CurrencyService.TrySpendCredits(credit, out var creditErr))
-                {
-                    error = creditErr;
-                    return false;
-                }
+            EnsureReady();
+            if (ShipModuleCatalog.Get(moduleId) == null) return false;
+            var next = GetModuleLevel(moduleId) + 1;
+            return CanAfford(
+                ShipRules.ScrapCostForModule(moduleId, next),
+                ShipRules.CreditCostForModule(moduleId, next));
+        }
 
-                // Scrap paid below; credits already spent — if scrap fails we need refund.
+        public static bool CanAfford(int scrap, int credit)
+        {
+            if (credit > 0)
+            {
+                var credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
+                if (credits < credit) return false;
             }
 
             if (scrap > 0)
             {
-                var items = ItemManager.Instance != null
-                    ? ItemManager.Instance.GetItems()
-                    : DataUtil.Instance?.LoadInventory(Assets.Resources.Scripts.Utils.Save.InventoryStore.Local);
-                if (items == null)
-                {
-                    Debug.LogWarning("[SHIP] Inventory missing; skipping scrap spend.");
-                }
-                else
-                {
-                    var have = Economy.Domain.InventoryRules.CountOf(
-                        Economy.ItemFactory.ToStacks(items),
-                        Economy.Domain.EconomyConstants.ScrapDefId,
-                        1);
-                    if (have < scrap)
-                    {
-                        if (credit > 0)
-                            Market.CurrencyService.AddCredits(credit);
-                        error = $"Need {scrap} scrap.";
-                        return false;
-                    }
+                var items = Economy.ProductionService.GetLocalItems();
+                foreach (var item in items)
+                    Economy.ItemFactory.NormalizeLegacy(item);
+                var have = Economy.Domain.InventoryRules.CountOf(
+                    Economy.ItemFactory.ToStacks(items),
+                    Economy.Domain.EconomyConstants.ScrapDefId,
+                    1);
+                if (have < scrap) return false;
+            }
 
-                    var stacks = Economy.ItemFactory.ToStacks(items);
-                    Economy.Domain.InventoryRules.TryConsume(
-                        stacks, Economy.Domain.EconomyConstants.ScrapDefId, scrap, 1);
-                    items.Clear();
-                    foreach (var s in stacks)
-                        items.Add(Economy.ItemFactory.FromStack(s));
-                    if (ItemManager.Instance != null)
-                        ItemManager.Instance.RefreshSlotsFromMemory();
-                    DataUtil.Instance?.SaveInventory(
-                        Assets.Resources.Scripts.Utils.Save.InventoryStore.Local, items, touchMeta: false);
+            return true;
+        }
+
+        private static bool TryPay(int scrap, int credit, out string error)
+        {
+            error = null;
+            if (!CanAfford(scrap, credit))
+            {
+                if (credit > 0 &&
+                    (DataUtil.Instance?.currentPlayer?.creditPoints ?? 0) < credit)
+                {
+                    error = $"Need {credit} credits.";
+                    return false;
                 }
+
+                error = scrap > 0 ? $"Need {scrap} scrap." : "Cannot afford upgrade.";
+                return false;
+            }
+
+            if (credit > 0 &&
+                !Market.CurrencyService.TrySpendCredits(credit, out var creditErr))
+            {
+                error = creditErr;
+                return false;
+            }
+
+            if (scrap > 0 &&
+                !Economy.ProductionService.TryConsumeLocal(
+                    Economy.Domain.EconomyConstants.ScrapDefId, scrap, 1))
+            {
+                if (credit > 0)
+                    Market.CurrencyService.AddCredits(credit);
+                error = $"Need {scrap} scrap.";
+                return false;
             }
 
             return true;

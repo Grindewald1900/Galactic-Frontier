@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
@@ -47,6 +49,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void Rebuild()
         {
             CloseMascotPicker();
+            ModuleUpgradePopup.Close();
+            ItemTooltip.Hide();
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
 
@@ -499,33 +503,98 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(RightColumnX, 252f), new Vector2(RightColumnWidth, 24f), 14f, NexusTheme.Gold,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
-            float y = 284f;
+            var moduleContent = CreateScrollArea(
+                root, new Vector2(RightColumnX, 284f), new Vector2(RightColumnWidth, 520f));
+
+            float y = 8f;
+            const float rowH = 78f;
             foreach (var def in ShipModuleCatalog.All)
             {
                 int level = ModuleLevel(ship, def.moduleId);
-                string label =
-                    $"{UiText.T(def.displayNameEn, def.displayNameZh)} Lv.{level}  (+{def.primaryStat})  " +
-                    $"[{ShipRules.ScrapCostForModule(def.moduleId, level + 1)} scrap / {ShipRules.CreditCostForModule(def.moduleId, level + 1)}₵]";
-
-                string captured = def.moduleId;
-                NexusUiFactory.CreateButton(
-                    root, "Mod " + def.moduleId, label,
-                    new Vector2(RightColumnX, y), new Vector2(RightColumnWidth, 40f),
-                    () =>
-                    {
-                        var r = ShipService.TryUpgradeModule(captured);
-                        Debug.Log("[SHIP] module " + captured + ": " + (r.Success ? "ok" : r.Message));
-                        Rebuild();
-                    },
-                    NexusTheme.SurfaceRaised, NexusTheme.Text, 12f);
-                y += 48f;
+                DrawModuleRow(moduleContent, def, level, y);
+                y += rowH + 8f;
             }
+
+            var contentRect = moduleContent.GetComponent<RectTransform>();
+            contentRect.sizeDelta = new Vector2(0f, Mathf.Max(100f, y + 12f));
 
             NexusUiFactory.CreateButton(
                 root, "Back", UiText.Back,
-                new Vector2(RightColumnX, y + 20f), new Vector2(200f, 44f),
+                new Vector2(RightColumnX, 820f), new Vector2(200f, 44f),
                 () => onClose?.Invoke(),
                 NexusTheme.SurfaceRaised, NexusTheme.MutedText, 14f);
+        }
+
+        private void DrawModuleRow(Transform parent, ShipModuleDef def, int level, float y)
+        {
+            float width = RightColumnWidth - 16f;
+            var box = NexusUiFactory.CreateBox(
+                parent, "Mod " + def.moduleId,
+                new Vector2(8f, y), new Vector2(width, 78f),
+                NexusTheme.SurfaceRaised, NexusTheme.BorderSoft);
+            box.GetComponent<Image>().raycastTarget = true;
+
+            var sprite = ModuleSprite(def.moduleId);
+            NexusUiFactory.CreateIcon(
+                box.transform, "Icon", sprite,
+                new Vector2(12f, 11f), new Vector2(56f, 56f), Color.white);
+
+            string name = UiText.T(def.displayNameEn, def.displayNameZh);
+            NexusUiFactory.CreateText(
+                box.transform, "Name", name,
+                new Vector2(82f, 12f), new Vector2(width - 280f, 26f), 15f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                box.transform, "Level",
+                UiText.ShipModuleLevel(level) + $"  ·  +{def.primaryStat}",
+                new Vector2(82f, 42f), new Vector2(width - 280f, 22f), 12f, NexusTheme.MutedText);
+
+            int capturedLevel = level;
+            var capturedDef = def;
+            bool canAfford = ShipService.CanAffordModuleUpgrade(def.moduleId);
+            var upgradeBtn = NexusUiFactory.CreateButton(
+                box.transform, "Upgrade",
+                canAfford ? UiText.ShipModuleUpgrade : UiText.ShipModuleCannotAfford,
+                new Vector2(width - 168f, 18f), new Vector2(148f, 42f),
+                () =>
+                {
+                    if (!ShipService.CanAffordModuleUpgrade(capturedDef.moduleId))
+                        return;
+                    ModuleUpgradePopup.Show(capturedDef, capturedLevel, Rebuild);
+                },
+                canAfford
+                    ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f)
+                    : NexusTheme.WithAlpha(NexusTheme.Surface, 0.85f),
+                canAfford ? NexusTheme.Gold : NexusTheme.DimText,
+                13f);
+            upgradeBtn.interactable = canAfford;
+        }
+
+        private static Sprite ModuleSprite(string moduleId)
+        {
+            var item = ItemCatalog.Get(moduleId);
+            if (item != null)
+            {
+                var icon = ItemFactory.ResolveIcon(item.icon);
+                var fromItem = ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, icon);
+                if (fromItem != null) return fromItem;
+            }
+
+            string ui = moduleId switch
+            {
+                "mod_propulsion" => "World",
+                "mod_reactor" => "Battle",
+                "mod_armor" => "Character",
+                "mod_entropy" => "Settings",
+                "mod_cargo" => "Inventory",
+                "mod_scanner" => "Bell",
+                "mod_life_support" => "Add Icon",
+                "mod_automation" => "Building",
+                "mod_command" => "Cards",
+                "mod_synth" => "Building",
+                _ => "World"
+            };
+            return NexusCardVisual.UiIcon(ui) ?? ImageUtil.GetSpriteByName(ImageUtil.itemImagePath, "Steel");
         }
     }
 }

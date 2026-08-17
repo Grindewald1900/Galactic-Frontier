@@ -1299,6 +1299,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 12f,
                 NexusTheme.MutedText);
 
+            var gearDef = ItemCatalog.Get(ItemFactory.ResolveDefId(current));
+            var gearDesc = gearDef != null ? UiText.ItemDescription(gearDef) : "";
+            if (!string.IsNullOrEmpty(gearDesc))
+            {
+                NexusUiFactory.CreateText(
+                    dialog,
+                    "CurrentDesc",
+                    gearDesc,
+                    new Vector2(36f, 118f),
+                    new Vector2(dialogW - 72f, 36f),
+                    11f,
+                    NexusTheme.DimText);
+            }
+
             string instanceId = current.itemInstanceId;
             string itemName = GearDisplayName(current);
             NexusUiFactory.CreateButton(

@@ -1,3 +1,4 @@
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.UI.Nexus
@@ -12,6 +13,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static string G(string id) => LocalizationUtil.Get(id);
         private static string F(string id, params object[] args) => LocalizationUtil.Format(id, args);
+
+        /// <summary>Localized item display name from <see cref="ItemDef"/>.</summary>
+        public static string ItemName(ItemDef def) =>
+            def == null ? "" : T(def.displayNameEn, def.displayNameZh);
+
+        /// <summary>Localized item lore / usage description from <see cref="ItemDef"/>.</summary>
+        public static string ItemDescription(ItemDef def)
+        {
+            if (def == null) return "";
+            var en = def.descriptionEn ?? "";
+            var zh = string.IsNullOrEmpty(def.descriptionZh) ? en : def.descriptionZh;
+            return T(en, zh);
+        }
 
         // Shell / navigation
         public static string ScreenBridge => G("ui.nav.bridge");
@@ -29,6 +43,23 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string InventoryQualityAll => G("ui.inventory.quality_all");
         public static string InventoryEmpty => G("ui.inventory.empty");
         public static string InventoryQty(int quality, int qty) => F("ui.inventory.qty", quality, qty);
+        public static string InventoryQtyOnly(int qty) => F("ui.inventory.qty_only", qty);
+        public static string InventoryHintHover => G("ui.inventory.hint_hover");
+
+        public static string ItemCategoryLabel(ItemCategory category) => category switch
+        {
+            ItemCategory.Material => G("ui.item.cat_material"),
+            ItemCategory.Intermediate => G("ui.item.cat_intermediate"),
+            ItemCategory.Consumable => G("ui.item.cat_consumable"),
+            ItemCategory.Equipment => G("ui.item.cat_equipment"),
+            ItemCategory.ShipModule => G("ui.item.cat_ship_module"),
+            _ => G("ui.item.cat_material")
+        };
+
+        public static string ItemQualityLabel(int quality) => F("ui.item.quality", quality);
+        public static string ItemAcquireHeading => G("ui.item.acquire_heading");
+        public static string ItemAcquireNone => G("ui.item.acquire_none");
+        public static string ItemAcquireLocked => G("ui.item.acquire_locked");
         public static string ScreenMarket => G("ui.nav.starport");
         public static string ScreenCrafting => G("ui.nav.crafting");
         public static string ScreenMissions => G("ui.nav.missions");
@@ -143,6 +174,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string PendingLootEmpty => G("ui.explore.pending_loot_empty");
         public static string ClaimPendingLoot => G("ui.explore.claim_all");
         public static string ExploreRecPower(int power) => F("ui.explore.rec_power", power);
+        public static string ExploreMapLabel => G("ui.explore.map_label");
+        public static string ExploreShipMarker => G("ui.explore.ship_marker");
+        public static string ExploreCruiseRandom => G("ui.explore.cruise_random");
+        public static string ExploreSailHere => G("ui.explore.sail_here");
+        public static string ExploreDocked => G("ui.explore.docked");
+        public static string ExploreArrived => G("ui.explore.arrived");
+        public static string ExploreCruiseFailed => G("ui.explore.cruise_failed");
+        public static string ExploreNavStatus(float x, float y, float radar) =>
+            F("ui.explore.nav_status", x.ToString("0"), y.ToString("0"), radar.ToString("0"));
+        public static string ExploreSailEta(float dist, float etaSec) =>
+            F("ui.explore.sail_eta", dist.ToString("0.0"), (int)System.Math.Ceiling(etaSec));
+        public static string ExploreChartedTitle(int count) => F("ui.explore.charted_title", count);
+        public static string ExploreChartedHint => G("ui.explore.charted_hint");
+        public static string ExploreChartedEmpty => G("ui.explore.charted_empty");
+        public static string ExploreListDocked => G("ui.explore.list_docked");
+        public static string ExploreListDist(float dist) => F("ui.explore.list_dist", dist.ToString("0.0"));
         public static string CraftingTitle => G("ui.crafting.title");
         public static string CraftingHint => G("ui.crafting.hint");
         public static string CraftingDelivered(string name, int qty) => F("ui.crafting.delivered", qty, name);
@@ -188,6 +235,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ShipHullClass(string name, int level) => F("ui.ship.hull_class", name, level);
         public static string ShipAppearanceHint => G("ui.ship.appearance_hint");
         public static string ShipModules => G("ui.ship.modules");
+        public static string ShipModuleUpgrade => G("ui.ship.module_upgrade");
+        public static string ShipModuleLevel(int level) => F("ui.ship.module_level", level);
+        public static string ShipModuleUpgradeTitle(string name) => F("ui.ship.module_upgrade_title", name);
+        public static string ShipModuleLevelNext(int current, int next) => F("ui.ship.module_level_next", current, next);
+        public static string ShipModuleUpgradeCosts => G("ui.ship.module_upgrade_costs");
+        public static string ShipModuleCreditCost(int have, int need) => F("ui.ship.module_credit_cost", have, need);
+        public static string ShipModuleConfirmUpgrade => G("ui.ship.module_confirm");
+        public static string ShipModuleCannotAfford => G("ui.ship.module_cannot_afford");
         public static string ShipSummary(int level, int credits) => F("ui.ship.summary", level, credits);
         public static string ShipStatRange => G("ui.ship.stat_range");
         public static string ShipStatEnergy => G("ui.ship.stat_energy");

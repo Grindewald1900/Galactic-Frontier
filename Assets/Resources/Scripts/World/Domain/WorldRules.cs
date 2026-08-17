@@ -9,7 +9,10 @@ namespace Assets.Resources.Scripts.World.Domain
             var world = new PlayerWorldState
             {
                 currentSectorId = WorldConstants.SectorId,
-                regions = new List<RegionRuntimeState>()
+                regions = new List<RegionRuntimeState>(),
+                navX = SectorMapCatalog.SpawnX,
+                navY = SectorMapCatalog.SpawnY,
+                knownBodyIds = new List<string> { "body_outer_haven" }
             };
             foreach (var cfg in RegionCatalog.All)
             {

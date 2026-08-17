@@ -66,6 +66,12 @@ namespace Assets.Resources.Scripts.World.Domain
         public List<RegionRuntimeState> regions = new List<RegionRuntimeState>();
         public int explorationProgress;
         public int count;
+
+        /// <summary>Ship position on the Frontier VII sector map (0–100 units).</summary>
+        public float navX = 12f;
+        public float navY = 88f;
+        /// <summary>Bodies revealed by radar, charts, or docking (bodyId list).</summary>
+        public List<string> knownBodyIds = new List<string>();
     }
 
     [Serializable]
@@ -157,6 +163,10 @@ namespace Assets.Resources.Scripts.World.Domain
                 RegionId = regionId ?? "",
                 EncounterId = encounterId ?? ""
             };
+
+        public static WorldCommandResult OkMessage(string message) =>
+            new WorldCommandResult { Success = true, Message = message ?? "" };
+
         public static WorldCommandResult Fail(string message) =>
             new WorldCommandResult { Success = false, Message = message ?? "" };
     }

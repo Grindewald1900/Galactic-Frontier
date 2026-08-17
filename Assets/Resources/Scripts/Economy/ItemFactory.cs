@@ -34,7 +34,8 @@ namespace Assets.Resources.Scripts.Economy
                 itemDefId = def.itemDefId,
                 quality = QualityRules.ClampQuality(quality),
                 quantity = Math.Max(1, quantity),
-                itemName = def.displayNameEn
+                itemName = def.displayNameEn,
+                itemDescription = def.descriptionEn
             };
 
             if (!def.stackable || def.category == ItemCategory.Equipment || def.category == ItemCategory.ShipModule)
@@ -115,6 +116,9 @@ namespace Assets.Resources.Scripts.Economy
             {
                 if (string.IsNullOrEmpty(e.itemName))
                     e.itemName = def.displayNameEn;
+                // Catalog is the description authority; refresh so older saves pick up new lore text.
+                if (!string.IsNullOrEmpty(def.descriptionEn))
+                    e.itemDescription = def.descriptionEn;
                 e.itemIcon = ResolveIcon(def.icon);
                 e.itemType = def.category switch
                 {

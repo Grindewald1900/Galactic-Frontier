@@ -23,12 +23,14 @@ namespace Assets.Resources.Scripts.World
                 : WorldRules.CreateNewPlayerWorld();
             if (loaded == null || loaded.regions == null || loaded.regions.Count == 0)
                 dataUtil.SaveWorldState(State, touchMeta: true);
+            NavigationService.EnsureReady();
         }
 
         public static void CreateForNewPlayer(DataUtil dataUtil)
         {
             State = WorldRules.CreateNewPlayerWorld();
             dataUtil.SaveWorldState(State, touchMeta: false);
+            NavigationService.EnsureReady();
         }
 
         public static void Save(DataUtil dataUtil = null)
@@ -127,6 +129,13 @@ namespace Assets.Resources.Scripts.World
             world.currentSectorId = string.IsNullOrEmpty(world.currentSectorId)
                 ? WorldConstants.SectorId
                 : world.currentSectorId;
+            world.knownBodyIds ??= new List<string>();
+            if (world.navX <= 0.01f && world.navY <= 0.01f)
+            {
+                world.navX = SectorMapCatalog.SpawnX;
+                world.navY = SectorMapCatalog.SpawnY;
+            }
+
             world.explorationProgress = WorldRules.ComputeExplorationProgress(world);
             world.count = world.regions.Count;
             return world;

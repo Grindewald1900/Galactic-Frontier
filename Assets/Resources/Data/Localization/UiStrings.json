@@ -106,6 +106,61 @@
       "zh": "Q{0} × {1}"
     },
     {
+      "id": "ui.inventory.qty_only",
+      "en": "× {0}",
+      "zh": "× {0}"
+    },
+    {
+      "id": "ui.inventory.hint_hover",
+      "en": "Hover an item for details and acquisition routes.",
+      "zh": "将鼠标悬停在物品上可查看说明与获取渠道。"
+    },
+    {
+      "id": "ui.item.cat_material",
+      "en": "Material",
+      "zh": "材料"
+    },
+    {
+      "id": "ui.item.cat_intermediate",
+      "en": "Intermediate",
+      "zh": "中间件"
+    },
+    {
+      "id": "ui.item.cat_consumable",
+      "en": "Consumable",
+      "zh": "消耗品"
+    },
+    {
+      "id": "ui.item.cat_equipment",
+      "en": "Equipment",
+      "zh": "装备"
+    },
+    {
+      "id": "ui.item.cat_ship_module",
+      "en": "Ship Module",
+      "zh": "舰船模块"
+    },
+    {
+      "id": "ui.item.quality",
+      "en": "Quality Q{0}",
+      "zh": "品质 Q{0}"
+    },
+    {
+      "id": "ui.item.acquire_heading",
+      "en": "How to obtain",
+      "zh": "获取渠道"
+    },
+    {
+      "id": "ui.item.acquire_none",
+      "en": "No routes listed yet.",
+      "zh": "暂无登记获取渠道。"
+    },
+    {
+      "id": "ui.item.acquire_locked",
+      "en": "Locked",
+      "zh": "未解锁"
+    },
+    {
       "id": "ui.breadcrumb.bridge",
       "en": "Bridge",
       "zh": "舰桥"
@@ -372,13 +427,13 @@
     },
     {
       "id": "ui.explore.title",
-      "en": "Explore / Auto Battle",
-      "zh": "探索 / 自动战斗"
+      "en": "Frontier Map",
+      "zh": "星域地图"
     },
     {
       "id": "ui.explore.hint",
-      "en": "Select a sector to start fully automatic combat. First clear and farm both resolve without turn-by-turn input.",
-      "zh": "选择星域发起全自动战斗。首次通关与挂机刷取均无需逐回合操作。"
+      "en": "Cruise the sector. Radar reveals bodies; dock within range to challenge, farm, or gather. Combat gates unchanged.",
+      "zh": "在星域内巡航。雷达揭示天体；进入停靠范围后可挑战、挂机或采集。战斗门槛规则不变。"
     },
     {
       "id": "ui.explore.fleet_ready",
@@ -696,6 +751,46 @@
       "zh": "模块升级"
     },
     {
+      "id": "ui.ship.module_upgrade",
+      "en": "Upgrade",
+      "zh": "升级"
+    },
+    {
+      "id": "ui.ship.module_level",
+      "en": "Lv.{0}",
+      "zh": "等级 {0}"
+    },
+    {
+      "id": "ui.ship.module_upgrade_title",
+      "en": "Upgrade {0}",
+      "zh": "升级 {0}"
+    },
+    {
+      "id": "ui.ship.module_level_next",
+      "en": "Level {0} → {1}",
+      "zh": "等级 {0} → {1}"
+    },
+    {
+      "id": "ui.ship.module_upgrade_costs",
+      "en": "Required materials",
+      "zh": "升级所需"
+    },
+    {
+      "id": "ui.ship.module_credit_cost",
+      "en": "Credits  {0}/{1}₵",
+      "zh": "信用点  {0}/{1}₵"
+    },
+    {
+      "id": "ui.ship.module_confirm",
+      "en": "Confirm Upgrade",
+      "zh": "确认升级"
+    },
+    {
+      "id": "ui.ship.module_cannot_afford",
+      "en": "Insufficient resources",
+      "zh": "资源不足"
+    },
+    {
       "id": "ui.ship.summary",
       "en": "Lv.{0} · {1}₵ available",
       "zh": "等级 {0} · 可用 {1}₵"
@@ -782,13 +877,83 @@
     },
     {
       "id": "ui.explore.side_title",
-      "en": "AUTO COMBAT",
-      "zh": "全自动战斗"
+      "en": "NAVIGATION",
+      "zh": "航行面板"
     },
     {
       "id": "ui.explore.side_body",
-      "en": "Frontier Sector VII — Bureau trial sector after the Severance.\n• Gates: clear previous + ship stats (Entropy Fog)\n• Challenge rewards FirstClear once\n• Farm: themed materials after clear\n• Factions: Frontier Guard vs Rift Syndicate\n\nRecommended power is advisory only.",
-      "zh": "群星边境·第七前沿——断航后开拓局试验星域。\n• 门槛：通关前置 + 舰船分项（抗熵雾）\n• 首次通关发放 FirstClear 奖励\n• 刷取：通关后主题材料挂机\n• 阵营：边境卫队 vs 裂隙商盟\n\n推荐战力仅提示，不硬锁。"
+      "en": "Frontier Sector VII — dense trial cluster.\n• Radar reveals nearby bodies\n• Sail to dock, then challenge / farm\n• Upgrade Scanner for wider radar\n• Gates: clear prereq + ship stats\n\nRecommended power is advisory only.",
+      "zh": "群星边境·第七前沿——试验星域团块。\n• 雷达揭示附近天体\n• 航行停靠后可挑战 / 挂机\n• 升级扫描模块扩大雷达\n• 门槛：通关前置 + 舰船分项\n\n推荐战力仅提示，不硬锁。"
+    },
+    {
+      "id": "ui.explore.map_label",
+      "en": "FRONTIER VII · SECTOR MAP",
+      "zh": "第七前沿 · 星域地图"
+    },
+    {
+      "id": "ui.explore.ship_marker",
+      "en": "SHIP",
+      "zh": "本舰"
+    },
+    {
+      "id": "ui.explore.cruise_random",
+      "en": "Cruise Random",
+      "zh": "随机巡航"
+    },
+    {
+      "id": "ui.explore.sail_here",
+      "en": "Sail Here",
+      "zh": "航行至此"
+    },
+    {
+      "id": "ui.explore.docked",
+      "en": "Docked — challenge / farm available when gates allow.",
+      "zh": "已停靠 — 满足门槛时可挑战 / 挂机。"
+    },
+    {
+      "id": "ui.explore.arrived",
+      "en": "Arrived.",
+      "zh": "已抵达。"
+    },
+    {
+      "id": "ui.explore.cruise_failed",
+      "en": "Cruise failed.",
+      "zh": "巡航失败。"
+    },
+    {
+      "id": "ui.explore.nav_status",
+      "en": "Pos ({0}, {1}) · Radar {2}",
+      "zh": "坐标 ({0}, {1}) · 雷达 {2}"
+    },
+    {
+      "id": "ui.explore.sail_eta",
+      "en": "Out of docking range · Dist {0} · ETA ~{1}s",
+      "zh": "未在停靠范围 · 距离 {0} · 预计 ~{1}秒"
+    },
+    {
+      "id": "ui.explore.charted_title",
+      "en": "CHARTED BODIES ({0})",
+      "zh": "已探索星球（{0}）"
+    },
+    {
+      "id": "ui.explore.charted_hint",
+      "en": "Radar locks persist on the chart. Select a body to sail or dock.",
+      "zh": "雷达锁定会保留在海图上。点选星球以航行或停靠。"
+    },
+    {
+      "id": "ui.explore.charted_empty",
+      "en": "No bodies charted yet — cruise to sweep radar.",
+      "zh": "尚无已探索星球 — 巡航以扫描雷达。"
+    },
+    {
+      "id": "ui.explore.list_docked",
+      "en": "Docked",
+      "zh": "已停靠"
+    },
+    {
+      "id": "ui.explore.list_dist",
+      "en": "Dist {0}",
+      "zh": "距离 {0}"
     },
     {
       "id": "ui.formation.available",

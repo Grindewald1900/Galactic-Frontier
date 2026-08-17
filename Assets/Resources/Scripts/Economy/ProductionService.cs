@@ -306,6 +306,8 @@ namespace Assets.Resources.Scripts.Economy
         {
             if (string.IsNullOrEmpty(itemDefId) || quantity <= 0) return false;
             var items = GetLocalItems();
+            foreach (var item in items)
+                ItemFactory.NormalizeLegacy(item);
             var stacks = ItemFactory.ToStacks(items);
             if (!InventoryRules.TryConsume(stacks, itemDefId, quantity, minQuality))
                 return false;

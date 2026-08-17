@@ -10,6 +10,7 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public string displayNameEn = "";
         public string displayNameZh = "";
         public string descriptionEn = "";
+        public string descriptionZh = "";
         public ItemCategory category = ItemCategory.Material;
         public string icon = "Steel";
         public int maxStack = 999;
