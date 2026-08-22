@@ -1,12 +1,12 @@
 # 系统文档：MVP 星域 / 区域内容与掉落
 
-> 文档版本：v1.1  
+> 文档版本：v1.2  
 > 状态：**P5.3 已落地（RewardCatalog / RewardService / 采集节点 / Explore 叙事）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
-> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观）  
+> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观与区域威胁—解法）  
 > 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
-> 更新日期：2026-08-12  
-> 变更：v1.1 — FirstClear/Repeat/Farm 发放；裂隙/深渊/护航采集节点；区域 blurb + 阵营标签。
+> 更新日期：2026-08-22  
+> 变更：v1.2 — 区域表增加「威胁 / 制造解法」列，对齐 `00` §6。
 
 ---
 
@@ -77,22 +77,24 @@
 | 第二星域 | **不做** |
 | 叙事归属 | 群星开拓局试验星域（见 `00-setting-and-lore.md`） |
 
-叙事一句话：第七前沿是开拓局在断航带边缘钉下的试验星域；玩家需边清威胁边升舰抗熵雾，收复至边境锚点。
+叙事一句话：第七前沿是开拓局在断航带边缘钉下的试验星域；**每一区都有明确威胁，需要对的装备与编制才能钉稳航路钉子**（见 `00-setting-and-lore.md` §6）。
 
 ---
 
 ## 5. 区域总表（Region）
 
-与 `RegionCatalog` / `03` §4.1–4.4 对齐；本表补齐**主题、采集、掉落引用**。
+与 `RegionCatalog` / `03` §4.1–4.4 对齐；本表补齐**主题、威胁、制造解法、采集、掉落引用**。
 
-| sort | regionId | 中文 | 英 | 主题 | 前置 | 推荐战力 | Boss |
-| ---: | --- | --- | --- | --- | --- | ---: | --- |
-| 0 | `sec01_outer_belt` | 外缘带 | Outer Belt | 新手教学 / 废料与铁矿 | — | 80 | 否 |
-| 1 | `sec01_mining_spur` | 矿脉支线 | Mining Spur | 金属+能源原料双采 | 外缘带 | 120 | 否 |
-| 2 | `sec01_quantum_rift` | 量子裂隙 | Quantum Rift | 能源链中段；熵雾压力 | 矿脉支线 | 200 | 否 |
-| 3 | `sec01_abyssal_edge` | 深渊边界 | Abyssal Edge | 高压战斗；维修压力 | 量子裂隙 | 280 | 否 |
-| 4 | `sec01_convoy_lane` | 护航航道 | Convoy Lane | 后勤/信用；合成材料 | 深渊边界 | 320 | 否 |
-| 5 | `sec01_frontier_boss` | 边境锚点 | Frontier Anchor | 星域首领 | 护航航道 | 450 | **是** |
+| sort | regionId | 中文 | 英 | 主题 | 玩家可观察威胁 | 推荐制造/装备解法 | 前置 | 推荐战力 | Boss |
+| ---: | --- | --- | --- | --- | --- | --- | --- | ---: | --- |
+| 0 | `sec01_outer_belt` | 外缘带 | Outer Belt | 新手 / 废料与铁矿 | 巡逻穿甲；前排易崩 | 护甲板、维修包 | — | 80 | 否 |
+| 1 | `sec01_mining_spur` | 矿脉支线 | Mining Spur | 金属+能源双采 | 矿脉高热；持续灼损 | 冷却/耐热外勤装 | 外缘带 | 120 | 否 |
+| 2 | `sec01_quantum_rift` | 量子裂隙 | Quantum Rift | 能源链；熵雾压力 | 相位干扰；技能失手 | 扫描/相位稳定模块 | 矿脉支线 | 200 | 否 |
+| 3 | `sec01_abyssal_edge` | 深渊边界 | Abyssal Edge | 高压战斗 | 重甲封锁；维修压力 | 穿甲武器、强化维修 | 量子裂隙 | 280 | 否 |
+| 4 | `sec01_convoy_lane` | 护航航道 | Convoy Lane | 后勤/信用 | 孢子污染；长期中毒 | 净化耗材、生命维持 | 深渊边界 | 320 | 否 |
+| 5 | `sec01_frontier_boss` | 边境锚点 | Frontier Anchor | 星域首领 | 复合威胁 | 多链综合构筑 | 护航航道 | 450 | **是** |
+
+叙事与物品 Id 权威：`00-setting-and-lore.md` §6；掉落与配方：`09`。
 
 ### 5.1 舰船门槛（复述，权威同 `03`）
 
