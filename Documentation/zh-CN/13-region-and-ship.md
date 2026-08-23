@@ -1,9 +1,11 @@
 # 系统文档：区域推进与舰船门槛
 
-> 文档版本：v1.2  
-> 状态：**P2 已落地**（world/ship 存档、Explore 硬门、遭遇、AFK、Boss）  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
-> 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`；离线/采集细则见 `04-idle-and-offline.md`  
+> 文档版本：v1.2
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`02-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
+> 关联：`11-deck-and-occupation.md`、`12-auto-battle.md`；离线/采集细则见 `14-idle-and-offline.md`  
 > 更新日期：2026-08-10  
 > 变更：v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
 
@@ -19,14 +21,14 @@
 2. **舰船条件** — 证明具备进入并持续开发该区域的基础设施（航程、能源、**熵雾抗性**等）。
 
 由此把「开图」与「舰船成长 / 资源投入」绑在同一循环里，并避免仅靠等待时间卡进度。  
-设定权威：`00-setting-and-lore.md`（群星航网 / 断航灾变 / 开拓局）。
+设定权威：`03-worldbuilding.md`（群星航网 / 断航灾变 / 开拓局）。
 
 ### 1.2 非目标
 
-- 战斗内回合规则与策略 → `02-auto-battle.md`
-- 挂机刷取产率、离线时长上限 → `04-idle-and-offline.md`
-- 采集节点产量、生产链 → `05-production-and-quality.md` / `09-resources-and-warehouse.md`
-- **通关掉落、挂机奖励表、区域叙事填充** → `11-sector-and-region-content.md`
+- 战斗内回合规则与策略 → `12-auto-battle.md`
+- 挂机刷取产率、离线时长上限 → `14-idle-and-offline.md`
+- 采集节点产量、生产链 → `15-economy.md` / `15-economy.md`
+- **通关掉落、挂机奖励表、区域叙事填充** → `17-sector-and-onboarding.md`
 - 多星域大地图、跨服航线、公会占星（非 MVP）→ 空间探索方向见 `20-stellar-map-and-navigation.md`
 - 虫洞 / 宇宙暗面 / 多元宇宙的完整数值与 UI（§10 仅定方向，非 MVP 必做）
 
@@ -228,7 +230,7 @@ RegionConfig
 - bossRegion: bool
 ```
 
-遭遇内容本身见 `02-auto-battle.md` 的 `EncounterConfig`；本系统负责 **选哪场遭遇、是否允许开打**。
+遭遇内容本身见 `12-auto-battle.md` 的 `EncounterConfig`；本系统负责 **选哪场遭遇、是否允许开打**。
 
 ### 4.8 失败、回退与可见性
 
@@ -336,40 +338,19 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 
 ---
 
-## 8. 与现有代码的差距
 
-| 现有实现 | 差距 |
-| --- | --- |
-| `ExploreScreen` 5 区硬编码，全部可进 | 需配置驱动 + 锁态 + 第 6 首领区 |
-| `PlayerPrefs nexus_last_region` | 仅记 UI；需正式 `world.json` 进度 |
-| 无 `ShipEntity` | 需新建舰船存档与升级 |
-| `PlanetEntity` 展示向 | 可作表现数据，不作为进度权威 |
-| 文案 “Ship gate TBD” | 替换为真实校验结果 |
-| 开战无遭遇 Id | 需传入 `regionId` → `encounterId` 给战斗层 |
+## 9. 设计验收标准
 
-**建议落地顺序（P2）：**
-
-1. 静态 `RegionConfig` + `PlayerWorldState` 读档迁移（默认解锁外缘带）  
-2. `ShipEntity` 开局船（Level 1，基础属性满足外缘带）  
-3. Explore `CanEnter` 硬门 + 缺口 UI  
-4. 胜利回调写 FirstClear；解锁 farm  
-5. 舰船升级 UI（资源驱动）与门槛联调  
-6. 首领遭遇与星域完成标记  
-
----
-
-## 9. 验收清单
-
-- [ ] 星域内存在 6 个配置区域（含 1 首领区），非全部开局可进入  
-- [ ] 外缘带仅要求默认舰船即可挑战  
-- [ ] 未通关前置时后区硬锁，并显示前置名  
-- [ ] 舰船分项不足时硬锁，并逐条显示缺口  
-- [ ] 战力不足不硬锁，仅提示推荐战力  
-- [ ] 首次通关后该区挂机刷取解锁；未通关不能刷取  
-- [ ] 首领击杀后标记星域首圈完成  
-- [ ] 舰船升级主路径为资源/信用，而非纯等待  
-- [ ] 进度与舰船进存档；读档后门锁一致  
-- [ ] Explore 开战带 `regionId`/`encounterId`，不再只靠 `PlayerPrefs` 索引  
+- 星域内存在 6 个配置区域（含 1 首领区），非全部开局可进入  
+- 外缘带仅要求默认舰船即可挑战  
+- 未通关前置时后区硬锁，并显示前置名  
+- 舰船分项不足时硬锁，并逐条显示缺口  
+- 战力不足不硬锁，仅提示推荐战力  
+- 首次通关后该区挂机刷取解锁；未通关不能刷取  
+- 首领击杀后标记星域首圈完成  
+- 舰船升级主路径为资源/信用，而非纯等待  
+- 进度与舰船进存档；读档后门锁一致  
+- Explore 开战带 `regionId`/`encounterId`，不再只靠 `PlayerPrefs` 索引  
 
 ---
 
@@ -391,7 +372,7 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 | **宇宙暗面** | 已通关区的地狱难度变体；更高掉落；可限次 |
 | **多元宇宙 Boss 房** | 一命肉鸽连续战；失败结束本轮；奖励宜绑定/限兑，降低对线上经济冲击 |
 
-完整规则另开 `systems/12-sector-special-modes.md`（待写）。
+完整规则另开 `20-stellar-map-and-navigation.md`（待写）。
 
 若取消「舰船硬门」或改为纯等级门，需修订核心设计 §7.8 并升本文主版本。
 
@@ -399,10 +380,10 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 
 ## 11. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.8 / §16.1  
-- 设定：`00-setting-and-lore.md`  
-- 战斗：`02-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
-- 卡组：`01-deck-and-occupation.md`（舰船设施解锁钩子）  
-- **星域内容与掉落表**：`11-sector-and-region-content.md`  
+- 核心设计：`02-core-product-design.md` §7.8 / §16.1  
+- 设定：`03-worldbuilding.md`  
+- 战斗：`12-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
+- 卡组：`11-deck-and-occupation.md`（舰船设施解锁钩子）  
+- **星域内容与掉落表**：`17-sector-and-onboarding.md`  
 - 现有 UI：`ExploreScreen.cs`、`UiText.SectorName`、`PlanetEntity`、`PlayerEntity`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P2
+- 开发计划：`10-mvp-development-plan.md` P2

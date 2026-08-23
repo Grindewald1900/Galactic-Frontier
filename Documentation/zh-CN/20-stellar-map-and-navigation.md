@@ -1,12 +1,12 @@
 # 系统文档：星域地图与舰船航行（空间探索）
 
-> 文档版本：v0.2  
-> 状态：**方向稿（后 MVP 主探索形态）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16；`00-setting-and-lore.md`  
-> 关联：`03-region-and-ship.md`（区域战斗门）、`04-idle-and-offline.md`（航行耗时与离线）、`09-resources-and-warehouse.md`（信标/地图道具）、`07-market-and-card-trade.md`（NPC 售图）、`11-sector-and-region-content.md`（第七前沿内容）、**`21-fleet-factions-and-exploration.md`（探索度 / 驻扎）**  
-> 与现状：Explore 已落地 **M1 单星域 2D 地图**（雷达 + 巡航停靠）；跨域跃迁仍待 M3+  
-> 更新日期：2026-08-23  
-> 变更：v0.2 — 接入 **星域探索度** 分段解锁与 >100% 事件池（见 `21` §6）。
+> 文档版本：v0.1
+> 文档类型：**方向稿**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`02-core-product-design.md` §7.8 / §16；`03-worldbuilding.md`  
+> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`（航行耗时与离线）、`15-economy.md`（信标/地图道具）、`16-market-and-card-trade.md`（NPC 售图）、`17-sector-and-onboarding.md`（第七前沿内容）、**`21-fleet-factions-and-exploration.md`（探索度 / 驻扎）**  
+> 更新日期：2026-08-14
 
 ---
 
@@ -310,7 +310,7 @@ Beacon / Chart → ItemDef（09）
 
 ---
 
-## 14. 验收口号
+## 14. 设计验收标准
 
 - **不是点下一关**，而是 **把船开过去**。  
 - **雷达决定看见什么**，**海图决定少走弯路**，**信标决定何时换星域**。  
@@ -330,7 +330,7 @@ Beacon / Chart → ItemDef（09）
 
 ## 16. 参考
 
-- `03-region-and-ship.md`、`11-sector-and-region-content.md`  
-- `00-setting-and-lore.md`、`04-idle-and-offline.md`  
-- `09-resources-and-warehouse.md`、`07-market-and-card-trade.md`  
+- `13-region-and-ship.md`、`17-sector-and-onboarding.md`  
+- `03-worldbuilding.md`、`14-idle-and-offline.md`  
+- `15-economy.md`、`16-market-and-card-trade.md`  
 - 舰船模块：`mod_scanner` / `mod_propulsion` / `mod_reactor`

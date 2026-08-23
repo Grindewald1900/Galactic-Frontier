@@ -1,9 +1,10 @@
-# 系统文档：舰队、阵营与星域探索度
+# 舰队、阵营与星域探索度
 
 > 文档版本：v1.0  
-> 状态：**设定已拍板（后 MVP / 星图主形态）**  
-> 上级约束：`Documentation/01-core-product-design.md`、`00-setting-and-lore.md`  
-> 关联：`01-deck-and-occupation.md`（编队占用）、`03-region-and-ship.md`（区域门）、`11-sector-and-region-content.md`（遭遇与掉落）、`20-stellar-map-and-navigation.md`（航行与雷达）、`07-market-and-card-trade.md`（蓝图交易）、`18-character-roster-and-lore.md`（ playable 阵营）、`19-card-energy-rank.md`（卡牌升级材料）  
+> 文档类型：**规则（后 MVP / 星图主形态）**  
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。  
+> 上级约束：`02-core-product-design.md`、`03-worldbuilding.md`  
+> 关联：`11-deck-and-occupation.md`、`13-region-and-ship.md`、`17-sector-and-onboarding.md`、`20-stellar-map-and-navigation.md`、`16-market-and-card-trade.md`、`19-characters-and-progression.md`、`15-economy.md`  
 > 更新日期：2026-08-23
 
 ---
@@ -326,8 +327,8 @@ StellarBody
 
 ## 10. 参考
 
-- 设定总览：`00-setting-and-lore.md`  
+- 设定总览：`03-worldbuilding.md`  
 - 星图航行：`20-stellar-map-and-navigation.md`  
-- 区域与门：`03-region-and-ship.md`、`11-sector-and-region-content.md`  
-- 角色阵营：`18-character-roster-and-lore.md`  
-- 市场与蓝图：`07-market-and-card-trade.md`
+- 区域与门：`13-region-and-ship.md`、`17-sector-and-onboarding.md`  
+- 角色阵营：`19-characters-and-progression.md`  
+- 市场与蓝图：`16-market-and-card-trade.md`

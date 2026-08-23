@@ -1,0 +1,1115 @@
+# 角色、抽卡与能级
+> 文档版本：v1.0
+> 文档类型：**规则 / 内容契约**
+> 由原 `27-gacha-and-progression` + `30-character-roster-and-lore` + `31-card-energy-rank` 合并。
+> 相位人员档案叙事见 `03-worldbuilding.md` §6。
+> 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+
+---
+
+## 抽卡与成长入口
+
+### 1. 目标与非目标
+
+#### 1.1 目标
+
+在**不把角色获取完全绑死在不可控随机**的前提下，提供可理解的招募（抽卡）循环：
+
+1. 用材料 / 信用点支付，按权重生成角色卡实例；  
+2. 结果进入玩家卡池，可立即编队 / 占用；  
+3. 与掉落、任务奖励、Starter Seed 并列，作为获取渠道之一；  
+4. 重复卡有明确用途（多开编队、分解兑换），避免纯废卡；  
+5. 与 Market 导航解耦（Market = NPC 商店；抽卡为独立入口）。
+
+#### 1.2 非目标
+
+- 实时 PvP 抽卡、跨服共享卡池  
+- 复杂多卡池 UP 日历 / 限定联动运营后台（可留钩子）  
+- 用抽卡替代全部掉落与任务给卡（违背核心设计）  
+- 把抽卡页重新挂到「市场」导航  
+
+---
+
+### 2. 术语
+
+| 术语 | 定义 |
+| --- | --- |
+| **招募 / 抽卡（Gacha）** | 消耗约定代价，按池权重生成 1..N 张 `CardEntity` 的流程 |
+| **卡池（Pool）** | 可抽出的角色模板集合 + 稀有度权重 |
+| **单抽 / 十连** | `drawCount = 1` 或 `10`（现 UI 已支持） |
+| **预扣（Reserve）** | 点「+1/+10」时先把代价从「可用」挪到「本次消耗」区 |
+| **确认抽取（Commit Draw）** | 扣真实库存并生成结果 |
+| **入池（Grant）** | 结果写入 `CardListManager` 并存档 |
+| **分解（Dismantle）** | 销毁卡实例换材料 / 信用（重复卡 sink） |
+| **绑定（Bound）** | 不可上架玩家市场的卡；见市场文档 |
+| **抽卡稀有度** | `CharacterTier`（E…SS）：抽出时的卡面品质；**不是**能级 |
+| **卡牌能级** | `EnergyRank`（F…S）：实例成长轴（波动门槛 + 进阶条件）；见 `19-characters-and-progression.md` |
+| **经验等级** | `Level`：吃经验升级 |
+
+---
+
+### 3. 硬约束
+
+1. 角色获取**不得**仅依赖抽卡；掉落、任务、Starter 必须可获得可用战斗卡。  
+2. 抽卡与 **NPC / 玩家市场导航分离**（已落地：Market → `MarketScreen`，禁止进 `SHOP_MENU` 抽卡）。  
+3. 正式包默认**关闭** Dev 样例材料 / 样例结果；正式路径读库存 + `CardDataManager` 生成。  
+4. 每张卡为独立 `cardId`（GUID）；同名模板可多开，服务多卡组（见占用文档）。  
+5. Starter / 主线关键卡绑定规则与市场文档一致；**普通抽卡结果默认可交易（Online）**。  
+6. 禁止在抽卡流程里无守卫地 `FakeData` 写档。
+
+---
+
+### 4. 当前实现快照（代码真相）
+
+> 以下描述以仓库现码为准；与 §5 拍板目标的差距见 §9。
+
+#### 4.1 调用链
+
+```text
+CardDrawingManager (SHOP_MENU)
+  选次数 AddDraw(±1 / ±10)  → 内存调整 provider/consumer 数量
+  StartDraw()
+    → MainScrollController.ShowPanel(DRAWCARDS_MENU)
+    → CardResultManager.InitCards(drawCount)
+         Dev ON  → DevData.CreateSampleGachaResults → CardDataManager.GetCardEntity
+         Dev OFF → 空列表，直接 return（正式路径未接线）
+    → FlipAllCards → ShowReport
+         → 统计稀有度/角色
+         → CardListManager.AddCardEntity(list)  // 翻牌结束即入池存档
+    → Confirm → 回 SHOP_MENU（TODO 注释仍在，实际入池已在 ShowReport）
+```
+
+#### 4.2 关键类
+
+| 类 | 职责 |
+| --- | --- |
+| `Shop/CardDrawingManager` | 1/10/重置/确认 UI；材料槽 provider/consumer；次数预扣 |
+| `Cards/CardResultManager` | 结果展示、翻牌演出、稀有度/角色统计、入池 |
+| `Cards/CardDataManager` | 角色权重抽取、稀有度权重、生成 `CardEntity`、专长 |
+| `Cards/CardListManager` | 卡池权威集合；`AddCardEntity` 去重 id 后存档 |
+| `Utils/Save/IDevDataProvider` | `FillSampleGachaMaterials` / `CreateSampleGachaResults` |
+| `GameStatusManager.IsDrawingCard` | 翻牌期间状态锁 |
+
+#### 4.3 生成规则（现码）
+
+`CardDataManager`：
+
+1. `GetCharacter()`：按各 `Character.weight` 加权（当前注册 Asra / Magki / Sernia）。  
+2. `GetCardTier(character)`：按该角色 `possibleTiers` 权重表（整数权重，roll 1..10000）。  
+3. `GetCardEntity`：赋名、职业、稀有度，并随机初值等级/攻防/速度（原型范围）。  
+4. 构造时分配 `id = Guid`；专长走 `GetCharacterExpertises` + 随机专长管线。
+
+Asra 示例稀有度权重（其余角色同结构）：
+
+| Tier | 权重（示意） |
+| --- | ---: |
+| SS | 10 |
+| S | 100 |
+| A | 500 |
+| B | 1000 |
+| C | 2000 |
+| D | 5000 |
+| E | 10000 |
+
+专长稀有度另有 `baseTierProbabilities`（E 50% … SS 0.2%），随等级微调，**不等于**卡面稀有度抽卡权重。
+
+#### 4.4 材料 UI 模型（现码）
+
+- `providerItems`：玩家侧「可用材料」展示（Dev 下随机填充，**仅内存**）。  
+- `consumerItems`：本次将消耗的镜像。  
+- `itemQuantities[i]`：每抽消耗第 i 种材料的数量。  
+- `AddDraw(count)`：`provider -= qty * count`，`consumer += qty * count`。  
+- **未**调用 `ItemManager` / `InventoryStore`；正式模式列表为空，按钮全灭。
+
+#### 4.5 入池时机（现码注意）
+
+| 步骤 | 是否入池 |
+| --- | --- |
+| `InitCards` | 否（仅生成列表） |
+| `ShowReport`（翻牌结束） | **是** → `AddCardEntity` + `SaveCardData` |
+| `ConfirmCards` | 否（仅切回商店；注释仍写 TODO Save） |
+
+中途关闭结果面板会 `OnDisable → ClearCardResult`，但若已执行 `ShowReport`，卡已进存档。
+
+---
+
+### 5. MVP 拍板决议
+
+#### 5.1 产品定位
+
+| 项目 | 决议 |
+| --- | --- |
+| 名称 | 招募站 / Recruitment（UI 可用双语；内部 Id `gacha`） |
+| 入口 | Nexus **独立页或舰桥 CTA**（如 Hangar / Recruit）；**不得**占用 Market |
+| 与掉落关系 | 抽卡补齐职业覆盖与重复卡；区域 FirstClear/Farm 仍给卡或碎片材料 |
+| 单池 | MVP **一个标准池** `pool_standard`；后续再加 UP 池 |
+
+#### 5.2 代价与扣减
+
+| 项目 | MVP 默认 |
+| --- | --- |
+| 单抽代价 | 配置表 `GachaCostTable`：例如 `recruit_ticket × 1` **或** 等价材料组合 |
+| 十连 | `单抽代价 × 10`（无额外折扣，避免经济失衡；日后可配置 `tenPullDiscount`） |
+| 库存来源 | **本地仓库** `ItemManager`（真实 `itemDefId`） |
+| 预扣 | UI 可继续用 provider/consumer 表现，但权威数量以库存为准 |
+| 提交时机 | 点「抽取」时：`TryConsume` 成功才生成；失败则不进结果页 |
+| 失败回滚 | 生成中异常 → 退回已扣材料（事务顺序：扣 → 生成 → 入池；任一步失败全回滚） |
+
+Starter Seed / 资源表应增加 `recruit_ticket`（或复用已有材料 Id）；未进表前可用临时 `itemDefId` 并在 `09` 登记。
+
+#### 5.3 生成与正式路径
+
+正式模式（`DevData` 关闭）必须：
+
+```text
+for i in 1..drawCount:
+  character = CardDataManager.GetCharacter()          // 或 Pool 过滤后的权重
+  entity    = CardDataManager.GetCardEntity(character)
+  applyGachaDefaults(entity)  // 见下
+  results.Add(entity)
+```
+
+`applyGachaDefaults`（MVP）：
+
+| 字段 | 规则 |
+| --- | --- |
+| `Level` | 固定 **1**（不要用现码 Random 1–10 作为正式规则） |
+| 基础攻防速 | 按等级表 / 模板初始化，禁止开战前随机大范围飘移 |
+| `boundReason` | `None`（默认可交易）；特定池可覆盖 |
+| `source` | `Gacha`（枚举，便于统计与绑定时效） |
+| `id` | 新建 GUID |
+
+Dev 模式可继续用 `CreateSampleGachaResults`，但须打 `[DEV-DATA]` 日志，且**不得**在正式键路径默认开启。
+
+#### 5.4 卡池与权重
+
+| 项目 | MVP |
+| --- | --- |
+| 角色集合 | `CardDataManager` 已注册角色；P5.1 扩容时同步进池 |
+| 角色权重 | `Character.weight`（可配置化到 JSON 后替换硬编码） |
+| 稀有度 | 每角色 `possibleTiers`；展示概率须与权重一致（UI 可折叠「详情」） |
+| 保底 | **软保底**：连续 `pityThreshold`（默认 **40**）单抽未出 ≥A 时，下次强制从 ≥A 权重子表抽取；十连内按单次累计 pity |
+| 硬保底 SS | MVP **不做**；避免运营债 |
+| 种子 | 可选 `gachaSeed`；EditMode 需可复现单次抽取（接入后禁止未播种 `Random`） |
+
+#### 5.5 入池与确认 UX
+
+统一为：
+
+1. **扣材料成功** → 进入结果页并生成；  
+2. **翻牌结束** → `Grant` 入池（与现 `ShowReport` 对齐，减少大改）；  
+3. **确认** → 仅关闭/返回招募页；  
+4. 若玩家在翻牌前强退：材料已扣则仍异步 Grant（或回滚材料——MVP 选 **强退也 Grant**，避免刷退币；UI 提示「结果已保存」）。
+
+删除 `ConfirmCards` 上过时的「TODO Save」注释，改为说明「入池已在 ShowReport」。
+
+#### 5.6 绑定与来源
+
+| 来源 | `boundReason` | Online 可交易 |
+| --- | --- | --- |
+| Starter Seed | `Starter` | 否 |
+| 主线关键赠卡 | `MainStoryEssential` | 否 |
+| 标准抽卡 | `None` | 是 |
+| 区域掉落普通卡 | `None` | 是 |
+| 活动/礼品码 | 按表配置 | 按表 |
+
+与 `16-market-and-card-trade.md` §4.9 一致；本系统负责写入字段，市场负责校验。
+
+#### 5.7 重复卡与分解
+
+| 项目 | MVP |
+| --- | --- |
+| 同名多实例 | **允许**（多卡组占用核心） |
+| 强制合并 | **否** |
+| 分解 | 允许对 `boundReason == None` 且 `occupation == Idle` 的卡分解 |
+| 分解产出 | 按稀有度查 `DismantleTable` → 材料 / 少量 `recruit_ticket` / 信用 |
+| 分解入口 | 角色详情或卡册；非抽卡页强制 |
+
+#### 5.8 成长衔接（轻量）
+
+抽卡只负责「获得 Lv1 实例」。成长仍在卡册：
+
+- 升级 / 进化 / 专长：现有 `CardEntity` 事件与经验逻辑；  
+- 抽卡**不**直接给高等级成品（正式规则）；  
+- 重复卡可用于未来「突破材料」钩子（MVP 可不做，分解即可）。
+
+#### 5.9 与新手引导
+
+主链（`17-sector-and-onboarding`）**不强制**抽卡步骤。可选支线：
+
+- 「进行一次单抽」→ 软 CTA 指向招募页；  
+- 奖励：额外 `recruit_ticket × 1`。
+
+---
+
+### 6. 数据模型（实现契约）
+
+#### 6.1 GachaCostTable / PoolConfig
+
+```text
+GachaPoolConfig
+- poolId: string                 // pool_standard
+- characterWeights: { characterName, weight }[]  // 可覆盖 Character.weight
+- enabled: bool
+
+GachaCostTable
+- poolId: string
+- costsPerPull: { itemDefId, quantity }[]
+- tenPullMultiplier: int         // 默认 10
+- pityThreshold: int             // 默认 40
+- pityMinTier: CharacterTier     // 默认 TierA
+```
+
+#### 6.2 玩家抽卡进度
+
+```text
+PlayerGachaState
+- pityCounter: int               // 距上次 ≥ pityMinTier 的连续未命中单抽次数
+- totalPulls: int
+- lastPoolId: string
+```
+
+存档建议：`saves/{playerId}/gacha.json`（或并入 `meta` 扩展；新建文件需升 `saveVersion`）。
+
+#### 6.3 CardEntity 扩展字段
+
+```text
+source: None | Gacha | Drop | Starter | Mission | Gift | Craft
+boundReason: None | Starter | MainStoryEssential | AccountBound | Admin
+```
+
+缺省兼容旧档：视为 `source=None`，`boundReason=None`（Starter 卡需迁移或种子重打标记）。
+
+#### 6.4 服务接口
+
+```text
+IGachaService
+- GetPool(poolId)
+- CanAfford(pullCount) -> (ok, missing[])
+- TryPull(poolId, pullCount, presentation) -> GachaPullResult
+    // 内含：扣库存、生成、更新 pity、Grant、返回实体列表
+
+ICardDismantleService
+- CanDismantle(cardId) -> (ok, reason)
+- TryDismantle(cardId) -> rewards
+```
+
+UI（`CardDrawingManager` / 未来 Nexus `RecruitScreen`）只调服务，不直接 `Random`。
+
+---
+
+### 7. UI / UX 要求
+
+| 界面 | 要求 |
+| --- | --- |
+| 招募主页 | 显示池名、单抽/十连代价、库存、pity 进度（简洁） |
+| 材料不足 | 按钮禁用 + 缺口列表；可跳转 NPC 商店 |
+| 结果页 | 翻牌演出可跳过；稀有度/角色统计保留 |
+| 概率公示 | 至少「角色权重说明 + 稀有度档」；不必像素级动态页 |
+| Market | 不得进入本流程 |
+| Dev | Dev Data ON 时角标「样例材料/结果」 |
+
+Nexus：建议新增 `AppScreen.Recruit` 或挂在舰桥「招募」；旧 `SHOP_MENU` / `DRAWCARDS_MENU` 可作过渡，最终迁原生 Screen。
+
+---
+
+### 8. 概率与展示（契约形状）
+
+单次抽卡：
+
+```text
+character = WeightedRandom(pool.characterWeights)
+tier       = WeightedRandom(character.possibleTiers)   // 或 pity 强制子表
+entity     = BuildCard(character, tier, level=1, ...)
+if tier >= pityMinTier: pityCounter = 0
+else: pityCounter++
+if pityCounter >= pityThreshold: next pull uses filtered tier table (≥ pityMinTier)
+```
+
+十连 = 连续 10 次单次逻辑（共享 pity），不是「十连内必出」。
+
+---
+
+
+### 10. 设计验收标准
+
+- Dev OFF 时单抽/十连仍能产出卡并入池（非空）  
+- 代价从本地仓库扣除；不足无法进入结果页  
+- 扣除失败或生成失败不丢材料、不产生半写入卡  
+- 翻牌结束后卡在 `CardListManager` 且存档可读回（Nexus Recruit 立即 Grant）  
+- 抽卡默认 Lv1；稀有度来自角色权重表  
+- 软保底按阈值触发且 UI 可感知进度  
+- Market 导航不进入抽卡  
+- 抽卡卡默认可交易标记（`boundReason=None`）  
+- 同名多卡可同时存在并编入不同卡组  
+- EditMode 覆盖 pity / 扣费数量  
+- 分解表与卡册入口（后置）  
+
+---
+
+### 11. 开放钩子
+
+- UP 池 / 限时池与独立 pity  
+- 十连折扣、首抽半价  
+- 碎片合成（非完整卡）  
+- 抽卡动画 Addressables 皮肤  
+- Online 服务端权威抽取（反作弊）  
+
+若产品改为「抽卡为唯一获卡途径」或「禁止重复卡」，须修订核心设计并升本文主版本。
+
+---
+
+### 12. 参考
+
+- 现码：`CardDrawingManager.cs`、`CardResultManager.cs`、`CardDataManager.cs`、`CardListManager.cs`、`DefaultDevDataProvider.cs`  
+- 实现摘要：`05-core-systems.md` §5  
+- 市场绑定：`16-market-and-card-trade.md` §4.9  
+- 存档 / Dev：`06-data-and-save.md`  
+- 核心设计：§7.6 卡牌交易、§21 待定项中与抽卡/重复卡相关部分  
+- 开发计划：`10-mvp-development-plan.md`（抽卡见本文「抽卡与成长」章）
+
+## 卡牌角色设定与背景
+
+### 1. 目标与非目标
+
+#### 1.1 目标
+
+为当前可战斗名册（约 **36** 人）锁定：
+
+- 中英文显示名与一句话定位；  
+- 阵营 / 职业（`Archetype`）；  
+- 背景故事（贴合断航 / 开拓局 / 第七前沿）；  
+- 主动（普攻 / 大招）与被动技能的**设计命名与效果说明**；  
+- 初始（Lv.1）属性与职业专长规则。
+
+战斗数值以代码与 `BaseAttributes.json` 为准；本文补齐叙事与展示用技能文案（替换 `SkillData.json` 中占位「火球」）。
+
+#### 1.2 非目标
+
+- 改写伤害公式或 Autobattle 节奏（见 `02`）  
+- 一次实装 50 人专属技能逻辑（Batch 仍共享三模板，见 §3）  
+- 完整声望 / 阵营战争玩法（标签仅叙事，见 P5.2）  
+- 卡面立绘规格与 Spine 规范（美术另表）
+
+---
+
+### 2. 名册总览
+
+| # | CharacterName | 中文 | 职业 | 阵营 | 技能模板 | 批次 |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 1 | Asra | 阿斯拉 | 机械师 | 边境卫队 | BurnStrike | 核心 |
+| 2 | Magki | 玛吉 | 异变体 | 裂隙商盟 | StunFront | 核心 |
+| 3 | Sernia | 瑟妮娅 | 术士 | 裂隙商盟 | FreezeBlast | 核心 |
+| 4 | Vex | 维克斯 | 机械师 | 边境卫队 | BurnStrike | P5.1a |
+| 5 | Nyx | 尼克斯 | 刺客 | 裂隙商盟 | BurnStrike | P5.1a |
+| 6 | Rynn | 瑞恩 | 药剂师 | 边境卫队 | BurnStrike | P5.1a |
+| 7 | Kael | 凯尔 | 战士 | 边境卫队 | StunFront | P5.1a |
+| 8 | Ibalon | 伊巴隆 | 战士 | 边境卫队 | StunFront | P5.1a |
+| 9 | Groth | 格罗斯 | 异变体 | 裂隙商盟 | StunFront | P5.1a |
+| 10 | Lyra | 莱拉 | 术士 | 边境卫队 | FreezeBlast | P5.1a |
+| 11 | Orin | 奥林 | 术士 | 裂隙商盟 | FreezeBlast | P5.1a |
+| 12 | Dax | 达克斯 | 机械师 | 边境卫队 | BurnStrike | P5.1b |
+| 13 | Mira | 米拉 | 战士 | 边境卫队 | StunFront | P5.1b |
+| 14 | Solen | 索伦 | 术士 | 边境卫队 | FreezeBlast | P5.1b |
+| 15 | Brann | 布兰 | 异变体 | 边境卫队 | StunFront | P5.1b |
+| 16 | Tess | 苔丝 | 药剂师 | 边境卫队 | BurnStrike | P5.1b |
+| 17 | Juno | 朱诺 | 刺客 | 边境卫队 | BurnStrike | P5.1b |
+| 18 | Pike | 派克 | 战士 | 边境卫队 | StunFront | P5.1b |
+| 19 | Wren | 瑞雯 | 术士 | 边境卫队 | FreezeBlast | P5.1b |
+| 20 | Hale | 黑尔 | 机械师 | 边境卫队 | BurnStrike | P5.1b |
+| 21 | Zara | 扎拉 | 刺客 | 裂隙商盟 | BurnStrike | P5.1b |
+| 22 | Keth | 凯斯 | 异变体 | 裂隙商盟 | StunFront | P5.1b |
+| 23 | Voss | 沃斯 | 术士 | 裂隙商盟 | FreezeBlast | P5.1b |
+| 24 | Nira | 妮拉 | 药剂师 | 裂隙商盟 | BurnStrike | P5.1b |
+| 25 | Quill | 奎尔 | 战士 | 裂隙商盟 | StunFront | P5.1b |
+| 26 | Draven | 德雷文 | 机械师 | 裂隙商盟 | BurnStrike | P5.1b |
+| 27 | Sable | 赛博 | 刺客 | 裂隙商盟 | BurnStrike | P5.1b |
+| 28 | Yara | 雅拉 | 术士 | 裂隙商盟 | FreezeBlast | P5.1b |
+| 29 | Thorn | 索恩 | 异变体 | 裂隙商盟 | StunFront | P5.1b |
+| 30 | Cinder | 辛德 | 药剂师 | 裂隙商盟 | BurnStrike | P5.1b |
+| 31 | Rook | 鲁克 | 战士 | 裂隙商盟 | StunFront | P5.1b |
+| 32 | Faye | 菲伊 | 术士 | 裂隙商盟 | FreezeBlast | P5.1b |
+| 33 | Lumen | 卢门 | 机械师 | 边境卫队 | BurnStrike | P5.1b |
+| 34 | Ash | 艾什 | 刺客 | 边境卫队 | BurnStrike | P5.1b |
+| 35 | Korin | 科林 | 异变体 | 裂隙商盟 | StunFront | P5.1b |
+| 36 | Vega | 维加 | 术士 | 裂隙商盟 | FreezeBlast | P5.1b |
+
+阵营 Id：`FactionA` = 边境卫队（Frontier Guard）；`FactionB` = 裂隙商盟（Rift Syndicate）。
+
+---
+
+### 3. 职业与技能模板
+
+#### 3.1 职业（Archetype）
+
+| Archetype | 中文 | 定位 | 典型前排/后排 | 经济挂钩（叙事） |
+| --- | --- | --- | --- | --- |
+| `Warrior` | 战士 | 承伤、控前排 | 前 | 护航 / 清剿 |
+| `Monster` | 异变体 | 厚血猛打，熵雾侵蚀体 | 前 | 裂隙、深渊 |
+| `Assassin` | 刺客 | 高速切入、灼伤骚扰 | 偏前 | 破袭、暗杀 |
+| `Mechanician` | 机械师 | 能量与精度，燃烧弹道 | 中 | 工坊、舰装 |
+| `Magician` | 术士 | 后排压制、冰封控场 | 后 | 相位、裂隙法术 |
+| `Potioneer` | 药剂师 | 辅攻 + 燃烧试剂 | 中后 | 合成舱、维修化学 |
+
+#### 3.2 三套战斗模板（代码真相）
+
+倍率默认 `attackMultiplier = 0.6`。
+
+| 模板 Id | 代表 | 普通攻击（主动 1） | 特殊攻击（主动 2 / 大招） | 被动（现状） |
+| --- | --- | --- | --- | --- |
+| **BurnStrike** | Asra 系 | 前排：两段伤害 + **燃烧**（每段攻×0.15，持续 debuff 回合） | 随机最多 5 目标：一段特攻伤害 + 燃烧 | 空实现（预留） |
+| **StunFront** | Magki 系 | 前排：两段伤害 | 前排：三段特攻伤害 + **眩晕** | 仅播攻击动画（无数值） |
+| **FreezeBlast** | Sernia 系 | 后排：两段伤害 + **冰冻** | **全体**：一段特攻伤害 + 冰冻 | 仅播攻击动画（无数值） |
+
+> 同模板角色**战斗逻辑相同**；差异靠叙事、职业专长权重、抽卡稀有度权重与立绘区分。专属被动数值为后续迭代钩子。
+
+#### 3.3 展示用技能槽约定
+
+每位角色拥有可扩展技能库；战斗装配规则见 **`19-characters-and-progression.md`**：
+
+| 类型 | 说明 |
+| --- | --- |
+| 基础普攻 | 始终可用（NormalAttack） |
+| 签名主动 | 角色固定 A0；可上阵 |
+| 职业技能 | 按职业 × **能级档 F–S** 各 6 个；进阶到该能级时 6 选 1 觉醒（`19` §6） |
+| 被动 | 签名或职业觉醒；同时生效有上限 |
+
+初始展示：普攻 / 默认主动 A0 / 可选 P0。高等级差异主要来自 **职业池随机觉醒**，而非每人一条固定技能树。
+
+---
+
+### 4. 初始属性规则
+
+#### 4.1 等级基础值（全体共用表）
+
+来源：`Resources/data/BaseAttributes.json` **Lv.1**：
+
+| 属性 | Lv.1 |
+| --- | ---: |
+| Health | 100 |
+| Attack | 10 |
+| Defense | 10 |
+| Accuracy | 0.80 |
+| Dodge | 0.10 |
+| Critical | 0.10 |
+| CriticalDamage | 1.20 |
+| DamageReduction | 0 |
+| EnergyGenerateRate | 10 |
+| Speed | 30 |
+
+显示属性：`base × characterAttrs × panelAttrs`（再乘战斗临时层）。
+
+#### 4.2 职业固有专长（characterExpertises）
+
+生成时按职业写入（值在稀有度区间内随机，见 `GetExpertiseValue`）：
+
+| 职业 | 专长 1 | 专长 2 | 专长 3 |
+| --- | --- | --- | --- |
+| Magician | Attack **B** (≈+16–25%) | Critical **C** | CriticalDamage **E** |
+| Warrior / Monster | Health **B** | Defense **C** | DamageReduction **E** |
+| 其余（Mechanician / Assassin / Potioneer / Default） | EnergyGenerateRate **A** (≈+30–50%) | Accuracy **C** | Health **E** |
+
+**设计期望展示（用区间中点估算 Lv.1 有效值，非存档固定）：**
+
+| 职业倾向 | HP | ATK | 备注 |
+| --- | ---: | ---: | --- |
+| 术士 | ~100 | ~12 | 暴击向 |
+| 战士/异变体 | ~120 | ~10 | 生存向 |
+| 机械/刺客/药剂 | ~105 | ~10 | 能量/命中向 |
+
+面板额外 `expertises` 来自抽卡/进化，不计入「初始模板」。
+
+---
+
+### 5. 阵营叙事
+
+| 阵营 | 立场 | 招募口吻 |
+| --- | --- | --- |
+| **边境卫队** | 开拓局认证武装与后勤编制；强调秩序、航道清剿、前哨防卫 | 「许可证舰长可申请卫队外派编制」 |
+| **裂隙商盟** | 断航后靠相位走私、残骸回收与禁忌技术存活的松散联盟；效率优先 | 「商盟不在乎旗帜，只在乎你能否带回货物」 |
+
+两者都可进入同一开拓舰长卡组——第七前沿需要一切能用的人手。
+
+---
+
+### 6. 核心三人（详设）
+
+#### 6.1 Asra · 阿斯拉
+
+| 项 | 内容 |
+| --- | --- |
+| 职业 / 阵营 | 机械师 / 边境卫队 |
+| 模板 | BurnStrike |
+| 定位 | 新手主力输出；燃烧弹道清前排 |
+| 一句话 | 把舰装废件焊成喷火枪的卫队技工。 |
+
+**背景**  
+阿斯拉在断航前是航网维护站的见习机械员。灾变当晚她困在外缘带一座断电船坞，靠拆解救援艇推进器活了下来。开拓局重建边境卫队时，她带着自制燃烧喷射器报名，成为第七前沿外派技工编制的第一批成员。她相信「航网可以再焊起来」，也因此对熵雾中的失控机械格外仇视。
+
+**技能（展示名）**
+
+| 槽 | 中/英 | 效果说明 |
+| --- | --- | --- |
+| 普攻 | 熔渣连射 / Slag Burst | 攻击前排；两段伤害并附加燃烧 |
+| 大招 | 过载喷焰 / Overheat Spray | 随机打击多个目标，附加燃烧 |
+| 被动 | 船坞直觉 / Dockyard Instinct | （预留）受击或行动后小幅提升能量回复——**当前未实装数值** |
+
+**初始**：Lv.1 共用表 + 机械师专长（能量/命中/生命）。
+
+---
+
+#### 6.2 Magki · 玛吉
+
+| 项 | 内容 |
+| --- | --- |
+| 职业 / 阵营 | 异变体 / 裂隙商盟 |
+| 模板 | StunFront |
+| 定位 | 前排硬控；眩晕开团 |
+| 一句话 | 被熵雾改写神经的商盟打手，拳头比合约更有信用。 |
+
+**背景**  
+玛吉原是矿脉支线的契约劳工。一次裂隙渗漏让他的皮肤与骨骼发生不可逆异化——痛觉钝化、力量暴涨，也被人称作「怪物」。商盟收留了他：只要还能打，就有口粮。他很少说话，只记仇与账。有人说他的眩晕冲击来自颅内不断回响的航网崩塌噪声。
+
+**技能**
+
+| 槽 | 中/英 | 效果 |
+| --- | --- | --- |
+| 普攻 | 碎岩连捶 / Rockbreakers | 前排两段伤害 |
+| 大招 | 颅鸣镇压 / Skullquake | 前排三段特攻 + 眩晕 |
+| 被动 | 钝感甲壳 / Numb Carapace | （预留）受控抗性；**当前仅动画** |
+
+**初始**：Lv.1 + 异变体专长（生命/防御/减伤）。
+
+---
+
+#### 6.3 Sernia · 瑟妮娅
+
+| 项 | 内容 |
+| --- | --- |
+| 职业 / 阵营 | 术士 / 裂隙商盟 |
+| 模板 | FreezeBlast |
+| 定位 | 后排法控；冰封清场 |
+| 一句话 | 用相位残响冷冻战场的商盟占卜者。 |
+
+**背景**  
+瑟妮娅自称能听见「断航那一夜航网核心的尖啸」。她在量子裂隙边缘自学相位编织，将失温的熵雾碎片凝成冰晶术式。商盟雇她护航走私船：敌人 freeze 住的时间，刚好够卸货。她对开拓局不信任，但接受舰长的短期合同——只要报酬够买下一箱相位稳定剂。
+
+**技能**
+
+| 槽 | 中/英 | 效果 |
+| --- | --- | --- |
+| 普攻 | 霜刺穿线 / Frost Thread | 后排两段伤害 + 冰冻 |
+| 大招 | 裂隙白夜 / Rift Whiteout | 全体一段特攻 + 冰冻 |
+| 被动 | 相位耳鸣 / Phase Tinnitus | （预留）冰冻时长微调；**当前仅动画** |
+
+**初始**：Lv.1 + 术士专长（攻击/暴击/暴伤）。
+
+---
+
+### 7. P5.1a 批次（8 人）
+
+#### 7.1 Vex · 维克斯（机械师 / 卫队 / Burn）
+
+外缘带废料场长大的爆破技工，专精短引信燃烧弹。曾用自制雷管拆掉一座失控矿机，被卫队录用。  
+**技能：** 熔芯钉 / 连锁过热 / 被动·焊枪稳手（预留）。
+
+#### 7.2 Nyx · 尼克斯（刺客 / 商盟 / Burn）
+
+裂隙走私线上的影子信使，刀子与燃烧剂并用。从不死守旗帜，只守「货到人在」。  
+**技能：** 灼痕切割 / 星屑闪燃 / 被动·无声（预留）。
+
+#### 7.3 Rynn · 瑞恩（药剂师 / 卫队 / Burn）
+
+前哨医务舱药剂师，把消毒酒精改成燃烧瓶「以防万一」。温柔，但绝不让感染扩散到编制。  
+**技能：** 燃剂溅射 / 催化爆燃 / 被动·战地配伍（预留）。
+
+#### 7.4 Kael · 凯尔（战士 / 卫队 / Stun）
+
+护航航道老兵，盾锤战术教科书。认为眩晕不是残忍，是「给队友三秒装填时间」。  
+**技能：** 盾击连打 / 破阵轰鸣 / 被动·戒备（预留）。
+
+#### 7.5 Ibalon · 伊巴隆（战士 / 卫队 / Stun）
+
+凯尔的同期，更莽、更吵。喜欢把敌人砸进甲板再问姓名。  
+**技能：** 铁肘开路 / 舰桥震荡 / 被动·蛮力（预留）。
+
+#### 7.6 Groth · 格罗斯（异变体 / 商盟 / Stun）
+
+深渊边界捞出的半机械残骸结合体，商盟用锁链与合约绑住他的理智。打击带骨节爆响。  
+**技能：** 锈骨挥击 / 锁链压制 / 被动·残骸再生（预留）。
+
+#### 7.7 Lyra · 莱拉（术士 / 卫队 / Freeze）
+
+开拓局派驻的正规相位观测员，冰法用于「临时固定航标」——顺便固定敌人。  
+**技能：** 航标霜锥 / 观测冻结域 / 被动·校准（预留）。
+
+#### 7.8 Orin · 奥林（术士 / 商盟 / Freeze）
+
+前航网气象员，灾变后改行卖「天气预报」：其实是卖冰封掩护撤退。  
+**技能：** 冷锋穿射 / 白暴覆盖 / 被动·气压感（预留）。
+
+---
+
+### 8. P5.1b 批次（25 人）
+
+每人：**背景一句 + 三技能名 + 模板/职业/阵营**（逻辑同 §3.2）。
+
+#### 边境卫队
+
+| 名 | 职业/模板 | 背景 | 普攻 / 大招 / 被动（名） |
+| --- | --- | --- | --- |
+| **Dax 达克斯** | 机械/Burn | 装甲工坊学徒，外派测试舰装喷火模块。 | 校准点射 / 舱温过载 / 散热循环 |
+| **Mira 米拉** | 战士/Stun | 女盾官，带新兵清外缘巡逻。 | 军刺连击 / 阵列震击 / 卫队号令 |
+| **Solen 索伦** | 术士/Freeze | 能源核心技术员改习冰法，防止反应堆熔毁。 | 冷却束 / 紧急急冻 / 稳态场 |
+| **Brann 布兰** | 异变/Stun | 感染后仍申请留在卫队的矿工，证明「异化也能守规矩」。 | 矿镐贯打 / 岩脉崩塌 / 硬结皮层 |
+| **Tess 苔丝** | 药剂/Burn | 合成舱实验员，擅燃性溶剂。 | 试剂点灼 / 闪燃瓶 / 配方笔记 |
+| **Juno 朱诺** | 刺客/Burn | 卫队侦察编制，专切敌方通信兵。 | 灼线斩 / 信号焚毁 / 隐迹 |
+| **Pike 派克** | 战士/Stun | 长枪兵，护航编队矛尖。 | 点刺连突 / 枪阵钉死 / 刺势 |
+| **Wren 瑞雯** | 术士/Freeze | 扫描阵列操作员，把冻结当「暂停扫描噪声」。 | 噪点冻结 / 全频静默 / 听波 |
+| **Hale 黑尔** | 机械/Burn | 推进模块技师，喷口回火战法。 | 喷口扫射 / 推进行刑 / 油压稳定 |
+| **Lumen 卢门** | 机械/Burn | 照明浮标工程师，用强光透镜聚焦燃烧。 | 透镜焦灼 / 信标烈焰 / 闪光掩护 |
+| **Ash 艾什** | 刺客/Burn | 灾变孤儿，卫队收养的灰烬名刺客。 | 余烬刀 / 扬灰爆燃 / 死灰复燃 |
+
+#### 裂隙商盟
+
+| 名 | 职业/模板 | 背景 | 普攻 / 大招 / 被动（名） |
+| --- | --- | --- | --- |
+| **Zara 扎拉** | 刺客/Burn | 商盟催债人，账本与燃烧刀一体。 | 账单切割 / 利息焚烧 / 追债 |
+| **Keth 凯斯** | 异变/Stun | 熵雾结晶嵌进脊椎的打手。 | 晶脊撞击 / 相位眩光 / 结晶增生 |
+| **Voss 沃斯** | 术士/Freeze | 走私船随船法师，专冻追兵引擎。 | 引擎霜蚀 / 船坞冰封 / 冷货舱 |
+| **Nira 妮拉** | 药剂/Burn | 黑市调香师，其实调的是燃烧剂。 | 毒焰雾 / 香氛爆燃 / 抗毒体质 |
+| **Quill 奎尔** | 战士/Stun | 前卫队逃兵，现商盟镖师。 | 羽刺连打 / 叛旗轰击 / 两面刀 |
+| **Draven 德雷文** | 机械/Burn | 拆舰专家，专偷航网残件。 | 切割炬 / 拆解风暴 / 废件直觉 |
+| **Sable 赛博** | 刺客/Burn | 夜航杀手，黑披风藏燃料囊。 | 暗燃斩 / 影爆 / 夜视 |
+| **Yara 雅拉** | 术士/Freeze | 占星骗子转正的真冰法师。 | 假预言真霜 / 星轨冻结 / 谎言之寒 |
+| **Thorn 索恩** | 异变/Stun | 菌毯共生的深渊生物骑士。 | 棘刺抽打 / 菌毯束缚 / 共生痛觉 |
+| **Cinder 辛德** | 药剂/Burn | 火山性试剂专家，笑起来像火星。 | 余烬泼洒 / 碳化爆发 / 耐热 |
+| **Rook 鲁克** | 战士/Stun | 商盟棋子式打手，听命「城堡」暗号。 | 堡垒猛击 / 王翼闪击 / 固守 |
+| **Faye 菲伊** | 术士/Freeze | 温柔的冻伤医师，战斗时冻结伤口与敌人。 | 凝霜触 / 手术急冻 / 麻醉 |
+| **Korin 科林** | 异变/Stun | 半人半残骸的货仓守卫。 | 货钩捶 / 仓门砸落 / 负重 |
+| **Vega 维加** | 术士/Freeze | 导航占星官，用冰晶当星图锚点。 | 星钉 / 天穹冻结 / 航位推算 |
+
+---
+
+### 9. 编队与内容挂钩建议
+
+| 用途 | 推荐 |
+| --- | --- |
+| 新手种子 / 首发战队 | Asra + Magki + Sernia（三模板齐全） |
+| 外缘–矿脉 | 卫队战士/机械为主 |
+| 裂隙–深渊 | 商盟术士/异变体叙事贴合 |
+| 制造向卡组（叙事） | Mechanician / Potioneer 优先展示在工坊 UI |
+| 敌方遭遇复用 | 同名模板可作敌方镜像（现遭遇已用 Asra/Magki/Sernia 键） |
+
+---
+
+### 10. 与实现差距
+
+| 项 | 现状 | 本文要求 |
+| --- | --- | --- |
+| `SkillData.json` | 全员占位「火球」 | 按 §6–§8 替换中英文名与描述 |
+| 被动 | 多数空/纯动画 | 文案可先上；数值分批觉醒 |
+| 中文名 | 代码仅英文枚举 | UI 读本文或新建 `CharacterDisplayCatalog` |
+| 专属技能逻辑 | 共享三模板 | 保持；角色差异先靠叙事+专长+立绘 |
+| 立绘/语音 | 部分缺 | 不阻塞本文 |
+
+建议落地顺序：`CharacterDisplayCatalog`（名/阵营/简介）→ 刷 `SkillData` → Characters 面板展示背景 → 再挑核心 3–6 人做真被动。
+
+---
+
+### 11. 设计验收标准
+
+- 36 名 `CharacterName` 均有中文名、职业、阵营、背景、三技能名  
+- 技能效果描述与 Burn/Stun/Freeze 模板一致  
+- Lv.1 基础表与职业专长规则可被策划/程序共同引用  
+- 与 `00` 世界观、卫队/商盟标签无冲突  
+- 新手三人组可组出三种模板  
+
+---
+
+### 12. 参考
+
+- 设定：`03-worldbuilding.md`  
+- 战斗：`12-auto-battle.md`、`SkillTemplates.cs`、`Asra.cs` / `Magki.cs` / `Sernia.cs`  
+- 名册：`CharacterSkillController.cs`、`Batch1Characters.cs`、`Batch2Characters.cs`  
+- 阵营：`CharacterFactionCatalog.cs`、`FactionTags.cs`  
+- 属性：`BaseAttributes.json`、`CardDataManager.GetCharacterExpertises`  
+- 抽卡：`19-characters-and-progression.md`
+
+## 卡牌能级
+
+### 1. 目标与非目标
+
+#### 1.1 目标
+
+为每张角色卡实例增加独立成长轴 **能级（Energy Rank）**：
+
+1. 档位：**F → E → D → C → B → A → S**（共 7 档）；  
+2. 进阶必须同时满足：**能量波动 ≥ 门槛** + **进阶条件**（耗材和/或任务）；  
+3. 升能级后：**属性成长增强**、**已有技能效果增强**；  
+4. 各 **职业（Archetype）** 按能级 **F–S** 各设 **6** 个职业技能（每职业共 42 个可觉醒技）；  
+5. 进阶到某能级时，从**该能级档**的 6 个本职业技能中随机觉醒 1 个（同职业不同卡可分化）；  
+6. **主动技能池可拥有多个，但出战只能装备 1 个主动**（普攻基础技除外，见 §6）；  
+7. 与抽卡稀有度 `CharacterTier`、经验等级 `Level` 正交。
+
+#### 1.2 非目标
+
+- 用能级替换抽卡稀有度展示（稀有度仍表示「抽出品质」）  
+- 开放世界 PvP 能级压制规则（可后置）  
+- 一次为 36 人写满互不相同的完整技能树（签名技保留；成长靠职业池随机）  
+- 强制改写现有「每 20 级 evolution」——见 §9 迁移
+
+---
+
+### 2. 术语与正交关系
+
+| 术语 | 英文 Id | 含义 | 权威字段（拟） |
+| --- | --- | --- | --- |
+| **能级** | `EnergyRank` | 卡实例相位共振等级 F…S | `card.energyRank` |
+| **能量波动** | `EnergyFlux` | 累计共振值；达门槛才可申请进阶 | `card.energyFlux` |
+| **进阶条件** | `RankAscensionReq` | 材料 / 任务 / Boss 等门槛包 | 配置表 |
+| **职业技能池** | `ArchetypeSkillPool` | 按职业 × 能级档组织；每档 6 技 | `ArchetypeSkills.json` |
+| **技能能级档** | `SkillRank` | 与卡牌能级同字母 F…S；决定强度与觉醒池 | 技能定义字段 |
+| **觉醒（Awaken）** | `SkillAwaken` | 达到/进阶到某能级时，从该档 6 技中随机获得 1 个未持有 | 进阶结算 |
+| **签名技** | `SignatureSkill` | 角色固定自带（A0 等），不进随机池 | 角色定义 |
+| **技能槽·上阵主动** | `EquippedActive` | 战斗选用的 **唯一** 主动大招 | `card.equippedActiveSkillId` |
+| **基础普攻** | `BasicAttack` | 默认始终可用，不占「上阵主动」名额 | 模板 NormalAttack |
+| **抽卡稀有度** | `CharacterTier` | E…SS 抽出品质 | 已有 `characterTier` |
+| **经验等级** | `Level` | 吃经验升级 | 已有 `Level` |
+
+```text
+显示战力 ≈ f(Level, EnergyRank 倍率, 专长, 装备, 上阵主动, 已觉醒职业技)
+卡面稀有度 CharacterTier ≠ 卡牌能级 EnergyRank = 技能能级档 SkillRank（字母对齐）。
+```
+
+#### 2.1 叙事挂钩
+
+断航后个体无法再稳定接入群星航网，舰长用 **相位共振仪** 测量队员的 **能量波动**。  
+每个职业在航网残响中留有 **F→S 七层技法谱**；能级爬到哪一层，才能从该层的六种残响里随机点亮一条。同为机械师，两人可能点亮同层的不同技法。
+
+---
+
+### 3. 硬约束
+
+1. 能级只升不降（除非后续明确做「重置」付费玩法）。  
+2. **未达能量波动门槛不得进阶**，即使材料/任务已完成。  
+3. **未完成进阶条件不得进阶**，即使波动已超标（超额波动可囤积）。  
+4. 出战卡组每名角色：**至多 1 个主动大招上阵**；未装备则回退角色默认主动。  
+5. 被动技能可同时生效（数量上限见 §6.7）。  
+6. 随机觉醒 **只从本卡 `Archetype` × 当前进阶目标能级档** 的 6 技能池抽取，不跨职业、不跨能级档。  
+7. 该档 6 技若已全部持有 → 补偿（见 §6.5）。  
+8. Solo 必须可完成至少到 **C** 的进阶（不依赖 Online / 公会）。  
+9. 进阶消耗进本地仓库；失败不扣（确认后扣）。
+
+---
+
+### 4. 能级表与能量波动
+
+#### 4.1 档位
+
+| Rank | 显示 | 排序 | 开局默认 |
+| --- | --- | ---: | --- |
+| F | 能级 F | 0 | **是**（新卡 / 抽卡默认） |
+| E | 能级 E | 1 | |
+| D | 能级 D | 2 | |
+| C | 能级 C | 3 | |
+| B | 能级 B | 4 | |
+| A | 能级 A | 5 | |
+| S | 能级 S | 6 | 软顶（MVP） |
+
+不做 SS 能级（避免与稀有度 SS 撞名）；稀有度 SS 卡仍从 F 能级开爬。
+
+#### 4.2 能量波动获取
+
+| 来源 | 规则（MVP 默认） |
+| --- | --- |
+| 战斗胜利（主挑战/刷取） | `+baseFlux × (1 + 0.05 × regionSortOrder)`；仅参战卡获得 |
+| 采集周期结算 | 小额 `+gatherFlux`（默认 1–2）；鼓励多卡组 |
+| 制造完成批次 | 机械师/药剂师职业额外 `+1`（可选） |
+| 使用「相位结晶」道具 | 直接加波动（限购/日限，防跳档） |
+| 重复刷已通关低区 | 衰减：同区连续场次 `×0.5` 后保底 1 |
+
+`energyFlux` 为整数；进阶成功后保留溢出：
+
+```text
+onAscend:
+  energyFlux = energyFlux - thresholdToNext
+  energyRank = nextRank
+  AwakenFromPool(card, toRank)   // §6.4：该能级档 6 选 1
+```
+
+#### 4.3 进阶所需波动门槛
+
+| 当前 → 下一档 | 所需波动 `fluxCost` | 建议体感 |
+| --- | ---: | --- |
+| F → E | 100 | 外缘带清剿期 |
+| E → D | 250 | 矿脉双采期 |
+| D → C | 500 | 裂隙中期 |
+| C → B | 900 | 深渊–护航 |
+| B → A | 1500 | 首领筹备 |
+| A → S | 2500 | 击杀边境锚点后 |
+
+---
+
+### 5. 进阶条件（Ascension Requirements）
+
+```text
+RankAscensionDef
+- fromRank, toRank
+- fluxCost: int
+- materialCosts: [{ itemDefId, quantity, minQuality? }]
+- taskReqs: [{ taskType, targetId, count }]
+- requireAll: bool   // 默认 true：材料与任务都要
+```
+
+#### 5.1 MVP 默认条件包
+
+| 进阶 | 材料（示例） | 任务（示例） |
+| --- | --- | --- |
+| F→E | `mat_scrap`×20 + `mat_crystal_sand`×5 | 任意区域主挑战胜利 **1** 次 |
+| E→D | `mat_iron_ore`×30 + `int_refined_ingot`×2 | 通关 `sec01_mining_spur` **或** 采集周期累计 10 |
+| D→C | `mat_energy_cell`×15 + `con_repair_kit`×2 | 通关 `sec01_quantum_rift` |
+| C→B | `int_charged_core`×3 + `mat_alloy_plate`×10 | 通关 `sec01_abyssal_edge` **或** 深渊刷取胜场 20 |
+| B→A | `int_reactor_coil`×2 + `int_nano_thread`×2 + `credit`×200 | 通关 `sec01_convoy_lane` |
+| A→S | `con_nano_paste`×5 + 高阶材料包 + `credit`×500 | **击杀** `enc_frontier_boss` |
+
+#### 5.2 任务类型
+
+| `taskType` | `targetId` |
+| --- | --- |
+| `ClearRegion` | `regionId` |
+| `KillEncounter` | `encounterId` |
+| `WinFarm` | `regionId` |
+| `GatherCycles` | `nodeId` 或 `*` |
+| `CraftRecipe` | `recipeId` |
+| `AccountFlag` | 自定义 flag |
+
+---
+
+### 6. 技能：签名技、职业池觉醒与上阵
+
+#### 6.1 技能分类
+
+| 类型 | 说明 | 上阵限制 |
+| --- | --- | --- |
+| **基础普攻** Basic | 始终可用（NormalAttack） | 不占主动名额 |
+| **签名主动** | 角色固定 A0 | 可装备；计入唯一主动 |
+| **职业主动** | 对应能级档池觉醒 | 可装备；仍只能上阵 1 个主动 |
+| **职业被动** | 对应能级档池觉醒 | 受被动上限约束 |
+
+#### 6.2 签名技（固定，不随机）
+
+开局 F：基础普攻 + 角色默认主动 **A0** + 可选 P0。  
+签名 A0 映射现有 Burn / Stun / Freeze 模板（文案见 18）。
+
+#### 6.3 技能能级档（对齐卡牌能级）
+
+| SkillRank | 对应卡牌能级 | 每职业技能数 | 强度（相对 F） |
+| --- | --- | ---: | --- |
+| F | 能级 F | **6** | 基准职业技 |
+| E | 能级 E | **6** | 略强 |
+| D | 能级 D | **6** | |
+| C | 能级 C | **6** | 中期主力 |
+| B | 能级 B | **6** | |
+| A | 能级 A | **6** | 高阶 |
+| S | 能级 S | **6** | 本职业顶配 |
+
+每职业可觉醒技：**7 × 6 = 42**；六职业合计 **252**（另加角色签名 A0，不进池）。
+
+每档 6 技默认结构：
+
+| 槽 | 建议类型 | 定位 |
+| ---: | --- | --- |
+| 1–2 | Active | 进攻 / 控制 |
+| 3–4 | Passive | 生存 / 输出 |
+| 5 | Active | 功能（破甲、回能、驱散等） |
+| 6 | Passive | 团队或条件触发 |
+
+skillId：{arch}_{rank}_{01..06}，如 war_c_03。
+
+#### 6.4 觉醒规则（核心）
+
+`	ext
+获得新卡（energyRank = F）:
+  AwakenFromPool(card, F)          // F 档 6 选 1
+
+成功进阶到 toRank（E…S）:
+  AwakenFromPool(card, toRank)     // 仅该能级档 6 选 1
+`
+
+`	ext
+AwakenFromPool(card, skillRank):
+  pool = ArchetypeSkills[archetype][skillRank] − unlocked
+  if empty → GrantPityToken; return
+  unlock(UniformPick(pool)); present
+`
+
+- 不可抽更高档；进阶到 C 不会再抽 F 档。  
+- 同档默认均等权重。  
+- 种子：hash(cardId, skillRank, awakenIndex)。  
+- 更高档技有更高 asePower，再乘全局 skillMul(energyRank)。
+
+#### 6.5 池耗尽补偿
+
+| 情况 | 处理 |
+| --- | --- |
+| 该档 6 技已全部持有 | 该档随机技 +1 强化（上限 3）或 skill_resonance_chip×1 |
+
+#### 6.6 职业 × 能级技能表（命名权威）
+
+格式：中文(A=主动/P=被动)。前缀：战士 war，异变 mon，刺客 sn，机械 mec，术士 mag，药剂 pot。
+
+#### Warrior 战士
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 稳固重击(A) | 盾缘磕击(A) | 戒备姿态(P) | 厚甲习惯(P) | 嘲声一喝(A) | 列阵默契(P) |
+| **E** | 破阵直刺(A) | 盾击眩晕(A) | 铁壁(P) | 稳扎(P) | 换位掩护(A) | 伤痛忍耐(P) |
+| **D** | 连续盾击(A) | 横扫开路(A) | 格挡专精(P) | 血气(P) | 挑衅锁定(A) | 战友鼓舞(P) |
+| **C** | 枪阵钉死(A) | 震地猛踏(A) | 再起(P) | 御劲(P) | 断刃绞杀(A) | 防线延伸(P) |
+| **B** | 崩山砸(A) | 连环压制(A) | 不屈(P) | 甲片再生(P) | 壁垒推进(A) | 卫队号令(P) |
+| **A** | 堡垒天罚(A) | 裂地冲击(A) | 不破军(P) | 绝境减伤(P) | 处决审判(A) | 全队戒严(P) |
+| **S** | 星垒崩毁(A) | 永恒戍卫(A) | 航网坚壁(P) | 殉道回响(P) | 终焉盾爆(A) | 开拓旌旗(P) |
+
+#### Monster 异变体
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 骨棒横扫(A) | 重拳砸击(A) | 厚皮(P) | 钝感(P) | 威吓嘶吼(A) | 痛觉迟滞(P) |
+| **E** | 碎岩连捶(A) | 肩撞击退(A) | 疤痕再生(P) | 硬结皮层(P) | 震耳咆哮(A) | 熵雾亲和(P) |
+| **D** | 双臂掼砸(A) | 撕裂抓挠(A) | 狂化初现(P) | 骨密度(P) | 眩晕头槌(A) | 残骸吞咽(P) |
+| **C** | 颅鸣镇压(A) | 地裂扑击(A) | 熵血(P) | 共生痛觉(P) | 锁链抽打(A) | 异化加速(P) |
+| **B** | 暴走连打(A) | 尖啸冲击(A) | 再生爆发(P) | 甲壳反射(P) | 吞没一击(A) | 裂隙共鸣(P) |
+| **A** | 异化霸体(A) | 深渊扑食(A) | 共生体(P) | 濒死逆鳞(P) | 熵核爆破(A) | 畸变领域(P) |
+| **S** | 灾变化身(A) | 航网噬咬(A) | 不灭畸躯(P) | 熵雾之心(P) | 终焉粉碎(A) | 断航残响(P) |
+
+#### Assassin 刺客
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 裂口(A) | 快刺(A) | 锋口(P) | 轻步(P) | 烟幕撤离(A) | 夜眼(P) |
+| **E** | 影步突袭(A) | 割喉预兆(A) | 血嗅(P) | 暴击预习(P) | 撒钉迟滞(A) | 隐迹(P) |
+| **D** | 双刃连切(A) | 后背一刀(A) | 残血猎手(P) | 消音(P) | 致盲粉(A) | 毒刃浸润(P) |
+| **C** | 灼线斩(A) | 穿位连刺(A) | 死印初成(P) | 闪身(P) | 切断补给(A) | 猎杀专注(P) |
+| **B** | 影爆突袭(A) | 多段裂伤(A) | 暴伤增幅(P) | 先制(P) | 禁疗印记(A) | 暗行(P) |
+| **A** | 处刑(A) | 灭声连杀(A) | 死印(P) | 绝境暴击(P) | 相位潜行(A) | 收割节奏(P) |
+| **S** | 星隙暗杀(A) | 终焉处刑(A) | 虚无身(P) | 必杀律(P) | 航网割裂(A) | 永夜契约(P) |
+
+#### Mechanician 机械师
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 电火花(A) | 熔渣点射(A) | 校准(P) | 散热片(P) | 短路干扰(A) | 工具带(P) |
+| **E** | 过热喷口(A) | 钉枪连射(A) | 电容(P) | 稳压(P) | 电磁脉冲(A) | 焊枪稳手(P) |
+| **D** | 轨道熔钉(A) | 燃烧喷扫(A) | 过载耐受(P) | 命中伺服(P) | 无人机侦察(A) | 废件回收(P) |
+| **C** | 连锁过热(A) | 穿甲螺栓(A) | 维修无人机(P) | 能量回流(P) | 力场短盾(A) | 工坊默契(P) |
+| **B** | 等离子切割(A) | 多管齐射(A) | 核心冷却(P) | 暴击透镜(P) | 瘫痪协议(A) | 协同供电(P) |
+| **A** | 核心熔毁(A) | 舰装齐射(A) | 工坊同步(P) | 绝对校准(P) | 相位干扰阵(A) | 全队充能(P) |
+| **S** | 航网过载(A) | 星铸炮击(A) | 永恒电容(P) | 零失误伺服(P) | 灾变熄火(A) | 开拓机枢(P) |
+
+#### Magician 术士
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 霜矢(A) | 寒刺(A) | 凝神(P) | 法力毛细(P) | 冻足(A) | 观星习惯(P) |
+| **E** | 霜刺穿线(A) | 冰锥连射(A) | 寒意(P) | 暴伤预习(P) | 薄雾隐咒(A) | 相位耳鸣(P) |
+| **D** | 冰环切割(A) | 后排暴风雪(A) | 冻伤加深(P) | 咏唱加速(P) | 驱散寒潮(A) | 裂隙感知(P) |
+| **C** | 白夜域(A) | 碎冰风暴(A) | 相位耳(P) | 法暴专精(P) | 封印冰棺(A) | 星图推演(P) |
+| **B** | 极寒新星(A) | 多棱冰镜(A) | 持续冻伤(P) | 能量虹吸(P) | 沉默霜言(A) | 领域扩张(P) |
+| **A** | 绝对零度(A) | 裂隙白夜(A) | 星轨(P) | 法术穿透(P) | 时间缓冻(A) | 全队法盾(P) |
+| **S** | 断航冰河(A) | 星核冻结(A) | 永恒冬(P) | 神谕暴伤(P) | 航网封禁(A) | 多元冷寂(P) |
+
+#### Potioneer 药剂师
+
+| 档 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **F** | 溅射瓶(A) | 酸蚀滴剂(A) | 稳剂(P) | 抗晕片(P) | 烟雾弹(A) | 包扎熟练(P) |
+| **E** | 燃剂泼洒(A) | 刺激针(A) | 兴奋剂(P) | 代谢加速(P) | 解毒喷雾(A) | 试剂直觉(P) |
+| **D** | 连环烧瓶(A) | 粘性燃胶(A) | 药抗(P) | 闪避步(P) | 致盲雾(A) | 战地笔记(P) |
+| **C** | 催化爆燃(A) | 腐蚀喷泉(A) | 战地包(P) | 燃伤加深(P) | 宁静镇静(A) | 合成手感(P) |
+| **B** | 连锁反应(A) | 剧毒燃雾(A) | 肾上腺素(P) | 危机清醒(P) | 群体清毒(A) | 后勤光环(P) |
+| **A** | 疫燃雾(A) | 终剂爆燃(A) | 万灵残方(P) | 不灭代谢(P) | 战场麻醉(A) | 全队稳剂(P) |
+| **S** | 灾变药剂(A) | 星尘燃剂(A) | 航网抗体(P) | 永生配方(P) | 寂灭安瓶(A) | 开拓药典(P) |
+
+#### 6.7 被动上限与上阵主动
+
+| 规则 | MVP |
+| --- | --- |
+| 被动同时生效 | 最多 **3** 条（多则自选或保留最高 SkillRank） |
+| 主动上阵 | **只能 1 个** |
+| 新觉醒主动 | 不自动替换上阵 |
+
+#### 6.8 能级倍率
+
+| Rank | ttrMul | skillMul |
+| --- | ---: | ---: |
+| F | 1.00 | 1.00 |
+| E | 1.04 | 1.05 |
+| D | 1.08 | 1.10 |
+| C | 1.14 | 1.18 |
+| B | 1.22 | 1.28 |
+| A | 1.32 | 1.40 |
+| S | 1.45 | 1.55 |
+
+另乘档位 skillRankBasePower（F≈1.0 … S≈1.6）。
+
+#### 6.9 与三模板关系
+
+普攻 / 签名 A0 仍走 Burn/Stun/Freeze；职业技用 effectParams 挂燃烧/眩晕/冰冻等组件。
+
+---
+
+### 7. 数据模型
+
+`	ext
+ArchetypeSkillDef
+- skillId, archetype, skillRank, slotIndex(1..6)
+- skillKind, nameZh/En, effectParams, basePower
+
+校验：每个 (archetype, skillRank) 恰好 6 条
+`
+
+---
+
+### 8. 服务流程
+
+`	ext
+OnGrantCard: rank=F; unlock A0; AwakenFromPool(F)
+TryAscend: …; rank=next; AwakenFromPool(next); save
+SetEquippedActive: 唯一主动
+`
+
+---
+
+### 9. 与「20 级进化」关系
+
+等级门 → 随机 expertise；能级门 → 倍率 + **对应档 6 选 1 职业技**。
+
+---
+
+### 10. UI / UX
+
+进阶揭示本档技；图鉴按职业×能级；显示每档收集 1/6；说明「进入该能级从 6 个中随机 1 个」。
+
+---
+
+### 11. 设计验收标准
+
+- 六职业×七档×6 技齐全  
+- 新卡：F 档 6 选 1  
+- 进阶到 R：仅 R 档 6 选 1  
+- 不能持有未达能级的更高档技  
+- 同职业同档可分化  
+- 单主动上阵  
+
+---
+
+### 12. 开放钩子
+
+同档二次觉醒道具、定向选择、被动栏、重置清空职业觉醒。
+
+---
+
+### 13. 参考
+
+19-characters-and-progression.md、SkillTemplates.cs、Archetype enum

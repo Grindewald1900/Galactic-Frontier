@@ -1,10 +1,11 @@
 # 系统文档：经济流通、NPC 商店与玩家市场
 
-> 文档版本：v1.1  
-> 状态：**P4 MVP 已落地（Solo NPC 商店）；玩家市场仍为 Online 后期**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.5 / §7.6 / §12 / §16 / §20 / §22（v0.4）  
-> 关联：`05-production-and-quality.md`、`01-deck-and-occupation.md`、`04-idle-and-offline.md`、`09-economy`（货币细表，若拆分）  
-> 实现阶段：MVP → **P4 NPC 商店完成**；玩家市场 → **线上版本 / 原 P4 后置**  
+> 文档版本：v1.2
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`02-core-product-design.md` §7.5 / §7.6 / §12 / §16 / §20 / §22（v0.4）  
+> 关联：`15-economy.md`、`11-deck-and-occupation.md`、`14-idle-and-offline.md`、`09-economy`（货币细表，若拆分）  
 > 更新日期：2026-08-10  
 > 变更：v1.2 P4 落地——`PlayMode`、`CurrencyService`、`NpcShops.json`、`MarketScreen`。
 
@@ -32,7 +33,7 @@
 | 术语 | 定义 |
 | --- | --- |
 | **PlayMode** | `Solo` \| `Online`；见核心设计 §12 |
-| **NPC 商店** | 静态或慢变价货架；单机主流通渠道；叙事上为开拓舰**市场终端**连到的星港认证商人（`00-setting-and-lore.md`） |
+| **NPC 商店** | 静态或慢变价货架；单机主流通渠道；叙事上为开拓舰**市场终端**连到的星港认证商人（`03-worldbuilding.md`） |
 | **玩家市场** | 玩家订单簿；**仅 Online**；叙事为公共交易网络进一步恢复后的舰长间贸易 |
 | **市场终端** | UI 入口（Market）；Solo 只开 NPC，Online 可切换/并陈玩家市场 |
 | **ListingKey** | 资源：`(itemDefId, quality)`；卡牌：见 §4.8（线上） |
@@ -327,44 +328,21 @@ IMarketService
 
 ---
 
-## 8. 与现有代码的差距
 
-| 现有实现 | 差距 |
-| --- | --- |
-| Market 导航 → 抽卡商店 | MVP：改为 NPC 商店 Screen |
-| 无 NPC 货架配置 | `NpcShops.json` + 购售服务 |
-| 无订单簿 | Online 再新建 Domain + `IMarketService` |
-| `CardEntity` 无绑定字段 | Online 卡交易前扩展 |
-
-**建议落地顺序：**
-
-**MVP / P4（修订）：**  
-1. `PlayMode.Solo` 常量与门控  
-2. NPC 商店配置 + 购买/回收 + 扣信用  
-3. Nexus「市场」入口改商店  
-4. 与仓库、品质键对齐  
-
-**Online / 后置：**  
-1. `MarketDomain` 撮合单测  
-2. `RemoteMarketService`  
-3. 玩家市场 UI + 卡牌绑定字段  
-
----
-
-## 9. 验收清单
+## 9. 设计验收标准
 
 ### MVP（Solo）
 
-- [x] Solo 下无法打开玩家市场；API 返回禁用  
-- [x] NPC 购买扣信用、加物品；满仓失败提示  
-- [x] NPC 回收按 `sellBackRatio` 给信用、扣物品  
-- [x] 货架解锁条件（区域/舰船）生效  
-- [x] 导航不再进入抽卡商店  
+- Solo 下无法打开玩家市场；API 返回禁用  
+- NPC 购买扣信用、加物品；满仓失败提示  
+- NPC 回收按 `sellBackRatio` 给信用、扣物品  
+- 货架解锁条件（区域/舰船）生效  
+- 导航不再进入抽卡商店  
 
 ### Online（后期）
 
-- [ ] 买单/卖单/立即买/卖、手续费、历史、护栏、卡牌绑定规则同原契约  
-- [ ] EditMode：撮合与绑定拒绝  
+- 买单/卖单/立即买/卖、手续费、历史、护栏、卡牌绑定规则同原契约  
+- EditMode：撮合与绑定拒绝  
 
 ---
 
@@ -382,8 +360,8 @@ IMarketService
 
 ## 11. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.5 / §7.6 / §12 / §22（v0.4）  
-- 品质与堆叠：`05-production-and-quality.md`  
-- 占用：`01-deck-and-occupation.md`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md`（P4 修订为 NPC）  
+- 核心设计：`02-core-product-design.md` §7.5 / §7.6 / §12 / §22（v0.4）  
+- 品质与堆叠：`15-economy.md`  
+- 占用：`11-deck-and-occupation.md`  
+- 开发计划：`10-mvp-development-plan.md`（P4 修订为 NPC）  
 - 现有：`AppShell` Market 导航、`CardDrawingManager`（须解耦）、`CardEntity`、`ItemEntity`

@@ -1,75 +1,68 @@
 # Galactic Frontier 中文开发文档
 
-本目录帮助开发者快速理解项目结构、当前实现、数据流和开发约束，也作为 Codex 后续修改项目时的上下文入口。
+本目录为**唯一**中文文档集（共 **21** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
-## 推荐阅读顺序
+## 必读入口
 
-1. [快速开始](01-quick-start.md)：运行环境、启动场景和首次阅读路径。
-2. [设定与故事背景](systems/00-setting-and-lore.md)：群星断航、开拓局与玩家身份（文案/叙事权威）。
-3. [项目结构](02-project-structure.md)：第一方代码、资源和第三方目录边界。
-4. [架构总览](03-architecture.md)：系统分层、生命周期和主要依赖。
-5. [核心系统实现](04-core-systems.md)：卡牌、编队、抽卡、战斗、物品和 UI 的真实实现。
-6. [数据与存档](05-data-and-save.md)：JSON、Resources、存档文件和路径规则。
-7. [开发与验证](06-development-guide.md)：新增功能、Unity 序列化、测试和提交检查。
-8. [Codex 工作指南](07-codex-guide.md)：自动化修改项目时应优先读取的上下文和安全边界。
-9. [已知问题与技术债](08-known-issues.md)：原型数据、耦合点和后续重构方向。
-10. [Figma UI 重构](09-figma-ui.md)：NEXUS 视觉系统、页面映射、运行时装配和扩展方式。
-11. [核心类职责与关系](10-core-classes.md)：核心类的数据所有权、依赖方向、生命周期和主要调用链。
-12. [MVP 进度与 Cursor 开发计划](11-mvp-development-plan.md)：对照核心设计的实现进度、分阶段路线图与 Cursor 任务方法。
-13. [Debug 模式与测试工具](systems/16-debug-and-test-mode.md)：Dev Data、Debug Panel、礼品码与 EditMode/冒烟清单。
+| 文档 | 用途 |
+| --- | --- |
+| **[PRODUCT-STATUS.md](PRODUCT-STATUS.md)** | 实现与验收状态（唯一权威） |
+| [02-core-product-design.md](02-core-product-design.md) | 玩法约束与 MVP 范围 |
+| [03-worldbuilding.md](03-worldbuilding.md) | **世界观与故事（叙事权威）** |
+| [10-mvp-development-plan.md](10-mvp-development-plan.md) | 阶段路线图 |
 
-### 系统规则文档
+## 文档总表（01–21）
 
-在实现对应玩法前阅读；用于关闭核心设计 §21 的待定项。  
-**文档进度（2026-08-15）：** MVP 玩法规则与 P5 内容管线已齐；仅 `12` 待写，14/17/20 为后置方向稿。
+| # | 文档 | 类别 |
+| ---: | --- | --- |
+| 01 | [quick-start](01-quick-start.md) | 工程 |
+| 02 | [core-product-design](02-core-product-design.md) | 产品 |
+| 03 | [worldbuilding](03-worldbuilding.md) | **设定** |
+| 04 | [architecture](04-architecture.md) | 工程（结构+架构） |
+| 05 | [core-systems](05-core-systems.md) | 工程（实现+类图） |
+| 06 | [data-and-save](06-data-and-save.md) | 工程/规则（存档+种子） |
+| 07 | [development-guide](07-development-guide.md) | 工程（开发+Agent+Debug） |
+| 08 | [known-issues](08-known-issues.md) | 工程 |
+| 09 | [figma-ui](09-figma-ui.md) | 工程 |
+| 10 | [mvp-development-plan](10-mvp-development-plan.md) | 计划 |
+| 11 | [deck-and-occupation](11-deck-and-occupation.md) | 规则 |
+| 12 | [auto-battle](12-auto-battle.md) | 规则 |
+| 13 | [region-and-ship](13-region-and-ship.md) | 规则 |
+| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 |
+| 15 | [economy](15-economy.md) | 规则（生产+资源+耐久+流水线） |
+| 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 |
+| 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
+| 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
+| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级） |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向稿 |
+| 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
 
-| 文档 | 阶段 | 状态 |
-| --- | --- | --- |
-| [设定与故事背景](systems/00-setting-and-lore.md) | 全程 | 已拍板 v1.2（舰队 / 探索度 / 卡关区） |
-| [舰队、阵营与星域探索度](systems/21-fleet-factions-and-exploration.md) | 后 MVP / 星图 | **设定已拍板 v1.0** |
-| [卡组与角色占用](systems/01-deck-and-occupation.md) | P1 | MVP 规则已拍板 |
-| [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
-| [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | 已拍板 v1.2（模块化 + 特殊玩法方向） |
-| [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | 已拍板 v1.1（含 Yield Ratio） |
-| [生产链与品质](systems/05-production-and-quality.md) | P3 | 已拍板 v1.1（手动 + 流水线设定） |
-| [装备耐久与维修](systems/06-durability-and-repair.md) | P3 | MVP 规则已拍板 |
-| [全服市场与卡牌交易 / NPC 商店](systems/07-market-and-card-trade.md) | P4 / Online | MVP=NPC；玩家市场仅 Online（v1.1） |
-| [存档契约与种子数据](systems/08-save-and-seed-data.md) | P0 | MVP 规则已拍板 |
-| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.3（含流水线内容表 §9） |
-| [新手引导与任务链](systems/10-onboarding-and-missions.md) | P5 | 已拍板 v1.1（P5.4a/b 已落地） |
-| [星域 / 区域内容与掉落](systems/11-sector-and-region-content.md) | P2/P5 | 已拍板 v1.1（P5.3 RewardService 已落地） |
-| `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
-| [运行模式与存档互通](systems/14-play-modes-and-persistence.md) | Online | 方向稿 v0.2（挂接位面/Hub） |
-| [抽卡与卡牌成长入口](systems/15-gacha-and-progression.md) | P5 / 经济 | 已拍板 v1.1（正式路径已落地） |
-| [Debug 模式与测试工具](systems/16-debug-and-test-mode.md) | 全程 | 已拍板 v1.1（单例开关 / 导航 Debug 页 / 设置礼品码） |
-| [线上多元宇宙位面与合作](systems/17-online-multiverse-cooperation.md) | Online | 方向稿 v0.1（隔离探索 + Hub 市场 + 公会压力） |
-| [卡牌角色设定与背景](systems/18-character-roster-and-lore.md) | P5 | 已拍板 v1.0（36 人叙事/技能/属性） |
-| [卡牌能级](systems/19-card-energy-rank.md) | P5 / 成长 | 已拍板 v1.2（职业技 F–S 每档 6 个） |
-| [星域地图与舰船航行](systems/20-stellar-map-and-navigation.md) | 后 MVP | 方向稿 v0.1（雷达/航行/跃迁/信标/边缘→中心） |
+## 推荐阅读
 
-产品设计真相源（仓库根文档）：
+1. [01-quick-start](01-quick-start.md) → [PRODUCT-STATUS](PRODUCT-STATUS.md)  
+2. [03-worldbuilding](03-worldbuilding.md)（故事与主题）  
+3. [02-core-product-design](02-core-product-design.md)（玩法硬约束）  
+4. [04-architecture](04-architecture.md) → [05-core-systems](05-core-systems.md) → [06-data-and-save](06-data-and-save.md)  
+5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`21`
 
-- [核心产品设计](../01-core-product-design.md)（含 §5 故事背景摘要；细则见 `systems/00-setting-and-lore.md`）
+## 合并说明（相对旧树）
 
-## 项目一句话说明
+| 新文档 | 合并自 |
+| --- | --- |
+| 03-worldbuilding | 旧设定稿 + **Worldbuilding v1.0** |
+| 04-architecture | project-structure + architecture |
+| 05-core-systems | core-systems + core-classes |
+| 06-data-and-save | data-and-save + save-and-seed |
+| 07-development-guide | development + codex + debug |
+| 15-economy | production + resources + durability |
+| 17-sector-and-onboarding | onboarding + sector-content |
+| 18-online-and-play-modes | play-modes + online-multiverse |
+| 19-characters-and-progression | gacha + roster + energy-rank |
+| 21-fleet-factions-and-exploration | 自 `systems/21`（master）迁入根目录 |
 
-`Galactic Frontier / 群星边境`：断航三百年后，你作为群星开拓局舰长，从宇宙边缘向中心推进——**扩建舰队**（一舰一队、图纸造舰）、突破**卡关航道**、**驻扎**已收复星球，并以**探索度**解锁主星、阵营商店与深空异象。
+## 环境基线
 
-## 当前基线
-
-| 项目 | 当前值 |
+| 项目 | 值 |
 | --- | --- |
 | Unity | `6000.0.20f1` |
-| 渲染管线 | URP `17.0.3` |
-| 输入 | 新 Input System 与旧 Input Manager 同时启用 |
-| 公司/产品名 | `YeeStudio / Galactic Frontier` |
-| 默认分辨率 | `1920 × 1080` |
-| 主要代码目录 | `Assets/Resources/Scripts` |
-| 主要场景目录 | `Assets/Resources/Scenes` |
-| 运行时配置目录 | `Assets/Resources/Data` |
-| 系统规则文档 | MVP 首波 01–09 + P5 管线 10/11/15/16/18/19 已齐；`12` 待写；14/17/20 方向稿 |
-| 代码相对 MVP | **约 80%–85%**（P0–P4 与 P5 主切片已通；M5 接近） |
-| 下一工作 | 可选：角色→50、卡牌分解、Characters/Cards 原生页；后置 Online / 星域地图 |
-| 进度快照日期 | 2026-08-15 |
-
-> 注意：正式流程默认关闭 Dev Data Mode（见 `systems/08-save-and-seed-data.md`），不再启动覆写背包。详细进度与阶段表见 [11-mvp-development-plan.md](11-mvp-development-plan.md)（v2.1）。
+| MVP 进度 | 见 [PRODUCT-STATUS](PRODUCT-STATUS.md)（约 80%–85%） |
