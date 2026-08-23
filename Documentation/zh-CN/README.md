@@ -29,11 +29,11 @@
 | [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
 | [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | 已拍板 v1.2（模块化 + 特殊玩法方向） |
 | [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | 已拍板 v1.1（含 Yield Ratio） |
-| [生产链与品质](systems/05-production-and-quality.md) | P3 | MVP 规则已拍板 |
+| [生产链与品质](systems/05-production-and-quality.md) | P3 | 已拍板 v1.1（手动 + 流水线设定） |
 | [装备耐久与维修](systems/06-durability-and-repair.md) | P3 | MVP 规则已拍板 |
 | [全服市场与卡牌交易 / NPC 商店](systems/07-market-and-card-trade.md) | P4 / Online | MVP=NPC；玩家市场仅 Online（v1.1） |
 | [存档契约与种子数据](systems/08-save-and-seed-data.md) | P0 | MVP 规则已拍板 |
-| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.2（悬停说明 / 获取渠道 / 模块升级 UI） |
+| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.3（含流水线内容表 §9） |
 | [新手引导与任务链](systems/10-onboarding-and-missions.md) | P5 | 已拍板 v1.1（P5.4a/b 已落地） |
 | [星域 / 区域内容与掉落](systems/11-sector-and-region-content.md) | P2/P5 | 已拍板 v1.1（P5.3 RewardService 已落地） |
 | `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
