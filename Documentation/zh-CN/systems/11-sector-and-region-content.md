@@ -3,7 +3,7 @@
 > 文档版本：v1.2  
 > 状态：**P5.3 已落地（RewardCatalog / RewardService / 采集节点 / Explore 叙事）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
-> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观与区域威胁—解法）  
+> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`、`21-fleet-factions-and-exploration.md`  
 > 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
 > 更新日期：2026-08-23  
 > 变更：v1.2 — 区域表增加 Gate / 主导敌方；对齐 `21` 舰队与探索度设定。
