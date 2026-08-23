@@ -1,12 +1,12 @@
 # 系统文档：资源表、生产链与仓库
 
-> 文档版本：v1.2  
-> 状态：**P3 内容契约（MVP）**  
+> 文档版本：v1.3  
+> 状态：**P3 内容契约（MVP）；流水线内容表已拍板（后 MVP）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §20 / §22  
 > 关联：`05-production-and-quality.md`（规则与公式）、`03-region-and-ship.md`（舰船模块）、`04-idle-and-offline.md`（满仓 / Pending）、`06-durability-and-repair.md`（维修耗材）、`08-save-and-seed-data.md`（种子物资）、`00-setting-and-lore.md`（断航叙事口吻）  
 > 实现权威：`ItemCatalog` / `ItemAcquireCatalog` / `RecipeCatalog` / `GatherNodeCatalog` / `ShipModuleCatalog` / `QualityRules` / `ProductionService`  
-> 更新日期：2026-08-16  
-> 变更：v1.2 — 仓库悬停提示 + 获取渠道跳转；舰船模块图/升级弹窗；v1.1 — 双语说明与招募券
+> 更新日期：2026-08-23  
+> 变更：v1.3 — 流水线品类/蓝图/等级内容表示例（§9）；对齐 `05` §4.10。
 
 ---
 
@@ -517,6 +517,46 @@ recipeMastery    → PlayerIdleState.mastery[]
 | 预留装备配方 | 5 件装备无制造入口 | 不阻塞 MVP；P3.x 可加短链或掉落 |
 
 建议顺序：模块表补齐 → 配方门槛校验 → 速度乘区 → 种子物资 → UI 显示解锁/加成原因。
+
+---
+
+## 9. 自动化流水线（内容表示例，后 MVP）
+
+规则语义 → `05` §4.10。本表给 **LineBlueprint** 与 **品类—配方** 默认映射；数值可调。
+
+### 9.1 流水线设计图（LineBlueprint）
+
+| lineDefId | 中文 | lineFamilyId | 建造门槛 | tierCap | 图纸来源 |
+| --- | --- | --- | --- | ---: | --- |
+| `blueprint_line_smelting` | 标准冶炼线 | `line_smelting` | 精炼锭×20 + 合金板×10 + 信用点 | 3 | 新手任务附赠（MVP+） |
+| `blueprint_line_alloying` | 合金轧制线 | `line_alloying` | 精炼锭×40 + 能芯×5 | 3 | 矿脉支线 FirstClear |
+| `blueprint_line_energy` | 能芯封装线 | `line_energy` | 结晶砂×30 + 冷却液×20 | 3 | NPC 轮换 |
+| `blueprint_line_synth` | 合成精制线 | `line_synth` | 菌毯×25 + 溶剂×25 | 3 | NPC / 订单奖励 |
+| `blueprint_line_weapon` | 武备装配线 | `line_weapon` | 合金板×30 + 能芯×10 | 2 | 外缘带 Cleared |
+| `blueprint_line_module` | 模块装配线 | `line_module` | 航网残片×3 + 合金板×20 | 2 | 卡关稀有 |
+| `blueprint_line_phase_forge` | **相位锻炉**（专用） | `line_phase_forge` | 相位核心×2 + 航网残片×5 | 2 | 量子裂隙 Gate / 秘境 |
+
+### 9.2 品类 × 配方 × 等级（摘录）
+
+| lineFamilyId | 配方 Id（示例） | requiredLineTier | 备注 |
+| --- | --- | ---: | --- |
+| `line_smelting` | `rcp_smelt_copper`, `rcp_smelt_ingot` | 1 | 铜锭 / 铁锭共用冶炼线 |
+| `line_smelting` | `rcp_refine_ingot` | 2 | 升级 T1→T2 解锁 |
+| `line_alloying` | `rcp_alloy_plate` | 2 | — |
+| `line_energy` | `rcp_charge_core` | 1 | — |
+| `line_synth` | `rcp_weave_mesh` | 1 | — |
+| `line_weapon` | `rcp_forge_rifle` | 1 | — |
+| `line_module` | `rcp_assemble_mod_armor` | 1 | 普通模块 |
+| `line_phase_forge` | `rcp_phase_stabilizer` | 1 | **不可**用 `line_module` 替代 |
+
+配方扩展字段 `lineFamilyId` / `requiredLineTier` / `requiredLineDefId` 写入 `RecipeCatalog` 时，`requiredLineTier = 0` 表示仅 **手动工坊** 可造（MVP 默认全部 0）。
+
+### 9.3 产线升级消耗（示例：`line_smelting`）
+
+| 当前 tier → 下一 tier | 材料（示例） |
+| --- | --- |
+| 1 → 2 | 精炼锭×50 + 合金板×20 + 信用点×500 |
+| 2 → 3 | 航网残片×2 + 能芯×15 + 信用点×1200 |
 
 ---
 

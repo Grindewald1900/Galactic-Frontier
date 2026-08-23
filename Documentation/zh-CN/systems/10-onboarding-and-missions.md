@@ -70,7 +70,7 @@
 | 1 | `ob_formation` | 编成首支开拓战队 | Form a Deck | Formation | 任一解锁卡组 `MemberCount >= 1`（建议引导满 5，验收 ≥1） |
 | 2 | `ob_first_battle` | 完成第七前沿首场清剿 | First Battle | Explore → Battle | 任意区域挑战胜利至少 1 次（`world` 进度或战后标记） |
 | 3 | `ob_gather` | 启动简易采集设备 | Start Gathering | Explore | 成功开始 `DeckActionType.Gather` 至少一次，**或**本地仓库存在任意采集产物 `quantity >= 1` |
-| 4 | `ob_craft` | 在舰船工坊完成一次制造 | Craft Once | Crafting | 成功 `TryStartRecipe` 且仓库出现对应 `outputDefId`（首周期即时入仓已支持） |
+| 4 | `ob_craft` | 在舰船工坊**手动**完成一次制造 | Craft Once | Crafting | 成功 `TryStartRecipe` 且经历完整周期后仓库出现产物（占 `Produce` 编制） |
 | 5 | `ob_npc_shop` | 使用市场终端连接星港 | Visit Starport | Market（星港） | 任意一次 `NpcShopService.TryBuy` **或** `TrySell` 成功 |
 
 **链完成后**：主链状态 `Completed`；Missions 显示「新手航线完成——开拓局确认你具备独立作业资格」；可展示可选后续提示（刷取 / 舰船升级），**不**再强制步骤。
