@@ -5,7 +5,7 @@
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.8 / §16；`03-worldbuilding.md`  
-> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`（航行耗时与离线）、`15-economy.md`（信标/地图道具）、`16-market-and-card-trade.md`（NPC 售图）、`17-sector-and-onboarding.md`（第七前沿内容）  
+> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`（航行耗时与离线）、`15-economy.md`（信标/地图道具）、`16-market-and-card-trade.md`（NPC 售图）、`17-sector-and-onboarding.md`（第七前沿内容）、**`21-fleet-factions-and-exploration.md`（探索度 / 驻扎）**  
 > 更新日期：2026-08-14
 
 ---
@@ -176,6 +176,17 @@ visibleBodies = bodies where distance(ship, body) <= radarRange
 ```
 
 即：**找路靠空间探索；开打仍靠战力与舰船建设**——两条成长轴都有意义。
+
+### 6.4 星域探索度（与 `21` §6 对齐）
+
+| 探索度 | 解锁 |
+| ---: | --- |
+| 累积中 | 在团块内 **航行越久**，雷达圈刷新 **新星球候选** 的权重越高 |
+| **50%** | **星域主星（Capital Hub）** + **阵营商店**（卫队/商盟货架） |
+| **100%** | **常规星域 Boss** 战入口（与 `11` 首领区对齐） |
+| **>100%** | 超探索事件池：虫洞、秘境、神秘 NPC、隐藏 Boss 等（可拒绝） |
+
+探索度由「星域内航行时间 + 揭示面积 + 新天体发现」共同贡献；**不替代**雷达移动揭示。主星坐标在 50% 前不可购买海图直达（可任务预告）。
 
 ---
 

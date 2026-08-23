@@ -1,6 +1,6 @@
 # Galactic Frontier 中文开发文档
 
-本目录为**唯一**中文文档集（共 20 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+本目录为**唯一**中文文档集（共 **21** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ## 必读入口
 
@@ -11,7 +11,7 @@
 | [03-worldbuilding.md](03-worldbuilding.md) | **世界观与故事（叙事权威）** |
 | [10-mvp-development-plan.md](10-mvp-development-plan.md) | 阶段路线图 |
 
-## 文档总表（01–20）
+## 文档总表（01–21）
 
 | # | 文档 | 类别 |
 | ---: | --- | --- |
@@ -29,12 +29,13 @@
 | 12 | [auto-battle](12-auto-battle.md) | 规则 |
 | 13 | [region-and-ship](13-region-and-ship.md) | 规则 |
 | 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 |
-| 15 | [economy](15-economy.md) | 规则（生产+资源+耐久） |
+| 15 | [economy](15-economy.md) | 规则（生产+资源+耐久+流水线） |
 | 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 |
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级） |
 | 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向稿 |
+| 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
 
 ## 推荐阅读
 
@@ -42,7 +43,7 @@
 2. [03-worldbuilding](03-worldbuilding.md)（故事与主题）  
 3. [02-core-product-design](02-core-product-design.md)（玩法硬约束）  
 4. [04-architecture](04-architecture.md) → [05-core-systems](05-core-systems.md) → [06-data-and-save](06-data-and-save.md)  
-5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`20`
+5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`21`
 
 ## 合并说明（相对旧树）
 
@@ -57,6 +58,7 @@
 | 17-sector-and-onboarding | onboarding + sector-content |
 | 18-online-and-play-modes | play-modes + online-multiverse |
 | 19-characters-and-progression | gacha + roster + energy-rank |
+| 21-fleet-factions-and-exploration | 自 `systems/21`（master）迁入根目录 |
 
 ## 环境基线
 

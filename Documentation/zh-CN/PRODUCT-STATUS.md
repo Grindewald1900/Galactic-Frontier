@@ -2,7 +2,7 @@
 
 > 更新日期：2026-08-23  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
-> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)。
+> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)。舰队/探索度规则：[21-fleet-factions-and-exploration.md](21-fleet-factions-and-exploration.md)。
 
 ---
 
@@ -46,6 +46,7 @@
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡通；能级未接 UI |
 | 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向 | 部分 | — | Explore 2D 已有 |
+| 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 
 ---
 
@@ -59,7 +60,7 @@
 | NPC 商店 / 6 区首领 / 新手五步 | 已实现 |
 | 36 角色+抽卡 | 部分 |
 | 玩家市场 | Online only |
-| 舰队 / 流水线 / 探索度 | 未开始（见 03 / 15 / 20） |
+| 舰队 / 流水线 / 探索度 | 未开始（见 03 / 15 / 20 / **21**） |
 
 ---
 

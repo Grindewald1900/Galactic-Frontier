@@ -33,11 +33,12 @@
 | --- | --- | --- |
 | 战斗原型 | ★★★★☆ | 全自动可跑通；种子伤害+战报返回已通；敌人/策略仍弱 |
 | 卡牌与编队 | ★★★★☆ | **P1 完成**：多卡组 UI、占用、调度器、备用预设 |
-| UI 壳层 | ★★★★☆ | Nexus 导航含 Recruit；Inventory / Crafting / Market / Missions 已原生；Characters/Cards 仍可接 Legacy |
+| UI 壳层 | ★★★★☆ | Nexus 含 Recruit；Inventory / Crafting / Market / Missions 已原生；Characters/Cards 仍可接 Legacy；locale JSON 已接入 |
 | 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed；`gacha.json` |
 | 经济循环 | ★★★★☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店；制造首周期即时入仓 |
 | 成长与主线 | ★★★★☆ | **P2+P5.4**：6 区进度 + 舰船门 + 首领 + 新手五步任务链 |
-| 内容量 | ★★★☆☆ | 可战斗角色约 **36** 名（P5.1a+b）；可继续向 50 扩 |
+| 内容量 | ★★★☆☆ | 可战斗角色约 **36** 名（`CharacterName` 枚举，不含 Default）；可继续向 50 扩 |
+| 规则文档 | ★★★★☆ | MVP 首波 + P5 管线已齐；`12` 与 Online/航行方向稿仍开放 |
 
 整体相对 MVP §16.1：**约 80%–85%**（引导/星域/招募已通；分解与卡册原生页仍薄）。
 
@@ -75,7 +76,7 @@
 | 约两小时新手流程 | 已实现 | `OnboardingService` + Missions + 软 CTA；曲线由星域奖励支撑 |
 | 基础仓库和舰船升级 | 已实现 | 原生 `InventoryScreen`（类型/品质页签）+ 双背包存档；`ShipService` 模块/等级升级 |
 | 离线收益比例（开局 50%） | 已实现 | `OfflineRules.YieldRatio`；Bridge Claim；打开仓库时领取 pending loot |
-| 单机模式完整可玩 | 部分实现 | 规则与 NPC 经济齐；内容量与新手引导不足 |
+| 单机模式完整可玩 | 部分实现 | 核心循环可演示；缺卡牌分解、Characters/Cards 原生页；角色量 36/50 |
 
 ### 2.3 已有可复用资产（后续不要推倒重来）
 
@@ -383,7 +384,7 @@ flowchart LR
 | **M2 开图循环** | 通关区域 → 舰船门槛 → 挂机刷取 | P2 | **已达成** |
 | **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 | **已达成** |
 | **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 | **已达成** |
-| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/阵营已通；角色量继续 P5.1b |
+| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/招募/36 人已通；可选扩至 50 + 分解/原生卡册 |
 
 ---
 
@@ -396,18 +397,20 @@ flowchart LR
 3. 若引入新模块，在 [04-architecture.md](04-architecture.md) 增加目录说明  
 4. 若发现新坑，记入 [08-known-issues.md](08-known-issues.md)  
 
-建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M5 (in progress)`），方便试玩反馈对齐版本。
+建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M5 (near)`），方便试玩反馈对齐版本。
 
 ---
 
 ## 10. 近期建议执行顺序（立刻可开的 Cursor 任务）
 
-P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已完成**。下一批：
+P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已完成**（快照 2026-08-15）。下一批：
 
 1. ~~**P5.0–P5.5 / P5.1b / 抽卡正式路径**~~ **已完成**  
-2. （可选）继续角色扩至 50  
-3. （可选）卡牌分解 + Characters/Cards 原生页  
+2. （可选）继续角色扩至 50（对照 `systems/18`）  
+3. （可选）卡牌分解 + Characters/Cards 原生页（对照 `systems/15`）  
 4. （可选）抽卡概率公示细节 / 十连折扣  
+5. （文档）补写 `systems/12-sector-special-modes.md`（后置，不阻塞 Solo）  
+6. （后 MVP）星域地图按 `systems/20` 方向稿立项；Online 按 14/17  
 
 **不要**在 Solo 启动 P4.6 玩家市场或 `12` 特殊星域模式。
 
