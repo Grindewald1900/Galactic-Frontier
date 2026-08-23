@@ -1,11 +1,12 @@
 # 系统文档：星域地图与舰船航行（空间探索）
 
-> 文档版本：v0.1  
+> 文档版本：v0.2  
 > 状态：**方向稿（后 MVP 主探索形态）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16；`00-setting-and-lore.md`  
-> 关联：`03-region-and-ship.md`（区域战斗门）、`04-idle-and-offline.md`（航行耗时与离线）、`09-resources-and-warehouse.md`（信标/地图道具）、`07-market-and-card-trade.md`（NPC 售图）、`11-sector-and-region-content.md`（第七前沿内容）  
+> 关联：`03-region-and-ship.md`（区域战斗门）、`04-idle-and-offline.md`（航行耗时与离线）、`09-resources-and-warehouse.md`（信标/地图道具）、`07-market-and-card-trade.md`（NPC 售图）、`11-sector-and-region-content.md`（第七前沿内容）、**`21-fleet-factions-and-exploration.md`（探索度 / 驻扎）**  
 > 与现状：Explore 已落地 **M1 单星域 2D 地图**（雷达 + 巡航停靠）；跨域跃迁仍待 M3+  
-> 更新日期：2026-08-14
+> 更新日期：2026-08-23  
+> 变更：v0.2 — 接入 **星域探索度** 分段解锁与 >100% 事件池（见 `21` §6）。
 
 ---
 
@@ -175,6 +176,17 @@ visibleBodies = bodies where distance(ship, body) <= radarRange
 ```
 
 即：**找路靠空间探索；开打仍靠战力与舰船建设**——两条成长轴都有意义。
+
+### 6.4 星域探索度（与 `21` §6 对齐）
+
+| 探索度 | 解锁 |
+| ---: | --- |
+| 累积中 | 在团块内 **航行越久**，雷达圈刷新 **新星球候选** 的权重越高 |
+| **50%** | **星域主星（Capital Hub）** + **阵营商店**（卫队/商盟货架） |
+| **100%** | **常规星域 Boss** 战入口（与 `11` 首领区对齐） |
+| **>100%** | 超探索事件池：虫洞、秘境、神秘 NPC、隐藏 Boss 等（可拒绝） |
+
+探索度由「星域内航行时间 + 揭示面积 + 新天体发现」共同贡献；**不替代**雷达移动揭示。主星坐标在 50% 前不可购买海图直达（可任务预告）。
 
 ---
 
