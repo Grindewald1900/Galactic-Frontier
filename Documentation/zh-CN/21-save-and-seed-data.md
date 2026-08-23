@@ -2,10 +2,10 @@
 
 > 文档版本：v1.0
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §16.1 / §20 / §22；开发计划 P0.1 / P0.2  
-> 分工：路径与 JsonUtility 现状见 [../05-data-and-save.md](../05-data-and-save.md)；**本文件定契约**（版本、迁移、FakeData 边界、分文件、原子写、新档种子）  
+> 上级约束：`02-core-product-design.md` §16.1 / §20 / §22；开发计划 P0.1 / P0.2  
+> 分工：路径与 JsonUtility 现状见 [07-data-and-save.md](07-data-and-save.md)；**本文件定契约**（版本、迁移、FakeData 边界、分文件、原子写、新档种子）  
 > 更新日期：2026-08-09
 
 ---
@@ -27,7 +27,7 @@
 
 ### 1.2 非目标
 
-- 资源品类表、货舱容量数值 → `09-resources-and-warehouse.md`  
+- 资源品类表、货舱容量数值 → `22-resources-and-warehouse.md`  
 - 卡组 / 占用 / 区域 / 离线 / 生产 / 市场的玩法语义 → `01`–`07`（本文件只规定它们**如何落盘**）  
 - 真加密、防作弊、云同步冲突解决（Base64 仍不是安全边界）  
 - 多端同时写同一存档目录的并发锁（单机单实例假设）  
@@ -77,7 +77,7 @@
 | Dev Data Mode 开启条件 | **仅** `UNITY_EDITOR` 且 `DevDataSettings.enabled == true`，**或** 启动参数 / Debug 菜单显式打开 |
 | PlayerPrefs / 打包包体 | 正式包默认 `enabled = false`；不得因 `DefaultProperty.isDebug`（明文 JSON）连带打开 FakeData |
 
-> Debug 面板、礼品码、测试清单的完整说明见 [16-debug-and-test-mode.md](16-debug-and-test-mode.md)。
+> Debug 面板、礼品码、测试清单的完整说明见 [28-debug-and-test-mode.md](28-debug-and-test-mode.md)。
 | 正式模式遇「需要演示数据」 | 使用 **Starter Seed 配置表** 或遭遇/静态配置；禁止 `Random.Range` 写档 |
 | Dev 注入目标 | 优先写入 `saves/_dev/{playerId}/` **或** 仅内存；若必须写正式档目录，须二次确认且打日志 `[DEV-DATA]` |
 | 战斗敌人 | 正式流程只读 `EncounterConfig`；`BattleController.FakeData()` 仅 Dev 或单测夹具 |
@@ -147,7 +147,7 @@ saves/{playerId}/meta.json
 
 | 步骤 | 动作 |
 | --- | --- |
-| 1 | 若尚无 `decks.json`：从 `playerCards.json` 收集 `LineupPosition != None`，写入默认战斗卡组（见 `01-deck-and-occupation.md`） |
+| 1 | 若尚无 `decks.json`：从 `playerCards.json` 收集 `LineupPosition != None`，写入默认战斗卡组（见 `14-deck-and-occupation.md`） |
 | 2 | 若已有 `decks.json`：保留并仅抬升 `meta.saveVersion` |
 | 3 | 写入 `meta.json`（`saveVersion = 2`） |
 
@@ -317,7 +317,7 @@ flowchart TD
 3. ~~**P0.2a** `meta.json` + `SaveVersion.Current` + 原子写~~ **完成**  
 4. ~~**P0.2b** 库存分文件 API + 迁移 0→1~~ **完成**  
 5. ~~**P0.2c** `StarterSeed` 新档写入~~ **完成**（EditMode 单测仍属 P0.5 脚手架）  
-6. ~~更新 `05` / `08-known-issues`~~ **完成**  
+6. ~~更新 `07-data-and-save` / `10-known-issues`~~ **完成**  
 
 > 开发计划 §10 将 P0.1 置于 P0.2 之前：先停污染，再改 schema，避免迁移测到随机垃圾数据。
 
@@ -357,12 +357,12 @@ flowchart TD
 
 ## 11. 参考
 
-- 路径现状：`Documentation/zh-CN/05-data-and-save.md`  
-- 技术债：`Documentation/zh-CN/08-known-issues.md`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P0.1 / P0.2 / §7.2  
-- 卡组落盘：`01-deck-and-occupation.md`（`decks.json`）  
-- 区域/舰船：`03-region-and-ship.md`（`world.json` / `ship.json`）  
-- 离线：`04-idle-and-offline.md`（`idle.json`）  
-- 市场 Mock：`07-market-and-card-trade.md`（`market_local.json`）  
-- Debug / Dev Data：`16-debug-and-test-mode.md`  
+- 路径现状：`07-data-and-save.md`  
+- 技术债：`10-known-issues.md`  
+- 开发计划：`13-mvp-development-plan.md` P0.1 / P0.2 / §7.2  
+- 卡组落盘：`14-deck-and-occupation.md`（`decks.json`）  
+- 区域/舰船：`16-region-and-ship.md`（`world.json` / `ship.json`）  
+- 离线：`17-idle-and-offline.md`（`idle.json`）  
+- 市场 Mock：`20-market-and-card-trade.md`（`market_local.json`）  
+- Debug / Dev Data：`28-debug-and-test-mode.md`  
 - 代码：`DataUtil.cs`、`InventoryItemManagerBase.cs`、`DefaultProperty.cs`、`BattleController.cs`、`DevDataSettings.cs`

@@ -2,10 +2,10 @@
 
 > 文档版本：v0.2
 > 文档类型：**方向稿**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §12 / §16 / §22  
-> 关联：`08-save-and-seed-data.md`、`07-market-and-card-trade.md`、`17-online-multiverse-cooperation.md`、`00-setting-and-lore.md`  
+> 上级约束：`02-core-product-design.md` §12 / §16 / §22  
+> 关联：`21-save-and-seed-data.md`、`20-market-and-card-trade.md`、`29-online-multiverse-cooperation.md`、`03-setting-and-lore.md`  
 > 更新日期：2026-08-14  
 > 变更：v0.2 — 明确「当前无多人保证」；挂接多元宇宙位面 / Hub 市场方向。
 
@@ -20,7 +20,7 @@
 | **Solo** | 必做 | 本地 `saves/` | NPC only | 无 |
 | **Online** | 不做 | 账号 / 服务端权威（待定） | NPC + **Hub 玩家市场** | 位面隔离 + 公会（见 `17`） |
 
-**现状结论：** 现行构建**不能保证多人体验**；多人体验以 `17-online-multiverse-cooperation.md` 为方向，立项后实现。
+**现状结论：** 现行构建**不能保证多人体验**；多人体验以 `29-online-multiverse-cooperation.md` 为方向，立项后实现。
 
 ---
 
@@ -68,15 +68,15 @@ Solo 构建中 `Online` 入口灰显或隐藏。
 | 文档 | 职责 |
 | --- | --- |
 | 本文 | Solo / Online 边界、存档互通 |
-| `17-online-multiverse-cooperation.md` | 位面、偏置产量、Hub 市场、公会压力 |
-| `07-market-and-card-trade.md` | 订单簿与货币规则 |
-| `00-setting-and-lore.md` | 中转站 / 相位航道叙事 |
+| `29-online-multiverse-cooperation.md` | 位面、偏置产量、Hub 市场、公会压力 |
+| `20-market-and-card-trade.md` | 订单簿与货币规则 |
+| `03-setting-and-lore.md` | 中转站 / 相位航道叙事 |
 
 ---
 
 ## 6. 参考
 
 - 核心设计 §12  
-- `08-save-and-seed-data.md`  
-- `07-market-and-card-trade.md`  
-- `17-online-multiverse-cooperation.md`
+- `21-save-and-seed-data.md`  
+- `20-market-and-card-trade.md`  
+- `29-online-multiverse-cooperation.md`

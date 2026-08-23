@@ -2,10 +2,10 @@
 
 > 文档版本：v1.1
 > 文档类型：**设定**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md`  
-> 关联：`03-region-and-ship.md`（熵雾门槛）、`05-production-and-quality.md`（手动/流水线规则）、`07-market-and-card-trade.md`（市场终端）、`10-onboarding-and-missions.md`（开拓舰长开局）、`11-sector-and-region-content.md`（第七前沿内容）、`20-stellar-map-and-navigation.md`（后 MVP 空间航行）  
+> 上级约束：`02-core-product-design.md`  
+> 关联：`16-region-and-ship.md`（熵雾门槛）、`18-production-and-quality.md`（手动/流水线规则）、`20-market-and-card-trade.md`（市场终端）、`23-onboarding-and-missions.md`（开拓舰长开局）、`24-sector-and-region-content.md`（第七前沿内容）、`32-stellar-map-and-navigation.md`（后 MVP 空间航行）  
 > 更新日期：2026-08-23  
 > 变更摘要：**手动工坊 → 自动化流水线**；制造非瞬间完成；流水线专精/升级/启用（见 `05` §4.10）。
 
@@ -198,7 +198,7 @@
 
 ### 7.3 区域叙事挂钩（第七前沿）
 
-在 `11-sector-and-region-content.md` 的区域主题上统一口吻：
+在 `24-sector-and-region-content.md` 的区域主题上统一口吻：
 
 | 区域 | 故事钩子（一句） |
 | --- | --- |
@@ -238,8 +238,8 @@
 | 航网重建工程 | 公会/全服基建（Online） |
 | 多元宇宙位面 + 中转站 | 私有位面开发 + Hub 市场与公会抗熵雾潮汐（`17`） |
 | 特殊空间玩法 | 虫洞、宇宙暗面、多元宇宙 Boss 房（见 `12`） |
-| 卡牌角色全名册 | 36 人设定/技能文案见 `18-character-roster-and-lore.md` |
-| 卡牌能级 | 相位共振 F–S 进阶见 `19-card-energy-rank.md` |
+| 卡牌角色全名册 | 36 人设定/技能文案见 `30-character-roster-and-lore.md` |
+| 卡牌能级 | 相位共振 F–S 进阶见 `31-card-energy-rank.md` |
 
 ---
 
@@ -248,19 +248,19 @@
 | 位置 | 动作 |
 | --- | --- |
 | 本文 | 世界观权威 |
-| `18-character-roster-and-lore.md` | 卡牌角色背景与技能文案 |
-| `01-core-product-design.md` | 增加设定摘要章节 |
-| `11-sector-and-region-content.md` | 星域叙事句对齐 |
-| `10-onboarding-and-missions.md` | 玩家身份与任务口吻 |
-| `07-market-and-card-trade.md` | 「市场终端」叙事注记 |
-| `03-region-and-ship.md` | 熵雾/航网一句引用 |
+| `30-character-roster-and-lore.md` | 卡牌角色背景与技能文案 |
+| `02-core-product-design.md` | 增加设定摘要章节 |
+| `24-sector-and-region-content.md` | 星域叙事句对齐 |
+| `23-onboarding-and-missions.md` | 玩家身份与任务口吻 |
+| `20-market-and-card-trade.md` | 「市场终端」叙事注记 |
+| `16-region-and-ship.md` | 熵雾/航网一句引用 |
 | Nexus `UiText` 探索说明 | 后续可改文案对齐（非阻塞） |
 
 ---
 
 ## 11. 参考
 
-- 核心设计：`../01-core-product-design.md`  
-- 区域：`03-region-and-ship.md`、`11-sector-and-region-content.md`  
-- 经济：`07-market-and-card-trade.md`  
-- 新手：`10-onboarding-and-missions.md`
+- 核心设计：`02-core-product-design.md`  
+- 区域：`16-region-and-ship.md`、`24-sector-and-region-content.md`  
+- 经济：`20-market-and-card-trade.md`  
+- 新手：`23-onboarding-and-missions.md`

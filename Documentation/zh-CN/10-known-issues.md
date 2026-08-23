@@ -11,7 +11,7 @@
 - 开启方式：EditorPrefs `GalacticFrontier.DevData.enabled`、启动参数 `-devData`、或礼品码 `001`（会话开关）。
 - **未完成**：遭遇表替换敌人（P2.3）、`saves/_dev` 隔离写档。
 
-> 契约：见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。`DefaultProperty.isDebug` 仍只控制明文/Base64，不打开 FakeData。
+> 契约：见 [21-save-and-seed-data.md](21-save-and-seed-data.md)。`DefaultProperty.isDebug` 仍只控制明文/Base64，不打开 FakeData。
 
 ### 本地与远程物品共用存档 — **P0.2 已拆分**
 

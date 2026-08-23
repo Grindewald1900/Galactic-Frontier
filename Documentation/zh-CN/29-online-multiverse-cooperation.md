@@ -2,11 +2,11 @@
 
 > 文档版本：v0.1
 > 文档类型：**方向稿**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §12 / §16.2 / §20 / §22  
-> 关联：`14-play-modes-and-persistence.md`、`07-market-and-card-trade.md`、`00-setting-and-lore.md`、`04-idle-and-offline.md`、`03-region-and-ship.md`  
-> 与 `12-sector-special-modes.md` 区分：本文的「多元宇宙位面」= **账号隔离的平行星域实例**；特殊玩法里的「多元宇宙 Boss 房」= **一命肉鸽挑战层**  
+> 上级约束：`02-core-product-design.md` §12 / §16.2 / §20 / §22  
+> 关联：`26-play-modes-and-persistence.md`、`20-market-and-card-trade.md`、`03-setting-and-lore.md`、`17-idle-and-offline.md`、`16-region-and-ship.md`  
+> 与 `25-sector-special-modes.md` 区分：本文的「多元宇宙位面」= **账号隔离的平行星域实例**；特殊玩法里的「多元宇宙 Boss 房」= **一命肉鸽挑战层**  
 > 更新日期：2026-08-14
 
 ---
@@ -228,7 +228,7 @@
 | Online | 服务端 Plane | 有 | 有 |
 | Solo→Online 迁入 | 新建 Online Plane，导入白名单进度 | 迁入后有交易冷却 | 迁入后若干日压力减免（新手缓冲） |
 
-详见 `14-play-modes-and-persistence.md`。
+详见 `26-play-modes-and-persistence.md`。
 
 ---
 
@@ -267,7 +267,7 @@
 ## 13. 参考
 
 - 核心设计 §12 / §7.10  
-- `14-play-modes-and-persistence.md`  
-- `07-market-and-card-trade.md`  
-- `00-setting-and-lore.md`  
-- 特殊玩法（Boss 房等）：待 `12-sector-special-modes.md`
+- `26-play-modes-and-persistence.md`  
+- `20-market-and-card-trade.md`  
+- `03-setting-and-lore.md`  
+- 特殊玩法（Boss 房等）：待 `25-sector-special-modes.md`

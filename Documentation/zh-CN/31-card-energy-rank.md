@@ -2,10 +2,10 @@
 
 > 文档版本：v1.2
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md`、`00-setting-and-lore.md`  
-> 关联：`18-character-roster-and-lore.md`（角色/职业）、`15-gacha-and-progression.md`（稀有度 ≠ 能级）、`02-auto-battle.md`（上阵主动）、`09-resources-and-warehouse.md`（进阶材料）、`11-sector-and-region-content.md`（关卡/Boss 条件）  
+> 上级约束：`02-core-product-design.md`、`03-setting-and-lore.md`  
+> 关联：`30-character-roster-and-lore.md`（角色/职业）、`27-gacha-and-progression.md`（稀有度 ≠ 能级）、`15-auto-battle.md`（上阵主动）、`22-resources-and-warehouse.md`（进阶材料）、`24-sector-and-region-content.md`（关卡/Boss 条件）  
 > 更新日期：2026-08-14  
 > 变更：v1.2 — 职业技能改为 **F–S 能级档**，每档每职业 **6** 个技能；突破到对应能级时从该档 6 选 1 觉醒。
 
@@ -385,4 +385,4 @@ SetEquippedActive: 唯一主动
 
 ## 13. 参考
 
-18-character-roster-and-lore.md、SkillTemplates.cs、Archetype enum
+30-character-roster-and-lore.md、SkillTemplates.cs、Archetype enum

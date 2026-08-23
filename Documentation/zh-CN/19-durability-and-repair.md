@@ -2,10 +2,10 @@
 
 > 文档版本：v1.0
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.7 / §16.1 / §20 / §21 / §22  
-> 关联：`02-auto-battle.md`（战后损耗事件）、`04-idle-and-offline.md`（归零暂停）、`05-production-and-quality.md`（品质影响耐久上限与维修成本）、`03-region-and-ship.md`（装甲工坊钩子）  
+> 上级约束：`02-core-product-design.md` §7.7 / §16.1 / §20 / §21 / §22  
+> 关联：`15-auto-battle.md`（战后损耗事件）、`17-idle-and-offline.md`（归零暂停）、`18-production-and-quality.md`（品质影响耐久上限与维修成本）、`16-region-and-ship.md`（装甲工坊钩子）  
 > 更新日期：2026-08-10
 
 ---
@@ -26,8 +26,8 @@
 ### 1.2 非目标
 
 - 装备强化失败、永久损毁（设计排除）  
-- 生产配方与品质 roll → `05-production-and-quality.md`  
-- 市场挂单 → `07-market-and-card-trade.md`  
+- 生产配方与品质 roll → `18-production-and-quality.md`  
+- 市场挂单 → `20-market-and-card-trade.md`  
 - 武器磨损影响外观的纯表现（可后置）
 
 ---
@@ -309,9 +309,9 @@ MVP 允许「聚合损耗 + 一次自动修」的近似，但不得修出比逐�
 
 ## 11. 参考
 
-- 核心设计：`../01-core-product-design.md` §7.7 / §21  
-- 战斗：`02-auto-battle.md`  
-- 离线：`04-idle-and-offline.md`  
-- 生产品质：`05-production-and-quality.md`  
-- 舰船设施：`03-region-and-ship.md`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P3.4
+- 核心设计：`02-core-product-design.md` §7.7 / §21  
+- 战斗：`15-auto-battle.md`  
+- 离线：`17-idle-and-offline.md`  
+- 生产品质：`18-production-and-quality.md`  
+- 舰船设施：`16-region-and-ship.md`  
+- 开发计划：`13-mvp-development-plan.md` P3.4

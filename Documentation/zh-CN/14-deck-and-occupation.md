@@ -2,9 +2,9 @@
 
 > 文档版本：v1.2
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §6.1 / §7.2 / §7.3 / §21 / §22  
+> 上级约束：`02-core-product-design.md` §6.1 / §7.2 / §7.3 / §21 / §22  
 > 更新日期：2026-08-09
 
 ---
@@ -23,10 +23,10 @@
 
 ### 1.2 非目标（本文件不解决）
 
-- 自动战斗回合内技能选择细则 → `02-auto-battle.md`
+- 自动战斗回合内技能选择细则 → `15-auto-battle.md`
 - 采集产量、生产配方、离线秒数 → `04` / `05` 系列
-- 市场与卡牌交易绑定规则 → `07-market-and-card-trade.md`
-- 舰船槽位设施的完整数值曲线 → `03-region-and-ship.md`（本文只引用解锁钩子）
+- 市场与卡牌交易绑定规则 → `20-market-and-card-trade.md`
+- 舰船槽位设施的完整数值曲线 → `16-region-and-ship.md`（本文只引用解锁钩子）
 
 ---
 
@@ -348,8 +348,8 @@ PlayerDeckState
 
 ## 11. 参考
 
-- 核心设计：`../01-core-product-design.md`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md`  
+- 核心设计：`02-core-product-design.md`  
+- 开发计划：`13-mvp-development-plan.md`  
 - 当前编队实现：`LineupManager.cs`、`FormationScreen.cs`、`CardEntity.LineupPosition`  
 - 卡牌集合：`CardListManager.cs`  
-- 存档：`Documentation/zh-CN/05-data-and-save.md`
+- 存档：`07-data-and-save.md`

@@ -2,10 +2,10 @@
 
 > 文档版本：v1.1
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.6 / §16 / §20 / §21（卡牌交易相关）  
-> 关联：`07-market-and-card-trade.md`（绑定/交易）、`08-save-and-seed-data.md`（DevData / Starter）、`01-deck-and-occupation.md`（同名多开）、`09-resources-and-warehouse.md`（材料扣减）、`10-onboarding-and-missions.md`、`18-character-roster-and-lore.md`（角色叙事）、`19-card-energy-rank.md`（能级 ≠ 抽卡稀有度）  
+> 上级约束：`02-core-product-design.md` §7.6 / §16 / §20 / §21（卡牌交易相关）  
+> 关联：`20-market-and-card-trade.md`（绑定/交易）、`21-save-and-seed-data.md`（DevData / Starter）、`14-deck-and-occupation.md`（同名多开）、`22-resources-and-warehouse.md`（材料扣减）、`23-onboarding-and-missions.md`、`30-character-roster-and-lore.md`（角色叙事）、`31-card-energy-rank.md`（能级 ≠ 抽卡稀有度）  
 > 更新日期：2026-08-12  
 > 变更：v1.1 — Dev OFF 扣 `con_recruit_ticket`；Lv1 入池；软保底 `gacha.json`；Nexus 招募页。
 
@@ -45,7 +45,7 @@
 | **分解（Dismantle）** | 销毁卡实例换材料 / 信用（重复卡 sink） |
 | **绑定（Bound）** | 不可上架玩家市场的卡；见市场文档 |
 | **抽卡稀有度** | `CharacterTier`（E…SS）：抽出时的卡面品质；**不是**能级 |
-| **卡牌能级** | `EnergyRank`（F…S）：实例成长轴（波动门槛 + 进阶条件）；见 `19-card-energy-rank.md` |
+| **卡牌能级** | `EnergyRank`（F…S）：实例成长轴（波动门槛 + 进阶条件）；见 `31-card-energy-rank.md` |
 | **经验等级** | `Level`：吃经验升级 |
 
 ---
@@ -215,7 +215,7 @@ Dev 模式可继续用 `CreateSampleGachaResults`，但须打 `[DEV-DATA]` 日�
 | 区域掉落普通卡 | `None` | 是 |
 | 活动/礼品码 | 按表配置 | 按表 |
 
-与 `07-market-and-card-trade.md` §4.9 一致；本系统负责写入字段，市场负责校验。
+与 `20-market-and-card-trade.md` §4.9 一致；本系统负责写入字段，市场负责校验。
 
 ### 5.7 重复卡与分解
 
@@ -237,7 +237,7 @@ Dev 模式可继续用 `CreateSampleGachaResults`，但须打 `[DEV-DATA]` 日�
 
 ### 5.9 与新手引导
 
-主链（`10-onboarding`）**不强制**抽卡步骤。可选支线：
+主链（`23-onboarding`）**不强制**抽卡步骤。可选支线：
 
 - 「进行一次单抽」→ 软 CTA 指向招募页；  
 - 奖励：额外 `recruit_ticket × 1`。
@@ -364,8 +364,8 @@ if pityCounter >= pityThreshold: next pull uses filtered tier table (≥ pityMin
 ## 12. 参考
 
 - 现码：`CardDrawingManager.cs`、`CardResultManager.cs`、`CardDataManager.cs`、`CardListManager.cs`、`DefaultDevDataProvider.cs`  
-- 实现摘要：`Documentation/zh-CN/04-core-systems.md` §5  
-- 市场绑定：`07-market-and-card-trade.md` §4.9  
-- 存档 / Dev：`08-save-and-seed-data.md`  
+- 实现摘要：`06-core-systems.md` §5  
+- 市场绑定：`20-market-and-card-trade.md` §4.9  
+- 存档 / Dev：`21-save-and-seed-data.md`  
 - 核心设计：§7.6 卡牌交易、§21 待定项中与抽卡/重复卡相关部分  
-- 开发计划：`11-mvp-development-plan.md`（可选文档 `15-gacha-and-progression`）
+- 开发计划：`13-mvp-development-plan.md`（`27-gacha-and-progression`）

@@ -2,9 +2,9 @@
 
 > 文档版本：v1.1
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：核心设计 v0.4；`08-save-and-seed-data.md`（FakeData / Dev Data 边界）  
+> 上级约束：核心设计 v0.4；`21-save-and-seed-data.md`（FakeData / Dev Data 边界）  
 > 关联实现：`DebugModeController`、`GiftCodeService`、`DebugScreen`、`SettingsScreen`、`DevDataSettings`、`Assets/Tests/EditMode`  
 > 更新日期：2026-08-09  
 > 变更：v1.1 — Debug 由单例控制；导航栏「Debug模式」页；礼品码仅用于设置页领奖。
@@ -207,7 +207,7 @@
 
 ## 12. 参考
 
-- 存档：`08-save-and-seed-data.md`  
-- 运行模式：`14-play-modes-and-persistence.md`  
-- 开发指南：`../06-development-guide.md`  
-- MVP 计划：`../11-mvp-development-plan.md`
+- 存档：`21-save-and-seed-data.md`  
+- 运行模式：`26-play-modes-and-persistence.md`  
+- 开发指南：`08-development-guide.md`  
+- MVP 计划：`13-mvp-development-plan.md`

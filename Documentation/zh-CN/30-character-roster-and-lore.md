@@ -2,10 +2,10 @@
 
 > 文档版本：v1.0
 > 文档类型：**内容契约**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md`、`00-setting-and-lore.md`  
-> 关联：`02-auto-battle.md`、`01-deck-and-occupation.md`、`15-gacha-and-progression.md`、`11-sector-and-region-content.md`、`19-card-energy-rank.md`（能级进阶与上阵主动）  
+> 上级约束：`02-core-product-design.md`、`03-setting-and-lore.md`  
+> 关联：`15-auto-battle.md`、`14-deck-and-occupation.md`、`27-gacha-and-progression.md`、`24-sector-and-region-content.md`、`31-card-energy-rank.md`（能级进阶与上阵主动）  
 > 实现权威：`CharacterName`、`CharacterSkillController`、`Batch1/2Characters`、`SkillTemplates`、`CharacterFactionCatalog`、`BaseAttributes.json`、`CardDataManager`  
 > 更新日期：2026-08-14
 
@@ -106,7 +106,7 @@
 
 ### 3.3 展示用技能槽约定
 
-每位角色拥有可扩展技能库；战斗装配规则见 **`19-card-energy-rank.md`**：
+每位角色拥有可扩展技能库；战斗装配规则见 **`31-card-energy-rank.md`**：
 
 | 类型 | 说明 |
 | --- | --- |
@@ -370,9 +370,9 @@
 
 ## 12. 参考
 
-- 设定：`00-setting-and-lore.md`  
-- 战斗：`02-auto-battle.md`、`SkillTemplates.cs`、`Asra.cs` / `Magki.cs` / `Sernia.cs`  
+- 设定：`03-setting-and-lore.md`  
+- 战斗：`15-auto-battle.md`、`SkillTemplates.cs`、`Asra.cs` / `Magki.cs` / `Sernia.cs`  
 - 名册：`CharacterSkillController.cs`、`Batch1Characters.cs`、`Batch2Characters.cs`  
 - 阵营：`CharacterFactionCatalog.cs`、`FactionTags.cs`  
 - 属性：`BaseAttributes.json`、`CardDataManager.GetCharacterExpertises`  
-- 抽卡：`15-gacha-and-progression.md`
+- 抽卡：`27-gacha-and-progression.md`

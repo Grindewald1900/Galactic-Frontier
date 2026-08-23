@@ -82,7 +82,7 @@ flowchart LR
 
 `CardDrawingManager` 材料仅在 **Dev Data Mode** 下由 `IDevDataProvider.FillSampleGachaMaterials` 注入（内存，不写档）；正式模式材料列表为空，待接真实背包。`InitCards` 在 Dev OFF 时目前不会调用 `CardDataManager` 生成（空结果）——正式路径见系统文档拍板。
 
-完整规则、代价表、软保底、绑定/分解与落地顺序：见 [systems/15-gacha-and-progression.md](systems/15-gacha-and-progression.md)。
+完整规则、代价表、软保底、绑定/分解与落地顺序：见 [27-gacha-and-progression.md](27-gacha-and-progression.md)。
 
 ## 6. 战斗
 
@@ -136,7 +136,7 @@ flowchart LR
 - `ItemManager`：`IsRemote == false`；
 - `RemoteItemManager`：`IsRemote == true`。
 
-`ItemOperationManager` 负责删除和延迟传送。本地/远程已分文件（`inventory_local.json` / `inventory_remote.json`）；启动不再写 FakeData。详见 `05-data-and-save.md`。
+`ItemOperationManager` 负责删除和延迟传送。本地/远程已分文件（`inventory_local.json` / `inventory_remote.json`）；启动不再写 FakeData。详见 `07-data-and-save.md`。
 
 **P3**：堆叠键为 `(itemDefId, quality)`；装备为不可堆叠实例（`itemInstanceId` + 耐久）。采集/制造由 `ProductionService` + `IdleEconomyTicker` 驱动；离线进 `idle.json` Pending，舰桥 Claim。
 

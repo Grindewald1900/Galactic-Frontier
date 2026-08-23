@@ -2,10 +2,10 @@
 
 > 文档版本：v1.3
 > 文档类型：**内容契约**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.9 / §16.1 / §20 / §22  
-> 关联：`05-production-and-quality.md`（规则与公式）、`03-region-and-ship.md`（舰船模块）、`04-idle-and-offline.md`（满仓 / Pending）、`06-durability-and-repair.md`（维修耗材）、`08-save-and-seed-data.md`（种子物资）、`00-setting-and-lore.md`（断航叙事口吻）  
+> 上级约束：`02-core-product-design.md` §7.9 / §16.1 / §20 / §22  
+> 关联：`18-production-and-quality.md`（规则与公式）、`16-region-and-ship.md`（舰船模块）、`17-idle-and-offline.md`（满仓 / Pending）、`19-durability-and-repair.md`（维修耗材）、`21-save-and-seed-data.md`（种子物资）、`03-setting-and-lore.md`（断航叙事口吻）  
 > 实现权威：`ItemCatalog` / `ItemAcquireCatalog` / `RecipeCatalog` / `GatherNodeCatalog` / `ShipModuleCatalog` / `QualityRules` / `ProductionService`  
 > 更新日期：2026-08-23  
 > 变更：v1.3 — 流水线品类/蓝图/等级内容表示例（§9）；对齐 `05` §4.10。
@@ -17,7 +17,7 @@
 ### 1.1 目标
 
 为本文件锁定 **MVP 可玩资源内容契约**：具体有哪些 Resource、Recipe、Chain、Facility，以及工坊/模块等级如何解锁与加成。  
-规则语义（扣料时机、品质公式形状、停止不退料等）以 `05-production-and-quality.md` 为准；**本文件给可配置内容的默认表**。
+规则语义（扣料时机、品质公式形状、停止不退料等）以 `18-production-and-quality.md` 为准；**本文件给可配置内容的默认表**。
 
 覆盖范围：
 
@@ -98,7 +98,7 @@
 规则：
 
 1. 说明权威在 `ItemCatalog`；`ItemEntity.itemDescription` 由工厂/归一化回填英文底稿，**展示时**用 `UiText.ItemDescription(def)` 做中英切换。  
-2. 语气对齐 `00-setting-and-lore.md`（断航 / 熵雾 / 开拓局 / 第七前沿），避免纯系统腔。  
+2. 语气对齐 `03-setting-and-lore.md`（断航 / 熵雾 / 开拓局 / 第七前沿），避免纯系统腔。  
 3. 长度建议 1–2 句；中英语义对等，不必逐字翻译。  
 4. 新增物品未写说明 = **不可合并主线内容**。  
 5. **仓库 UI**：格子只显示 **图标 / 名称 / 数量**；鼠标悬停弹出临时提示，展示说明、品质（等级）、耐久（若有）与 **获取渠道**。  
@@ -218,7 +218,7 @@ MVP 验收：**至少 3 件**可由制造产出（步枪 / 复合装甲 / 合成
 
 周期秒数默认见 `EconomyConstants.GatherCycleSeconds`（设计目标 300s，原型可 30s）。  
 条件：区域已通关或刷取解锁（`ProductionService` / `04`）。  
-区域绑定与战斗掉落总表见 `11-sector-and-region-content.md`。
+区域绑定与战斗掉落总表见 `24-sector-and-region-content.md`。
 
 ---
 
@@ -488,7 +488,7 @@ ProduceProgress  → DeckAction.progressPayload（recipeId|inputMinQ）
 recipeMastery    → PlayerIdleState.mastery[]
 ```
 
-存档字段增量遵循 `08-save-and-seed-data.md`；种子应包含：少量铁矿/废料/合金板、维修零件，以及至少一处设施 Lv.1。
+存档字段增量遵循 `21-save-and-seed-data.md`；种子应包含：少量铁矿/废料/合金板、维修零件，以及至少一处设施 Lv.1。
 
 ---
 
@@ -574,9 +574,9 @@ recipeMastery    → PlayerIdleState.mastery[]
 
 ## 13. 参考
 
-- 核心设计：`../01-core-product-design.md` §7.9 / §16.1  
-- 规则：`05-production-and-quality.md`  
-- 舰船：`03-region-and-ship.md` §4.5  
-- 离线/满仓：`04-idle-and-offline.md`  
-- 耐久：`06-durability-and-repair.md`  
+- 核心设计：`02-core-product-design.md` §7.9 / §16.1  
+- 规则：`18-production-and-quality.md`  
+- 舰船：`16-region-and-ship.md` §4.5  
+- 离线/满仓：`17-idle-and-offline.md`  
+- 耐久：`19-durability-and-repair.md`  
 - 代码：`ItemCatalog.cs`、`RecipeCatalog.cs`、`GatherNodeCatalog.cs`、`ShipModuleCatalog.cs`、`QualityRules.cs`、`ProductionService.cs`

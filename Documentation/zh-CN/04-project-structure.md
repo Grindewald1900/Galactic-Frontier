@@ -13,7 +13,7 @@ Galactic Frontier/
 │  └─ JMO Assets/             # Cartoon FX 等第三方资源
 ├─ Packages/                  # Unity Package Manager 配置
 ├─ ProjectSettings/           # Unity 项目设置
-├─ Documentation/zh-CN/       # 本文档
+├─        # 本文档
 └─ README.md                  # 原项目展示说明
 ```
 

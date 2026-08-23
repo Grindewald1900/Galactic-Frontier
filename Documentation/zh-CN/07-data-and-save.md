@@ -1,6 +1,6 @@
 # 数据与存档
 
-> 契约与 FakeData / 版本迁移规则见 [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md)。  
+> 契约与 FakeData / 版本迁移规则见 [21-save-and-seed-data.md](21-save-and-seed-data.md)。  
 > 存档字段与迁移实现快照见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) §4。
 
 ## Dev Data Mode（P0.1）
@@ -65,7 +65,7 @@ DataUtil.LoadDeckState() -> PlayerDeckState
 DeckService.EnsureLoaded / CreateForNewPlayer / TryStart / TryStop
 ```
 
-编制权威在 `DeckEntity.slotCardIds`；活跃战斗卡组成员会镜像到 `CardEntity.LineupPosition` 以兼容旧 UI/战斗。规则细节见 [systems/01-deck-and-occupation.md](systems/01-deck-and-occupation.md)。
+编制权威在 `DeckEntity.slotCardIds`；活跃战斗卡组成员会镜像到 `CardEntity.LineupPosition` 以兼容旧 UI/战斗。规则细节见 [14-deck-and-occupation.md](14-deck-and-occupation.md)。
 
 ## 库存 API
 

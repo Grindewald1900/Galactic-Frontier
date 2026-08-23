@@ -2,12 +2,12 @@
 
 > 文档版本：v1.2
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §16.1 / §20 / §22（v0.4）；开发计划 **P5.0 / P5.4**  
-> 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`、`03-region-and-ship.md`、`05-production-and-quality.md`、`07-market-and-card-trade.md`、`08-save-and-seed-data.md`、`11-sector-and-region-content.md`、`00-setting-and-lore.md`  
+> 上级约束：`02-core-product-design.md` §16.1 / §20 / §22（v0.4）；开发计划 **P5.0 / P5.4**  
+> 关联：`14-deck-and-occupation.md`、`15-auto-battle.md`、`16-region-and-ship.md`、`18-production-and-quality.md`、`20-market-and-card-trade.md`、`21-save-and-seed-data.md`、`24-sector-and-region-content.md`、`03-setting-and-lore.md`  
 > 更新日期：2026-08-14  
-> 变更：v1.2 — 对齐开拓舰长 / 群星开拓局叙事口吻（见 `00-setting-and-lore.md`）。
+> 变更：v1.2 — 对齐开拓舰长 / 群星开拓局叙事口吻（见 `03-setting-and-lore.md`）。
 
 ---
 
@@ -23,7 +23,7 @@
 4. **Solo 不出现玩家市场**步骤或文案；  
 5. 为后续区域包装（P5.3）与角色扩容（P5.1）留挂钩，但不依赖它们完成主链。
 
-玩家设定摘要：群星开拓局新晋舰长，持开拓许可证，开局仅有小型开拓舰、基础战队、简易采集与市场终端（详见 `00-setting-and-lore.md`）。
+玩家设定摘要：群星开拓局新晋舰长，持开拓许可证，开局仅有小型开拓舰、基础战队、简易采集与市场终端（详见 `03-setting-and-lore.md`）。
 
 完成本契约后，P5.4a/b 有唯一实现依据；M5「可演示」的引导侧条件满足。
 
@@ -134,7 +134,7 @@
 | 经济闭环 | 75–100 min | `ob_npc_shop` |
 | 自由刷取 / 下一区 | 100–120+ min | 链后；P5.3 曲线负责可读性 |
 
-具体秒数与掉落权重由 `11-sector-and-region-content.md` + P5.5 调整。
+具体秒数与掉落权重由 `24-sector-and-region-content.md` + P5.5 调整。
 
 ---
 
@@ -198,7 +198,7 @@ OnboardingStepDef
 | 文件 | `saves/{playerId}/onboarding.json`（或并入 `idle.json` 的 `onboarding` 字段；**优先独立文件**便于 Migrator） |
 | 缺文件 | 新档或旧档升级：初始化 `chainId=onboarding_v1`，`activeStepId=ob_formation`，flags 全 false；若编队已满足则 Evaluate 后可直接 Claim |
 | saveVersion | 若独立文件：随 `meta` 升版时 Migrator 增加「缺则创建」；不强制所有旧档立刻重跑玩法 |
-| 原子写 | 与 `08-save-and-seed-data.md` 一致 |
+| 原子写 | 与 `21-save-and-seed-data.md` 一致 |
 
 领取奖励与 flags 写入须在同一次保存意图中完成（先改内存再 Save），避免领奖丢进度。
 
@@ -242,6 +242,6 @@ OnboardingStepDef
 
 ## 10. 修订规则
 
-1. 改步骤顺序、完成条件或奖励语义 → 升本文 **主版本**，并更新 `11-mvp-development-plan.md` §5 P5 表。  
+1. 改步骤顺序、完成条件或奖励语义 → 升本文 **主版本**，并更新 `13-mvp-development-plan.md` §5 P5 表。  
 2. 纯文案 / 默认数量 → 次版本或配置表，不改 stepId。  
 3. 与 `07` / `08` / `11` 冲突时：流通与存档以 `07`/`08` 为准；掉落曲线以 `11` 为准；**引导顺序以本文为准**。  

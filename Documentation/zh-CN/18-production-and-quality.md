@@ -2,10 +2,10 @@
 
 > 文档版本：v1.1
 > 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.9 / §16.1 / §20 / §21 / §22  
-> 关联：`01-deck-and-occupation.md`（`Produce` 占用）、`04-idle-and-offline.md`（周期/缺料暂停）、`06-durability-and-repair.md`（装备耐久上限受品质影响）、`07-market-and-card-trade.md`（品质影响挂单价与堆叠）、`09-resources-and-warehouse.md`（配方与流水线内容表）  
+> 上级约束：`02-core-product-design.md` §7.9 / §16.1 / §20 / §21 / §22  
+> 关联：`14-deck-and-occupation.md`（`Produce` 占用）、`17-idle-and-offline.md`（周期/缺料暂停）、`19-durability-and-repair.md`（装备耐久上限受品质影响）、`20-market-and-card-trade.md`（品质影响挂单价与堆叠）、`22-resources-and-warehouse.md`（配方与流水线内容表）  
 > 更新日期：2026-08-23  
 > 变更：v1.1 — **手动工坊 → 自动化流水线** 设定；制造非瞬间完成；流水线专精/升级/启用规则（§4.10）。
 
@@ -25,9 +25,9 @@
 
 ### 1.2 非目标
 
-- 离线时长与 `PausedBlock` 时钟语义 → `04-idle-and-offline.md`
-- 耐久损耗与维修扣料公式 → `06-durability-and-repair.md`
-- 市场撮合与卡牌上架 → `07-market-and-card-trade.md`
+- 离线时长与 `PausedBlock` 时钟语义 → `17-idle-and-offline.md`
+- 耐久损耗与维修扣料公式 → `19-durability-and-repair.md`
+- 市场撮合与卡牌上架 → `20-market-and-card-trade.md`
 - 装备强化失败、永久损毁、自由星球建造（核心设计明确排除）
 - 复杂跨区物流损耗（非 MVP）
 
@@ -246,7 +246,7 @@ yield = floor(node.baseYieldPerCycle
 | **玩家管理面** | 对每条流水线：**启用 / 停用**、选择当前配方（须在品类允许范围内）、**升级产线等级** |
 | **专精** | 一条流水线只服务**特定产品族**；近亲产物共用同线，高级产物须**升级**或**另建高级线** |
 
-叙事见 `00-setting-and-lore.md` §4.4；内容表示例见 `09` §9。
+叙事见 `03-setting-and-lore.md` §4.4；内容表示例见 `09` §9。
 
 #### 4.10.2 手动制造（Manual Craft）
 
@@ -504,11 +504,11 @@ ProduceProgress
 
 ## 11. 参考
 
-- 核心设计：`../01-core-product-design.md` §7.9 / §16.1 / §21  
-- 占用：`01-deck-and-occupation.md`  
-- 离线：`04-idle-and-offline.md`  
-- 耐久：`06-durability-and-repair.md`  
-- 市场：`07-market-and-card-trade.md`  
-- **内容表（物品/配方/设施等级）**：`09-resources-and-warehouse.md`  
-- 开发计划：`Documentation/zh-CN/11-mvp-development-plan.md` P3  
+- 核心设计：`02-core-product-design.md` §7.9 / §16.1 / §21  
+- 占用：`14-deck-and-occupation.md`  
+- 离线：`17-idle-and-offline.md`  
+- 耐久：`19-durability-and-repair.md`  
+- 市场：`20-market-and-card-trade.md`  
+- **内容表（物品/配方/设施等级）**：`22-resources-and-warehouse.md`  
+- 开发计划：`13-mvp-development-plan.md` P3  
 - 现有：`ItemEntity.cs`、`InventoryItemManagerBase.cs`、`AppShell` Crafting 导航

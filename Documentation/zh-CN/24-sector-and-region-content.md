@@ -2,10 +2,10 @@
 
 > 文档版本：v1.1
 > 文档类型：**内容契约**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
-> 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观）  
+> 上级约束：`02-core-product-design.md` §7.8 / §16.1 / §20 / §22  
+> 关联：`16-region-and-ship.md`（门与进度规则）、`17-idle-and-offline.md`（挂机周期/Pending）、`15-auto-battle.md`（遭遇开战）、`22-resources-and-warehouse.md`（物品 Id）、`19-durability-and-repair.md`（刷取耐久）、`03-setting-and-lore.md`（世界观）  
 > 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
 > 更新日期：2026-08-12  
 > 变更：v1.1 — FirstClear/Repeat/Farm 发放；裂隙/深渊/护航采集节点；区域 blurb + 阵营标签。
@@ -77,7 +77,7 @@
 | 探索进度 | `floor(clearedRegions / 6 * 100)`；首领击杀计为通关 |
 | 阵营标签 | 预留 `FactionA` / `FactionB`（遭遇可挂叙事标签，不阻塞逻辑） |
 | 第二星域 | **不做** |
-| 叙事归属 | 群星开拓局试验星域（见 `00-setting-and-lore.md`） |
+| 叙事归属 | 群星开拓局试验星域（见 `03-setting-and-lore.md`） |
 
 叙事一句话：第七前沿是开拓局在断航带边缘钉下的试验星域；玩家需边清威胁边升舰抗熵雾，收复至边境锚点。
 
@@ -514,7 +514,7 @@ RewardTable / LootEntry      // 新建 Catalog：RewardCatalog
 
 ## 16. 参考
 
-- 规则：`03-region-and-ship.md`、`04-idle-and-offline.md`、`02-auto-battle.md`  
-- 物品：`09-resources-and-warehouse.md`  
+- 规则：`16-region-and-ship.md`、`17-idle-and-offline.md`、`15-auto-battle.md`  
+- 物品：`22-resources-and-warehouse.md`  
 - 代码：`RegionCatalog.cs`、`EncounterCatalog.cs`、`GatherNodeCatalog.cs`、`WorldService.cs`、`IdleEconomyTicker.cs`  
-- 开发计划：`../11-mvp-development-plan.md` P2 / P5
+- 开发计划：`13-mvp-development-plan.md` P2 / P5

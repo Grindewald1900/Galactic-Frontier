@@ -2,10 +2,10 @@
 
 > 文档版本：v0.1
 > 文档类型：**方向稿**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`../01-core-product-design.md` §7.8 / §16；`00-setting-and-lore.md`  
-> 关联：`03-region-and-ship.md`（区域战斗门）、`04-idle-and-offline.md`（航行耗时与离线）、`09-resources-and-warehouse.md`（信标/地图道具）、`07-market-and-card-trade.md`（NPC 售图）、`11-sector-and-region-content.md`（第七前沿内容）  
+> 上级约束：`02-core-product-design.md` §7.8 / §16；`03-setting-and-lore.md`  
+> 关联：`16-region-and-ship.md`（区域战斗门）、`17-idle-and-offline.md`（航行耗时与离线）、`22-resources-and-warehouse.md`（信标/地图道具）、`20-market-and-card-trade.md`（NPC 售图）、`24-sector-and-region-content.md`（第七前沿内容）  
 > 更新日期：2026-08-14
 
 ---
@@ -319,7 +319,7 @@ Beacon / Chart → ItemDef（09）
 
 ## 16. 参考
 
-- `03-region-and-ship.md`、`11-sector-and-region-content.md`  
-- `00-setting-and-lore.md`、`04-idle-and-offline.md`  
-- `09-resources-and-warehouse.md`、`07-market-and-card-trade.md`  
+- `16-region-and-ship.md`、`24-sector-and-region-content.md`  
+- `03-setting-and-lore.md`、`17-idle-and-offline.md`  
+- `22-resources-and-warehouse.md`、`20-market-and-card-trade.md`  
 - 舰船模块：`mod_scanner` / `mod_propulsion` / `mod_reactor`
