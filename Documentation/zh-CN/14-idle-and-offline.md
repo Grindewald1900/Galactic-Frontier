@@ -5,7 +5,7 @@
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.3 / §7.4 / §16.1 / §20 / §21 / §22（v0.4）  
-> 关联：`14-deck-and-occupation.md`（占用 / `PausedCap`）、`15-auto-battle.md`（无场景结算）、`16-region-and-ship.md`（通关后刷取解锁、舰船模块）  
+> 关联：`11-deck-and-occupation.md`（占用 / `PausedCap`）、`12-auto-battle.md`（无场景结算）、`13-region-and-ship.md`（通关后刷取解锁、舰船模块）  
 > 更新日期：2026-08-10  
 > 变更：v1.1 增补 **Offline Yield Ratio**（开局 50%，随舰船等级/模块提升）。
 
@@ -27,12 +27,12 @@
 
 ### 1.2 非目标
 
-- 多卡组占用与并行上限本身 → `14-deck-and-occupation.md`
-- 单场战斗回合规则与战前策略 → `15-auto-battle.md`
-- 区域解锁与舰船硬门 → `16-region-and-ship.md`
-- 生产链配方、品质档位 → `18-production-and-quality.md`
-- 耐久损耗与维修公式 → `19-durability-and-repair.md`
-- 全服市场撮合 → `20-market-and-card-trade.md`
+- 多卡组占用与并行上限本身 → `11-deck-and-occupation.md`
+- 单场战斗回合规则与战前策略 → `12-auto-battle.md`
+- 区域解锁与舰船硬门 → `13-region-and-ship.md`
+- 生产链配方、品质档位 → `15-economy.md`
+- 耐久损耗与维修公式 → `15-economy.md`
+- 全服市场撮合 → `16-market-and-card-trade.md`
 - 强制推送、付费延长离线（可留钩子，非 MVP 必做）
 
 ---
@@ -209,7 +209,7 @@ offlineReward = floor(onlineEquivalentReward * offlineYieldRatio)
 | 胜负 | 胜→发奖；负→本场无产物，**不自动停止**挂机（避免离线偶发失败打断整晚） |
 | 连败保护 | 连续失败 ≥ `maxConsecutiveLosses`（默认 **5**）→ `PausedBlock` 并提示「战力不足」 |
 | 种子 | `battleSeed = hash(runSeed, fightIndex)`；`runSeed` 在启动挂机时生成并写入行动进度 |
-| 奖励 | 经验/信用/掉落表引用（分区表见 `24-sector-and-region-content.md` §9）；进入 **Pending Loot**（或配置为直接入仓，见 §4.7） |
+| 奖励 | 经验/信用/掉落表引用（分区表见 `17-sector-and-onboarding.md` §9）；进入 **Pending Loot**（或配置为直接入仓，见 §4.7） |
 | 耐久 | 每场按耐久文档扣减；若关键装备耐久归零导致无法作战 → `PausedBlock`（不销毁装备） |
 | 人数修正 | 不满编允许；奖励/胜率由战力自然体现，**不另乘**「缺人惩罚系数」 |
 | 停止 | 玩家停止 → 结算已完成场次；当前未打完的场次进度丢弃 |
@@ -464,8 +464,8 @@ IIdleSettlementService
 ## 11. 参考
 
 - 核心设计：`02-core-product-design.md` §7.3 / §7.4 / §21  
-- 卡组占用：`14-deck-and-occupation.md`（`PausedCap`、停止低惩罚）  
-- 战斗：`15-auto-battle.md` §8（挂机接口 / Resolver）  
-- 区域：`16-region-and-ship.md` §4.6（通关后刷取）  
-- 开发计划：`13-mvp-development-plan.md` P2.4 / P3.6  
-- 已知问题：`10-known-issues.md`（FakeData、战斗返回）
+- 卡组占用：`11-deck-and-occupation.md`（`PausedCap`、停止低惩罚）  
+- 战斗：`12-auto-battle.md` §8（挂机接口 / Resolver）  
+- 区域：`13-region-and-ship.md` §4.6（通关后刷取）  
+- 开发计划：`10-mvp-development-plan.md` P2.4 / P3.6  
+- 已知问题：`08-known-issues.md`（FakeData、战斗返回）

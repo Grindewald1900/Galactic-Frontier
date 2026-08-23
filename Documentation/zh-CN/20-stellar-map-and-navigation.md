@@ -4,8 +4,8 @@
 > 文档类型：**方向稿**
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
-> 上级约束：`02-core-product-design.md` §7.8 / §16；`03-setting-and-lore.md`  
-> 关联：`16-region-and-ship.md`（区域战斗门）、`17-idle-and-offline.md`（航行耗时与离线）、`22-resources-and-warehouse.md`（信标/地图道具）、`20-market-and-card-trade.md`（NPC 售图）、`24-sector-and-region-content.md`（第七前沿内容）  
+> 上级约束：`02-core-product-design.md` §7.8 / §16；`03-worldbuilding.md`  
+> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`（航行耗时与离线）、`15-economy.md`（信标/地图道具）、`16-market-and-card-trade.md`（NPC 售图）、`17-sector-and-onboarding.md`（第七前沿内容）  
 > 更新日期：2026-08-14
 
 ---
@@ -319,7 +319,7 @@ Beacon / Chart → ItemDef（09）
 
 ## 16. 参考
 
-- `16-region-and-ship.md`、`24-sector-and-region-content.md`  
-- `03-setting-and-lore.md`、`17-idle-and-offline.md`  
-- `22-resources-and-warehouse.md`、`20-market-and-card-trade.md`  
+- `13-region-and-ship.md`、`17-sector-and-onboarding.md`  
+- `03-worldbuilding.md`、`14-idle-and-offline.md`  
+- `15-economy.md`、`16-market-and-card-trade.md`  
 - 舰船模块：`mod_scanner` / `mod_propulsion` / `mod_reactor`

@@ -5,7 +5,7 @@
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.5 / §7.6 / §12 / §16 / §20 / §22（v0.4）  
-> 关联：`18-production-and-quality.md`、`14-deck-and-occupation.md`、`17-idle-and-offline.md`、`09-economy`（货币细表，若拆分）  
+> 关联：`15-economy.md`、`11-deck-and-occupation.md`、`14-idle-and-offline.md`、`09-economy`（货币细表，若拆分）  
 > 更新日期：2026-08-10  
 > 变更：v1.2 P4 落地——`PlayMode`、`CurrencyService`、`NpcShops.json`、`MarketScreen`。
 
@@ -33,7 +33,7 @@
 | 术语 | 定义 |
 | --- | --- |
 | **PlayMode** | `Solo` \| `Online`；见核心设计 §12 |
-| **NPC 商店** | 静态或慢变价货架；单机主流通渠道；叙事上为开拓舰**市场终端**连到的星港认证商人（`03-setting-and-lore.md`） |
+| **NPC 商店** | 静态或慢变价货架；单机主流通渠道；叙事上为开拓舰**市场终端**连到的星港认证商人（`03-worldbuilding.md`） |
 | **玩家市场** | 玩家订单簿；**仅 Online**；叙事为公共交易网络进一步恢复后的舰长间贸易 |
 | **市场终端** | UI 入口（Market）；Solo 只开 NPC，Online 可切换/并陈玩家市场 |
 | **ListingKey** | 资源：`(itemDefId, quality)`；卡牌：见 §4.8（线上） |
@@ -361,7 +361,7 @@ IMarketService
 ## 11. 参考
 
 - 核心设计：`02-core-product-design.md` §7.5 / §7.6 / §12 / §22（v0.4）  
-- 品质与堆叠：`18-production-and-quality.md`  
-- 占用：`14-deck-and-occupation.md`  
-- 开发计划：`13-mvp-development-plan.md`（P4 修订为 NPC）  
+- 品质与堆叠：`15-economy.md`  
+- 占用：`11-deck-and-occupation.md`  
+- 开发计划：`10-mvp-development-plan.md`（P4 修订为 NPC）  
 - 现有：`AppShell` Market 导航、`CardDrawingManager`（须解耦）、`CardEntity`、`ItemEntity`

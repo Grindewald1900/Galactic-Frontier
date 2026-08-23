@@ -1,10 +1,10 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v2.1  
-> 对照设计：[02-core-product-design.md](02-core-product-design.md)（v0.6）  
-> 实现快照：**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)**（本文不再维护重复的状态表）  
+> 文档版本：v2.3  
+> 对照设计：[02-core-product-design.md](02-core-product-design.md)  
+> 实现快照：**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)**  
 > 更新日期：2026-08-23  
-> 变更摘要：文档整理；§7 文档索引并入 PRODUCT-STATUS。
+> 变更摘要：文档合并至 `01`–`20`；世界观权威为 `03-worldbuilding.md`。
 
 本文档回答三件事：
 
@@ -99,9 +99,9 @@
 4. ~~**战斗结束返回主场景被注释**~~ → **P0.3 完成**（战报 Confirm → Explore）  
 5. ~~**缺少 Domain 层测试**~~ → **P0.5** `BattleDomain`；**P1** `DeckRulesTests`；**P3/P4** Inventory/Quality/Durability/NpcShop 测试已追加  
 
-P5 阶段新债优先记入 [10-known-issues.md](10-known-issues.md)（内容管线、任务存档字段等）。
+P5 阶段新债优先记入 [08-known-issues.md](08-known-issues.md)（内容管线、任务存档字段等）。
 
-详见 [10-known-issues.md](10-known-issues.md)。
+详见 [08-known-issues.md](08-known-issues.md)。
 
 ---
 
@@ -120,7 +120,7 @@ P5 阶段新债优先记入 [10-known-issues.md](10-known-issues.md)（内容管
 9. **单机禁用玩家市场**；MVP 经济走 **NPC 商店**；普通卡玩家市场仅 Online  
 10. 首发以**单机**完成主要内容；**不可**依赖玩家市场或多人  
 11. Online 市场按全服规模设计并提供历史价格（非 MVP）  
-12. （保留）玩法细则以 `14`–`32` 规则文档 已拍板文档为准  
+12. （保留）玩法细则以 `11`–`20` 规则文档为准  
 
 设计 §21 中「待确定」细则（站位、品质档位、离线秒数等）应在对应系统文档中拍板后再写死数值；实现阶段可先用可配置默认值 + ScriptableObject/JSON。
 
@@ -161,7 +161,7 @@ flowchart LR
 
 **Cursor 任务切片示例：**
 
-> 阅读 `07-data-and-save.md` 与 `DataUtil.cs`。为存档增加 `saveVersion`，并把 `ItemManager`/`RemoteItemManager` 拆成独立 JSON。不要改第三方包。完成后更新 `07-data-and-save.md`。
+> 阅读 `06-data-and-save.md` 与 `DataUtil.cs`。为存档增加 `saveVersion`，并把 `ItemManager`/`RemoteItemManager` 拆成独立 JSON。不要改第三方包。完成后更新 `06-data-and-save.md`。
 
 ---
 
@@ -219,7 +219,7 @@ flowchart LR
 
 ### P4 — NPC 经济与商店（约 2 周；原全服市场后置） — **已完成（MVP）**
 
-**目标**：落实设计 v0.4 §7.5 单机路径；`20-market-and-card-trade.md` MVP 部分。
+**目标**：落实设计 v0.4 §7.5 单机路径；`16-market-and-card-trade.md` MVP 部分。
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
@@ -263,7 +263,7 @@ flowchart LR
 
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
-| P5.0 新手系统文档 | **已完成** [23-onboarding-and-missions.md](23-onboarding-and-missions.md) | 步骤：编队→首战→采集→制造→NPC 商店 |
+| P5.0 新手系统文档 | **已完成** [17-sector-and-onboarding.md](17-sector-and-onboarding.md) | 步骤：编队→首战→采集→制造→NPC 商店 |
 | P5.4a Missions UI | **已完成** `MissionsScreen` + `OnboardingService` + `onboarding.json` | Bridge/Missions 五步；Claim；可存档 |
 | P5.4b 软引导 CTA | **已完成** Bridge 下一步条 + 目标屏 `OnboardingBanner` | 各目标屏可感知下一步 |
 | P5.3 星域包装 | **已完成** `RewardCatalog` / `RewardService` + 采集节点 + Explore 短叙事 | FirstClear/Repeat/Farm 多物品；裂隙/深渊/护航节点 |
@@ -290,7 +290,7 @@ flowchart LR
 | **Ask / Plan → Agent** | 架构与拍板用 Plan；落地改代码用 Agent |
 | **Rules 固化约束** | 把 §22 十二条约束与「禁止改第三方包」写入 `.cursor/rules` |
 | **验收清单进提示词** | 每任务附带「验收」表中的可勾选项 |
-| **改完同步文档** | 行为变更必须更新 `06-core-systems` / `07-data-and-save` / 本文进度表 |
+| **改完同步文档** | 行为变更必须更新 `05-core-systems` / `06-data-and-save` / 本文进度表 |
 
 ### 6.2 建议的 Cursor Rules（摘要）
 
@@ -309,7 +309,7 @@ flowchart LR
 【背景】
 阅读：
 - 02-core-product-design.md（相关小节）
-- 13-mvp-development-plan.md（当前阶段任务 ID）
+- 10-mvp-development-plan.md（当前阶段任务 ID）
 - <相关专题>.md
 - 入口类：<列出 2–4 个文件>
 
@@ -332,12 +332,12 @@ flowchart LR
 
 | 阶段 | 优先阅读 |
 | --- | --- |
-| P0 | `DataUtil.cs`、`InventoryItemManagerBase.cs`、`BattleController.cs`、`07-data-and-save.md` |
+| P0 | `DataUtil.cs`、`InventoryItemManagerBase.cs`、`BattleController.cs`、`06-data-and-save.md` |
 | P1 | `LineupManager.cs`、`FormationScreen.cs`、`CardEntity.cs`、`CardListManager.cs` |
 | P2 | `ExploreScreen.cs`、`PlanetListManager.cs`、`BattleController.cs`、`GameStatusManager.cs` |
-| P3 | `ItemCatalog`、`ProductionService`、`CraftingScreen`、`InventoryScreen`、`22-resources-and-warehouse.md` |
-| P4 | `MarketScreen`、`NpcShopService`、`CurrencyService`、`20-market-and-card-trade.md` |
-| P5 | `23-onboarding-and-missions.md`（先写）、`AppShell` Missions、`CardDataManager.cs`、`Character` 子类、`24-sector-and-region-content.md` |
+| P3 | `ItemCatalog`、`ProductionService`、`CraftingScreen`、`InventoryScreen`、`15-economy.md` |
+| P4 | `MarketScreen`、`NpcShopService`、`CurrencyService`、`16-market-and-card-trade.md` |
+| P5 | `17-sector-and-onboarding.md`（先写）、`AppShell` Missions、`CardDataManager.cs`、`Character` 子类、`17-sector-and-onboarding.md` |
 
 ### 6.5 不建议交给 Cursor「一次做完」的事项
 
@@ -352,25 +352,25 @@ flowchart LR
 
 ## 7. 系统文档与 PRODUCT-STATUS
 
-核心设计 §21 细则落在 `Documentation/zh-CN/` 编号 **14–32** 规则文档。
+核心设计 §21 细则落在 `Documentation/zh-CN/` 编号 **11–20** 规则文档。
 
-- **版本 / 实现状态 / 验收完成度** → 唯一维护 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) §3  
-- **文档索引** → [README.md 编号总表](README.md#文档编号总表)
+- **版本 / 实现状态 / 验收完成度** → [PRODUCT-STATUS.md](PRODUCT-STATUS.md)  
+- **文档索引** → [README.md](README.md)
 
-### 7.1 仍待写的文档
+### 7.1 仍待写 / 可扩展
 
 | 文档 | 说明 |
 | --- | --- |
-| `25-sector-special-modes.md` | 虫洞/暗面/多元宇宙（方向见核心设计 §7.10） |
-| `33-research-and-transit.md` | Research / Transit 完整循环（可选，待编号） |
+| （并入 20）星域特殊模式细则 | 虫洞/暗面/Boss 房；方向见核心设计 §7.10 |
+| （可选）research-and-transit | Research / Transit 完整循环 |
 
 ### 7.2 使用规则
 
-1. 实现前读 **PRODUCT-STATUS** 确认该文档是否已实现、是否后 MVP。  
-2. 改规则语义 → 升系统文档主版本 + 更新 PRODUCT-STATUS + 必要时回写核心设计 §20/§22。  
-3. 数值进配置表；系统文档只锁语义与公式形状。  
-4. P0 编码入口：先读 `21-save-and-seed-data.md`，再改 `DataUtil` / 库存。  
-5. 调试：读 `28-debug-and-test-mode.md`。
+1. 实现前读 **PRODUCT-STATUS**。  
+2. 改规则语义 → 升对应文档 + 更新 PRODUCT-STATUS；必要时回写 `02` §20/§22。  
+3. 数值进配置表。  
+4. P0：先读 `06-data-and-save.md`。  
+5. 调试：读 `07-development-guide.md`（含 Debug 章）。
 
 ---
 
@@ -392,9 +392,9 @@ flowchart LR
 每完成一个 P 级子任务，更新：
 
 1. **[PRODUCT-STATUS.md](PRODUCT-STATUS.md)** §3–§4（唯一状态源）  
-2. 对应 [06-core-systems.md](06-core-systems.md) 实现说明  
-3. 若引入新模块，在 [04-project-structure.md](04-project-structure.md) 增加目录说明  
-4. 若发现新坑，记入 [10-known-issues.md](10-known-issues.md)  
+2. 对应 [05-core-systems.md](05-core-systems.md) 实现说明  
+3. 若引入新模块，在 [04-architecture.md](04-architecture.md) 增加目录说明  
+4. 若发现新坑，记入 [08-known-issues.md](08-known-issues.md)  
 
 建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M5 (in progress)`），方便试玩反馈对齐版本。
 
@@ -419,15 +419,11 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已�
 
 | 文档 | 用途 |
 | --- | --- |
-| [PRODUCT-STATUS.md](PRODUCT-STATUS.md) | **实现与文档状态唯一权威** |
-| [02-core-product-design.md](02-core-product-design.md) | 产品真相源（玩法约束与 MVP 范围） |
-| [06-core-systems.md](06-core-systems.md) | 当前代码真实行为 |
-| [07-data-and-save.md](07-data-and-save.md) | 存档路径与序列化 |
-| [08-development-guide.md](08-development-guide.md) | Unity 修改与验证清单 |
-| [09-codex-guide.md](09-codex-guide.md) | 自动化代理工作边界（同样适用于 Cursor） |
-| [10-known-issues.md](10-known-issues.md) | 技术债与演进顺序 |
-| [11-figma-ui.md](11-figma-ui.md) | Nexus UI 扩展方式 |
-| [12-core-classes.md](12-core-classes.md) | 核心类职责与调用链 |
-| [21-save-and-seed-data.md](21-save-and-seed-data.md) | P0 存档版本、FakeData 边界、双背包与种子 |
-| [27-gacha-and-progression.md](27-gacha-and-progression.md) | 抽卡正式路径、代价、软保底、绑定/分解 |
-| [28-debug-and-test-mode.md](28-debug-and-test-mode.md) | Dev Data、Debug Panel、礼品码与测试清单 |
+| [PRODUCT-STATUS.md](PRODUCT-STATUS.md) | 实现状态唯一权威 |
+| [02-core-product-design.md](02-core-product-design.md) | 玩法约束 / MVP 范围 |
+| [03-worldbuilding.md](03-worldbuilding.md) | 世界观与故事 |
+| [05-core-systems.md](05-core-systems.md) | 代码实现与类职责 |
+| [06-data-and-save.md](06-data-and-save.md) | 存档路径与契约 |
+| [07-development-guide.md](07-development-guide.md) | 开发 / Agent / Debug |
+| [08-known-issues.md](08-known-issues.md) | 技术债 |
+| [19-characters-and-progression.md](19-characters-and-progression.md) | 抽卡 / 名册 / 能级 |

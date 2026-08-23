@@ -5,7 +5,7 @@
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.1 / §21 / §22  
-> 关联：`14-deck-and-occupation.md`（出战卡组与占用）、开发计划 P0/P2  
+> 关联：`11-deck-and-occupation.md`（出战卡组与占用）、开发计划 P0/P2  
 > 更新日期：2026-08-09
 
 ---
@@ -24,10 +24,10 @@
 
 ### 1.2 非目标
 
-- 多卡组占用与并行上限 → `14-deck-and-occupation.md`
-- 区域解锁、舰船门、遭遇表配置权威 → `16-region-and-ship.md`
-- 挂机刷取的时间产率、离线上限 → `17-idle-and-offline.md`
-- 装备耐久损耗具体公式 → `19-durability-and-repair.md`
+- 多卡组占用与并行上限 → `11-deck-and-occupation.md`
+- 区域解锁、舰船门、遭遇表配置权威 → `13-region-and-ship.md`
+- 挂机刷取的时间产率、离线上限 → `14-idle-and-offline.md`
+- 装备耐久损耗具体公式 → `15-economy.md`
 - 实时 PvP、手工点选技能、速度轴 QTE
 
 ---
@@ -274,12 +274,12 @@ EncounterConfig
 - enemySlots[5]: { characterId or template, level, attrs override? }
 - maxRoundOverride?: int
 - isBoss: bool
-- rewardTableId?: string   // 掉落表见 `24-sector-and-region-content.md`
+- rewardTableId?: string   // 掉落表见 `17-sector-and-onboarding.md`
 - lootScrap?: int          // 兼容回退：废料保底
 ```
 
 敌人来源必须来自配置表，**禁止**正式流程 `FakeData()` 随机生成（P0 技术债）。  
-通关/挂机具体掉落数量以 `24-sector-and-region-content.md` 为准。
+通关/挂机具体掉落数量以 `17-sector-and-onboarding.md` 为准。
 
 ---
 
@@ -379,7 +379,7 @@ Resolver 必须支持**无场景**连续调用，供离线结算复用。
 ## 13. 参考
 
 - 核心设计：`02-core-product-design.md` §7.1 / §21  
-- 卡组占用：`14-deck-and-occupation.md`  
+- 卡组占用：`11-deck-and-occupation.md`  
 - 现有实现：`BattleController.cs`、`Character` 子类、`TargetSelector.cs`、`SpeedController.cs`、`BattleReportManager.cs`、`BattleChrome.cs`  
-- 系统说明：`06-core-systems.md` §6–7  
-- 开发计划：`13-mvp-development-plan.md`
+- 系统说明：`05-core-systems.md` §6–7  
+- 开发计划：`10-mvp-development-plan.md`

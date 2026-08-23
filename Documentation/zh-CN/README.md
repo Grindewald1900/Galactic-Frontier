@@ -1,74 +1,66 @@
 # Galactic Frontier 中文开发文档
 
-本目录为**唯一**中文文档集。若与代码冲突，以代码为准，并同步更新 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+本目录为**唯一**中文文档集（共 20 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ## 必读入口
 
 | 文档 | 用途 |
 | --- | --- |
-| **[PRODUCT-STATUS.md](PRODUCT-STATUS.md)** | 唯一权威：版本、实现状态、验收完成度 |
-| [02-core-product-design.md](02-core-product-design.md) | 产品约束与 MVP 范围 |
-| [13-mvp-development-plan.md](13-mvp-development-plan.md) | 阶段路线图与 Cursor 工作法 |
+| **[PRODUCT-STATUS.md](PRODUCT-STATUS.md)** | 实现与验收状态（唯一权威） |
+| [02-core-product-design.md](02-core-product-design.md) | 玩法约束与 MVP 范围 |
+| [03-worldbuilding.md](03-worldbuilding.md) | **世界观与故事（叙事权威）** |
+| [10-mvp-development-plan.md](10-mvp-development-plan.md) | 阶段路线图 |
 
-## 文档编号总表
+## 文档总表（01–20）
 
-| 编号 | 文档 | 类别 |
+| # | 文档 | 类别 |
 | ---: | --- | --- |
 | 01 | [quick-start](01-quick-start.md) | 工程 |
 | 02 | [core-product-design](02-core-product-design.md) | 产品 |
-| 03 | [setting-and-lore](03-setting-and-lore.md) | 设定 |
-| 04 | [project-structure](04-project-structure.md) | 工程 |
-| 05 | [architecture](05-architecture.md) | 工程 |
-| 06 | [core-systems](06-core-systems.md) | 工程 |
-| 07 | [data-and-save](07-data-and-save.md) | 工程 |
-| 08 | [development-guide](08-development-guide.md) | 工程 |
-| 09 | [codex-guide](09-codex-guide.md) | 工程 |
-| 10 | [known-issues](10-known-issues.md) | 工程 |
-| 11 | [figma-ui](11-figma-ui.md) | 工程 |
-| 12 | [core-classes](12-core-classes.md) | 工程 |
-| 13 | [mvp-development-plan](13-mvp-development-plan.md) | 计划 |
-| 14 | [deck-and-occupation](14-deck-and-occupation.md) | 规则 |
-| 15 | [auto-battle](15-auto-battle.md) | 规则 |
-| 16 | [region-and-ship](16-region-and-ship.md) | 规则 |
-| 17 | [idle-and-offline](17-idle-and-offline.md) | 规则 |
-| 18 | [production-and-quality](18-production-and-quality.md) | 规则 |
-| 19 | [durability-and-repair](19-durability-and-repair.md) | 规则 |
-| 20 | [market-and-card-trade](20-market-and-card-trade.md) | 规则 |
-| 21 | [save-and-seed-data](21-save-and-seed-data.md) | 规则 |
-| 22 | [resources-and-warehouse](22-resources-and-warehouse.md) | 内容契约 |
-| 23 | [onboarding-and-missions](23-onboarding-and-missions.md) | 规则 |
-| 24 | [sector-and-region-content](24-sector-and-region-content.md) | 内容契约 |
-| 25 | `sector-special-modes` | 方向稿（待写） |
-| 26 | [play-modes-and-persistence](26-play-modes-and-persistence.md) | 方向稿 |
-| 27 | [gacha-and-progression](27-gacha-and-progression.md) | 规则 |
-| 28 | [debug-and-test-mode](28-debug-and-test-mode.md) | 规则 |
-| 29 | [online-multiverse-cooperation](29-online-multiverse-cooperation.md) | 方向稿 |
-| 30 | [character-roster-and-lore](30-character-roster-and-lore.md) | 内容契约 |
-| 31 | [card-energy-rank](31-card-energy-rank.md) | 规则 |
-| 32 | [stellar-map-and-navigation](32-stellar-map-and-navigation.md) | 方向稿 |
+| 03 | [worldbuilding](03-worldbuilding.md) | **设定** |
+| 04 | [architecture](04-architecture.md) | 工程（结构+架构） |
+| 05 | [core-systems](05-core-systems.md) | 工程（实现+类图） |
+| 06 | [data-and-save](06-data-and-save.md) | 工程/规则（存档+种子） |
+| 07 | [development-guide](07-development-guide.md) | 工程（开发+Agent+Debug） |
+| 08 | [known-issues](08-known-issues.md) | 工程 |
+| 09 | [figma-ui](09-figma-ui.md) | 工程 |
+| 10 | [mvp-development-plan](10-mvp-development-plan.md) | 计划 |
+| 11 | [deck-and-occupation](11-deck-and-occupation.md) | 规则 |
+| 12 | [auto-battle](12-auto-battle.md) | 规则 |
+| 13 | [region-and-ship](13-region-and-ship.md) | 规则 |
+| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 |
+| 15 | [economy](15-economy.md) | 规则（生产+资源+耐久） |
+| 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 |
+| 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
+| 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
+| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级） |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向稿 |
 
-## 推荐阅读顺序
+## 推荐阅读
 
-1. [01-quick-start](01-quick-start.md)
-2. [PRODUCT-STATUS](PRODUCT-STATUS.md)
-3. [03-setting-and-lore](03-setting-and-lore.md)
-4. [04-project-structure](04-project-structure.md) → [05-architecture](05-architecture.md)
-5. [06-core-systems](06-core-systems.md) → [07-data-and-save](07-data-and-save.md)
-6. [08-development-guide](08-development-guide.md) → [09-codex-guide](09-codex-guide.md)
-7. 实现玩法：PRODUCT-STATUS §3 → 对应 `14`–`32` 规则文档
+1. [01-quick-start](01-quick-start.md) → [PRODUCT-STATUS](PRODUCT-STATUS.md)  
+2. [03-worldbuilding](03-worldbuilding.md)（故事与主题）  
+3. [02-core-product-design](02-core-product-design.md)（玩法硬约束）  
+4. [04-architecture](04-architecture.md) → [05-core-systems](05-core-systems.md) → [06-data-and-save](06-data-and-save.md)  
+5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`20`
 
-## 项目一句话
+## 合并说明（相对旧树）
 
-`Galactic Frontier / 群星边境`：断航三百年后，作为群星开拓局舰长，在第七前沿推进区域、挂机采集制造、经星港 NPC 维持贸易的单人卡牌养成循环。
+| 新文档 | 合并自 |
+| --- | --- |
+| 03-worldbuilding | 旧设定稿 + **Worldbuilding v1.0** |
+| 04-architecture | project-structure + architecture |
+| 05-core-systems | core-systems + core-classes |
+| 06-data-and-save | data-and-save + save-and-seed |
+| 07-development-guide | development + codex + debug |
+| 15-economy | production + resources + durability |
+| 17-sector-and-onboarding | onboarding + sector-content |
+| 18-online-and-play-modes | play-modes + online-multiverse |
+| 19-characters-and-progression | gacha + roster + energy-rank |
 
 ## 环境基线
 
 | 项目 | 值 |
 | --- | --- |
 | Unity | `6000.0.20f1` |
-| 渲染 | URP `17.0.3` |
-| 代码 | `Assets/Resources/Scripts` |
-| 配置 | `Assets/Resources/data` |
-| MVP 进度 | [PRODUCT-STATUS §2](PRODUCT-STATUS.md#2-mvp-总览)（约 80%–85%） |
-
-技术债 → [10-known-issues.md](10-known-issues.md)
+| MVP 进度 | 见 [PRODUCT-STATUS](PRODUCT-STATUS.md)（约 80%–85%） |

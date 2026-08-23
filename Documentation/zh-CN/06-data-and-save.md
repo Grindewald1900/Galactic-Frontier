@@ -1,18 +1,157 @@
-# 系统文档：存档契约与种子数据
-
+# 数据、存档与种子契约
 > 文档版本：v1.0
-> 文档类型：**规则**
-> **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
-
-> 上级约束：`02-core-product-design.md` §16.1 / §20 / §22；开发计划 P0.1 / P0.2  
-> 分工：路径与 JsonUtility 现状见 [07-data-and-save.md](07-data-and-save.md)；**本文件定契约**（版本、迁移、FakeData 边界、分文件、原子写、新档种子）  
-> 更新日期：2026-08-09
+> 文档类型：**工程 / 规则**
+> 由原 `07-data-and-save` + `21-save-and-seed-data` 合并。
+> 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ---
 
-## 1. 目标与非目标
+## 存档路径与序列化（工程）
 
-### 1.1 目标
+### Dev Data Mode（P0.1）
+
+正式流程默认关闭样例 / FakeData，避免启动覆写玩家档：
+
+| 开关 | 说明 |
+| --- | --- |
+| `DevDataSettings.Enabled` | 总开关；默认 `false` |
+| EditorPrefs | `GalacticFrontier.DevData.enabled`（仅 Editor） |
+| 启动参数 | `-devData` |
+| 礼品码 | `001`（会话内切换；需重进相关界面才看到样例 UI） |
+| `DefaultProperty.isDebug` | **只**控制明文 JSON / Base64，**不**打开 FakeData |
+
+入口代码：`Assets/Resources/Scripts/Utils/Save/`（`DevDataSettings`、`IDevDataProvider`、`SaveMigrator`、`StarterSeedApplier` 等）。
+
+### 存档位置（saveVersion = 4）
+
+`DataUtil` 使用：
+
+```text
+Application.persistentDataPath/
+└─ saves/
+   ├─ playerEntities.json
+   ├─ _corrupt/
+   └─ <player-guid>/
+      ├─ meta.json
+      ├─ playerData.json
+      ├─ playerCards.json
+      ├─ inventory_local.json
+      ├─ inventory_remote.json
+      ├─ decks.json
+      ├─ world.json                  // P2：区域进度
+      ├─ ship.json                   // P2：舰船与模块
+      ├─ idle.json                   // P3：离线结算 / Pending / 熟练度
+      ├─ expertData.json
+      ├─ avatar.png
+      └─ itemData.json.bak
+```
+
+在当前 Windows 项目配置下，典型路径为：
+
+```text
+%USERPROFILE%/AppData/LocalLow/YeeStudio/Galactic Frontier/saves
+```
+
+所有路径应通过 `Path.Combine` 或 `DataUtil.GetPlayer*Path()` / `GetInventoryPath()` 构造，不要自行拼接 `/`。
+
+### 初始化与当前玩家
+
+- `DataUtil.Awake()` 设置单例、初始化 `saves` 根目录并调用 `DontDestroyOnLoad`。
+- `CreatePlayerData()` 创建默认 `PlayerEntity`，写入 Starter Seed（本地）、空远程库存、默认 `decks.json` 与 `meta.json`（`saveVersion = 2`）。
+- `SetCurrentPlayer()` 切换玩家后 `UpdatePaths()`，并运行 `SaveMigrator.EnsureCurrent`（无 meta 视为 v0 → … → 2）。
+- 未设置有效当前玩家前，不应调用依赖玩家目录的卡牌、物品或专长读写。
+- `_dev` / `_corrupt` 目录不会出现在读档列表中。
+
+### 卡组 API（P1.1）
+
+```text
+DataUtil.SaveDeckState(PlayerDeckState state, bool touchMeta = true)
+DataUtil.LoadDeckState() -> PlayerDeckState
+DeckService.EnsureLoaded / CreateForNewPlayer / TryStart / TryStop
+```
+
+编制权威在 `DeckEntity.slotCardIds`；活跃战斗卡组成员会镜像到 `CardEntity.LineupPosition` 以兼容旧 UI/战斗。规则细节见 [11-deck-and-occupation.md](11-deck-and-occupation.md)。
+
+### 库存 API
+
+```text
+DataUtil.SaveInventory(InventoryStore store, List<ItemEntity> items)
+DataUtil.LoadInventory(InventoryStore store) -> List<ItemEntity>
+enum InventoryStore { Local, Remote }
+```
+
+`SaveItemData` / `LoadItemData` 已标记 Obsolete（勿用于新代码）。  
+`ItemManager` → Local；`RemoteItemManager` → Remote。变更会写对应 JSON 并刷新 `meta.lastSavedAtUtc`。
+
+### 序列化格式
+
+Unity `JsonUtility` 不直接序列化顶层列表，因此使用：
+
+- `PlayerListWrapper`
+- `CardListWrapper`
+- `ItemListWrapper`（两侧库存共用）
+- `ExpertiseListWrapper`
+- `SkillListWrapper`
+- `BaseAttrEntityWrapper`
+- `SaveMeta`
+- `PlayerDeckState`（直接序列化；内含 `List<DeckEntity>`）
+
+`DefaultProperty.isDebug == true` 时保存明文 JSON；否则保存 Base64 文本。Base64 只是编码，不是安全加密。
+
+写入走原子写：先写 `.{fileName}.tmp`，再 `File.Replace` / `Move` 到目标文件。
+
+### 静态数据
+
+| 文件 | 加载方式 | 用途 |
+| --- | --- | --- |
+| `Resources/data/BaseAttributes.json` | `Resources.Load<TextAsset>` | 各等级基础属性 |
+| `Resources/data/SkillData_encrypted.bytes` | `EncryptionUtil` | 角色技能定义 |
+| `Resources/data/SkillData.json` | 当前主要作为源数据/调试数据 | 可读技能数据 |
+| `Resources/data/StarterSeed.json` | `StarterSeedApplier` | 新档本地教程材料（确定性） |
+| `Galactic-Mock-Data - Asra.csv` | 未形成正式运行时管线 | 模拟/设计数据 |
+
+修改静态 JSON 时：
+
+1. 保持字段名与实体/Wrapper 完全一致；
+2. 枚举通常以整数序列化，改变枚举顺序会改变旧数据含义；
+3. 用 Unity 实际加载验证，不要只检查 JSON 语法；
+4. 若明文源数据需要重新生成 `.bytes`，应确认当前加密/编码工具链。
+
+### 保存调用关系
+
+```mermaid
+flowchart TD
+    A["SettingsManager.SaveGame"] --> B["DataUtil.SaveGameData"]
+    B --> C["SavePlayerData"]
+    B --> D["SaveCardData"]
+    B --> E["SaveInventory Local"]
+    B --> F["SaveInventory Remote"]
+    B --> N["DeckService.Save / SaveDeckState"]
+    B --> G["TouchMetaLastSaved"]
+    C --> H["playerData.json"]
+    D --> I["playerCards.json"]
+    E --> J["inventory_local.json"]
+    F --> K["inventory_remote.json"]
+    N --> O["decks.json"]
+    G --> L["meta.json"]
+    M["Inventory Managers"] --> E
+    M --> F
+```
+
+### 兼容性注意事项
+
+- `JsonUtility` 主要处理字段，不处理普通 C# 属性；需要持久化的状态必须确认存在序列化字段。
+- `CardEntity` 包含运行时字典和事件，这些不会由 `JsonUtility` 保存；加载后需要依赖构造/初始化逻辑重建。
+- `readonly` 字段、事件和字典不应被当作存档格式的一部分。
+- 旧档仅有 `itemData.json` 时，选档会自动拆分为 local/remote 并生成 `meta.json`；原文件改名为 `itemData.json.bak`。
+- `saveVersion = 1` 且无 `decks.json` 时，Migrator 1→2 从 `playerCards` 的 `LineupPosition` 生成默认战斗卡组。
+- `saveVersion` 高于游戏支持时拒绝加载（见 `DataUtil.LastSaveError`）。
+
+## 存档契约与种子（规则）
+
+### 1. 目标与非目标
+
+#### 1.1 目标
 
 在扩展卡组 / 区域 / 经济 / 市场之前，先把存档变成**可安全迭代的契约**：
 
@@ -25,9 +164,9 @@
 
 完成本契约后，里程碑 **M0（可迭代原型）** 的存档侧条件满足。
 
-### 1.2 非目标
+#### 1.2 非目标
 
-- 资源品类表、货舱容量数值 → `22-resources-and-warehouse.md`  
+- 资源品类表、货舱容量数值 → `15-economy.md`  
 - 卡组 / 占用 / 区域 / 离线 / 生产 / 市场的玩法语义 → `01`–`07`（本文件只规定它们**如何落盘**）  
 - 真加密、防作弊、云同步冲突解决（Base64 仍不是安全边界）  
 - 多端同时写同一存档目录的并发锁（单机单实例假设）  
@@ -35,7 +174,7 @@
 
 ---
 
-## 2. 术语
+### 2. 术语
 
 | 术语 | 定义 |
 | --- | --- |
@@ -52,7 +191,7 @@
 
 ---
 
-## 3. 硬约束（不可违背）
+### 3. 硬约束（不可违背）
 
 1. **正式模式禁止 FakeData 写玩家档**。任何 `FakeData()` / `CreateFakeData()` 不得在正式流程调用 `DataUtil.Save*`。  
 2. **读档优先于造数**：若目标存档文件已存在，正式模式只加载，不重新随机生成。  
@@ -65,11 +204,11 @@
 
 ---
 
-## 4. MVP 拍板决议
+### 4. MVP 拍板决议
 
 > 下列决议关闭开发计划 P0.1 / P0.2 与已知问题中的存档技术债。语义按本表实现；开关名可微调。
 
-### 4.1 运行模式与 FakeData 边界
+#### 4.1 运行模式与 FakeData 边界
 
 | 项目 | MVP 规则 |
 | --- | --- |
@@ -77,7 +216,7 @@
 | Dev Data Mode 开启条件 | **仅** `UNITY_EDITOR` 且 `DevDataSettings.enabled == true`，**或** 启动参数 / Debug 菜单显式打开 |
 | PlayerPrefs / 打包包体 | 正式包默认 `enabled = false`；不得因 `DefaultProperty.isDebug`（明文 JSON）连带打开 FakeData |
 
-> Debug 面板、礼品码、测试清单的完整说明见 [28-debug-and-test-mode.md](28-debug-and-test-mode.md)。
+> Debug 面板、礼品码、测试清单的完整说明见 [07-development-guide.md](07-development-guide.md)。
 | 正式模式遇「需要演示数据」 | 使用 **Starter Seed 配置表** 或遭遇/静态配置；禁止 `Random.Range` 写档 |
 | Dev 注入目标 | 优先写入 `saves/_dev/{playerId}/` **或** 仅内存；若必须写正式档目录，须二次确认且打日志 `[DEV-DATA]` |
 | 战斗敌人 | 正式流程只读 `EncounterConfig`；`BattleController.FakeData()` 仅 Dev 或单测夹具 |
@@ -100,7 +239,7 @@ IDevDataProvider
 - 业务代码通过注入或 `DevData.Current` 访问；`IsActive == false` 时所有方法应抛出或返回空，并由调用方走正式分支。  
 - **禁止**在 `InventoryItemManagerBase.Start` 无条件 `CreateFakeData()`。改为：`Load` → 若空且是新档则 `ApplyStarterSeed` → 仅当 Dev 且用户选择「注入样例」才调用 Provider。
 
-### 4.2 新档启动种子（Starter Seed）
+#### 4.2 新档启动种子（Starter Seed）
 
 | 项目 | MVP 默认 |
 | --- | --- |
@@ -114,7 +253,7 @@ IDevDataProvider
 
 配置建议：`Resources/data/StarterSeed.json`（或 ScriptableObject），含 `seedTableVersion`。
 
-### 4.3 `saveVersion` 与 `meta.json`
+#### 4.3 `saveVersion` 与 `meta.json`
 
 每个玩家档目录必须有：
 
@@ -147,7 +286,7 @@ saves/{playerId}/meta.json
 
 | 步骤 | 动作 |
 | --- | --- |
-| 1 | 若尚无 `decks.json`：从 `playerCards.json` 收集 `LineupPosition != None`，写入默认战斗卡组（见 `14-deck-and-occupation.md`） |
+| 1 | 若尚无 `decks.json`：从 `playerCards.json` 收集 `LineupPosition != None`，写入默认战斗卡组（见 `11-deck-and-occupation.md`） |
 | 2 | 若已有 `decks.json`：保留并仅抬升 `meta.saveVersion` |
 | 3 | 写入 `meta.json`（`saveVersion = 2`） |
 
@@ -169,7 +308,7 @@ saves/{playerId}/meta.json
 | 2 | 若无 `idle.json`：写入空 Pending + mastery |
 | 3 | 写入 `meta.json`（`saveVersion = 4`） |
 
-### 4.4 物品分文件
+#### 4.4 物品分文件
 
 | 集合 | 文件名 | 读写方 |
 | --- | --- | --- |
@@ -188,7 +327,7 @@ enum InventoryStore { Local, Remote }
 
 `SaveGameData()` 在 P0 至少应：玩家资料 + 卡牌 + **两侧库存**（若已加载）+ 刷新 `meta.json` 时间戳。
 
-### 4.5 原子写
+#### 4.5 原子写
 
 所有玩家档 JSON（含 `meta.json`）统一：
 
@@ -199,7 +338,7 @@ enum InventoryStore { Local, Remote }
 
 失败时：保留旧目标文件；打 Error 日志；向上返回失败，UI 提示「保存失败」。
 
-### 4.6 明文 vs Base64
+#### 4.6 明文 vs Base64
 
 | 项目 | 规则 |
 | --- | --- |
@@ -207,7 +346,7 @@ enum InventoryStore { Local, Remote }
 | `false` | Base64 文本存储（**混淆而非加密**） |
 | 迁移 | 读写层统一走现有 `EncryptBase64` / `DecryptBase64`；Migrator 使用同一 API |
 
-### 4.7 损坏与备份
+#### 4.7 损坏与备份
 
 | 情况 | MVP 行为 |
 | --- | --- |
@@ -219,9 +358,9 @@ P0 不强制每次保存都做滚动备份；迁移拆分时保留 `.bak` 即可
 
 ---
 
-## 5. 数据模型与目录契约
+### 5. 数据模型与目录契约
 
-### 5.1 目标目录树（`saveVersion = 2`）
+#### 5.1 目标目录树（`saveVersion = 2`）
 
 ```text
 Application.persistentDataPath/
@@ -247,7 +386,7 @@ Application.persistentDataPath/
       └─ market_local.json         // P4 LocalMock，见 07
 ```
 
-### 5.2 Wrapper 约定
+#### 5.2 Wrapper 约定
 
 继续使用 `JsonUtility` + Wrapper（顶层 List 不可直接序列化）。新增文件同样遵循：
 
@@ -263,7 +402,7 @@ InventoryFile
 - count: int
 ```
 
-### 5.3 缺文件初始化策略
+#### 5.3 缺文件初始化策略
 
 | 文件 | 缺失时 |
 | --- | --- |
@@ -272,7 +411,7 @@ InventoryFile
 | `inventory_*.json` | 空列表；若是**刚刚 CreatePlayer** 则 Apply Starter Seed（仅 Local） |
 | `decks.json` 等未来文件 | 由对应系统文档的「缺省初始化 / 迁移」负责；存档层提供 `LoadOrDefault` |
 
-### 5.4 与静态配置的边界
+#### 5.4 与静态配置的边界
 
 | 类型 | 位置 | 可变性 |
 | --- | --- | --- |
@@ -283,9 +422,9 @@ InventoryFile
 
 ---
 
-## 6. 加载 / 保存时序
+### 6. 加载 / 保存时序
 
-### 6.1 选档进入主流程
+#### 6.1 选档进入主流程
 
 ```mermaid
 flowchart TD
@@ -298,7 +437,7 @@ flowchart TD
     G --> H["进入 MainScene"]
 ```
 
-### 6.2 保存检查点
+#### 6.2 保存检查点
 
 | 触发 | 最小写入集 |
 | --- | --- |
@@ -310,7 +449,7 @@ flowchart TD
 ---
 
 
-## 8. 分步实现顺序（对齐 P0）
+### 8. 分步实现顺序（对齐 P0）
 
 1. ~~**P0.1a** `DevDataSettings` + `IDevDataProvider`；切断库存 Fake 写档~~ **完成**  
 2. ~~**P0.1b** 战斗/抽卡/雷达/事件 Fake 调用改为 Provider 守卫~~ **完成**  
@@ -323,7 +462,7 @@ flowchart TD
 
 ---
 
-## 9. 设计验收标准
+### 9. 设计验收标准
 
 - 正式模式启动 MainScene：**不会**因库存逻辑把随机物品写入玩家档（P0.1）  
 - 连续两次启动，本地/远程库存与上次保存一致（无随机漂移）（P0.1/P0.2）  
@@ -342,7 +481,7 @@ flowchart TD
 
 ---
 
-## 10. 开放钩子
+### 10. 开放钩子
 
 - 滚动备份（`backups/slot_N`）与云同步  
 - 存档校验和（防轻度篡改提示，非安全）  
@@ -355,14 +494,14 @@ flowchart TD
 
 ---
 
-## 11. 参考
+### 11. 参考
 
-- 路径现状：`07-data-and-save.md`  
-- 技术债：`10-known-issues.md`  
-- 开发计划：`13-mvp-development-plan.md` P0.1 / P0.2 / §7.2  
-- 卡组落盘：`14-deck-and-occupation.md`（`decks.json`）  
-- 区域/舰船：`16-region-and-ship.md`（`world.json` / `ship.json`）  
-- 离线：`17-idle-and-offline.md`（`idle.json`）  
-- 市场 Mock：`20-market-and-card-trade.md`（`market_local.json`）  
-- Debug / Dev Data：`28-debug-and-test-mode.md`  
+- 路径现状：`06-data-and-save.md`  
+- 技术债：`08-known-issues.md`  
+- 开发计划：`10-mvp-development-plan.md` P0.1 / P0.2 / §7.2  
+- 卡组落盘：`11-deck-and-occupation.md`（`decks.json`）  
+- 区域/舰船：`13-region-and-ship.md`（`world.json` / `ship.json`）  
+- 离线：`14-idle-and-offline.md`（`idle.json`）  
+- 市场 Mock：`16-market-and-card-trade.md`（`market_local.json`）  
+- Debug / Dev Data：`07-development-guide.md`  
 - 代码：`DataUtil.cs`、`InventoryItemManagerBase.cs`、`DefaultProperty.cs`、`BattleController.cs`、`DevDataSettings.cs`

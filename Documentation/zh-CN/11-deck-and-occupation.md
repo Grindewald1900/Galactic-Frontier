@@ -23,10 +23,10 @@
 
 ### 1.2 非目标（本文件不解决）
 
-- 自动战斗回合内技能选择细则 → `15-auto-battle.md`
+- 自动战斗回合内技能选择细则 → `12-auto-battle.md`
 - 采集产量、生产配方、离线秒数 → `04` / `05` 系列
-- 市场与卡牌交易绑定规则 → `20-market-and-card-trade.md`
-- 舰船槽位设施的完整数值曲线 → `16-region-and-ship.md`（本文只引用解锁钩子）
+- 市场与卡牌交易绑定规则 → `16-market-and-card-trade.md`
+- 舰船槽位设施的完整数值曲线 → `13-region-and-ship.md`（本文只引用解锁钩子）
 
 ---
 
@@ -349,7 +349,7 @@ PlayerDeckState
 ## 11. 参考
 
 - 核心设计：`02-core-product-design.md`  
-- 开发计划：`13-mvp-development-plan.md`  
+- 开发计划：`10-mvp-development-plan.md`  
 - 当前编队实现：`LineupManager.cs`、`FormationScreen.cs`、`CardEntity.LineupPosition`  
 - 卡牌集合：`CardListManager.cs`  
-- 存档：`07-data-and-save.md`
+- 存档：`06-data-and-save.md`

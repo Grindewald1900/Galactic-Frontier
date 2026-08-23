@@ -5,7 +5,7 @@
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
-> 关联：`14-deck-and-occupation.md`、`15-auto-battle.md`；离线/采集细则见 `17-idle-and-offline.md`  
+> 关联：`11-deck-and-occupation.md`、`12-auto-battle.md`；离线/采集细则见 `14-idle-and-offline.md`  
 > 更新日期：2026-08-10  
 > 变更：v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
 
@@ -21,15 +21,15 @@
 2. **舰船条件** — 证明具备进入并持续开发该区域的基础设施（航程、能源、**熵雾抗性**等）。
 
 由此把「开图」与「舰船成长 / 资源投入」绑在同一循环里，并避免仅靠等待时间卡进度。  
-设定权威：`03-setting-and-lore.md`（群星航网 / 断航灾变 / 开拓局）。
+设定权威：`03-worldbuilding.md`（群星航网 / 断航灾变 / 开拓局）。
 
 ### 1.2 非目标
 
-- 战斗内回合规则与策略 → `15-auto-battle.md`
-- 挂机刷取产率、离线时长上限 → `17-idle-and-offline.md`
-- 采集节点产量、生产链 → `18-production-and-quality.md` / `22-resources-and-warehouse.md`
-- **通关掉落、挂机奖励表、区域叙事填充** → `24-sector-and-region-content.md`
-- 多星域大地图、跨服航线、公会占星（非 MVP）→ 空间探索方向见 `32-stellar-map-and-navigation.md`
+- 战斗内回合规则与策略 → `12-auto-battle.md`
+- 挂机刷取产率、离线时长上限 → `14-idle-and-offline.md`
+- 采集节点产量、生产链 → `15-economy.md` / `15-economy.md`
+- **通关掉落、挂机奖励表、区域叙事填充** → `17-sector-and-onboarding.md`
+- 多星域大地图、跨服航线、公会占星（非 MVP）→ 空间探索方向见 `20-stellar-map-and-navigation.md`
 - 虫洞 / 宇宙暗面 / 多元宇宙的完整数值与 UI（§10 仅定方向，非 MVP 必做）
 
 ---
@@ -230,7 +230,7 @@ RegionConfig
 - bossRegion: bool
 ```
 
-遭遇内容本身见 `15-auto-battle.md` 的 `EncounterConfig`；本系统负责 **选哪场遭遇、是否允许开打**。
+遭遇内容本身见 `12-auto-battle.md` 的 `EncounterConfig`；本系统负责 **选哪场遭遇、是否允许开打**。
 
 ### 4.8 失败、回退与可见性
 
@@ -372,7 +372,7 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 | **宇宙暗面** | 已通关区的地狱难度变体；更高掉落；可限次 |
 | **多元宇宙 Boss 房** | 一命肉鸽连续战；失败结束本轮；奖励宜绑定/限兑，降低对线上经济冲击 |
 
-完整规则另开 `25-sector-special-modes.md`（待写）。
+完整规则另开 `20-stellar-map-and-navigation.md`（待写）。
 
 若取消「舰船硬门」或改为纯等级门，需修订核心设计 §7.8 并升本文主版本。
 
@@ -381,9 +381,9 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 ## 11. 参考
 
 - 核心设计：`02-core-product-design.md` §7.8 / §16.1  
-- 设定：`03-setting-and-lore.md`  
-- 战斗：`15-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
-- 卡组：`14-deck-and-occupation.md`（舰船设施解锁钩子）  
-- **星域内容与掉落表**：`24-sector-and-region-content.md`  
+- 设定：`03-worldbuilding.md`  
+- 战斗：`12-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
+- 卡组：`11-deck-and-occupation.md`（舰船设施解锁钩子）  
+- **星域内容与掉落表**：`17-sector-and-onboarding.md`  
 - 现有 UI：`ExploreScreen.cs`、`UiText.SectorName`、`PlanetEntity`、`PlayerEntity`  
-- 开发计划：`13-mvp-development-plan.md` P2
+- 开发计划：`10-mvp-development-plan.md` P2
