@@ -1,8 +1,10 @@
 # 系统文档：资源表、生产链与仓库
 
-> 文档版本：v1.3  
-> 状态：**P3 内容契约（MVP）；流水线内容表已拍板（后 MVP）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §20 / §22  
+> 文档版本：v1.3
+> 文档类型：**内容契约**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.9 / §16.1 / §20 / §22  
 > 关联：`05-production-and-quality.md`（规则与公式）、`03-region-and-ship.md`（舰船模块）、`04-idle-and-offline.md`（满仓 / Pending）、`06-durability-and-repair.md`（维修耗材）、`08-save-and-seed-data.md`（种子物资）、`00-setting-and-lore.md`（断航叙事口吻）  
 > 实现权威：`ItemCatalog` / `ItemAcquireCatalog` / `RecipeCatalog` / `GatherNodeCatalog` / `ShipModuleCatalog` / `QualityRules` / `ProductionService`  
 > 更新日期：2026-08-23  
@@ -490,18 +492,18 @@ recipeMastery    → PlayerIdleState.mastery[]
 
 ---
 
-## 10. 验收清单
+## 10. 设计验收标准
 
-- [ ] 仓库可展示并堆叠全部可堆叠资源（按品质分堆），并显示**物品说明**
-- [ ] 星港货架详情与编队已装装备详情展示说明
-- [ ] `ItemCatalog` 每条定义 `descriptionEn` / `descriptionZh` 非空
-- [ ] 3 条链均可：采集原料 → Process → Manufacture 成品入库
-- [ ] 设施 Lv.0 无法开对应配方；Lv.1/2/3 按 §8.2 解锁
-- [ ] 提高设施等级后，同材料连续制造的品质区间上移（预览与实装一致）
-- [ ] 速度随设施等级提升（同配方周期变短）
-- [ ] 满仓不丢产出；`PausedBlock` 可恢复
-- [ ] `mod_synth` 存在于舰船模块表且可升级
-- [ ] EditMode：堆叠隔离、品质地板、配方门槛（可与现有 `InventoryRules` / `QualityRules` 测试并列）
+- 仓库可展示并堆叠全部可堆叠资源（按品质分堆），并显示**物品说明**
+- 星港货架详情与编队已装装备详情展示说明
+- `ItemCatalog` 每条定义 `descriptionEn` / `descriptionZh` 非空
+- 3 条链均可：采集原料 → Process → Manufacture 成品入库
+- 设施 Lv.0 无法开对应配方；Lv.1/2/3 按 §8.2 解锁
+- 提高设施等级后，同材料连续制造的品质区间上移（预览与实装一致）
+- 速度随设施等级提升（同配方周期变短）
+- 满仓不丢产出；`PausedBlock` 可恢复
+- `mod_synth` 存在于舰船模块表且可升级
+- EditMode：堆叠隔离、品质地板、配方门槛（可与现有 `InventoryRules` / `QualityRules` 测试并列）
 
 ---
 
@@ -572,7 +574,7 @@ recipeMastery    → PlayerIdleState.mastery[]
 
 ## 13. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.9 / §16.1  
+- 核心设计：`../01-core-product-design.md` §7.9 / §16.1  
 - 规则：`05-production-and-quality.md`  
 - 舰船：`03-region-and-ship.md` §4.5  
 - 离线/满仓：`04-idle-and-offline.md`  

@@ -1,8 +1,10 @@
 # 系统文档：卡牌角色设定与背景
 
-> 文档版本：v1.0  
-> 状态：**P5 内容契约（叙事 + 技能命名权威）**  
-> 上级约束：`Documentation/01-core-product-design.md`、`00-setting-and-lore.md`  
+> 文档版本：v1.0
+> 文档类型：**内容契约**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md`、`00-setting-and-lore.md`  
 > 关联：`02-auto-battle.md`、`01-deck-and-occupation.md`、`15-gacha-and-progression.md`、`11-sector-and-region-content.md`、`19-card-energy-rank.md`（能级进阶与上阵主动）  
 > 实现权威：`CharacterName`、`CharacterSkillController`、`Batch1/2Characters`、`SkillTemplates`、`CharacterFactionCatalog`、`BaseAttributes.json`、`CardDataManager`  
 > 更新日期：2026-08-14
@@ -356,13 +358,13 @@
 
 ---
 
-## 11. 验收清单
+## 11. 设计验收标准
 
-- [ ] 36 名 `CharacterName` 均有中文名、职业、阵营、背景、三技能名  
-- [ ] 技能效果描述与 Burn/Stun/Freeze 模板一致  
-- [ ] Lv.1 基础表与职业专长规则可被策划/程序共同引用  
-- [ ] 与 `00` 世界观、卫队/商盟标签无冲突  
-- [ ] 新手三人组可组出三种模板  
+- 36 名 `CharacterName` 均有中文名、职业、阵营、背景、三技能名  
+- 技能效果描述与 Burn/Stun/Freeze 模板一致  
+- Lv.1 基础表与职业专长规则可被策划/程序共同引用  
+- 与 `00` 世界观、卫队/商盟标签无冲突  
+- 新手三人组可组出三种模板  
 
 ---
 

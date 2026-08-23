@@ -1,8 +1,10 @@
 # 系统文档：全自动回合制战斗
 
-> 文档版本：v1.0  
-> 状态：**MVP 规则已拍板，可供 P0/P2 实现**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.1 / §21 / §22  
+> 文档版本：v1.0
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.1 / §21 / §22  
 > 关联：`01-deck-and-occupation.md`（出战卡组与占用）、开发计划 P0/P2  
 > 更新日期：2026-08-09
 
@@ -346,43 +348,19 @@ Resolver 必须支持**无场景**连续调用，供离线结算复用。
 
 ---
 
-## 10. 与现有代码的差距
 
-| 现有实现 | 差距 |
-| --- | --- |
-| `BattleController` 全自动按 Speed 行动 | 符合方向；需抽 Resolver + 种子 |
-| 能量满特攻 / 否则普攻+30 | 已符合 §4.3；需接入 `SkillBias` |
-| `TargetSelector` 前后排 | 已基本符合 §4.1；策略排序未做 |
-| `MaxRound = 15` | 保留；明确超时算负 |
-| 敌人 `FakeData()` | 必须改为遭遇表 |
-| 编队来自全局 `GetInLineCardEntities` | 改为 `deckId` 成员 |
-| `SpeedController` 含 0.2x | 正式三档改为 1/2/3 |
-| 战报后返回主场景被注释 | P0 必修 |
-| 跳过演出 | 未实现 |
-| `CombatStrategy` | 未实现 |
-| ~~无战斗种子~~ | **P0.4**：`BattleRng` / `CombatMath`；`BattleController.BattleSeed` |
+## 11. 设计验收标准
 
-**建议落地顺序：**
-
-1. ~~P0：战报返回；战斗种子接入伤害/暴击~~ **完成**；遭遇表替换敌人仍属 P2.3  
-2. P0/P2：`CombatStrategy` + 目标排序；加速档位调整；Skip 模式  
-3. P2：`BattleResolver` 与挂机刷取无场景结算  
-4. 持续：角色技能改为接受已排序目标列表，避免内部再 Random 未播种  
-
----
-
-## 11. 验收清单
-
-- [ ] 战中无任何「点选技能/目标」交互  
-- [ ] 5 槽 2前3后站位与编队一致；空槽隐藏  
-- [ ] 每回合所有存活单位按 Speed（及平局规则）各行动一次  
-- [ ] 能量满放特攻并清空；否则普攻并获得默认 30 能量  
-- [ ] 阵亡单位跳过行动；持久卡池不被战斗 HP 写脏  
-- [ ] 战前可配置 `TargetPriority` / `SkillBias`，并影响自动索敌/技能分支  
-- [ ] 1x/2x/3x 加速可用；跳过与观看同种子结果一致  
-- [x] 战报展示后可返回 Main/Explore（P0.3：Confirm → Explore；Esc → Bridge）  
-- [ ] 正式流程敌人来自遭遇配置，而非 FakeData()（P2.3）  
-- [x] EditMode：同种子伤害序列一致；超时/歾灭判负胜（P0.4/P0.5；完整 BattleResult 回放随 Resolver 演进）
+- 战中无任何「点选技能/目标」交互  
+- 5 槽 2前3后站位与编队一致；空槽隐藏  
+- 每回合所有存活单位按 Speed（及平局规则）各行动一次  
+- 能量满放特攻并清空；否则普攻并获得默认 30 能量  
+- 阵亡单位跳过行动；持久卡池不被战斗 HP 写脏  
+- 战前可配置 `TargetPriority` / `SkillBias`，并影响自动索敌/技能分支  
+- 1x/2x/3x 加速可用；跳过与观看同种子结果一致  
+- 战报展示后可返回 Main/Explore（P0.3：Confirm → Explore；Esc → Bridge）  
+- 正式流程敌人来自遭遇配置，而非 FakeData()（P2.3）  
+- EditMode：同种子伤害序列一致；超时/歾灭判负胜（P0.4/P0.5；完整 BattleResult 回放随 Resolver 演进）
 
 ---
 
@@ -400,7 +378,7 @@ Resolver 必须支持**无场景**连续调用，供离线结算复用。
 
 ## 13. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.1 / §21  
+- 核心设计：`../01-core-product-design.md` §7.1 / §21  
 - 卡组占用：`01-deck-and-occupation.md`  
 - 现有实现：`BattleController.cs`、`Character` 子类、`TargetSelector.cs`、`SpeedController.cs`、`BattleReportManager.cs`、`BattleChrome.cs`  
 - 系统说明：`Documentation/zh-CN/04-core-systems.md` §6–7  

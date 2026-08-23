@@ -1,8 +1,10 @@
 # 系统文档：区域推进与舰船门槛
 
-> 文档版本：v1.2  
-> 状态：**P2 已落地**（world/ship 存档、Explore 硬门、遭遇、AFK、Boss）  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
+> 文档版本：v1.2
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
 > 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`；离线/采集细则见 `04-idle-and-offline.md`  
 > 更新日期：2026-08-10  
 > 变更：v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
@@ -336,40 +338,19 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 
 ---
 
-## 8. 与现有代码的差距
 
-| 现有实现 | 差距 |
-| --- | --- |
-| `ExploreScreen` 5 区硬编码，全部可进 | 需配置驱动 + 锁态 + 第 6 首领区 |
-| `PlayerPrefs nexus_last_region` | 仅记 UI；需正式 `world.json` 进度 |
-| 无 `ShipEntity` | 需新建舰船存档与升级 |
-| `PlanetEntity` 展示向 | 可作表现数据，不作为进度权威 |
-| 文案 “Ship gate TBD” | 替换为真实校验结果 |
-| 开战无遭遇 Id | 需传入 `regionId` → `encounterId` 给战斗层 |
+## 9. 设计验收标准
 
-**建议落地顺序（P2）：**
-
-1. 静态 `RegionConfig` + `PlayerWorldState` 读档迁移（默认解锁外缘带）  
-2. `ShipEntity` 开局船（Level 1，基础属性满足外缘带）  
-3. Explore `CanEnter` 硬门 + 缺口 UI  
-4. 胜利回调写 FirstClear；解锁 farm  
-5. 舰船升级 UI（资源驱动）与门槛联调  
-6. 首领遭遇与星域完成标记  
-
----
-
-## 9. 验收清单
-
-- [ ] 星域内存在 6 个配置区域（含 1 首领区），非全部开局可进入  
-- [ ] 外缘带仅要求默认舰船即可挑战  
-- [ ] 未通关前置时后区硬锁，并显示前置名  
-- [ ] 舰船分项不足时硬锁，并逐条显示缺口  
-- [ ] 战力不足不硬锁，仅提示推荐战力  
-- [ ] 首次通关后该区挂机刷取解锁；未通关不能刷取  
-- [ ] 首领击杀后标记星域首圈完成  
-- [ ] 舰船升级主路径为资源/信用，而非纯等待  
-- [ ] 进度与舰船进存档；读档后门锁一致  
-- [ ] Explore 开战带 `regionId`/`encounterId`，不再只靠 `PlayerPrefs` 索引  
+- 星域内存在 6 个配置区域（含 1 首领区），非全部开局可进入  
+- 外缘带仅要求默认舰船即可挑战  
+- 未通关前置时后区硬锁，并显示前置名  
+- 舰船分项不足时硬锁，并逐条显示缺口  
+- 战力不足不硬锁，仅提示推荐战力  
+- 首次通关后该区挂机刷取解锁；未通关不能刷取  
+- 首领击杀后标记星域首圈完成  
+- 舰船升级主路径为资源/信用，而非纯等待  
+- 进度与舰船进存档；读档后门锁一致  
+- Explore 开战带 `regionId`/`encounterId`，不再只靠 `PlayerPrefs` 索引  
 
 ---
 
@@ -399,7 +380,7 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 
 ## 11. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.8 / §16.1  
+- 核心设计：`../01-core-product-design.md` §7.8 / §16.1  
 - 设定：`00-setting-and-lore.md`  
 - 战斗：`02-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
 - 卡组：`01-deck-and-occupation.md`（舰船设施解锁钩子）  

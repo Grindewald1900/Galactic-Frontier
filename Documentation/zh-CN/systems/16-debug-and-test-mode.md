@@ -1,7 +1,9 @@
 # 系统文档：Debug 模式与测试工具
 
-> 文档版本：v1.1  
-> 状态：**规则已拍板，并与当前代码对齐**  
+> 文档版本：v1.1
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
 > 上级约束：核心设计 v0.4；`08-save-and-seed-data.md`（FakeData / Dev Data 边界）  
 > 关联实现：`DebugModeController`、`GiftCodeService`、`DebugScreen`、`SettingsScreen`、`DevDataSettings`、`Assets/Tests/EditMode`  
 > 更新日期：2026-08-09  
@@ -180,16 +182,16 @@
 
 ---
 
-## 10. 验收清单
+## 10. 设计验收标准
 
-- [ ] `DebugModeController.Instance` 场景切换后仍存在  
-- [ ] 仅设置 / `-debugMode` / EditorPrefs 可开 Debug；礼品码不能开  
-- [ ] Debug ON 时导航有「Debug模式」；OFF 时无  
-- [ ] Debug 页可改本地道具数量并持久化  
-- [ ] Debug 页可新增卡、升级/加经验第一张卡  
-- [ ] 设置页礼品码可领奖；同档重复领取失败  
-- [ ] `isDebug` 不影响 Debug / Dev Data  
-- [ ] Release 默认 Debug OFF  
+- `DebugModeController.Instance` 场景切换后仍存在  
+- 仅设置 / `-debugMode` / EditorPrefs 可开 Debug；礼品码不能开  
+- Debug ON 时导航有「Debug模式」；OFF 时无  
+- Debug 页可改本地道具数量并持久化  
+- Debug 页可新增卡、升级/加经验第一张卡  
+- 设置页礼品码可领奖；同档重复领取失败  
+- `isDebug` 不影响 Debug / Dev Data  
+- Release 默认 Debug OFF  
 
 ---
 

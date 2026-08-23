@@ -1,10 +1,11 @@
 # 系统文档：星域地图与舰船航行（空间探索）
 
-> 文档版本：v0.1  
-> 状态：**方向稿（后 MVP 主探索形态）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16；`00-setting-and-lore.md`  
+> 文档版本：v0.1
+> 文档类型：**方向稿**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.8 / §16；`00-setting-and-lore.md`  
 > 关联：`03-region-and-ship.md`（区域战斗门）、`04-idle-and-offline.md`（航行耗时与离线）、`09-resources-and-warehouse.md`（信标/地图道具）、`07-market-and-card-trade.md`（NPC 售图）、`11-sector-and-region-content.md`（第七前沿内容）  
-> 与现状：Explore 已落地 **M1 单星域 2D 地图**（雷达 + 巡航停靠）；跨域跃迁仍待 M3+  
 > 更新日期：2026-08-14
 
 ---
@@ -298,7 +299,7 @@ Beacon / Chart → ItemDef（09）
 
 ---
 
-## 14. 验收口号
+## 14. 设计验收标准
 
 - **不是点下一关**，而是 **把船开过去**。  
 - **雷达决定看见什么**，**海图决定少走弯路**，**信标决定何时换星域**。  

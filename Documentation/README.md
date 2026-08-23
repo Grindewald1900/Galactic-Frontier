@@ -1,7 +1,6 @@
 # Galactic Frontier 项目文档
 
-当前文档语言：
+- **中文文档（唯一维护集）**：[zh-CN/README.md](zh-CN/README.md)
+- **实现与文档状态（唯一权威）**：[zh-CN/PRODUCT-STATUS.md](zh-CN/PRODUCT-STATUS.md)
 
-- [简体中文](zh-CN/README.md)
-
-文档基于 Unity 项目和第一方代码的当前实现编写。若代码行为与文档不一致，应以代码为准，并在同一次变更中更新对应文档。
+若代码行为与文档不一致，以代码为准，并同步更新 `zh-CN/PRODUCT-STATUS.md` 与相关规则文档。

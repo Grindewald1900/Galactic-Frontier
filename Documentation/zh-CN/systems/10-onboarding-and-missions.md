@@ -1,10 +1,11 @@
 # 系统文档：新手引导与任务链
 
-> 文档版本：v1.1  
-> 状态：**MVP 规则已拍板；P5.4a/b 已落地（MissionsScreen + OnboardingService）**  
-> 上级约束：`Documentation/01-core-product-design.md` §16.1 / §20 / §22（v0.4）；开发计划 **P5.0 / P5.4**  
+> 文档版本：v1.2
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §16.1 / §20 / §22（v0.4）；开发计划 **P5.0 / P5.4**  
 > 关联：`01-deck-and-occupation.md`、`02-auto-battle.md`、`03-region-and-ship.md`、`05-production-and-quality.md`、`07-market-and-card-trade.md`、`08-save-and-seed-data.md`、`11-sector-and-region-content.md`、`00-setting-and-lore.md`  
-> 实现阶段：开发计划 **P5**（主切片 P5.0–P5.5 已通；P5.1b 扩容与抽卡正式路径进行中）  
 > 更新日期：2026-08-14  
 > 变更：v1.2 — 对齐开拓舰长 / 群星开拓局叙事口吻（见 `00-setting-and-lore.md`）。
 
@@ -203,26 +204,26 @@ OnboardingStepDef
 
 ---
 
-## 8. 验收清单（P5.4）
+## 8. 设计验收标准
 
 ### 8.1 P5.4a Missions
 
-- [x] 新档进入 MainScene，Missions 显示 5 步，第 1 步为 Active  
-- [x] 满足编队条件后可 Claim，步骤 2 变为 Active，奖励入账  
-- [x] 按序完成至 `ob_npc_shop`，链标记完成（运行时路径已接线）  
-- [x] 杀进程重进，进度写入 `onboarding.json`；已领奖励不重复发放  
-- [x] Solo 全文案无「玩家市场 / 挂单」  
+- 新档进入 MainScene，Missions 显示 5 步，第 1 步为 Active  
+- 满足编队条件后可 Claim，步骤 2 变为 Active，奖励入账  
+- 按序完成至 `ob_npc_shop`，链标记完成（运行时路径已接线）  
+- 杀进程重进，进度写入 `onboarding.json`；已领奖励不重复发放  
+- Solo 全文案无「玩家市场 / 挂单」  
 
 ### 8.2 P5.4b 软 CTA
 
-- [x] Bridge 显示当前下一步名称与跳转  
-- [x] 位于目标屏时有一句任务提示（`OnboardingBanner`）  
-- [x] 忽略 CTA 仍可自由游玩，不卡死其他系统  
+- Bridge 显示当前下一步名称与跳转  
+- 位于目标屏时有一句任务提示（`OnboardingBanner`）  
+- 忽略 CTA 仍可自由游玩，不卡死其他系统  
 
 ### 8.3 回归
 
-- [ ] 制造 Start 仍即时入仓；商店买卖仍刷新信用点  
-- [ ] Debug 改数量不单独完成 `ob_craft` / `ob_npc_shop`  
+- 制造 Start 仍即时入仓；商店买卖仍刷新信用点  
+- Debug 改数量不单独完成 `ob_craft` / `ob_npc_shop`  
 
 ---
 

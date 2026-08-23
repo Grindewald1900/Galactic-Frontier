@@ -1,10 +1,11 @@
 # 系统文档：生产链与品质
 
-> 文档版本：v1.1  
-> 状态：**P3 已落地（MVP 原型）；流水线设定已拍板（后 MVP）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §20 / §21 / §22  
+> 文档版本：v1.1
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.9 / §16.1 / §20 / §21 / §22  
 > 关联：`01-deck-and-occupation.md`（`Produce` 占用）、`04-idle-and-offline.md`（周期/缺料暂停）、`06-durability-and-repair.md`（装备耐久上限受品质影响）、`07-market-and-card-trade.md`（品质影响挂单价与堆叠）、`09-resources-and-warehouse.md`（配方与流水线内容表）  
-> 实现阶段：开发计划 P3.1–P3.3 / P3.5（见 `../11-mvp-development-plan.md`） — **完成**  
 > 更新日期：2026-08-23  
 > 变更：v1.1 — **手动工坊 → 自动化流水线** 设定；制造非瞬间完成；流水线专精/升级/启用规则（§4.10）。
 
@@ -474,37 +475,17 @@ ProduceProgress
 
 ---
 
-## 8. 与现有代码的差距
 
-| 现有实现 | 差距 |
-| --- | --- |
-| `ItemEntity` 仅 name/qty/cost/type | 需 `itemDefId`、品质、实例、耐久字段 |
-| Crafting 导航挂 Legacy BUILDING | 需配方驱动生产 UI |
-| FakeData 材料 | P0 隔离后接入真实资源表 |
-| 无配方/设施校验 | 新建 `ProductionService` |
-| 无品质 | 全链路（仓、战、市）需识别 `quality` |
-| 无自动化流水线 | `ProductionLineService` / 启用·升级 UI（`05` §4.10） |
+## 9. 设计验收标准
 
-**建议落地顺序（P3）：**
-
-1. `ItemDef` / 堆叠键 / 去 FakeData  
-2. 三条链静态配方 + 设施解锁  
-3. `Produce` 行动接入 `IIdleSettlementService` 周期  
-4. 品质 roll + 保底 + 熟练度  
-5. 拆解；再加工可后置一周  
-
----
-
-## 9. 验收清单
-
-- [x] 至少 15 种资源可入库堆叠（按品质分堆）
-- [x] 3 条链均可：采集/获得原料 → 加工 → 制造成品
-- [x] 品质 5 档生效；属性/价值随品质变化（属性倍率可后续加深）
-- [x] 培养或保底可提高最低品质，而非纯玄学
-- [x] 停止生产不退已扣料、不发放半成品、占用立即解除
-- [x] 缺料/满仓 `PausedBlock` 无惩罚
-- [x] 10+ 装备/模块定义可被制造或配置给出
-- [x] EditMode：品质地板、堆叠隔离、耐久损耗/维修
+- 至少 15 种资源可入库堆叠（按品质分堆）
+- 3 条链均可：采集/获得原料 → 加工 → 制造成品
+- 品质 5 档生效；属性/价值随品质变化（属性倍率可后续加深）
+- 培养或保底可提高最低品质，而非纯玄学
+- 停止生产不退已扣料、不发放半成品、占用立即解除
+- 缺料/满仓 `PausedBlock` 无惩罚
+- 10+ 装备/模块定义可被制造或配置给出
+- EditMode：品质地板、堆叠隔离、耐久损耗/维修
 
 ---
 
@@ -523,7 +504,7 @@ ProduceProgress
 
 ## 11. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §21  
+- 核心设计：`../01-core-product-design.md` §7.9 / §16.1 / §21  
 - 占用：`01-deck-and-occupation.md`  
 - 离线：`04-idle-and-offline.md`  
 - 耐久：`06-durability-and-repair.md`  

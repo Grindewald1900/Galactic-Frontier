@@ -1,8 +1,10 @@
 # 系统文档：运行模式与存档互通（方向稿）
 
-> 文档版本：v0.2  
-> 状态：**方向已写入核心设计；Online 细则待立项拍板**  
-> 上级约束：`Documentation/01-core-product-design.md` §12 / §16 / §22  
+> 文档版本：v0.2
+> 文档类型：**方向稿**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §12 / §16 / §22  
 > 关联：`08-save-and-seed-data.md`、`07-market-and-card-trade.md`、`17-online-multiverse-cooperation.md`、`00-setting-and-lore.md`  
 > 更新日期：2026-08-14  
 > 变更：v0.2 — 明确「当前无多人保证」；挂接多元宇宙位面 / Hub 市场方向。

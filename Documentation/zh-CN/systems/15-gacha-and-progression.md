@@ -1,8 +1,10 @@
 # 系统文档：抽卡与卡牌成长入口
 
-> 文档版本：v1.1  
-> 状态：**MVP 规则已拍板；正式路径已落地（GachaService + RecruitScreen）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.6 / §16 / §20 / §21（卡牌交易相关）  
+> 文档版本：v1.1
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.6 / §16 / §20 / §21（卡牌交易相关）  
 > 关联：`07-market-and-card-trade.md`（绑定/交易）、`08-save-and-seed-data.md`（DevData / Starter）、`01-deck-and-occupation.md`（同名多开）、`09-resources-and-warehouse.md`（材料扣减）、`10-onboarding-and-missions.md`、`18-character-roster-and-lore.md`（角色叙事）、`19-card-energy-rank.md`（能级 ≠ 抽卡稀有度）  
 > 更新日期：2026-08-12  
 > 变更：v1.1 — Dev OFF 扣 `con_recruit_ticket`；Lv1 入池；软保底 `gacha.json`；Nexus 招募页。
@@ -330,45 +332,20 @@ if pityCounter >= pityThreshold: next pull uses filtered tier table (≥ pityMin
 
 ---
 
-## 9. 与现有代码的差距
 
-| 现有 | 目标 |
-| --- | --- |
-| 正式模式 `InitCards` 空结果 | 走 `IGachaService.TryPull` / `CardDataManager` |
-| 材料仅 Dev 内存列表 | 接本地仓库 + `GachaCostTable` |
-| `GetCardEntity` 随机高等级 | 抽卡默认 Lv1 + 模板属性 |
-| 无 pity | `PlayerGachaState` + 软保底 |
-| 无 `source` / `boundReason` | 扩展字段 + 旧档默认 |
-| Confirm TODO 误导 | 文档化入池时机并清注释 |
-| 入口仍偏旧 `SHOP_MENU` | Nexus 独立招募页 |
-| 无分解 | `ICardDismantleService` + 表 |
-| `UnityEngine.Random` 未播种 | 抽卡种子可测 |
+## 10. 设计验收标准
 
-**建议落地顺序：**
-
-1. `IGachaService` + 正式生成路径（修空结果）  
-2. 库存扣减接 `GachaCostTable`；Dev 材料仅调试  
-3. Lv1 正式生成与属性表对齐  
-4. `source` / `boundReason` + 软保底存档  
-5. Nexus Recruit Screen；概率与 pity UI  
-6. 分解表与卡册入口  
-7. EditMode：权重边界、pity 触发、扣费回滚、同种子复现  
-
----
-
-## 10. 验收清单
-
-- [x] Dev OFF 时单抽/十连仍能产出卡并入池（非空）  
-- [x] 代价从本地仓库扣除；不足无法进入结果页  
-- [x] 扣除失败或生成失败不丢材料、不产生半写入卡  
-- [x] 翻牌结束后卡在 `CardListManager` 且存档可读回（Nexus Recruit 立即 Grant）  
-- [x] 抽卡默认 Lv1；稀有度来自角色权重表  
-- [x] 软保底按阈值触发且 UI 可感知进度  
-- [x] Market 导航不进入抽卡  
-- [x] 抽卡卡默认可交易标记（`boundReason=None`）  
-- [x] 同名多卡可同时存在并编入不同卡组  
-- [x] EditMode 覆盖 pity / 扣费数量  
-- [ ] 分解表与卡册入口（后置）  
+- Dev OFF 时单抽/十连仍能产出卡并入池（非空）  
+- 代价从本地仓库扣除；不足无法进入结果页  
+- 扣除失败或生成失败不丢材料、不产生半写入卡  
+- 翻牌结束后卡在 `CardListManager` 且存档可读回（Nexus Recruit 立即 Grant）  
+- 抽卡默认 Lv1；稀有度来自角色权重表  
+- 软保底按阈值触发且 UI 可感知进度  
+- Market 导航不进入抽卡  
+- 抽卡卡默认可交易标记（`boundReason=None`）  
+- 同名多卡可同时存在并编入不同卡组  
+- EditMode 覆盖 pity / 扣费数量  
+- 分解表与卡册入口（后置）  
 
 ---
 

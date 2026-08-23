@@ -1,8 +1,10 @@
 # 系统文档：线上多人 · 多元宇宙位面与合作压力（方向稿）
 
-> 文档版本：v0.1  
-> 状态：**Online 方向稿（非 MVP）** — 用于回答「如何保证多人体验 / 是否上多元宇宙」  
-> 上级约束：`Documentation/01-core-product-design.md` §12 / §16.2 / §20 / §22  
+> 文档版本：v0.1
+> 文档类型：**方向稿**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §12 / §16.2 / §20 / §22  
 > 关联：`14-play-modes-and-persistence.md`、`07-market-and-card-trade.md`、`00-setting-and-lore.md`、`04-idle-and-offline.md`、`03-region-and-ship.md`  
 > 与 `12-sector-special-modes.md` 区分：本文的「多元宇宙位面」= **账号隔离的平行星域实例**；特殊玩法里的「多元宇宙 Boss 房」= **一命肉鸽挑战层**  
 > 更新日期：2026-08-14
@@ -253,7 +255,7 @@
 
 ---
 
-## 12. 验收口号（给制作人）
+## 12. 设计验收标准
 
 - **不冲突：** 同资源点 Id，不同位面可同时满产。  
 - **要遇见：** 缺材时市场价明显优于硬扛 NPC。  

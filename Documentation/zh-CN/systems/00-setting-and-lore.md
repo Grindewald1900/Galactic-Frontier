@@ -1,8 +1,10 @@
 # 设定与故事背景：群星断航 · 重启航网
 
-> 文档版本：v1.1  
-> 状态：**世界观已拍板（MVP 叙事契约 + 制造产线扩展）**  
-> 上级约束：`Documentation/01-core-product-design.md`  
+> 文档版本：v1.1
+> 文档类型：**设定**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md`  
 > 关联：`03-region-and-ship.md`（熵雾门槛）、`05-production-and-quality.md`（手动/流水线规则）、`07-market-and-card-trade.md`（市场终端）、`10-onboarding-and-missions.md`（开拓舰长开局）、`11-sector-and-region-content.md`（第七前沿内容）、`20-stellar-map-and-navigation.md`（后 MVP 空间航行）  
 > 更新日期：2026-08-23  
 > 变更摘要：**手动工坊 → 自动化流水线**；制造非瞬间完成；流水线专精/升级/启用（见 `05` §4.10）。
@@ -258,7 +260,7 @@
 
 ## 11. 参考
 
-- 核心设计：`Documentation/01-core-product-design.md`  
+- 核心设计：`../01-core-product-design.md`  
 - 区域：`03-region-and-ship.md`、`11-sector-and-region-content.md`  
 - 经济：`07-market-and-card-trade.md`  
 - 新手：`10-onboarding-and-missions.md`

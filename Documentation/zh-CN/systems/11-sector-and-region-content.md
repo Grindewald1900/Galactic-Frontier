@@ -1,8 +1,10 @@
 # 系统文档：MVP 星域 / 区域内容与掉落
 
-> 文档版本：v1.1  
-> 状态：**P5.3 已落地（RewardCatalog / RewardService / 采集节点 / Explore 叙事）**  
-> 上级约束：`Documentation/01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
+> 文档版本：v1.1
+> 文档类型：**内容契约**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §7.8 / §16.1 / §20 / §22  
 > 关联：`03-region-and-ship.md`（门与进度规则）、`04-idle-and-offline.md`（挂机周期/Pending）、`02-auto-battle.md`（遭遇开战）、`09-resources-and-warehouse.md`（物品 Id）、`06-durability-and-repair.md`（刷取耐久）、`00-setting-and-lore.md`（世界观）  
 > 实现权威：`RegionCatalog` / `EncounterCatalog` / `RewardCatalog` / `RewardService` / `GatherNodeCatalog` / `WorldService` / `IdleCombatTicker`  
 > 更新日期：2026-08-12  
@@ -487,16 +489,16 @@ RewardTable / LootEntry      // 新建 Catalog：RewardCatalog
 | 采集节点含裂隙/深渊/护航 | `GatherNodeCatalog` |
 | 装备/模块可出现在 FirstClear/Boss 表 | 走 `ItemFactory` |
 
-## 14. 验收清单
+## 14. 设计验收标准
 
-- [x] 6 区配置齐全；外缘可打，后区前置+舰船硬锁  
-- [x] 每区主挑战与刷取遭遇可开战；Boss 区 `isBoss`  
-- [x] 每区首次通关发放对应 FirstClear 表，且只发一次  
-- [x] 通关后挂机使用 farm 表；含废料以外的主题材料  
-- [x] Boss 首次击杀发大奖并标记星域完成  
-- [x] 挂机失败不停队列；满仓 Pending/PausedBlock  
-- [x] 掉落 Id 均存在于 `ItemCatalog`；信用点入账 `CurrencyService`  
-- [x] 新采集节点在对应区通关后可启动 
+- 6 区配置齐全；外缘可打，后区前置+舰船硬锁  
+- 每区主挑战与刷取遭遇可开战；Boss 区 `isBoss`  
+- 每区首次通关发放对应 FirstClear 表，且只发一次  
+- 通关后挂机使用 farm 表；含废料以外的主题材料  
+- Boss 首次击杀发大奖并标记星域完成  
+- 挂机失败不停队列；满仓 Pending/PausedBlock  
+- 掉落 Id 均存在于 `ItemCatalog`；信用点入账 `CurrencyService`  
+- 新采集节点在对应区通关后可启动 
 
 ---
 

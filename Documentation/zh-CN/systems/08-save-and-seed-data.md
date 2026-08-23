@@ -1,10 +1,11 @@
 # 系统文档：存档契约与种子数据
 
-> 文档版本：v1.0  
-> 状态：**MVP 规则已拍板，可供 P0 实现**  
-> 上级约束：`Documentation/01-core-product-design.md` §16.1 / §20 / §22；开发计划 P0.1 / P0.2  
+> 文档版本：v1.0
+> 文档类型：**规则**
+> **实现与验收状态**见 [PRODUCT-STATUS.md](../PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
+
+> 上级约束：`../01-core-product-design.md` §16.1 / §20 / §22；开发计划 P0.1 / P0.2  
 > 分工：路径与 JsonUtility 现状见 [../05-data-and-save.md](../05-data-and-save.md)；**本文件定契约**（版本、迁移、FakeData 边界、分文件、原子写、新档种子）  
-> 实现阶段：开发计划 P0（见 `../11-mvp-development-plan.md`）  
 > 更新日期：2026-08-09
 
 ---
@@ -308,27 +309,6 @@ flowchart TD
 
 ---
 
-## 7. 与现有代码的差距（实现映射）
-
-| 现状 | 目标 |
-| --- | --- |
-| ~~`InventoryItemManagerBase.Start` → `CreateFakeData` → `SaveItemData`~~ | **P0.1/P0.2**：Load 分文件；Starter Seed 新档写入；Dev 注入走 Provider |
-| ~~共用 `itemData.json`~~ | **P0.2**：`inventory_local.json` / `inventory_remote.json` + Migrator 0→1 |
-| ~~`WriteAllText` 直接覆盖~~ | **P0.2**：`SaveData` 原子写（tmp → Replace） |
-| ~~无版本号~~ | **P0.2**：`meta.json` + Migrator；**P1.1**：`Current = 2` + `decks.json` |
-| ~~`BattleController.FakeData` 等~~ | **P0.1 已迁入** `IDevDataProvider`；正式遭遇表仍属 P2.3 |
-| `DefaultProperty.isDebug` 控制 Base64 | **继续只控制编码**；不控制 FakeData（已遵守） |
-| ~~`05` 仍写 `itemData.json`~~ | **P0.2 已更新**路径树 |
-
-入口类（P0 优先改）：
-
-- `Assets/Resources/Scripts/Utils/DataUtil.cs`  
-- `Assets/Resources/Scripts/Inventory/InventoryItemManagerBase.cs`  
-- `Assets/Resources/Scripts/Inventory/ItemManager.cs` / `RemoteItemManager.cs`  
-- `Assets/Resources/Scripts/Props/DefaultProperty.cs`（新增文件名常量；勿把 Fake 绑到 `isDebug`）  
-- 新建建议：`Utils/Save/SaveMigrator.cs`、`Utils/Save/DevDataSettings.cs`、`Utils/Save/IDevDataProvider.cs`
-
----
 
 ## 8. 分步实现顺序（对齐 P0）
 
@@ -343,22 +323,22 @@ flowchart TD
 
 ---
 
-## 9. 验收清单
+## 9. 设计验收标准
 
-- [x] 正式模式启动 MainScene：**不会**因库存逻辑把随机物品写入玩家档（P0.1）  
-- [x] 连续两次启动，本地/远程库存与上次保存一致（无随机漂移）（P0.1/P0.2）  
-- [x] 旧档仅有 `itemData.json` 时可自动迁移为 local/remote，并生成 `meta.json`（`saveVersion = 1`）  
-- [x] 迁移后改本地物品不影响远程文件，反之亦然  
-- [x] 保存走原子写（tmp→replace）；杀进程不损坏旧 JSON（崩溃模拟单测仍属 P0.5）  
-- [x] `saveVersion` 高于游戏支持时拒绝加载（`LastSaveError`）  
-- [x] Editor 打开 Dev Data Mode 可注入样例；默认关闭时与正式包行为一致（P0.1）  
-- [x] 新档本地库存来自 Starter Seed 配置，而非 `Random`  
-- [x] `DefaultProperty.isDebug` 只影响明文/Base64，不打开 FakeData（P0.1）  
-- [x] `saveVersion = 1` 无 `decks.json` 时可 1→2 生成默认战斗卡组（P1.1）  
-- [x] 新档创建默认 `decks.json`（开局 2 解锁槽 / 并行 2）  
-- [x] `saveVersion = 3`→`4`：库存 itemDef 规范化 + 写入 `idle.json`（P3）  
-- [x] 新档含 `idle.json`；Starter Seed 含三链原料（seedTableVersion 2）  
-- [ ] EditMode：0→1 拆分、`isRemote` 归类、空档 LoadOrDefault（P0.5）  
+- 正式模式启动 MainScene：**不会**因库存逻辑把随机物品写入玩家档（P0.1）  
+- 连续两次启动，本地/远程库存与上次保存一致（无随机漂移）（P0.1/P0.2）  
+- 旧档仅有 `itemData.json` 时可自动迁移为 local/remote，并生成 `meta.json`（`saveVersion = 1`）  
+- 迁移后改本地物品不影响远程文件，反之亦然  
+- 保存走原子写（tmp→replace）；杀进程不损坏旧 JSON（崩溃模拟单测仍属 P0.5）  
+- `saveVersion` 高于游戏支持时拒绝加载（`LastSaveError`）  
+- Editor 打开 Dev Data Mode 可注入样例；默认关闭时与正式包行为一致（P0.1）  
+- 新档本地库存来自 Starter Seed 配置，而非 `Random`  
+- `DefaultProperty.isDebug` 只影响明文/Base64，不打开 FakeData（P0.1）  
+- `saveVersion = 1` 无 `decks.json` 时可 1→2 生成默认战斗卡组（P1.1）  
+- 新档创建默认 `decks.json`（开局 2 解锁槽 / 并行 2）  
+- `saveVersion = 3`→`4`：库存 itemDef 规范化 + 写入 `idle.json`（P3）  
+- 新档含 `idle.json`；Starter Seed 含三链原料（seedTableVersion 2）  
+- EditMode：0→1 拆分、`isRemote` 归类、空档 LoadOrDefault（P0.5）  
 
 ---
 

@@ -1,10 +1,11 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v2.0  
-> 对照设计：`Documentation/01-core-product-design.md`（产品核心设计 **v0.4**）  
-> 对照实现：`Assets/Resources/Scripts` 与现有 `zh-CN` 开发文档  
-> 更新日期：2026-08-12  
-> 变更摘要：P5.1b 角色扩至约 36 名；抽卡正式路径（招募券扣库存 + Recruit 页）已落地。
+> 文档版本：v2.1  
+> 对照设计：[01-core-product-design.md](01-core-product-design.md)（v0.6）  
+> 实现快照：**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)**（本文不再维护重复的状态表）  
+> 更新日期：2026-08-23  
+> 变更摘要：文档整理；§7 文档索引并入 PRODUCT-STATUS。
+
 本文档回答三件事：
 
 1. 以核心设计 / MVP 为尺子，**当前做到哪一步**；
@@ -15,12 +16,16 @@
 
 ## 1. 一句话结论
 
-项目处于**可演示的单人核心循环阶段**：全自动战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名可战斗角色与招募抽卡已打通。  
-**规则与单机经济已通**；相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、以及 Characters/Cards 原生页。
+**当前进度与验收完成度以 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) 为准**（约 80%–85% MVP）。
+
+项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通。  
+相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、Characters/Cards 原生页，以及后 MVP 设定（舰队/流水线/星图）的规则落地。
 
 ---
 
 ## 2. 当前开发进度总览
+
+> **本节 §2.1–§2.2 为历史快照。** 维护时请只更新 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) §2–§4；下列表格保留供阶段审计参考，不再逐条同步。
 
 ### 2.1 完成度快照
 
@@ -303,7 +308,7 @@ flowchart LR
 ```text
 【背景】
 阅读：
-- Documentation/01-core-product-design.md（相关小节）
+- ../01-core-product-design.md（相关小节）
 - Documentation/zh-CN/11-mvp-development-plan.md（当前阶段任务 ID）
 - Documentation/zh-CN/<相关专题>.md
 - 入口类：<列出 2–4 个文件>
@@ -345,57 +350,27 @@ flowchart LR
 
 ---
 
-## 7. 建议的系统文档补齐顺序
+## 7. 系统文档与 PRODUCT-STATUS
 
-核心设计 §21 要求细则落到系统文档。目录：`Documentation/zh-CN/systems/`。
+核心设计 §21 细则落在 `Documentation/zh-CN/systems/`。
 
-### 7.1 第一波（§21 玩法细则）— 已完成
+- **版本 / 实现状态 / 验收完成度** → 唯一维护 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) §3  
+- **文档索引** → [PRODUCT-STATUS.md §7](PRODUCT-STATUS.md#7-文档索引无状态列) 与 [README.md](README.md)
 
-下列文档已关闭核心设计 §21 对应待定项，**可直接作为 P1–P4 实现依据**（语义默认值可写死为可配置常量；纯数值进配置表）。
+### 7.1 仍待写的文档
 
-| 顺序 | 文档 | 服务阶段 | 关闭的 §21 主题 | 状态 |
-| --- | --- | --- | --- | --- |
-| 1 | [systems/01-deck-and-occupation.md](systems/01-deck-and-occupation.md) | P1 | 卡组与角色占用 | **已拍板 v1.0** |
-| 2 | [systems/02-auto-battle.md](systems/02-auto-battle.md) | P0/P2 | 战斗系统 | **已拍板 v1.0** |
-| 3 | [systems/03-region-and-ship.md](systems/03-region-and-ship.md) | P2 | 区域推进 / **模块化舰船** / 特殊玩法方向 | **已拍板 v1.1** |
-| 4 | [systems/04-idle-and-offline.md](systems/04-idle-and-offline.md) | P2/P3 | 离线时长 + **Yield Ratio 50%↑** | **已拍板 v1.1** |
-| 5 | [systems/05-production-and-quality.md](systems/05-production-and-quality.md) | P3 | 生产品质 | **已拍板 v1.0** |
-| 6 | [systems/06-durability-and-repair.md](systems/06-durability-and-repair.md) | P3 | 装备耐久 | **已拍板 v1.0** |
-| 7 | [systems/07-market-and-card-trade.md](systems/07-market-and-card-trade.md) | P4 / Online | **MVP=NPC 商店**；全服市场仅 Online | **已拍板 v1.1** |
-
-### 7.2 第二波（实现与内容管线）— 建议补齐顺序
-
-| 顺序 | 文档 | 服务阶段 | 必须先于 | 状态 / 要拍板的内容 |
-| --- | --- | --- | --- | --- |
-| 0 | [systems/00-setting-and-lore.md](systems/00-setting-and-lore.md) | 全程 | 文案 / 新手口吻 / 星域叙事 | **已拍板 v1.0**：断航灾变、开拓局、开拓舰长开局 |
-| 8 | [systems/08-save-and-seed-data.md](systems/08-save-and-seed-data.md) | **P0** | 任何新存档字段 / 经济内容入库 | **已拍板 v1.0** |
-| 9 | [systems/09-resources-and-warehouse.md](systems/09-resources-and-warehouse.md) | **P3** | P3.1 资源表、货舱 | **已拍板 v1.2**：物品说明 + 获取渠道；仓库悬停；舰船模块升级弹窗 |
-| 10 | [systems/10-onboarding-and-missions.md](systems/10-onboarding-and-missions.md) | **P5** | P5.4 Missions / 新手两小时 | **已拍板 v1.1**：P5.4a/b 已落地 |
-| 11 | [systems/11-sector-and-region-content.md](systems/11-sector-and-region-content.md) | **P2/P5** | P5.3 星域奖励 | **v1.1**：RewardCatalog / RewardService 已落地；采集节点补齐 |
-| 12 | `systems/12-sector-special-modes.md` | 后置 | 虫洞/暗面/多元宇宙实装 | **待写**（方向见核心设计 §7.10、区域文档 §10.1） |
-| 14 | [systems/14-play-modes-and-persistence.md](systems/14-play-modes-and-persistence.md) | Online 立项 | 存档互通最终方案 | **方向稿 v0.2**（挂接位面/Hub） |
-| 16 | [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md) | 全程 | 调试 / QA | **已拍板 v1.1**：`DebugModeController`、导航 Debug 页、设置礼品码 |
-| 17 | [systems/17-online-multiverse-cooperation.md](systems/17-online-multiverse-cooperation.md) | Online | 多人骨架 | **方向稿 v0.1**：私有位面、偏置产量、Hub 市场、公会抗压 |
-| 18 | [systems/18-character-roster-and-lore.md](systems/18-character-roster-and-lore.md) | **P5** | 角色叙事与技能文案 | **已拍板 v1.0**：36 人设定、三模板技能、Lv.1 属性规则 |
-| 19 | [systems/19-card-energy-rank.md](systems/19-card-energy-rank.md) | **P5 / 成长** | 卡牌能级 | **v1.2**：F–S；每职业每能级 6 技；进阶从该档 6 选 1 觉醒；单主动上阵 |
-| 20 | [systems/20-stellar-map-and-navigation.md](systems/20-stellar-map-and-navigation.md) | 后 MVP | 星域地图 / 航行 | **方向稿 v0.1**：坐标雷达、航行/跃迁、海图、信标、边缘→中心；M1 先单星域小地图 |
-
-可选：
-
-| 文档 | 何时需要 |
+| 文档 | 说明 |
 | --- | --- |
-| `systems/13-research-and-transit.md` | `Research` / `Transit` 完整循环 |
-| [systems/15-gacha-and-progression.md](systems/15-gacha-and-progression.md) | 抽卡正式路径、代价、软保底、绑定/分解 | **已拍板 v1.0** |
-| `systems/15-faction-and-content-pipeline.md` | 阵营批量卡牌/遭遇管线（原 11 号位后置；编号冲突时改用 `17-`） |
+| `systems/12-sector-special-modes.md` | 虫洞/暗面/多元宇宙（方向见核心设计 §7.10） |
+| `systems/13-research-and-transit.md` | Research / Transit 完整循环（可选） |
 
-### 7.3 使用规则
+### 7.2 使用规则
 
-1. **已拍板（7.1 与 7.2 中已完成项）**：Cursor 实现直接遵循；改语义须升对应系统文档主版本，并回写核心设计（若触及 §20/§22）。  
-2. **待写（7.2 其余）**：未落盘前，实现只用**明显可配置的默认常量**，并在提交说明标注「待 `09`/`10`/… 确认」。  
-3. **数值**：档位、秒数、掉落权重进配置表；系统文档只锁语义与公式形状。  
-4. **写完一篇 7.2 文档后**：更新本表状态、[README.md](README.md) 系统规则表，并视需要修订核心设计 §21（将已关闭项移出或标注「见 systems/xx」）。  
-5. **P0 编码入口**：先读 `08-save-and-seed-data.md`，再改 `DataUtil` / 库存 FakeData；完成后回写 [05-data-and-save.md](05-data-and-save.md) 路径树。  
-6. **调试入口**：联调样例数据与作弊面板前读 [systems/16-debug-and-test-mode.md](systems/16-debug-and-test-mode.md)，勿把 `isDebug` 当成 FakeData 开关。
+1. 实现前读 **PRODUCT-STATUS** 确认该文档是否已实现、是否后 MVP。  
+2. 改规则语义 → 升系统文档主版本 + 更新 PRODUCT-STATUS + 必要时回写核心设计 §20/§22。  
+3. 数值进配置表；系统文档只锁语义与公式形状。  
+4. P0 编码入口：先读 `systems/08-save-and-seed-data.md`，再改 `DataUtil` / 库存。  
+5. 调试：读 `systems/16-debug-and-test-mode.md`。
 
 ---
 
@@ -416,10 +391,10 @@ flowchart LR
 
 每完成一个 P 级子任务，更新：
 
-1. 本文 **§2.2 对照表** 状态  
-2. 对应 `04-core-systems.md` 实现说明  
-3. 若引入新模块，在 `02-project-structure.md` 增加目录说明  
-4. 若发现新坑，记入 `08-known-issues.md`  
+1. **[PRODUCT-STATUS.md](PRODUCT-STATUS.md)** §3–§4（唯一状态源）  
+2. 对应 [04-core-systems.md](04-core-systems.md) 实现说明  
+3. 若引入新模块，在 [02-project-structure.md](02-project-structure.md) 增加目录说明  
+4. 若发现新坑，记入 [08-known-issues.md](08-known-issues.md)  
 
 建议在 Bridge 或内部 Debug 面板显示当前里程碑标签（如 `Build: M5 (in progress)`），方便试玩反馈对齐版本。
 
