@@ -20,7 +20,8 @@
 
 ### 系统规则文档
 
-在实现对应玩法前阅读；用于关闭核心设计 §21 的待定项。
+在实现对应玩法前阅读；用于关闭核心设计 §21 的待定项。  
+**文档进度（2026-08-15）：** MVP 玩法规则与 P5 内容管线已齐；仅 `12` 待写，14/17/20 为后置方向稿。
 
 | 文档 | 阶段 | 状态 |
 | --- | --- | --- |
@@ -30,11 +31,11 @@
 | [全自动回合制战斗](systems/02-auto-battle.md) | P0/P2 | MVP 规则已拍板 |
 | [区域推进与舰船门槛](systems/03-region-and-ship.md) | P2 | 已拍板 v1.2（模块化 + 特殊玩法方向） |
 | [挂机刷取与离线收益](systems/04-idle-and-offline.md) | P2/P3 | 已拍板 v1.1（含 Yield Ratio） |
-| [生产链与品质](systems/05-production-and-quality.md) | P3 | MVP 规则已拍板 |
+| [生产链与品质](systems/05-production-and-quality.md) | P3 | 已拍板 v1.1（手动 + 流水线设定） |
 | [装备耐久与维修](systems/06-durability-and-repair.md) | P3 | MVP 规则已拍板 |
 | [全服市场与卡牌交易 / NPC 商店](systems/07-market-and-card-trade.md) | P4 / Online | MVP=NPC；玩家市场仅 Online（v1.1） |
 | [存档契约与种子数据](systems/08-save-and-seed-data.md) | P0 | MVP 规则已拍板 |
-| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.2（悬停说明 / 获取渠道 / 模块升级 UI） |
+| [资源表、生产链与仓库](systems/09-resources-and-warehouse.md) | P3 | 已拍板 v1.3（含流水线内容表 §9） |
 | [新手引导与任务链](systems/10-onboarding-and-missions.md) | P5 | 已拍板 v1.1（P5.4a/b 已落地） |
 | [星域 / 区域内容与掉落](systems/11-sector-and-region-content.md) | P2/P5 | 已拍板 v1.1（P5.3 RewardService 已落地） |
 | `systems/12-sector-special-modes.md` | 后置 | 待写（虫洞/暗面/多元宇宙） |
@@ -65,7 +66,10 @@
 | 默认分辨率 | `1920 × 1080` |
 | 主要代码目录 | `Assets/Resources/Scripts` |
 | 主要场景目录 | `Assets/Resources/Scenes` |
-| 运行时配置目录 | `Assets/Resources/data` |
-| 相对 MVP 进度 | 约 25%–35%（战斗/壳层较强，经济循环未开工） |
+| 运行时配置目录 | `Assets/Resources/Data` |
+| 系统规则文档 | MVP 首波 01–09 + P5 管线 10/11/15/16/18/19 已齐；`12` 待写；14/17/20 方向稿 |
+| 代码相对 MVP | **约 80%–85%**（P0–P4 与 P5 主切片已通；M5 接近） |
+| 下一工作 | 可选：角色→50、卡牌分解、Characters/Cards 原生页；后置 Online / 星域地图 |
+| 进度快照日期 | 2026-08-15 |
 
-> 注意：项目仍处于原型阶段。样例 / FakeData 已隔离到 Dev Data Mode（默认关闭，见 `systems/08-save-and-seed-data.md`）；正式流程不再启动覆写背包。详细进度见 [11-mvp-development-plan.md](11-mvp-development-plan.md)。
+> 注意：正式流程默认关闭 Dev Data Mode（见 `systems/08-save-and-seed-data.md`），不再启动覆写背包。详细进度与阶段表见 [11-mvp-development-plan.md](11-mvp-development-plan.md)（v2.1）。

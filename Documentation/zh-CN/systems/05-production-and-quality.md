@@ -1,11 +1,12 @@
 # 系统文档：生产链与品质
 
-> 文档版本：v1.0  
-> 状态：**P3 已落地（MVP 原型）**  
+> 文档版本：v1.1  
+> 状态：**P3 已落地（MVP 原型）；流水线设定已拍板（后 MVP）**  
 > 上级约束：`Documentation/01-core-product-design.md` §7.9 / §16.1 / §20 / §21 / §22  
-> 关联：`01-deck-and-occupation.md`（`Produce` 占用）、`04-idle-and-offline.md`（周期/缺料暂停）、`06-durability-and-repair.md`（装备耐久上限受品质影响）、`07-market-and-card-trade.md`（品质影响挂单价与堆叠）  
+> 关联：`01-deck-and-occupation.md`（`Produce` 占用）、`04-idle-and-offline.md`（周期/缺料暂停）、`06-durability-and-repair.md`（装备耐久上限受品质影响）、`07-market-and-card-trade.md`（品质影响挂单价与堆叠）、`09-resources-and-warehouse.md`（配方与流水线内容表）  
 > 实现阶段：开发计划 P3.1–P3.3 / P3.5（见 `../11-mvp-development-plan.md`） — **完成**  
-> 更新日期：2026-08-10
+> 更新日期：2026-08-23  
+> 变更：v1.1 — **手动工坊 → 自动化流水线** 设定；制造非瞬间完成；流水线专精/升级/启用规则（§4.10）。
 
 ---
 
@@ -44,6 +45,10 @@
 | **设施（Facility）** | 舰船工坊等级；提供速度/品质加成与配方解锁 |
 | **熟练度（Mastery）** | 每配方累计成功次数带来的品质/速度小幅加成 |
 | **批次（Batch）** | 一次完整周期产出 1 件（或配置的 `outputQty`）成品 |
+| **手动制造（Manual Craft）** | 玩家指派 `Produce` 卡组执行配方；占用人手；有完整周期 |
+| **自动化流水线（Production Line）** | 港口/前哨安装的固定产线；**不占**卡组；玩家仅启用/停用与升级 |
+| **流水线品类（Line Family）** | 产线可制造的**产品族**；同类近亲产物共用一条线（如冶炼线出铜锭/铁锭） |
+| **流水线设计图（Line Blueprint）** | 建造或解锁某品类流水线的静态配置 |
 
 MVP 实现可将 `Process` 与 `Manufacture` 合并为卡组用途 `Produce`，但配方表仍区分 `recipeKind`。
 
@@ -201,6 +206,8 @@ quality = min(quality, recipe.maxQualityCap)
 
 队列：MVP 允许「单卡组单配方重复批次」；不强制多配方队列 UI。
 
+> **制造非瞬间完成**：无论手动或流水线，产出均须走完 `baseSeconds` 周期（受速度乘区影响）。不存在「点击即得」的制造（调试/任务特例除外）。
+
 ### 4.8 采集产量（本文件补齐节点侧）
 
 离线文档已定周期语义；此处定产量：
@@ -225,6 +232,131 @@ yield = floor(node.baseYieldPerCycle
 | 计数 | 每成功完成 1 批次 +1 |
 | 效果 | 每 N 次（默认 10）+1 分 `masteryBonus`，软顶 +15 分 |
 | 存档 | `recipeMastery[recipeId] = int` |
+
+### 4.10 手动工坊与自动化流水线
+
+#### 4.10.1 设计原则
+
+| 原则 | 定稿 |
+| --- | --- |
+| **非瞬间** | 所有制造/加工均有周期；材料在启动时预扣（手动与流水线一致，见 §4.7） |
+| **早期手动** | 开局仅 **手动工坊**：须指派 `Produce` 卡组，占用人手完成批次 |
+| **后期自动化** | 消耗资源、矿产、**流水线设计图** 建造固定产线；玩家**不逐批手操** |
+| **玩家管理面** | 对每条流水线：**启用 / 停用**、选择当前配方（须在品类允许范围内）、**升级产线等级** |
+| **专精** | 一条流水线只服务**特定产品族**；近亲产物共用同线，高级产物须**升级**或**另建高级线** |
+
+叙事见 `00-setting-and-lore.md` §4.4；内容表示例见 `09` §9。
+
+#### 4.10.2 手动制造（Manual Craft）
+
+| 项 | 规则 |
+| --- | --- |
+| 入口 | Crafting 屏 → 选配方 → `TryStart(Process\|Manufacture)` |
+| 占用 | **占用**绑定 `Produce` 卡组全体成员（`01`） |
+| 适用 | 新手教学、首配方解锁、小批量急单、尚未建线的配方 |
+| 周期 | 与 §4.7 相同；角色工程属性、设施等级参与速度/品质 |
+| 停止 | 占用立即解除；已扣料不退；当前批次无产出 |
+
+MVP **仅实现**本形态；自动化为后 MVP 切片。
+
+#### 4.10.3 自动化流水线（Automated Production Line）
+
+| 项 | 定稿 |
+| --- | --- |
+| 建造 | `LineBlueprint` + 材料 + 矿产 + 港口工位（或 Cleared 星球工业湾） |
+| 运行 | **不占用**卡组；后台按周期扣料产出 |
+| 玩家操作 | ① 启用/停用 ② 在允许配方列表中选 **当前生产项** ③ 升级 `lineTier` |
+| 暂停 | 缺料 / 仓库满 → `PausedBlock`（与 `04` 一致）；启用状态保留 |
+| 离线 | 已启用且未 Paused 的流水线参与离线结算 |
+| 品质 | 与手动共用 `QualityRules`；流水线 **无** 角色工程加成，靠产线等级 + 设施 + 材料 |
+
+停用流水线：当前周期完成后停止下一批；**不**自动退还已预扣的本批材料（与手动停止语义对齐）。
+
+#### 4.10.4 流水线品类与配方归属
+
+每条流水线绑定一个 **`lineFamilyId`**。配方声明 `lineFamilyId` + `requiredLineTier`（或 `requiredLineDefId` 用于专用高级线）。
+
+**同类近亲产物共用一条线** — 通过配方标签 `recipeTag` 归入同一品类：
+
+| lineFamilyId | 中文 | 可共线产物示例 | 备注 |
+| --- | --- | --- | --- |
+| `line_smelting` | 冶炼流水线 | 铜锭、铁锭、精炼锭 | 输入矿石不同，同一冶炼周期模板 |
+| `line_alloying` | 合金流水线 | 合金板、复合装甲坯 | 需中间锭 |
+| `line_energy` | 能芯流水线 | 能芯单元、护盾电容芯 | 能源链 Process |
+| `line_synth` | 合成流水线 | 合成纤维、溶剂精制 | 生物/化学中间件 |
+| `line_weapon` | 武备流水线 | 脉冲步枪、穿甲刃 | Manufacture 武器族 |
+| `line_module` | 模块装配线 | 装甲/反应堆/货仓模块物品 | 与 `mod_*` 设施成长并行 |
+
+规则：
+
+1. 启动配方时校验：`recipe.lineFamilyId == line.lineFamilyId` 且 `line.tier >= recipe.requiredLineTier`；  
+2. **禁止**一条通用线生产所有物品；跨链成品须多条线并行；  
+3. 玩家在同一冶炼线上切换「铜锭 / 铁锭」= 改 **当前配方**，非换线。
+
+#### 4.10.5 升级产线 vs 建造高级专用线
+
+| 路径 | 适用 | 说明 |
+| --- | --- | --- |
+| **升级现有线** | 同族 **中阶** 产物 | `line_smelting` T1→T2 解锁精炼锭；T2→T3 解锁合金 precursor |
+| **新建高级专用线** | **高阶 / 机制** 产物 | 须独立 `LineBlueprint`，如 `line_phase_forge`（相位锻炉）、`line_entropy_purifier`（熵雾净化线） |
+| 图纸来源 | — | 卡关稀有、秘境、NPC、阵营商店、Online 市场 |
+
+示例（第七前沿）：
+
+| 产物 | 最低要求 |
+| --- | --- |
+| 铁锭 / 铜锭 | `line_smelting` T1 |
+| 精炼锭 | `line_smelting` T2 **或** 升级 T1→T2 |
+| 复合装甲 | `line_alloying` T2 + `line_weapon` T1（多线协作） |
+| 相位稳定模块 | **`line_phase_forge` T1**（专用蓝图；普通 `line_module` 不可代做） |
+
+#### 4.10.6 与舰船设施模块的关系
+
+| 层级 | 职责 |
+| --- | --- |
+| **舰船模块**（`mod_armor` 等） | 解锁手动配方、提供全局速度/品质加成；**不替代**流水线实体 |
+| **流水线实例** | 独立槽位（港口 `dockWorkshopSlots`）；一条实例 = 一个品类 |
+| **并行** | 多线可同时 Running；受工位数量与电力/维护（可选后 MVP）限制 |
+
+手动制造仍受益于设施等级；自动化额外受益于 **`lineTier`**（每级 +速度、+品质地板，数值进配置表）。
+
+#### 4.10.7 数据模型（流水线摘要）
+
+```text
+LineBlueprintDef
+- lineDefId: string
+- lineFamilyId: string
+- displayNameKey: string
+- tierCap: int
+- buildCost: [{ itemDefId, qty }]
+- buildSeconds: int
+- allowedRecipeTags: string[]
+
+ProductionLineInstance
+- lineInstanceId: string
+- lineDefId: string
+- tier: int
+- enabled: bool
+- activeRecipeId: string | null
+- state: Idle | Running | PausedBlock
+- remainderSeconds: float
+- locationId: string
+
+RecipeDef（扩展字段，与 §5.2 合并）
+- lineFamilyId?: string
+- requiredLineTier: int
+- requiredLineDefId?: string
+```
+
+#### 4.10.8 MVP 与迁移
+
+| 阶段 | 范围 |
+| --- | --- |
+| **MVP（现状）** | 仅 **手动** `Produce` 卡组；周期制造；设施模块加成 |
+| **MVP+** | 港口 1 条冶炼线 T1；启用/停用 + 选铜/铁锭 |
+| **后 MVP** | 多线并行、星球工业湾、专用高级线、离线批量 |
+
+实现时新增 `ProductionLineService`，与 `ProductionService` 共用扣料/品质/Pending 逻辑。
 
 ---
 
@@ -333,7 +465,8 @@ ProduceProgress
 
 | 界面 | 要求 |
 | --- | --- |
-| Crafting Screen | 原生配方列表（逐步替换 Legacy BUILDING）；显示链、输入、工时、期望品质区间 |
+| Crafting Screen | 原生配方列表；显示链、输入、**工时（非瞬间）**、期望品质区间 |
+| 流水线屏（后 MVP） | 已建产线列表；启用开关、当前配方、升级按钮、Paused 原因 |
 | 保底选项 | 明确额外材料与最低品质 |
 | 进行中 | 进度条、剩余批次时间、Paused 原因 |
 | 仓库 | 按品质筛选/着色；装备显示品质徽章 |
@@ -350,6 +483,7 @@ ProduceProgress
 | FakeData 材料 | P0 隔离后接入真实资源表 |
 | 无配方/设施校验 | 新建 `ProductionService` |
 | 无品质 | 全链路（仓、战、市）需识别 `quality` |
+| 无自动化流水线 | `ProductionLineService` / 启用·升级 UI（`05` §4.10） |
 
 **建议落地顺序（P3）：**
 
@@ -380,6 +514,8 @@ ProduceProgress
 - 公会订单（非 MVP）  
 - Q5 随机附加词条池（须控制市场 SKU）  
 - 批量制造 UI（一次预扣 N 批）  
+- **自动化流水线 UI**（启用/停用/升级/选当前配方；`05` §4.10）  
+- `ProductionLineService` + `LineBlueprintCatalog`（后 MVP）  
 
 若取消「预扣材料」或改为「完成时扣料」，需升本文主版本并同步占用文档停止语义。
 
