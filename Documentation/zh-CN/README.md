@@ -65,4 +65,4 @@
 | 项目 | 值 |
 | --- | --- |
 | Unity | `6000.0.20f1` |
-| MVP 进度 | 见 [PRODUCT-STATUS](PRODUCT-STATUS.md)（约 80%–85%） |
+| MVP 进度 | 见 [PRODUCT-STATUS](PRODUCT-STATUS.md)（约 **85%**） |

@@ -1,10 +1,10 @@
 # MVP 开发进度与 Cursor 后续开发计划
 
-> 文档版本：v2.3  
+> 文档版本：v2.4  
 > 对照设计：[02-core-product-design.md](02-core-product-design.md)  
 > 实现快照：**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)**  
 > 更新日期：2026-08-23  
-> 变更摘要：文档合并至 `01`–`20`；世界观权威为 `03-worldbuilding.md`。
+> 变更摘要：对照合并后 `01`–`21` 文档与主干代码刷新进度；修正 §10 文档引用与近期任务。
 
 本文档回答三件事：
 
@@ -16,10 +16,10 @@
 
 ## 1. 一句话结论
 
-**当前进度与验收完成度以 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) 为准**（约 80%–85% MVP）。
+**当前进度与验收完成度以 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) 为准**（约 **85%** MVP）。
 
-项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通。  
-相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、Characters/Cards 原生页，以及后 MVP 设定（舰队/流水线/星图）的规则落地。
+项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通；Explore 已切到 **M1 单星域 2D 地图**（雷达/巡航/已探索列表），物品说明与模块升级 UI 已补齐。  
+相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、Characters/Cards 原生页。后 MVP 设定（舰队/探索度、流水线、星图 M2+）规则已写、实现未开始。
 
 ---
 
@@ -33,14 +33,14 @@
 | --- | --- | --- |
 | 战斗原型 | ★★★★☆ | 全自动可跑通；种子伤害+战报返回已通；敌人/策略仍弱 |
 | 卡牌与编队 | ★★★★☆ | **P1 完成**：多卡组 UI、占用、调度器、备用预设 |
-| UI 壳层 | ★★★★☆ | Nexus 含 Recruit；Inventory / Crafting / Market / Missions 已原生；Characters/Cards 仍可接 Legacy；locale JSON 已接入 |
-| 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed；`gacha.json` |
-| 经济循环 | ★★★★☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店；制造首周期即时入仓 |
-| 成长与主线 | ★★★★☆ | **P2+P5.4**：6 区进度 + 舰船门 + 首领 + 新手五步任务链 |
+| UI 壳层 | ★★★★☆ | Nexus 含 Recruit / Ship / Explore 地图；Inventory / Crafting / Market / Missions 已原生；Characters/Cards 仍可接 Legacy；locale JSON 已接入 |
+| 存档与数据 | ★★★★☆ | **P0–P3**：FakeData 隔离、meta/版本、双背包、world/ship/idle、Starter Seed；`gacha.json`；`navX/navY`/`knownBodyIds` |
+| 经济循环 | ★★★★☆ | **P3+P4**：采集/制造/耐久/品质/离线 + 星港 NPC 商店；制造首周期即时入仓；物品说明/获取提示；流水线未做 |
+| 成长与主线 | ★★★★☆ | **P2+P5.4**：6 区进度 + 舰船门 + 首领 + 新手五步；Explore M1 空间导航 |
 | 内容量 | ★★★☆☆ | 可战斗角色约 **36** 名（`CharacterName` 枚举，不含 Default）；可继续向 50 扩 |
-| 规则文档 | ★★★★☆ | MVP 首波 + P5 管线已齐；`12` 与 Online/航行方向稿仍开放 |
+| 规则文档 | ★★★★☆ | 合并为 `01`–`21`；状态唯一源 `PRODUCT-STATUS`；`12`/`18`/`20`/`21` 仍有开放项 |
 
-整体相对 MVP §16.1：**约 80%–85%**（引导/星域/招募已通；分解与卡册原生页仍薄）。
+整体相对 MVP §16.1：**约 85%**（引导/星域/招募/Explore M1 已通；分解与卡册原生页仍薄）。
 
 ### 2.2 MVP 必含项对照表
 
@@ -58,7 +58,7 @@
 | 角色单队伍占用规则 | 已实现 | Running/PausedCap/PausedBlock 占用；`ActionScheduler` 停止立即解锁 |
 | 主线/区域战斗自动结算 | 部分实现 | 区域遭遇可打；章节叙事仍薄 |
 | 通关后挂机自动战斗刷取 | 已实现 | `AutoCombat` + `IdleEconomyTicker` 周期产废料 |
-| 基础挂机采集 | 已实现 | Explore Gather CTA + `Gather` 行动周期产出 |
+| 基础挂机采集 | 已实现 | Explore 停靠后 Gather CTA + `Gather` 行动周期产出 |
 | 多行动并行 + 行动队列 | 已实现 | P1 并行 + P2 AFK + P3 采集/制造 |
 | 分阶段离线收益上限 | 已实现 | `IdleSettlementService` + yield 0.50 起 / cap 2h 起 |
 | 舰船等级限制区域推进 | 已实现 | `ShipGate` + `ShipService` 硬门 |
@@ -76,7 +76,7 @@
 | 约两小时新手流程 | 已实现 | `OnboardingService` + Missions + 软 CTA；曲线由星域奖励支撑 |
 | 基础仓库和舰船升级 | 已实现 | 原生 `InventoryScreen`（类型/品质页签）+ 双背包存档；`ShipService` 模块/等级升级 |
 | 离线收益比例（开局 50%） | 已实现 | `OfflineRules.YieldRatio`；Bridge Claim；打开仓库时领取 pending loot |
-| 单机模式完整可玩 | 部分实现 | 核心循环可演示；缺卡牌分解、Characters/Cards 原生页；角色量 36/50 |
+| 单机模式完整可玩 | 部分实现 | 核心循环可演示；Explore M1 已通；缺卡牌分解、Characters/Cards 原生页；角色量 36/50 |
 
 ### 2.3 已有可复用资产（后续不要推倒重来）
 
@@ -121,7 +121,7 @@ P5 阶段新债优先记入 [08-known-issues.md](08-known-issues.md)（内容管
 9. **单机禁用玩家市场**；MVP 经济走 **NPC 商店**；普通卡玩家市场仅 Online  
 10. 首发以**单机**完成主要内容；**不可**依赖玩家市场或多人  
 11. Online 市场按全服规模设计并提供历史价格（非 MVP）  
-12. （保留）玩法细则以 `11`–`20` 规则文档为准  
+12. （保留）玩法细则以 `11`–`21` 规则文档为准  
 
 设计 §21 中「待确定」细则（站位、品质档位、离线秒数等）应在对应系统文档中拍板后再写死数值；实现阶段可先用可配置默认值 + ScriptableObject/JSON。
 
@@ -384,7 +384,7 @@ flowchart LR
 | **M2 开图循环** | 通关区域 → 舰船门槛 → 挂机刷取 | P2 | **已达成** |
 | **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 | **已达成** |
 | **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 | **已达成** |
-| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/招募/36 人已通；可选扩至 50 + 分解/原生卡册 |
+| **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/招募/36 人/Explore M1 已通；可选扩至 50 + 分解/原生卡册 |
 
 ---
 
@@ -403,16 +403,18 @@ flowchart LR
 
 ## 10. 近期建议执行顺序（立刻可开的 Cursor 任务）
 
-P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已完成**（快照 2026-08-15）。下一批：
+P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁已完成**（快照 2026-08-23）。下一批：
 
 1. ~~**P5.0–P5.5 / P5.1b / 抽卡正式路径**~~ **已完成**  
-2. （可选）继续角色扩至 50（对照 `systems/18`）  
-3. （可选）卡牌分解 + Characters/Cards 原生页（对照 `systems/15`）  
-4. （可选）抽卡概率公示细节 / 十连折扣  
-5. （文档）补写 `systems/12-sector-special-modes.md`（后置，不阻塞 Solo）  
-6. （后 MVP）星域地图按 `systems/20` 方向稿立项；Online 按 14/17  
+2. ~~**Explore M1**（单星域 2D + 雷达 + 巡航 + 已探索列表）~~ **已完成**（状态见 PRODUCT-STATUS §5）  
+3. （可选 MVP 收尾）继续角色扩至 50（对照 [19](19-characters-and-progression.md)）  
+4. （可选 MVP 收尾）卡牌分解 + Characters/Cards 原生页（对照 [19](19-characters-and-progression.md)）  
+5. （可选）抽卡概率公示细节 / 十连折扣  
+6. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
+7. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
+8. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  
 
-**不要**在 Solo 启动 P4.6 玩家市场或 `12` 特殊星域模式。
+**不要**在 Solo 启动玩家市场或特殊星域模式（非 MVP）。
 
 建议 Bridge / Debug 标签：`Build: M5 (near)`。
 
@@ -430,3 +432,5 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 P5.1b / 抽卡正式路径已�
 | [07-development-guide.md](07-development-guide.md) | 开发 / Agent / Debug |
 | [08-known-issues.md](08-known-issues.md) | 技术债 |
 | [19-characters-and-progression.md](19-characters-and-progression.md) | 抽卡 / 名册 / 能级 |
+| [20-stellar-map-and-navigation.md](20-stellar-map-and-navigation.md) | 星图 / 航行（方向稿） |
+| [21-fleet-factions-and-exploration.md](21-fleet-factions-and-exploration.md) | 舰队 / 阵营 / 探索度 |

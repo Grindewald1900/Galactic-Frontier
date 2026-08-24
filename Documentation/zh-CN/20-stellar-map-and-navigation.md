@@ -6,7 +6,7 @@
 
 > 上级约束：`02-core-product-design.md` §7.8 / §16；`03-worldbuilding.md`  
 > 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`（航行耗时与离线）、`15-economy.md`（信标/地图道具）、`16-market-and-card-trade.md`（NPC 售图）、`17-sector-and-onboarding.md`（第七前沿内容）、**`21-fleet-factions-and-exploration.md`（探索度 / 驻扎）**  
-> 更新日期：2026-08-14
+> 更新日期：2026-08-14（§11 阶段说明于 2026-08-23 与 PRODUCT-STATUS 对齐，去掉规则文内「已落地」表述）
 
 ---
 
@@ -260,8 +260,8 @@ threatBand = f(r)   // 边缘低，中心高
 
 | 阶段 | 交付 | 说明 |
 | --- | --- | --- |
-| **现况 P2** | 线性 6 Region | 保持可玩 |
-| **M1 单星域小地图** | 第七前沿 6 点放在 2D 团块；雷达+航行；无跨域跃迁 | **工程已落地 ExploreScreen**；战斗门槛仍用 03 |
+| **现况（过渡）** | 区域战斗门槛仍用 `13` | 开战硬门不变 |
+| **M1 单星域小地图** | 第七前沿 6 点放在 2D 团块；雷达+航行；无跨域跃迁 | 实现状态见 [PRODUCT-STATUS](PRODUCT-STATUS.md) §3/#20、§5 |
 | **M2 海图/中枢** | 中枢解锁 + NPC 售图 | 信息经济 |
 | **M3 信标跃迁** | 第二星域团块 + 信标 | 边缘→中环 |
 | **M4 宇宙径向** | 多团块 + 中心高危 | 长线探索 |
