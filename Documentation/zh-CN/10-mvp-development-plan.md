@@ -54,7 +54,7 @@
 | --- | --- | --- |
 | 全自动回合制卡牌战斗 | 已实现 | `BattleController.BattleRoutine` 按速度自动结算 |
 | 每队 5 张出战角色卡 | 已实现 | 每 `DeckEntity` 5 槽；Formation 可切换卡组 |
-| 多卡组管理 | 已实现 | 6 槽/开局 2 解锁；Formation 页签 + Bridge 并行摘要 |
+| 多卡组管理 | 已实现 | 6 槽/开局 2 解锁；Formation 页签 + Bridge 舰队组件（待改：删顶栏并行卡、水平滑动） |
 | 角色单队伍占用规则 | 已实现 | Running/PausedCap/PausedBlock 占用；`ActionScheduler` 停止立即解锁 |
 | 主线/区域战斗自动结算 | 部分实现 | 区域遭遇可打；章节叙事仍薄 |
 | 通关后挂机自动战斗刷取 | 已实现 | `AutoCombat` + `IdleEconomyTicker` 周期产废料 |
@@ -173,7 +173,7 @@ flowchart LR
 | 任务 | 产出 | 验收 |
 | --- | --- | --- |
 | P1.1 卡组数据模型 | **已完成** `DeckEntity` / `PlayerDeckState` / `decks.json`；Migrator 1→2 | 可序列化进存档；旧编队可迁移 |
-| P1.2 多卡组 UI | **已完成** Formation 卡组页签 + Bridge 运行摘要/并行 | 至少 2 个卡组槽；未解锁槽显示条件 |
+| P1.2 多卡组 UI | **已完成** Formation 卡组页签 + Bridge 运行摘要/并行 | 至少 2 个卡组槽；未解锁槽显示条件；**待做**：Bridge 舰队滑动组件（[09](09-figma-ui.md)） |
 | P1.3 占用状态机 | **已完成** `DeckRules` + `DeckOccupationMap`；Explore/Battle 进出占用 | 占用中角色不可加入其他运行中卡组（EditMode） |
 | P1.4 行动调度器 | **已完成** `ActionScheduler` 开始/停止/完成/PausedCap | 停止后立即 Idle，可重分配（EditMode） |
 | P1.5 备用卡组 | **已完成** 多解锁卡组可 idle 共享编制；UI 可切换编辑 | 未运行编队不占用角色 |
@@ -410,9 +410,13 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 3. （可选 MVP 收尾）继续角色扩至 50（对照 [19](19-characters-and-progression.md)）  
 4. ~~（可选 MVP 收尾）卡牌分解 + Characters/Cards 原生页（对照 [19](19-characters-and-progression.md)）~~ **已完成**
 5. （可选）抽卡概率公示细节 / 十连折扣
-6. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
-7. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
-8. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  
+6. **功能逐步解锁** + 导航 grey out + 解锁 Dialog（[09](09-figma-ui.md)）
+7. **统一 Snackbar / Notification 栏**（Dialog 族与 `RewardPopup` 对齐）
+8. **玩家资料**：Settings 改 `playerName` / `avatar.png`；`playerID` 只读（[06](06-data-and-save.md)）
+9. **舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）
+10. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
+11. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
+12. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  
 
 **不要**在 Solo 启动玩家市场或特殊星域模式（非 MVP）。
 

@@ -12,9 +12,10 @@
 
 入口为 `Main/MainMenu.cs`：
 
-- 新游戏：`DataUtil.CreatePlayerData()` 创建带 GUID 的 `PlayerEntity`，保存后加载 `MainScene`。
+- 新游戏：`DataUtil.CreatePlayerData()` 创建带 GUID 的 `PlayerEntity`（`playerID` 此后不可改），保存后加载 `MainScene`。
 - 加载游戏：显示存档面板，`GameLoadManager.LoadGame()` 从每个玩家目录读取数据并创建 `GameLoadSlot`。
 - 选中存档：`DataUtil.SetCurrentPlayer()` 更新当前玩家及相关文件路径。
+- **玩家资料**：`playerName` 与 `avatar.png` 可自定义；`playerID` 只读 — 见 [06-data-and-save.md](06-data-and-save.md)。
 
 `MainScrollController` 在 `MainScene` 中创建菜单项，使用 `CurrentScene` 枚举切换各子面板，并同步更新 `GameStatusManager.CurrentScene`。
 
@@ -201,7 +202,7 @@ flowchart TB
 | `MainMenu` | 入口 UI | 无持久数据 | `DataUtil`、`GameLoadManager` | 新游戏成功后进入 `MainScene` |
 | `GameLoadManager` | 入口协调 | 存档列表 UI 与当前焦点 | `DataUtil`、`GameLoadSlot` | 选中 Slot 时必须同步 `DataUtil.currentPlayer` |
 | `MainScrollController` | 主界面协调 | 当前激活的旧版面板 | `GameStatusManager`、`AppShell` / `LegacyPanelAdapter` | `panels` 顺序与 `CurrentScene` 数值绑定；有 AppShell 时不建旧导航 |
-| `AppShell` | UI 外壳 | 全局导航、Bridge/Formation/Settings/Missions 原生页、跨场景目标页 | `LegacyPanelAdapter`、`SceneManager` | 新页面自己渲染；未重写页委托旧面板 |
+| `AppShell` | UI 外壳 | 全局导航、Bridge/Formation/Settings/Missions 原生页、跨场景目标页 | `LegacyPanelAdapter`、`SceneManager` | 新页面自己渲染；未重写页委托旧面板；**规划**中：功能解锁 grey out、Notification 栏、Snackbar 宿主 |
 | `BattleChrome` | 战斗外壳 | 无战斗数据 | `BattleController.CurrentRound` | Option A：只改 chrome，不改手牌战斗 |
 | `CardEntity` | 领域模型 | 卡牌身份、成长、基础属性、专长、编队位置 | `CardDataManager`、`DataUtil`、`Card` | 字段参与 JSON；属性变化可能触发整组卡牌保存 |
 | `CardDataManager` | 领域服务 | 角色目录、技能、等级属性、概率表 | `Character`、`Resources`、`CardEntity` | 负责“生成”，不自动把卡加入玩家集合 |

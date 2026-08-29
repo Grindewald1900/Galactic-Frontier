@@ -307,7 +307,7 @@ PlayerDeckState
 | 编队（Formation） | 支持卡组列表切换；显示每卡组用途、运行状态、5 槽 |
 | 成员卡 | 占用中显示状态徽章（采集中 / 战斗中等）；禁用「加入其他 Running 编成」的误导操作 |
 | 启动失败 | 列出冲突 `cardId` 与所在卡组名 |
-| Bridge | 展示 Running 卡组摘要与并行 `当前/上限` |
+| Bridge | **当前卡组**展示主战斗编制 5 槽；**舰队组件**（水平滑动卡片）展示每舰绑定 deck 与 Running 行动；顶栏统计**不含**并行数字卡（见 [09-figma-ui.md](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5） |
 | 停止 | 二次确认；文案标明「保留已结算收益，丢弃未完成周期进度」 |
 
 语言：沿用 Nexus `UiText` 中英双语键。

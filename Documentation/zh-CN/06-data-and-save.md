@@ -62,6 +62,23 @@ Application.persistentDataPath/
 - 未设置有效当前玩家前，不应调用依赖玩家目录的卡牌、物品或专长读写。
 - `_dev` / `_corrupt` 目录不会出现在读档列表中。
 
+### 玩家身份与资料（规则）
+
+| 字段 | 存储 | 可变性 | 说明 |
+| --- | --- | --- | --- |
+| **玩家 ID**（`PlayerEntity.playerID`） | `playerData.json` | **不可更改** | 在 `CreatePlayerData()` 时生成 GUID；存档生命周期内只读；用于目录名、`GiftRedeemed_*`、日后 Online 账号关联 |
+| **显示名称**（`playerName`） | `playerData.json` | **可自定义** | 设置页 / 资料页修改；舰桥副标题、排行榜等展示用 |
+| **头像** | `saves/{playerId}/avatar.png` | **可自定义** | 创角默认图或占位；玩家可选预设或导入（格式/尺寸上限在 UI 文档约定） |
+
+硬约束：
+
+1. **禁止**提供任何 UI 或 Debug 指令修改已存在档的 `playerID`。  
+2. 改 `playerName` / 头像后须 `SavePlayerData()` 并刷新舰桥等展示位。  
+3. 玩家目录路径以创档时的 `playerID` 为准；**改名不改目录名**（避免破坏路径引用）。  
+4. Online 迁移时以 `playerID` 为稳定主键，`playerName` 仅为展示层。
+
+UI 入口：Settings 或舰桥资料区 — 见 [09-figma-ui.md](09-figma-ui.md)（实现待做）。
+
 ### 卡组 API（P1.1）
 
 ```text
