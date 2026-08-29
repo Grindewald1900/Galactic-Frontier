@@ -337,6 +337,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             "MainCombat" => G("ui.occupation.main_combat"),
             "AutoCombat" => G("ui.occupation.auto_combat"),
+            "Idle" => G("ui.occupation.idle"),
             "Gathering" => G("ui.occupation.gathering"),
             "Processing" => G("ui.occupation.processing"),
             "Manufacturing" => G("ui.occupation.manufacturing"),
@@ -386,6 +387,29 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StatSpeed => G("ui.stat.speed");
         public static string None => G("ui.common.none");
         public static string Close => G("ui.common.close");
+        public static string CreditsName => G("ui.common.credits");
+        public static string CharactersTitle => G("ui.characters.title");
+        public static string CharactersHint(int unique, int copies) => F("ui.characters.hint", unique, copies);
+        public static string CharacterCopies(int count) => F("ui.characters.copies", count);
+        public static string CharacterCopyList => G("ui.characters.copy_list");
+        public static string CardsTitle => G("ui.cards.title");
+        public static string CardsHint(int count) => F("ui.cards.hint", count);
+        public static string CardFilterAll => G("ui.cards.filter_all");
+        public static string CardFilterIdle => G("ui.cards.filter_idle");
+        public static string CardFilterBound => G("ui.cards.filter_bound");
+        public static string CardSelectHint => G("ui.cards.select_hint");
+        public static string CardBound => G("ui.cards.bound");
+        public static string OccupationIdle => G("ui.occupation.idle");
+        public static string Dismantle => G("ui.dismantle.action");
+        public static string DismantleConfirm => G("ui.dismantle.confirm");
+        public static string DismantleConfirmTitle => G("ui.dismantle.confirm_title");
+        public static string DismantleConfirmBody(string name, int credits) => F("ui.dismantle.confirm_body", name, credits);
+        public static string DismantleRewardTitle => G("ui.dismantle.reward_title");
+        public static string DismantleBlockedBound => G("ui.dismantle.blocked_bound");
+        public static string DismantleBlockedBusy => G("ui.dismantle.blocked_busy");
+        public static string DismantleBlockedSlotted => G("ui.dismantle.blocked_slotted");
+        public static string DismantleBlockedMascot => G("ui.dismantle.blocked_mascot");
+        public static string DismantleBlockedMissing => G("ui.dismantle.blocked_missing");
         public static string SelectRosterFirst => G("ui.formation.select_roster");
         public static string EquippedItem(string name) => F("ui.formation.equipped", name);
         public static string EquipFailed => G("ui.formation.equip_failed");

@@ -408,8 +408,8 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 1. ~~**P5.0–P5.5 / P5.1b / 抽卡正式路径**~~ **已完成**  
 2. ~~**Explore M1**（单星域 2D + 雷达 + 巡航 + 已探索列表）~~ **已完成**（状态见 PRODUCT-STATUS §5）  
 3. （可选 MVP 收尾）继续角色扩至 50（对照 [19](19-characters-and-progression.md)）  
-4. （可选 MVP 收尾）卡牌分解 + Characters/Cards 原生页（对照 [19](19-characters-and-progression.md)）  
-5. （可选）抽卡概率公示细节 / 十连折扣  
+4. ~~（可选 MVP 收尾）卡牌分解 + Characters/Cards 原生页（对照 [19](19-characters-and-progression.md)）~~ **已完成**
+5. （可选）抽卡概率公示细节 / 十连折扣
 6. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
 7. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
 8. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  

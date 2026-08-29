@@ -209,6 +209,23 @@ namespace Assets.Resources.Scripts.Deck
         public static CardOccupationState GetOccupation(string cardId) =>
             DeckOccupationMap.GetState(State, cardId);
 
+        public static bool IsCardSlotted(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId) || State?.decks == null)
+                return false;
+            foreach (var deck in State.decks)
+            {
+                if (deck?.slotCardIds == null) continue;
+                foreach (var id in deck.slotCardIds)
+                {
+                    if (id == cardId)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         public static DeckCommandResult TryAssignToDeck(string deckId, int slotIndex, string cardId, IList<CardEntity> allCards)
         {
             EnsureState();

@@ -25,7 +25,7 @@
 | 相对 [02](02-core-product-design.md) §16.1 | **约 85%** |
 | 核心循环 | 战斗→区域→采集/制造→NPC→成长，已打通 |
 | 里程碑 | M0–M4 已达成；**M5 接近**（引导/星域/招募/36 人已通） |
-| MVP 缺口 | 角色扩至 50（可选）、抽卡分解、Characters/Cards 原生页 |
+| MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣 |
 | 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M2+（20） |
 
 ---
@@ -46,7 +46,7 @@
 | 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 | 部分 | 进行中 | Solo NPC；玩家市场 Online |
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | 五步+RewardService；星域叙事可再厚 |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub；MVP 不做 |
-| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡/约 36 人已通；能级未接 UI；分解未做 |
+| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级未接 UI |
 | 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向 | 部分 | 进行中 | **M1** 单星域 2D 图+雷达+巡航+已探索列表已通；M2–M4 未开始 |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 
@@ -60,7 +60,7 @@
 | 区域+舰船门 / 挂机采集制造 | 已实现 |
 | 离线 cap+yield / 品质 / 耐久 | 已实现 |
 | NPC 商店 / 6 区首领 / 新手五步 | 已实现 |
-| 36 角色+抽卡 | 部分（约 36/50；分解与原生卡册仍缺） |
+| 36 角色+抽卡 | 部分（约 36/50；原生卡册与分解已通） |
 | 玩家市场 | Online only |
 | 舰队 / 流水线 / 探索度 | 未开始（见 15 / 20 / **21**） |
 
@@ -76,6 +76,8 @@
 | 物品双语说明 + 获取提示 | 已实现 | `ItemDef.descriptionEn/Zh`；`ItemAcquireCatalog`；`ItemTooltip` |
 | 舰船模块升级 UI | 已实现 | `ModuleUpgradePopup`；`ShipService` 走仓库扣费 |
 | 加载遮罩 / 奖励弹窗 / 采集仓 | 已实现 | `LoadingOverlay`；`RewardPopup`；Gather Bank |
+| Characters / Cards 原生页 | 已实现 | `CharactersScreen` / `CardsScreen`；nav 不再走 Legacy |
+| 卡牌分解 | 已实现 | `DismantleRules` + `CardDismantleService`；空闲未绑定实例可分解 |
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
 | 舰队 / 探索度 | 未开始 | 规则在 [21](21-fleet-factions-and-exploration.md) |
 | 星图 M2+（海图/信标/多团块） | 未开始 | 方向稿 [20](20-stellar-map-and-navigation.md) §11 |

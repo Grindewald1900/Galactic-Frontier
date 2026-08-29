@@ -222,6 +222,30 @@ namespace Assets.Resources.Scripts.Economy
             return false;
         }
 
+        /// <summary>Returns every piece of gear on this card to the warehouse before the card is destroyed.</summary>
+        public static int UnequipAllForCard(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId))
+                return 0;
+
+            var items = ProductionService.GetLocalItems();
+            if (items == null)
+                return 0;
+
+            var count = 0;
+            foreach (var item in items)
+            {
+                if (item == null || item.equippedToCardId != cardId)
+                    continue;
+                item.equippedToCardId = "";
+                count++;
+            }
+
+            if (count > 0)
+                Persist(items);
+            return count;
+        }
+
         private static void Persist(List<ItemEntity> items)
         {
             if (ItemManager.Instance != null)

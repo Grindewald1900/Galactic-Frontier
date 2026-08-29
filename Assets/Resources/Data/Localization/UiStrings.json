@@ -1181,6 +1181,11 @@
       "zh": "该卡组正在行动 — 停止后才能改编制。"
     },
     {
+      "id": "ui.occupation.idle",
+      "en": "Idle",
+      "zh": "空闲"
+    },
+    {
       "id": "ui.occupation.main_combat",
       "en": "In combat",
       "zh": "战斗中"
@@ -1449,6 +1454,116 @@
       "id": "ui.common.close",
       "en": "Close",
       "zh": "关闭"
+    },
+    {
+      "id": "ui.common.credits",
+      "en": "Credits",
+      "zh": "信用点"
+    },
+    {
+      "id": "ui.characters.title",
+      "en": "CHARACTERS",
+      "zh": "角色"
+    },
+    {
+      "id": "ui.characters.hint",
+      "en": "{0} characters · {1} card copies",
+      "zh": "{0} 名角色 · {1} 张卡副本"
+    },
+    {
+      "id": "ui.characters.copies",
+      "en": "×{0}",
+      "zh": "×{0}"
+    },
+    {
+      "id": "ui.characters.copy_list",
+      "en": "COPIES",
+      "zh": "持有副本"
+    },
+    {
+      "id": "ui.cards.title",
+      "en": "CARDS",
+      "zh": "卡牌"
+    },
+    {
+      "id": "ui.cards.hint",
+      "en": "{0} owned card instances. Dismantle unbound idle copies for materials.",
+      "zh": "共 {0} 张卡实例。可分解未绑定且空闲的重复卡换材料。"
+    },
+    {
+      "id": "ui.cards.filter_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.cards.filter_idle",
+      "en": "Can dismantle",
+      "zh": "可分解"
+    },
+    {
+      "id": "ui.cards.filter_bound",
+      "en": "Bound",
+      "zh": "绑定"
+    },
+    {
+      "id": "ui.cards.select_hint",
+      "en": "Select a card to inspect.",
+      "zh": "选择一张卡查看详情。"
+    },
+    {
+      "id": "ui.cards.bound",
+      "en": "Bound",
+      "zh": "绑定"
+    },
+    {
+      "id": "ui.dismantle.action",
+      "en": "Dismantle",
+      "zh": "分解"
+    },
+    {
+      "id": "ui.dismantle.confirm",
+      "en": "Dismantle",
+      "zh": "确认分解"
+    },
+    {
+      "id": "ui.dismantle.confirm_title",
+      "en": "DISMANTLE CARD",
+      "zh": "分解卡牌"
+    },
+    {
+      "id": "ui.dismantle.confirm_body",
+      "en": "Destroy {0}? This cannot be undone. Estimated credits: {1}.",
+      "zh": "销毁 {0}？此操作不可撤销。预计获得信用点：{1}。"
+    },
+    {
+      "id": "ui.dismantle.reward_title",
+      "en": "DISMANTLE REWARDS",
+      "zh": "分解收益"
+    },
+    {
+      "id": "ui.dismantle.blocked_bound",
+      "en": "Starter and story cards cannot be dismantled.",
+      "zh": "初始卡与剧情绑定卡无法分解。"
+    },
+    {
+      "id": "ui.dismantle.blocked_busy",
+      "en": "Stop the deck using this card first.",
+      "zh": "请先停止占用该卡的卡组。"
+    },
+    {
+      "id": "ui.dismantle.blocked_slotted",
+      "en": "Remove this card from formation first.",
+      "zh": "请先从编队中撤下该卡。"
+    },
+    {
+      "id": "ui.dismantle.blocked_mascot",
+      "en": "Clear the ship mascot before dismantling.",
+      "zh": "请先取消舰船看板娘再分解。"
+    },
+    {
+      "id": "ui.dismantle.blocked_missing",
+      "en": "Card not found.",
+      "zh": "找不到这张卡。"
     },
     {
       "id": "ui.bridge.edit_formation_hint",

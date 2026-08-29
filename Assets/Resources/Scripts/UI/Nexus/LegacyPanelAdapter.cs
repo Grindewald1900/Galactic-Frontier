@@ -43,26 +43,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static bool TryMap(AppScreen screen, out CurrentScene scene)
         {
-            switch (screen)
-            {
-                case AppScreen.Characters:
-                    scene = CurrentScene.CHARACTER_MENU;
-                    return true;
-                case AppScreen.Cards:
-                    scene = CurrentScene.CARDS_MENU;
-                    return true;
-                case AppScreen.Inventory:
-                    // Native InventoryScreen owns this route; legacy panel is World Space and hidden.
-                    scene = CurrentScene.MAIN_SCENE;
-                    return false;
-                case AppScreen.Market:
-                    // Native MarketScreen owns this route (P4); do not open gacha SHOP_MENU.
-                    scene = CurrentScene.MAIN_SCENE;
-                    return false;
-                default:
-                    scene = CurrentScene.MAIN_SCENE;
-                    return false;
-            }
+            // Characters / Cards / Inventory / Market are native screens.
+            scene = CurrentScene.MAIN_SCENE;
+            return false;
         }
     }
 }

@@ -61,7 +61,7 @@
 - ~~战斗结束后目前显示战报，但返回 `MainScene` 的调用被注释。~~ → **P0.3**：战报 Confirm → Explore；Esc → Bridge。
 - `HomeScene` 未加入构建。
 - 设置、礼品码、成就、事件和星球系统仍有占位逻辑。
-- Characters / Cards 仍可走 Legacy；原生页与卡牌分解未做。
+- Characters / Cards 已有原生页与分解；能级 UI 仍未接。
 - 自动化流水线、舰队/探索度、星图 M2+（海图/信标/多团块）规则已写、代码未开始（见 PRODUCT-STATUS §5）。
 - 多个公开 Inspector 字段缺少统一命名与空值验证。
 - `CardEntity` 同时承担持久化模型、属性计算和事件通知，职责较重。

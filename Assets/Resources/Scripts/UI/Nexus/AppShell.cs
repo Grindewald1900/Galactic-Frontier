@@ -42,6 +42,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private MarketScreen marketScreen;
         private RecruitScreen recruitScreen;
         private InventoryScreen inventoryScreen;
+        private CharactersScreen charactersScreen;
+        private CardsScreen cardsScreen;
         private TextMeshProUGUI breadcrumbTitle;
         private TextMeshProUGUI statusShortcuts;
         private TextMeshProUGUI statusVersion;
@@ -168,6 +170,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             marketScreen = null;
             recruitScreen = null;
             inventoryScreen = null;
+            charactersScreen = null;
+            cardsScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -206,6 +210,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             marketScreen = null;
             recruitScreen = null;
             inventoryScreen = null;
+            charactersScreen = null;
+            cardsScreen = null;
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
@@ -368,6 +374,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         inventoryScreen.Rebuild();
                     inventoryScreen.Root.SetActive(true);
                     break;
+                case AppScreen.Characters:
+                    if (charactersScreen == null)
+                        charactersScreen = CharactersScreen.Build(ContentRoot());
+                    else
+                        charactersScreen.Rebuild();
+                    charactersScreen.Root.SetActive(true);
+                    break;
+                case AppScreen.Cards:
+                    if (cardsScreen == null)
+                        cardsScreen = CardsScreen.Build(ContentRoot());
+                    else
+                        cardsScreen.Rebuild();
+                    cardsScreen.Root.SetActive(true);
+                    break;
                 case AppScreen.Settings:
                     if (settingsRoot != null)
                         Destroy(settingsRoot);
@@ -410,6 +430,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (marketScreen != null) marketScreen.Root.SetActive(false);
             if (recruitScreen != null) recruitScreen.Root.SetActive(false);
             if (inventoryScreen != null) inventoryScreen.Root.SetActive(false);
+            if (charactersScreen != null) charactersScreen.Root.SetActive(false);
+            if (cardsScreen != null) cardsScreen.Root.SetActive(false);
         }
 
         private void PrepareMainScene()
