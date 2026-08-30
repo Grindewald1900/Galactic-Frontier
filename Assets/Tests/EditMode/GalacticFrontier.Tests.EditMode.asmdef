@@ -8,7 +8,8 @@
         "GalacticFrontier.DeckDomain",
         "GalacticFrontier.WorldDomain",
         "GalacticFrontier.EconomyDomain",
-        "GalacticFrontier.MarketDomain"
+        "GalacticFrontier.MarketDomain",
+        "GalacticFrontier.UnlockDomain"
     ],
     "includePlatforms": [
         "Editor"

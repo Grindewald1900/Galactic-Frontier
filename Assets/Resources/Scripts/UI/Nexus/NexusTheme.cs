@@ -12,6 +12,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public const float TopBarHeight = 48f;
         public const float BreadcrumbHeight = 32f;
         public const float StatusBarHeight = 22f;
+        public const float NotificationBarHeight = 24f;
+        public static float ChromeHeaderHeight => TopBarHeight + NotificationBarHeight + BreadcrumbHeight;
 
         public static readonly Color Background = Hex("#07091A");
         public static readonly Color Surface = Hex("#0D1228");

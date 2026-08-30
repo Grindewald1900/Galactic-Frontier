@@ -1959,6 +1959,121 @@
       "id": "ui.battle.turn_empty",
       "en": "TURN  —",
       "zh": "回合  —"
+    },
+    {
+      "id": "ui.common.got_it",
+      "en": "Got it",
+      "zh": "知道了"
+    },
+    {
+      "id": "ui.common.later",
+      "en": "Later",
+      "zh": "稍后"
+    },
+    {
+      "id": "ui.notify.idle",
+      "en": "Command channel idle.",
+      "zh": "指挥频道空闲。"
+    },
+    {
+      "id": "ui.notify.pending_loot",
+      "en": "Offline yield ready to claim ({0}).",
+      "zh": "离线收益可领取（{0}）。"
+    },
+    {
+      "id": "ui.unlock.locked_title",
+      "en": "Feature locked",
+      "zh": "功能未解锁"
+    },
+    {
+      "id": "ui.unlock.locked_body",
+      "en": "{0} is not unlocked yet.",
+      "zh": "{0} 尚未解锁。"
+    },
+    {
+      "id": "ui.unlock.unlocked_title",
+      "en": "{0} unlocked",
+      "zh": "已解锁：{0}"
+    },
+    {
+      "id": "ui.bridge.fleet_heading",
+      "en": "Fleet",
+      "zh": "舰队"
+    },
+    {
+      "id": "ui.bridge.fleet_deck",
+      "en": "Deck: {0}",
+      "zh": "卡组：{0}"
+    },
+    {
+      "id": "ui.bridge.fleet_idle",
+      "en": "Idle",
+      "zh": "空闲"
+    },
+    {
+      "id": "ui.bridge.fleet_berth",
+      "en": "Shipyard berth",
+      "zh": "船坞泊位"
+    },
+    {
+      "id": "ui.bridge.fleet_berth_hint",
+      "en": "Build new ship — unlocks with the fleet expansion.",
+      "zh": "建造新舰 — 随舰队扩建解锁。"
+    },
+    {
+      "id": "ui.settings.profile",
+      "en": "Commander profile",
+      "zh": "指挥官资料"
+    },
+    {
+      "id": "ui.settings.profile_name",
+      "en": "Display name",
+      "zh": "显示名称"
+    },
+    {
+      "id": "ui.settings.profile_name_ph",
+      "en": "Enter a name…",
+      "zh": "输入名称…"
+    },
+    {
+      "id": "ui.settings.profile_save_name",
+      "en": "Save name",
+      "zh": "保存名称"
+    },
+    {
+      "id": "ui.settings.profile_id",
+      "en": "Player ID: {0}",
+      "zh": "玩家 ID：{0}"
+    },
+    {
+      "id": "ui.settings.profile_id_hint",
+      "en": "Assigned at save creation and cannot be changed.",
+      "zh": "存档初始化时分配，之后无法更改。"
+    },
+    {
+      "id": "ui.settings.profile_avatar",
+      "en": "Avatar",
+      "zh": "头像"
+    },
+    {
+      "id": "ui.settings.profile_saved",
+      "en": "Display name saved.",
+      "zh": "显示名称已保存。"
+    },
+    {
+      "id": "ui.settings.profile_name_invalid",
+      "en": "Name must be 1–16 characters.",
+      "zh": "名称须为 1–16 个字符。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_saved",
+      "en": "Avatar updated.",
+      "zh": "头像已更新。"
+    },
+    {
+      "id": "ui.settings.game_saved",
+      "en": "Game saved.",
+      "zh": "游戏已保存。"
     }
   ]
 }

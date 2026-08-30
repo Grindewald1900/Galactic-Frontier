@@ -22,7 +22,7 @@
 
 入口代码：`Assets/Resources/Scripts/Utils/Save/`（`DevDataSettings`、`IDevDataProvider`、`SaveMigrator`、`StarterSeedApplier` 等）。
 
-### 存档位置（saveVersion = 4）
+### 存档位置（saveVersion = 5）
 
 `DataUtil` 使用：
 
@@ -41,6 +41,8 @@ Application.persistentDataPath/
       ├─ world.json                  // P2：区域进度
       ├─ ship.json                   // P2：舰船与模块
       ├─ idle.json                   // P3：离线结算 / Pending / 熟练度
+      ├─ onboarding.json
+      ├─ unlocks.json               // 功能解锁
       ├─ expertData.json
       ├─ avatar.png
       └─ itemData.json.bak
@@ -285,7 +287,7 @@ saves/{playerId}/meta.json
 
 | 项目 | MVP 默认 |
 | --- | --- |
-| 当前代码版本 `CurrentSaveVersion` | **3**（P2：`world.json` + `ship.json`） |
+| 当前代码版本 `CurrentSaveVersion` | **5**（功能解锁 `unlocks.json`） |
 | 无 `meta.json` 的旧档 | 视为 `saveVersion = 0`，启动时依次迁移到 Current |
 | 高于 Current | **拒绝加载**，提示「请更新游戏」；不降级写回 |
 | 迁移失败 | 拒绝进入游戏；保留原文件；可选复制到 `saves/_corrupt/{playerId}_{timestamp}/` |
@@ -324,6 +326,14 @@ saves/{playerId}/meta.json
 | 1 | 规范化 `inventory_*.json`：补齐 `itemDefId` / `quality`（legacy `seed_scrap` → `mat_scrap` Q2） |
 | 2 | 若无 `idle.json`：写入空 Pending + mastery |
 | 3 | 写入 `meta.json`（`saveVersion = 4`） |
+
+#### 4.3.5 版本 4 → 5 迁移（功能解锁）
+
+| 步骤 | 动作 |
+| --- | --- |
+| 1 | 若无 `unlocks.json`：写入空 `FeatureUnlockState` |
+| 2 | 首次 `FeatureUnlockService.EnsureLoaded` 按当前进度 **seed** 已满足条件的功能（不弹解锁 Dialog） |
+| 3 | 写入 `meta.json`（`saveVersion = 5`） |
 
 #### 4.4 物品分文件
 

@@ -112,15 +112,15 @@ NexusUiBootstrap
 
 - 解锁条件表：`Resources/Data/FeatureUnlockCatalog.json`（建议）；字段含 `featureId`、`requiredStepId?`、`requiredRegionId?`、`requiredShipLevel?`、`navScreen?`。  
 - 与 [17-sector-and-onboarding.md](17-sector-and-onboarding.md) 主链、`11-deck-and-occupation.md` 卡组槽表、`13-region-and-ship.md` 区域门 **对齐**，避免重复魔法数。  
-- **实现状态**：规则已拍板；代码未落地 — 见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+- **实现状态**：已落地 — 见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ---
 
 ## 舰桥（Bridge）布局
 
-### 当前实现（待重构）
+### 当前实现
 
-顶栏四格统计含「并行 `busy/max`」；「当前卡组」与「并行中行动」分两栏堆叠。与下述目标不一致。
+顶栏三格统计（战力 / 探索度 / 信用点）；「当前卡组」+ 其下 **舰队水平滑动组件**（旗舰卡 + 预留泊位）。Notification 条挂在 `AppShell` 顶栏与面包屑之间。
 
 ### 目标布局（vNext）
 

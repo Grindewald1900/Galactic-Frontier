@@ -1,5 +1,5 @@
+using System;
 using System.IO;
-using Assets.Resources.Scripts.Props;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,6 +50,68 @@ namespace Assets.Resources.Scripts.Utils
 
             File.WriteAllBytes(savePath, imageData); // **保存到本地**
             Debug.Log($"Avatar stored at {savePath}");
+        }
+
+        public static bool TrySaveSpritePng(Sprite sprite, string savePath)
+        {
+            if (sprite == null || string.IsNullOrEmpty(savePath))
+                return false;
+
+            Texture2D readable = CopyReadable(sprite.texture);
+            if (readable == null)
+                return false;
+            try
+            {
+                byte[] imageData = readable.EncodeToPNG();
+                File.WriteAllBytes(savePath, imageData);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[AVATAR] Save failed: " + ex.Message);
+                return false;
+            }
+            finally
+            {
+                UnityEngine.Object.Destroy(readable);
+            }
+        }
+
+        public static Sprite LoadSpriteFromFile(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+                return null;
+            try
+            {
+                byte[] imageData = File.ReadAllBytes(filePath);
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (!texture.LoadImage(imageData))
+                    return null;
+                return Sprite.Create(
+                    texture,
+                    new Rect(0, 0, texture.width, texture.height),
+                    new Vector2(0.5f, 0.5f));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[AVATAR] Load failed: " + ex.Message);
+                return null;
+            }
+        }
+
+        private static Texture2D CopyReadable(Texture source)
+        {
+            if (source == null) return null;
+            var rt = RenderTexture.GetTemporary(source.width, source.height, 0);
+            Graphics.Blit(source, rt);
+            var previous = RenderTexture.active;
+            RenderTexture.active = rt;
+            var copy = new Texture2D(source.width, source.height, TextureFormat.RGBA32, false);
+            copy.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            copy.Apply();
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(rt);
+            return copy;
         }
 
         // Get sprite from local file

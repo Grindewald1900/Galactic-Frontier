@@ -120,6 +120,7 @@ namespace Assets.Resources.Scripts.Onboarding
             }
 
             Save();
+            Assets.Resources.Scripts.Unlock.FeatureUnlockService.Evaluate();
             return OnboardingCommandResult.Ok(next == null
                 ? "Onboarding complete."
                 : $"Claimed {stepId}; next {next.stepId}");

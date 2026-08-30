@@ -95,6 +95,32 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string RewardEmpty => G("ui.reward.empty");
         public static string RewardConfirm => G("ui.reward.confirm");
         public static string RewardDismissHint => G("ui.reward.dismiss_hint");
+        public static string GotIt => G("ui.common.got_it");
+        public static string Later => G("ui.common.later");
+        public static string NotificationIdle => G("ui.notify.idle");
+        public static string NotificationPendingLoot(int n) => F("ui.notify.pending_loot", n);
+
+        public static string FeatureLockedTitle => G("ui.unlock.locked_title");
+        public static string FeatureLockedBody(string name) => F("ui.unlock.locked_body", name);
+        public static string FeatureUnlockedTitle(string name) => F("ui.unlock.unlocked_title", name);
+
+        public static string FleetHeading => G("ui.bridge.fleet_heading");
+        public static string FleetDeckLabel(string name) => F("ui.bridge.fleet_deck", name);
+        public static string FleetStatusIdle => G("ui.bridge.fleet_idle");
+        public static string FleetBerthLocked => G("ui.bridge.fleet_berth");
+        public static string FleetBerthHint => G("ui.bridge.fleet_berth_hint");
+
+        public static string ProfileSection => G("ui.settings.profile");
+        public static string ProfileNameLabel => G("ui.settings.profile_name");
+        public static string ProfileNamePlaceholder => G("ui.settings.profile_name_ph");
+        public static string ProfileSaveName => G("ui.settings.profile_save_name");
+        public static string ProfileIdLabel(string id) => F("ui.settings.profile_id", id);
+        public static string ProfileIdHint => G("ui.settings.profile_id_hint");
+        public static string ProfileAvatarLabel => G("ui.settings.profile_avatar");
+        public static string ProfileSaved => G("ui.settings.profile_saved");
+        public static string ProfileNameInvalid => G("ui.settings.profile_name_invalid");
+        public static string ProfileAvatarSaved => G("ui.settings.profile_avatar_saved");
+        public static string GameSaved => G("ui.settings.game_saved");
 
         // Branding
         public static string BrandTitle => G("ui.brand.title");

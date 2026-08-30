@@ -69,6 +69,12 @@ namespace Assets.Resources.Scripts.Utils.Save
                             version = 4;
                             meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
                             break;
+                        case 4:
+                            if (!Migrate4To5(dataUtil, playerSavePath, meta))
+                                return SaveEnsureResult.Fail("Migration 4→5 failed (unlocks.json).");
+                            version = 5;
+                            meta = dataUtil.LoadMetaFromDirectory(playerSavePath);
+                            break;
                         default:
                             return SaveEnsureResult.Fail($"No migrator registered for saveVersion {version}.");
                     }
@@ -267,6 +273,30 @@ namespace Assets.Resources.Scripts.Utils.Save
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             var meta = existingMeta ?? new SaveMeta();
             meta.saveVersion = SaveVersion.EconomyIdle;
+            if (meta.createdAtUtc <= 0)
+                meta.createdAtUtc = now;
+            meta.lastSavedAtUtc = now;
+            if (string.IsNullOrEmpty(meta.appVersion))
+                meta.appVersion = Application.version;
+
+            return dataUtil.WriteMetaToDirectory(playerSavePath, meta);
+        }
+
+        /// <summary>Writes unlocks.json if missing. FeatureUnlockService seeds announced flags on first load.</summary>
+        private static bool Migrate4To5(DataUtil dataUtil, string playerSavePath, SaveMeta existingMeta)
+        {
+            var unlockPath = Combine(playerSavePath, DefaultProperty.UNLOCKS_DATA);
+            if (!File.Exists(unlockPath))
+            {
+                var state = new Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState();
+                if (!dataUtil.WriteFeatureUnlockStateToDirectory(playerSavePath, state))
+                    return false;
+                Debug.Log("[SAVE] Migration 4→5 wrote unlocks.json.");
+            }
+
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var meta = existingMeta ?? new SaveMeta();
+            meta.saveVersion = SaveVersion.FeatureUnlocks;
             if (meta.createdAtUtc <= 0)
                 meta.createdAtUtc = now;
             meta.lastSavedAtUtc = now;

@@ -44,11 +44,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 13f,
                 NexusTheme.MutedText);
 
+            BuildProfileSection(root.transform);
+
             NexusUiFactory.CreateText(
                 root.transform,
                 "Language Label",
                 UiText.Language,
-                new Vector2(28f, 120f),
+                new Vector2(28f, 360f),
                 new Vector2(280f, 24f),
                 14f,
                 NexusTheme.MutedText,
@@ -56,16 +58,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 FontStyles.Bold);
 
             bool isZh = LocalizationUtil.IsSimplifiedChinese;
-            CreateLanguageButton(root.transform, UiText.LanguageEnglish, new Vector2(28f, 152f), !isZh,
+            CreateLanguageButton(root.transform, UiText.LanguageEnglish, new Vector2(28f, 392f), !isZh,
                 () => LocalizationUtil.SetLanguage(SystemLanguage.English));
-            CreateLanguageButton(root.transform, UiText.LanguageChinese, new Vector2(320f, 152f), isZh,
+            CreateLanguageButton(root.transform, UiText.LanguageChinese, new Vector2(320f, 392f), isZh,
                 () => LocalizationUtil.SetLanguage(SystemLanguage.ChineseSimplified));
 
             NexusUiFactory.CreateButton(
                 root.transform,
                 "Save",
                 UiText.SaveCardData,
-                new Vector2(28f, 220f),
+                new Vector2(28f, 456f),
                 new Vector2(280f, 48f),
                 SaveCards,
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
@@ -76,7 +78,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "Clear",
                 UiText.ClearCardsDebug,
-                new Vector2(28f, 280f),
+                new Vector2(28f, 516f),
                 new Vector2(280f, 48f),
                 ClearCards,
                 NexusTheme.SurfaceRaised,
@@ -87,7 +89,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "MainMenu",
                 UiText.ReturnMainMenu,
-                new Vector2(28f, 340f),
+                new Vector2(28f, 576f),
                 new Vector2(280f, 48f),
                 () =>
                 {
@@ -101,17 +103,125 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildGiftCodeSection(root.transform);
             BuildDebugToggleSection(root.transform);
 
-            string player = DataUtil.Instance?.currentPlayer?.playerName ?? "(no player)";
-            NexusUiFactory.CreateText(
-                root.transform,
-                "Player",
-                UiText.CurrentPlayer(player),
-                new Vector2(28f, 720f),
-                new Vector2(600f, 28f),
-                13f,
-                NexusTheme.Cyan);
-
             return root;
+        }
+
+        private static void BuildProfileSection(Transform parent)
+        {
+            var player = DataUtil.Instance?.currentPlayer;
+            NexusUiFactory.CreateText(
+                parent,
+                "Profile Label",
+                UiText.ProfileSection,
+                new Vector2(28f, 112f),
+                new Vector2(400f, 24f),
+                14f,
+                NexusTheme.MutedText,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+
+            NexusUiFactory.CreateText(
+                parent,
+                "Name Label",
+                UiText.ProfileNameLabel,
+                new Vector2(28f, 140f),
+                new Vector2(200f, 20f),
+                12f,
+                NexusTheme.DimText);
+
+            var nameInput = NexusUiFactory.CreateInputField(
+                parent,
+                "Name Input",
+                UiText.ProfileNamePlaceholder,
+                new Vector2(28f, 164f),
+                new Vector2(280f, 40f));
+            nameInput.text = player?.playerName ?? "";
+            nameInput.characterLimit = 16;
+
+            NexusUiFactory.CreateButton(
+                parent,
+                "Save Name",
+                UiText.ProfileSaveName,
+                new Vector2(320f, 164f),
+                new Vector2(160f, 40f),
+                () => SaveDisplayName(nameInput.text),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
+                NexusTheme.Gold,
+                13f);
+
+            string id = player?.playerID ?? "—";
+            if (id.Length > 18)
+                id = id.Substring(0, 18) + "…";
+            NexusUiFactory.CreateText(
+                parent,
+                "Player Id",
+                UiText.ProfileIdLabel(id),
+                new Vector2(28f, 212f),
+                new Vector2(620f, 20f),
+                12f,
+                NexusTheme.Cyan);
+            NexusUiFactory.CreateText(
+                parent,
+                "Id Hint",
+                UiText.ProfileIdHint,
+                new Vector2(28f, 232f),
+                new Vector2(620f, 18f),
+                11f,
+                NexusTheme.DimText);
+
+            NexusUiFactory.CreateText(
+                parent,
+                "Avatar Label",
+                UiText.ProfileAvatarLabel,
+                new Vector2(28f, 258f),
+                new Vector2(200f, 20f),
+                12f,
+                NexusTheme.MutedText);
+
+            string[] presets = { "Asra_01", "Magki_01", "Sernia_01" };
+            for (int i = 0; i < presets.Length; i++)
+            {
+                string preset = presets[i];
+                Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, preset);
+                float x = 28f + i * 88f;
+                var icon = NexusUiFactory.CreateIcon(
+                    parent,
+                    "Avatar " + preset,
+                    sprite,
+                    new Vector2(x, 282f),
+                    new Vector2(72f, 72f),
+                    Color.white);
+                icon.raycastTarget = true;
+                var button = icon.gameObject.AddComponent<UnityEngine.UI.Button>();
+                button.onClick.AddListener(() => SaveAvatar(sprite));
+            }
+        }
+
+        private static void SaveDisplayName(string raw)
+        {
+            var player = DataUtil.Instance?.currentPlayer;
+            if (player == null || DataUtil.Instance == null)
+                return;
+            string name = (raw ?? "").Trim();
+            if (name.Length < 1 || name.Length > 16)
+            {
+                NexusSnackbar.Show(UiText.ProfileNameInvalid);
+                return;
+            }
+
+            player.playerName = name;
+            DataUtil.Instance.SavePlayerData(player);
+            AppShell.Instance?.RefreshCommanderLabel();
+            NexusSnackbar.Show(UiText.ProfileSaved);
+        }
+
+        private static void SaveAvatar(Sprite sprite)
+        {
+            if (sprite == null || DataUtil.Instance?.currentPlayer == null)
+                return;
+            string path = DataUtil.Instance.GetPlayerAvatarPath(DataUtil.Instance.currentPlayer.playerID);
+            if (ImageUtil.TrySaveSpritePng(sprite, path))
+                NexusSnackbar.Show(UiText.ProfileAvatarSaved);
         }
 
         private static void BuildGiftCodeSection(Transform parent)
@@ -163,6 +273,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     bool ok = GiftCodeService.TryRedeem(input.text, out string en, out string zh);
                     status.text = LocalizationUtil.IsSimplifiedChinese ? zh : en;
                     status.color = ok ? NexusTheme.Gold : NexusTheme.Red;
+                    NexusSnackbar.Show(status.text);
                     if (ok)
                         input.text = string.Empty;
                 },
@@ -225,7 +336,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (CardListManager.Instance == null || DataUtil.Instance == null) return;
             DataUtil.Instance.SaveCardData(CardListManager.Instance.GetCardEntities());
-            Debug.Log("SettingsScreen: card data saved.");
+            NexusSnackbar.Show(UiText.GameSaved);
         }
 
         private static void ClearCards()

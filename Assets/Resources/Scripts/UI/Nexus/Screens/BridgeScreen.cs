@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
@@ -16,7 +17,7 @@ using UnityEngine.UI;
 namespace Assets.Resources.Scripts.UI.Nexus
 {
     /// <summary>
-    /// Bridge command dashboard: active combat deck, running ops / parallel caps, sector strip.
+    /// Bridge command dashboard: combat deck, fleet carousel, sector strip.
     /// </summary>
     internal sealed class BridgeScreen
     {
@@ -26,7 +27,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action openExplore;
         private readonly System.Action openShip;
         private readonly System.Action<AppScreen> navigate;
-        private string pendingStopDeckId = "";
 
         /// <summary>Desaturated wash applied to locked sector art.</summary>
         private static readonly Color LockedTint = new Color(0.36f, 0.40f, 0.48f, 0.55f);
@@ -84,6 +84,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 ShipService.EnsureLoaded(DataUtil.Instance);
                 IdleSettlementService.EnsureLoaded(DataUtil.Instance);
                 OnboardingService.EnsureLoaded(DataUtil.Instance);
+                FeatureUnlockService.EnsureLoaded(DataUtil.Instance);
             }
 
             NexusUiFactory.CreateText(
@@ -156,16 +157,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     if (e != null) power += Mathf.RoundToInt(e.power);
             }
 
-            int busy = DeckService.CountBusyDecks();
-            int maxParallel = DeckService.MaxParallelActions;
-
-            AddStat(root, new Vector2(28f, 128f), UiText.StatCombatPower, power.ToString("N0"), NexusTheme.Gold, new Vector2(248f, 100f));
-            AddStat(root, new Vector2(292f, 128f), UiText.StatExploration, $"{progress}%", NexusTheme.Cyan, new Vector2(248f, 100f));
-            AddStat(root, new Vector2(556f, 128f), UiText.StatCredits, credits.ToString("N0") + "₵", NexusTheme.Purple, new Vector2(248f, 100f));
-            AddStat(root, new Vector2(820f, 128f), UiText.StatRoster, UiText.ParallelOps(busy, maxParallel), NexusTheme.Green, new Vector2(248f, 100f));
+            AddStat(root, new Vector2(28f, 128f), UiText.StatCombatPower, power.ToString("N0"), NexusTheme.Gold, new Vector2(320f, 100f));
+            AddStat(root, new Vector2(364f, 128f), UiText.StatExploration, $"{progress}%", NexusTheme.Cyan, new Vector2(320f, 100f));
+            AddStat(root, new Vector2(700f, 128f), UiText.StatCredits, credits.ToString("N0") + "₵", NexusTheme.Purple, new Vector2(320f, 100f));
 
             BuildActiveFleet(combatMembers);
-            BuildRunningOps();
+            BuildFleetCarousel();
             BuildPendingLoot();
             BuildSectors();
             BuildLog(inLine, cards, progress, credits, power);
@@ -186,28 +183,43 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildCtas()
         {
-            void Cta(string name, string label, float x, UnityEngine.Events.UnityAction action, Color fill, Color tint)
+            void Cta(string name, string label, float x, AppScreen target, UnityEngine.Events.UnityAction action, Color fill, Color tint)
             {
+                bool locked = !FeatureUnlockUi.CanOpen(target);
                 NexusUiFactory.CreateButton(
                     root, name, label,
                     new Vector2(x, 548f),
                     new Vector2(126f, 40f),
-                    action, fill, tint, 12f);
+                    () =>
+                    {
+                        if (locked)
+                            FeatureUnlockUi.ShowLocked(target);
+                        else
+                            action?.Invoke();
+                    },
+                    locked ? NexusTheme.WithAlpha(NexusTheme.Surface, 0.7f) : fill,
+                    locked ? NexusTheme.DimText : tint,
+                    12f);
             }
 
             Cta("CTA Recruit", UiText.BridgeOpenRecruit, 1090f,
+                AppScreen.Recruit,
                 () => navigate?.Invoke(AppScreen.Recruit),
                 NexusTheme.WithAlpha(NexusTheme.Purple, 0.16f), NexusTheme.Purple);
             Cta("CTA Formation", UiText.BridgeOpenFormation, 1226f,
+                AppScreen.Formation,
                 () => openFormation?.Invoke(),
                 NexusTheme.SurfaceRaised, NexusTheme.Text);
             Cta("CTA Explore", UiText.BridgeStartAutoBattle, 1362f,
+                AppScreen.Battle,
                 () => openExplore?.Invoke(),
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold);
             Cta("CTA Ship", UiText.OpenShipBay, 1498f,
+                AppScreen.Ship,
                 () => openShip?.Invoke(),
                 NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan);
             Cta("CTA Missions", UiText.TodaysMissions, 1634f,
+                AppScreen.Missions,
                 () => openMissions?.Invoke(),
                 NexusTheme.SurfaceRaised, NexusTheme.Cyan);
         }
@@ -287,93 +299,189 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
         }
 
-        private void BuildRunningOps()
+        private void BuildFleetCarousel()
         {
             GameObject ops = NexusUiFactory.CreateBox(
                 root,
-                "RunningOps",
+                "FleetCarousel",
                 new Vector2(28f, 456f),
-                new Vector2(1040f, 84f),
+                new Vector2(1040f, 140f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
             NexusUiFactory.CreateText(
                 ops.transform,
                 "Heading",
-                $"{UiText.RunningOps} · {UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)}",
+                $"{UiText.FleetHeading} · {UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)}",
                 new Vector2(20f, 6f),
-                new Vector2(700f, 20f),
+                new Vector2(900f, 22f),
                 13f,
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
 
-            var busyDecks = DeckService.GetBusyDecks();
-            if (busyDecks.Count == 0)
-            {
-                NexusUiFactory.CreateText(
-                    ops.transform,
-                    "Empty",
-                    UiText.NoRunningOps,
-                    new Vector2(20f, 32f),
-                    new Vector2(900f, 40f),
-                    12f,
-                    NexusTheme.MutedText);
-                return;
-            }
+            var viewport = new GameObject("FleetViewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            viewport.transform.SetParent(ops.transform, false);
+            var viewportRect = viewport.GetComponent<RectTransform>();
+            viewportRect.anchorMin = new Vector2(0f, 0f);
+            viewportRect.anchorMax = new Vector2(1f, 1f);
+            viewportRect.offsetMin = new Vector2(12f, 8f);
+            viewportRect.offsetMax = new Vector2(-12f, -32f);
+            var viewportImage = viewport.GetComponent<Image>();
+            viewportImage.color = new Color(0f, 0f, 0f, 0.01f);
+            viewportImage.raycastTarget = true;
 
-            float x = 20f;
-            foreach (var deck in busyDecks)
-            {
-                string label =
-                    $"{deck.displayName}: {UiText.DeckActionLabel(deck.action.status.ToString(), deck.action.actionType.ToString())}";
-                GameObject row = NexusUiFactory.CreateBox(
-                    ops.transform,
-                    $"Op {deck.deckId}",
-                    new Vector2(x, 32f),
-                    new Vector2(320f, 44f),
-                    NexusTheme.SurfaceRaised,
-                    NexusTheme.BorderSoft);
-                NexusUiFactory.CreateText(
-                    row.transform,
-                    "Label",
-                    Truncate(label, 34),
-                    new Vector2(8f, 6f),
-                    new Vector2(220f, 36f),
-                    11f,
-                    NexusTheme.Cyan,
-                    TextAlignmentOptions.Left,
-                    FontStyles.Bold);
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 0f);
+            contentRect.anchorMax = new Vector2(0f, 1f);
+            contentRect.pivot = new Vector2(0f, 0.5f);
+            contentRect.anchoredPosition = Vector2.zero;
 
-                string capturedId = deck.deckId;
-                NexusUiFactory.CreateButton(
-                    row.transform,
-                    "Stop",
-                    UiText.StopAction,
-                    new Vector2(230f, 8f),
-                    new Vector2(80f, 32f),
-                    () => TryStopDeck(capturedId),
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
-                    NexusTheme.Gold,
-                    11f);
-                x += 340f;
+            const float cardW = 280f;
+            const float cardH = 92f;
+            const float gap = 12f;
+            DrawFlagshipCard(content.transform, 0f, cardW, cardH);
+            DrawBerthCard(content.transform, cardW + gap, cardW, cardH);
+
+            contentRect.sizeDelta = new Vector2(cardW * 2f + gap + 8f, 0f);
+
+            var scroll = viewport.GetComponent<ScrollRect>();
+            scroll.content = contentRect;
+            scroll.viewport = viewportRect;
+            scroll.horizontal = true;
+            scroll.vertical = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 32f;
+        }
+
+        private void DrawFlagshipCard(Transform parent, float x, float width, float height)
+        {
+            ShipService.EnsureReady();
+            var ship = ShipService.State;
+            var combat = DeckService.GetActiveCombatDeck();
+            string shipName = ship != null ? $"{ship.displayName}  Lv.{ship.level}" : UiText.FleetHeading;
+            string deckName = combat != null ? combat.displayName : UiText.EmptyFleet;
+            string status = combat != null && combat.IsActionBusy
+                ? UiText.DeckActionLabel(combat.action.status.ToString(), combat.action.actionType.ToString())
+                : UiText.FleetStatusIdle;
+
+            GameObject card = NexusUiFactory.CreateBox(
+                parent,
+                "Flagship",
+                Vector2.zero,
+                new Vector2(width, height),
+                NexusTheme.SurfaceRaised,
+                NexusTheme.Gold);
+            var rect = card.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0.5f);
+            rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(x, 0f);
+            var image = card.GetComponent<Image>();
+            image.raycastTarget = true;
+            var button = card.AddComponent<Button>();
+            button.transition = Selectable.Transition.ColorTint;
+            button.onClick.AddListener(() =>
+            {
+                if (FeatureUnlockUi.CanOpen(AppScreen.Ship))
+                    openShip?.Invoke();
+                else
+                    FeatureUnlockUi.ShowLocked(AppScreen.Ship);
+            });
+
+            NexusUiFactory.CreateIcon(
+                card.transform,
+                "Icon",
+                NexusCardVisual.UiIcon("World"),
+                new Vector2(10f, 18f),
+                new Vector2(36f, 36f),
+                NexusTheme.Cyan);
+            NexusUiFactory.CreateText(
+                card.transform,
+                "Name",
+                shipName,
+                new Vector2(54f, 8f),
+                new Vector2(width - 64f, 22f),
+                13f,
+                NexusTheme.Text,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                card.transform,
+                "Deck",
+                UiText.FleetDeckLabel(deckName),
+                new Vector2(54f, 32f),
+                new Vector2(width - 64f, 18f),
+                11f,
+                NexusTheme.MutedText);
+            NexusUiFactory.CreateText(
+                card.transform,
+                "Status",
+                status,
+                new Vector2(54f, 52f),
+                new Vector2(width - 64f, 18f),
+                11f,
+                combat != null && combat.IsActionBusy ? NexusTheme.Cyan : NexusTheme.Green);
+
+            float fill = combat != null && combat.IsActionBusy ? 0.65f : 0f;
+            GameObject barBg = NexusUiFactory.CreateBox(
+                card.transform,
+                "BarBg",
+                new Vector2(12f, height - 14f),
+                new Vector2(width - 24f, 6f),
+                NexusTheme.WithAlpha(NexusTheme.Border, 0.5f));
+            barBg.GetComponent<Image>().raycastTarget = false;
+            if (fill > 0f)
+            {
+                GameObject bar = NexusUiFactory.CreateBox(
+                    card.transform,
+                    "Bar",
+                    new Vector2(12f, height - 14f),
+                    new Vector2((width - 24f) * fill, 6f),
+                    NexusTheme.Cyan);
+                bar.GetComponent<Image>().raycastTarget = false;
             }
         }
 
-        private void TryStopDeck(string deckId)
+        private void DrawBerthCard(Transform parent, float x, float width, float height)
         {
-            if (pendingStopDeckId != deckId)
-            {
-                pendingStopDeckId = deckId;
-                Debug.Log("[DECK] " + UiText.StopActionConfirm);
-                Rebuild();
-                return;
-            }
+            GameObject card = NexusUiFactory.CreateBox(
+                parent,
+                "Berth",
+                Vector2.zero,
+                new Vector2(width, height),
+                NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.45f),
+                NexusTheme.BorderSoft);
+            var rect = card.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 0.5f);
+            rect.anchorMax = new Vector2(0f, 0.5f);
+            rect.pivot = new Vector2(0f, 0.5f);
+            rect.anchoredPosition = new Vector2(x, 0f);
+            var image = card.GetComponent<Image>();
+            image.raycastTarget = true;
+            var button = card.AddComponent<Button>();
+            button.onClick.AddListener(() => NexusSnackbar.Show(UiText.FleetBerthHint));
 
-            var result = DeckService.TryStop(deckId);
-            pendingStopDeckId = "";
-            if (!result.Success)
-                Debug.LogWarning("[DECK] Stop failed: " + result.Message);
-            Rebuild();
+            NexusUiFactory.CreateText(
+                card.transform,
+                "Title",
+                UiText.FleetBerthLocked,
+                new Vector2(16f, 20f),
+                new Vector2(width - 32f, 24f),
+                14f,
+                NexusTheme.MutedText,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            var hint = NexusUiFactory.CreateText(
+                card.transform,
+                "Hint",
+                UiText.FleetBerthHint,
+                new Vector2(16f, 48f),
+                new Vector2(width - 32f, 36f),
+                11f,
+                NexusTheme.DimText);
+            hint.textWrappingMode = TextWrappingModes.Normal;
         }
 
         private void BuildPendingLoot()
@@ -416,7 +524,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     () =>
                     {
                         var r = IdleSettlementService.ClaimAllPending(out var claimed);
-                        Debug.Log("[IDLE] claim: " + (r.Success ? "ok" : r.Message));
+                        if (!r.Success)
+                            NexusSnackbar.Show(r.Message);
                         RewardPopup.Show(UiText.RewardTitle, RewardPopup.FromPending(claimed));
                         Rebuild();
                     },

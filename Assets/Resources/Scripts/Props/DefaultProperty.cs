@@ -39,6 +39,7 @@ namespace Assets.Resources.Scripts.Props
         public const string SHIP_DATA = "/ship.json";
         public const string IDLE_DATA = "/idle.json";
         public const string ONBOARDING_DATA = "/onboarding.json";
+        public const string UNLOCKS_DATA = "/unlocks.json";
         public const string GACHA_DATA = "/gacha.json";
         public const string EXPERT_DATA = "/expertData.json";
 

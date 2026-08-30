@@ -25,7 +25,7 @@
 | 相对 [02](02-core-product-design.md) §16.1 | **约 85%** |
 | 核心循环 | 战斗→区域→采集/制造→NPC→成长，已打通 |
 | 里程碑 | M0–M4 已达成；**M5 接近**（引导/星域/招募/36 人已通） |
-| MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣、**功能逐步解锁**、**统一 Dialog/Snackbar/Notification**、**玩家资料编辑**、**舰桥舰队滑动组件** |
+| MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣 |
 | 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M2+（20） |
 
 ---
@@ -78,10 +78,10 @@
 | 加载遮罩 / 奖励弹窗 / 采集仓 | 已实现 | `LoadingOverlay`；`RewardPopup`；Gather Bank |
 | Characters / Cards 原生页 | 已实现 | `CharactersScreen` / `CardsScreen`；nav 不再走 Legacy |
 | 卡牌分解 | 已实现 | `DismantleRules` + `CardDismantleService`；空闲未绑定实例可分解 |
-| 功能逐步解锁 + 导航 grey out | 未开始 | 规则 [09](09-figma-ui.md) §功能逐步解锁 |
-| 统一 Dialog / Snackbar / Notification | 部分 | `RewardPopup` 已通；Snackbar / Notification 栏 / 解锁 Dialog 未做 |
-| 玩家名称 / 头像自定义 | 未开始 | `playerName` + `avatar.png` 可编辑；`playerID` 不可改 — [06](06-data-and-save.md) |
-| 舰桥舰队滑动组件 | 未开始 | 删顶栏并行卡；RunningOps → Fleet Carousel — [09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5 |
+| 功能逐步解锁 + 导航 grey out | 已实现 | `FeatureUnlockService` + `FeatureUnlockCatalog.json`；未解锁导航灰显 |
+| 统一 Dialog / Snackbar / Notification | 已实现 | `NexusDialog` / `NexusSnackbar` / `NexusNotificationBar` |
+| 玩家名称 / 头像自定义 | 已实现 | Settings 改 `playerName` / `avatar.png`；`playerID` 只读 |
+| 舰桥舰队滑动组件 | 已实现 | 顶栏三统计；RunningOps → Fleet Carousel（旗舰卡 + 泊位卡） |
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
 | 舰队 / 探索度 | 未开始 | 规则在 [21](21-fleet-factions-and-exploration.md) |
 | 星图 M2+（海图/信标/多团块） | 未开始 | 方向稿 [20](20-stellar-map-and-navigation.md) §11 |

@@ -541,6 +541,53 @@ namespace Assets.Resources.Scripts.Utils
             return SaveData(state, directory, DefaultProperty.ONBOARDING_DATA);
         }
 
+        public bool SaveFeatureUnlockState(
+            Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.unlockedFeatureIds?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.UNLOCKS_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState LoadFeatureUnlockState()
+        {
+            EnsurePlayerBound();
+            return ReadFeatureUnlockStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState ReadFeatureUnlockStateFromDirectory(
+            string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.UNLOCKS_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read unlocks.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteFeatureUnlockStateToDirectory(
+            string directory, Assets.Resources.Scripts.Unlock.Domain.FeatureUnlockState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.unlockedFeatureIds?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.UNLOCKS_DATA);
+        }
+
         public bool SaveGachaState(
             Assets.Resources.Scripts.Gacha.Domain.PlayerGachaState state, bool touchMeta = true)
         {

@@ -79,6 +79,7 @@ namespace Assets.Resources.Scripts.World
                 State.explorationProgress = WorldRules.ComputeExplorationProgress(State);
                 Save();
                 SyncPlayerExploration();
+                Assets.Resources.Scripts.Unlock.FeatureUnlockService.Evaluate();
             }
 
             return result;

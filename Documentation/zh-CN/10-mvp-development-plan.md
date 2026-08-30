@@ -410,10 +410,10 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 3. （可选 MVP 收尾）继续角色扩至 50（对照 [19](19-characters-and-progression.md)）  
 4. ~~（可选 MVP 收尾）卡牌分解 + Characters/Cards 原生页（对照 [19](19-characters-and-progression.md)）~~ **已完成**
 5. （可选）抽卡概率公示细节 / 十连折扣
-6. **功能逐步解锁** + 导航 grey out + 解锁 Dialog（[09](09-figma-ui.md)）
-7. **统一 Snackbar / Notification 栏**（Dialog 族与 `RewardPopup` 对齐）
-8. **玩家资料**：Settings 改 `playerName` / `avatar.png`；`playerID` 只读（[06](06-data-and-save.md)）
-9. **舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）
+6. ~~**功能逐步解锁** + 导航 grey out + 解锁 Dialog（[09](09-figma-ui.md)）~~ **已完成**
+7. ~~**统一 Snackbar / Notification 栏**（Dialog 族与 `RewardPopup` 对齐）~~ **已完成**
+8. ~~**玩家资料**：Settings 改 `playerName` / `avatar.png`；`playerID` 只读（[06](06-data-and-save.md)）~~ **已完成**
+9. ~~**舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）~~ **已完成**
 10. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
 11. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
 12. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  
