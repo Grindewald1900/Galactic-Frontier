@@ -291,7 +291,7 @@ Assets/Resources/Scripts/Battle/Domain/
 
 - 大小写不敏感  
 - 每玩家每码：`PlayerPrefs` 键 `GiftRedeemed_{playerId}_{CODE}`，领过拒绝  
-- 可发：材料、信用点、随机卡牌  
+- 可发：材料、信用点、随机卡牌、**头像框**（`GiftReward.FrameId`）
 
 #### 5.3 设计码表（MVP）
 
@@ -300,11 +300,13 @@ Assets/Resources/Scripts/Battle/Domain/
 | `WELCOME` | 指挥官欢迎礼包 | Copper×40、Water×20、信用+1000 |
 | `COPPER100` | 铜材补给 | Copper×100 |
 | `STEEL50` | 钢材货运 | Steel×50 |
-| `NEXUS-BETA` | NEXUS 内测礼包 | Copper×30、Steel×20、GoldBar×5、信用+3000 |
+| `GF-BETA` | 星际前线内测礼包 | Copper×30、Steel×20、GoldBar×5、信用+3000 |
 | `CREDIT5K` | 信用点投放 | 信用+5000 |
 | `RECRUIT` | 紧急征召 | 随机角色卡×1 |
 | `WATER20` | 水源箱 | Water×20 |
 | `WOOD80` | 木材捆 | Wood×80 |
+| `GF-FRAME` | 内测光环头像框 | 解锁并写入 `frame_beta` |
+| `EVENT-RIFT` | 裂隙庆典头像框 | 解锁 `frame_event_rift`（活动框的 MVP 占位） |
 
 > 正式上线前可轮换码表；勿在玩家可见商店页展示完整列表（内测可放补丁说明）。
 

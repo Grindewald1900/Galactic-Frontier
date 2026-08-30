@@ -15,7 +15,7 @@
 - 新游戏：`DataUtil.CreatePlayerData()` 创建带 GUID 的 `PlayerEntity`（`playerID` 此后不可改），保存后加载 `MainScene`。
 - 加载游戏：显示存档面板，`GameLoadManager.LoadGame()` 从每个玩家目录读取数据并创建 `GameLoadSlot`。
 - 选中存档：`DataUtil.SetCurrentPlayer()` 更新当前玩家及相关文件路径。
-- **玩家资料**：`playerName` 与 `avatar.png` 可自定义；`playerID` 只读 — 见 [06-data-and-save.md](06-data-and-save.md)。
+- **玩家资料**：`playerName` 与 `avatar.png` 可自定义（已解锁角色立绘或本地上传）；`playerID` 只读；头像框见 [06-data-and-save.md](06-data-and-save.md)。
 
 `MainScrollController` 在 `MainScene` 中创建菜单项，使用 `CurrentScene` 枚举切换各子面板，并同步更新 `GameStatusManager.CurrentScene`。
 

@@ -1,6 +1,6 @@
 # Figma UI 重构（全量重写）
 
-> vNext（2026-08-29）：统一反馈层（Dialog / Snackbar / Notification）、功能逐步解锁与导航 grey out、舰桥舰队滑动组件 — 见下文专节。
+> vNext（2026-08-30）：指挥官头像框（活动 / 礼品码 / 成就解锁）；Settings 玩家 ID 旁带框头像；统一反馈层、功能解锁、舰桥舰队滑动组件 — 见下文专节。
 
 ## 设计来源
 
@@ -70,7 +70,7 @@ NexusUiBootstrap
 | --- | --- | --- | --- |
 | **Dialog** | 需确认或需完整阅读的模态信息 | 遮罩 + 居中面板；主/次按钮；可点遮罩关闭（Destructive 除外） | 功能解锁庆祝、二次确认、错误说明、奖励明细（与 `RewardPopup` 同视觉族） |
 | **Snackbar** | 轻量操作结果 | 底部短条，2–4 秒自动消失；可选手动关闭 | 保存成功、材料不足、启动行动失败、分解完成 |
-| **Notification** | 非阻塞系统播报 | **舰桥顶栏下方**横向滚动条（marquee / 队列轮播）；不打断操作 | 离线收益可领、区域首通、新任务可用、舰队召回完成 |
+| **Notification** | 非阻塞系统播报 | **暂时关闭**顶栏 marquee；同类摘要改写入舰桥 **战情日志**（可筛选） | 离线收益可领、区域首通、新任务可用、舰队召回完成 |
 
 ### 视觉与实现约定
 
@@ -81,9 +81,9 @@ NexusUiBootstrap
 
 ### Notification 栏（舰桥）
 
-- 位置：`AppShell` 内容区顶栏与面包屑之间，或 `BridgeScreen` 专属顶带（全 Nexus 可见时挂 AppShell 更优）。
-- 行为：多条消息 FIFO 轮播；重要消息（如功能解锁）可同时触发 Dialog + Notification 摘要。
-- 持久化：Notification 本身不存档；触发源（如 pending offline）仍读领域状态。
+- **当前：暂时移除。** `NexusTheme.NotificationBarEnabled = false`，顶栏加高给指挥官头像 / ID / 等级。  
+- `NexusNotificationBar.Push` 仍可用，消息转入战情日志（System 类）并 `Debug.Log`。  
+- 日后恢复时把 `NotificationBarEnabled` 设回 true 即可重新挂 marquee。
 
 ---
 
@@ -116,11 +116,40 @@ NexusUiBootstrap
 
 ---
 
+## 指挥官资料与头像框
+
+### 布局
+
+Settings 资料区：
+
+```text
+[ 带框头像 80×80 ]  显示名称  [保存名称]
+                    玩家 ID（截断，只读）
+                    不可更改提示
+头像    已解锁角色横滑 + **上传**（PNG/JPG，≤2 MB，最长边 1024）
+头像框    已解锁可选 / 未解锁 grey out
+```
+
+AppShell 顶栏（80 px）：**尽可能大的带框头像**（72 px）+ 显示名称（18）+ 截断玩家 ID（14）+ 等级（16）+ 信用点。顶栏通知条暂时关闭。
+
+本地上传走已接入的 `FileBrowserHelper`（SimpleFileBrowser）；校验扩展名与体积后写入玩家档 `avatar.png`。
+
+### 头像框规则
+
+- 外观 MVP：**程序化色环**（目录 `colorHex`），不新增立绘资源。
+- 解锁来源：开局 / **成就**（新手链、首胜）/ **礼品码** / **活动**（MVP 用礼品码 `EVENT-RIFT` 占位）。
+- 未解锁点击 → Dialog 说明条件；新解锁 → Dialog + Notification；日常装备 → Snackbar。
+- 旧存档首次启动：已满足条件的框 **静默写入** 并不弹窗（`avatarFramesSeeded`）。
+
+权威字段见 [06-data-and-save.md](06-data-and-save.md)；码表见 [07-development-guide.md](07-development-guide.md) §5.3。
+
+---
+
 ## 舰桥（Bridge）布局
 
 ### 当前实现
 
-顶栏三格统计（战力 / 探索度 / 信用点）；「当前卡组」+ 其下 **舰队水平滑动组件**（旗舰卡 + 预留泊位）。Notification 条挂在 `AppShell` 顶栏与面包屑之间。
+顶栏三格统计（战力 / 探索度 / 信用点）；「当前卡组」+ **舰队水平滑动组件**；战情日志带 **探索 / 战斗 / 生产 / 交易** 筛选。顶栏 Notification marquee **暂时关闭**。
 
 ### 目标布局（vNext）
 

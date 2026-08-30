@@ -52,31 +52,6 @@ namespace Assets.Resources.Scripts.Utils
             Debug.Log($"Avatar stored at {savePath}");
         }
 
-        public static bool TrySaveSpritePng(Sprite sprite, string savePath)
-        {
-            if (sprite == null || string.IsNullOrEmpty(savePath))
-                return false;
-
-            Texture2D readable = CopyReadable(sprite.texture);
-            if (readable == null)
-                return false;
-            try
-            {
-                byte[] imageData = readable.EncodeToPNG();
-                File.WriteAllBytes(savePath, imageData);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning("[AVATAR] Save failed: " + ex.Message);
-                return false;
-            }
-            finally
-            {
-                UnityEngine.Object.Destroy(readable);
-            }
-        }
-
         public static Sprite LoadSpriteFromFile(string filePath)
         {
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
@@ -97,6 +72,66 @@ namespace Assets.Resources.Scripts.Utils
                 Debug.LogWarning("[AVATAR] Load failed: " + ex.Message);
                 return null;
             }
+        }
+
+        public const int AvatarMaxBytes = 2 * 1024 * 1024;
+        public const int AvatarMaxEdge = 1024;
+
+        public static bool TrySaveSpritePng(Sprite sprite, string savePath, int maxEdge = AvatarMaxEdge)
+        {
+            if (sprite == null || string.IsNullOrEmpty(savePath))
+                return false;
+
+            Texture2D readable = CopyReadable(sprite.texture);
+            if (readable == null)
+                return false;
+            Texture2D toEncode = readable;
+            try
+            {
+                if (maxEdge > 0)
+                {
+                    int longest = Mathf.Max(readable.width, readable.height);
+                    if (longest > maxEdge)
+                    {
+                        float scale = maxEdge / (float)longest;
+                        int nw = Mathf.Max(1, Mathf.RoundToInt(readable.width * scale));
+                        int nh = Mathf.Max(1, Mathf.RoundToInt(readable.height * scale));
+                        toEncode = ScaleTexture(readable, nw, nh);
+                        if (toEncode != readable)
+                            UnityEngine.Object.Destroy(readable);
+                    }
+                }
+
+                if (toEncode == null)
+                    return false;
+                byte[] imageData = toEncode.EncodeToPNG();
+                File.WriteAllBytes(savePath, imageData);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[AVATAR] Save failed: " + ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (toEncode != null)
+                    UnityEngine.Object.Destroy(toEncode);
+            }
+        }
+
+        private static Texture2D ScaleTexture(Texture2D source, int width, int height)
+        {
+            var rt = RenderTexture.GetTemporary(width, height, 0);
+            Graphics.Blit(source, rt);
+            var previous = RenderTexture.active;
+            RenderTexture.active = rt;
+            var scaled = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            scaled.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            scaled.Apply();
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(rt);
+            return scaled;
         }
 
         private static Texture2D CopyReadable(Texture source)

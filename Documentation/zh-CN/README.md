@@ -34,7 +34,7 @@
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级） |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 方向稿 |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则（航网/星图；M1 为实现过渡） |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
 
 ## 推荐阅读

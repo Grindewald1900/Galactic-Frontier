@@ -413,10 +413,11 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 6. ~~**功能逐步解锁** + 导航 grey out + 解锁 Dialog（[09](09-figma-ui.md)）~~ **已完成**
 7. ~~**统一 Snackbar / Notification 栏**（Dialog 族与 `RewardPopup` 对齐）~~ **已完成**
 8. ~~**玩家资料**：Settings 改 `playerName` / `avatar.png`；`playerID` 只读（[06](06-data-and-save.md)）~~ **已完成**
+8b. ~~**头像框**：活动 / 礼品码 / 成就解锁；Settings 装备；顶栏与 ID 旁展示~~ **已完成**
 9. ~~**舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）~~ **已完成**
 10. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
 11. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
-12. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) §11；Online 按 [18](18-online-and-play-modes.md)  
+12. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) **v0.2 航网主形态**（两层网络、五种通航状态、航线资产）；Online 按 [18](18-online-and-play-modes.md)  
 
 **不要**在 Solo 启动玩家市场或特殊星域模式（非 MVP）。
 

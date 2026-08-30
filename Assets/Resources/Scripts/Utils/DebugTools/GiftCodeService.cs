@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Cosmetics;
+using Assets.Resources.Scripts.Cosmetics.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Utils;
@@ -21,6 +23,7 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
             public readonly ItemType ItemType;
             public readonly int Credits;
             public readonly bool GrantRandomCard;
+            public readonly string FrameId;
 
             public GiftReward(
                 string itemName,
@@ -28,7 +31,8 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                 int quantity,
                 ItemType itemType = ItemType.Material,
                 int credits = 0,
-                bool grantRandomCard = false)
+                bool grantRandomCard = false,
+                string frameId = null)
             {
                 ItemName = itemName;
                 ItemIcon = itemIcon;
@@ -36,6 +40,7 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                 ItemType = itemType;
                 Credits = credits;
                 GrantRandomCard = grantRandomCard;
+                FrameId = frameId;
             }
         }
 
@@ -106,6 +111,16 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                 "Timber Bundle",
                 "木材捆",
                 new GiftReward("Wood", "Wood", 80)),
+            new(
+                "GF-FRAME",
+                "Beta Halo Frame",
+                "内测光环头像框",
+                new GiftReward(null, null, 0, ItemType.Material, frameId: AvatarFrameIds.Beta)),
+            new(
+                "EVENT-RIFT",
+                "Rift Festival Frame",
+                "裂隙庆典头像框",
+                new GiftReward(null, null, 0, ItemType.Material, frameId: AvatarFrameIds.EventRift)),
         };
 
         public static IReadOnlyList<GiftCodeDefinition> AllCodes => Catalog;
@@ -193,6 +208,9 @@ namespace Assets.Resources.Scripts.Utils.DebugTools
                             CardListManager.Instance.AddCardEntity(card);
                     }
                 }
+
+                if (!string.IsNullOrEmpty(reward.FrameId))
+                    AvatarFrameService.Unlock(reward.FrameId);
             }
         }
     }

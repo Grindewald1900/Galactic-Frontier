@@ -1,10 +1,15 @@
+using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Cosmetics;
+using Assets.Resources.Scripts.Cosmetics.Domain;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
 {
@@ -50,7 +55,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "Language Label",
                 UiText.Language,
-                new Vector2(28f, 360f),
+                new Vector2(28f, 460f),
                 new Vector2(280f, 24f),
                 14f,
                 NexusTheme.MutedText,
@@ -58,16 +63,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 FontStyles.Bold);
 
             bool isZh = LocalizationUtil.IsSimplifiedChinese;
-            CreateLanguageButton(root.transform, UiText.LanguageEnglish, new Vector2(28f, 392f), !isZh,
+            CreateLanguageButton(root.transform, UiText.LanguageEnglish, new Vector2(28f, 492f), !isZh,
                 () => LocalizationUtil.SetLanguage(SystemLanguage.English));
-            CreateLanguageButton(root.transform, UiText.LanguageChinese, new Vector2(320f, 392f), isZh,
+            CreateLanguageButton(root.transform, UiText.LanguageChinese, new Vector2(320f, 492f), isZh,
                 () => LocalizationUtil.SetLanguage(SystemLanguage.ChineseSimplified));
 
             NexusUiFactory.CreateButton(
                 root.transform,
                 "Save",
                 UiText.SaveCardData,
-                new Vector2(28f, 456f),
+                new Vector2(28f, 556f),
                 new Vector2(280f, 48f),
                 SaveCards,
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
@@ -78,7 +83,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "Clear",
                 UiText.ClearCardsDebug,
-                new Vector2(28f, 516f),
+                new Vector2(28f, 616f),
                 new Vector2(280f, 48f),
                 ClearCards,
                 NexusTheme.SurfaceRaised,
@@ -89,7 +94,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "MainMenu",
                 UiText.ReturnMainMenu,
-                new Vector2(28f, 576f),
+                new Vector2(28f, 676f),
                 new Vector2(280f, 48f),
                 () =>
                 {
@@ -108,6 +113,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static void BuildProfileSection(Transform parent)
         {
+            AvatarFrameService.EnsurePlayer();
             var player = DataUtil.Instance?.currentPlayer;
             NexusUiFactory.CreateText(
                 parent,
@@ -120,11 +126,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
 
+            ProfilePortrait.Draw(parent, "Profile", new Vector2(28f, 140f), 80f);
+
             NexusUiFactory.CreateText(
                 parent,
                 "Name Label",
                 UiText.ProfileNameLabel,
-                new Vector2(28f, 140f),
+                new Vector2(120f, 140f),
                 new Vector2(200f, 20f),
                 12f,
                 NexusTheme.DimText);
@@ -133,8 +141,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 parent,
                 "Name Input",
                 UiText.ProfileNamePlaceholder,
-                new Vector2(28f, 164f),
-                new Vector2(280f, 40f));
+                new Vector2(120f, 164f),
+                new Vector2(188f, 40f));
             nameInput.text = player?.playerName ?? "";
             nameInput.characterLimit = 16;
 
@@ -150,22 +158,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 13f);
 
             string id = player?.playerID ?? "—";
-            if (id.Length > 18)
-                id = id.Substring(0, 18) + "…";
+            if (id.Length > 14)
+                id = id.Substring(0, 14) + "…";
             NexusUiFactory.CreateText(
                 parent,
                 "Player Id",
                 UiText.ProfileIdLabel(id),
-                new Vector2(28f, 212f),
-                new Vector2(620f, 20f),
+                new Vector2(120f, 212f),
+                new Vector2(230f, 20f),
                 12f,
                 NexusTheme.Cyan);
             NexusUiFactory.CreateText(
                 parent,
                 "Id Hint",
                 UiText.ProfileIdHint,
-                new Vector2(28f, 232f),
-                new Vector2(620f, 18f),
+                new Vector2(120f, 232f),
+                new Vector2(230f, 18f),
                 11f,
                 NexusTheme.DimText);
 
@@ -174,27 +182,206 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 "Avatar Label",
                 UiText.ProfileAvatarLabel,
                 new Vector2(28f, 258f),
-                new Vector2(200f, 20f),
+                new Vector2(320f, 20f),
                 12f,
                 NexusTheme.MutedText);
 
-            string[] presets = { "Asra_01", "Magki_01", "Sernia_01" };
-            for (int i = 0; i < presets.Length; i++)
+            BuildAvatarPicker(parent);
+            BuildFramePicker(parent);
+        }
+
+        private static void BuildAvatarPicker(Transform parent)
+        {
+            var names = UnlockedCharacterPortraits();
+            const float thumb = 64f;
+            const float gap = 8f;
+            float stripW = 240f;
+            var content = CreateHorizontalStrip(
+                parent,
+                new Vector2(28f, 282f),
+                new Vector2(stripW, thumb),
+                Mathf.Max(stripW, names.Count * (thumb + gap)));
+
+            if (names.Count == 0)
             {
-                string preset = presets[i];
-                Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, preset);
-                float x = 28f + i * 88f;
-                var icon = NexusUiFactory.CreateIcon(
-                    parent,
-                    "Avatar " + preset,
-                    sprite,
-                    new Vector2(x, 282f),
-                    new Vector2(72f, 72f),
-                    Color.white);
-                icon.raycastTarget = true;
-                var button = icon.gameObject.AddComponent<UnityEngine.UI.Button>();
-                button.onClick.AddListener(() => SaveAvatar(sprite));
+                NexusUiFactory.CreateText(
+                    content,
+                    "Avatar Empty",
+                    UiText.ProfileAvatarEmpty,
+                    Vector2.zero,
+                    new Vector2(stripW - 8f, thumb),
+                    11f,
+                    NexusTheme.DimText);
             }
+            else
+            {
+                for (int i = 0; i < names.Count; i++)
+                {
+                    string preset = names[i] + "_01";
+                    Sprite sprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, preset);
+                    float x = i * (thumb + gap);
+                    var icon = NexusUiFactory.CreateIcon(
+                        content,
+                        "Avatar " + names[i],
+                        sprite,
+                        new Vector2(x, 0f),
+                        new Vector2(thumb, thumb),
+                        Color.white);
+                    icon.raycastTarget = true;
+                    var button = icon.gameObject.AddComponent<Button>();
+                    button.onClick.AddListener(() => SaveAvatar(sprite));
+                }
+            }
+
+            NexusUiFactory.CreateButton(
+                parent,
+                "Avatar Upload",
+                UiText.ProfileAvatarUpload,
+                new Vector2(276f, 282f),
+                new Vector2(72f, 64f),
+                OpenLocalAvatarPicker,
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
+                NexusTheme.Gold,
+                12f);
+        }
+
+        private static Transform CreateHorizontalStrip(Transform parent, Vector2 position, Vector2 viewSize, float contentWidth)
+        {
+            var viewport = new GameObject(
+                "Avatar Strip", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            viewport.transform.SetParent(parent, false);
+            var viewportRect = viewport.GetComponent<RectTransform>();
+            viewportRect.anchorMin = new Vector2(0f, 1f);
+            viewportRect.anchorMax = new Vector2(0f, 1f);
+            viewportRect.pivot = new Vector2(0f, 1f);
+            viewportRect.anchoredPosition = new Vector2(position.x, -position.y);
+            viewportRect.sizeDelta = viewSize;
+
+            var image = viewport.GetComponent<Image>();
+            image.color = NexusTheme.WithAlpha(NexusTheme.Surface, 0.35f);
+            image.raycastTarget = true;
+
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(0f, 1f);
+            contentRect.pivot = new Vector2(0f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(Mathf.Max(viewSize.x, contentWidth), viewSize.y);
+
+            var scroll = viewport.GetComponent<ScrollRect>();
+            scroll.content = contentRect;
+            scroll.viewport = viewportRect;
+            scroll.horizontal = true;
+            scroll.vertical = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 24f;
+            return content.transform;
+        }
+
+        private static List<string> UnlockedCharacterPortraits()
+        {
+            var names = new List<string>();
+            var seen = new HashSet<CharacterName>();
+            foreach (var card in CardCollectionUi.AllCards())
+            {
+                if (card == null || card.characterName == CharacterName.Default)
+                    continue;
+                if (!seen.Add(card.characterName))
+                    continue;
+                names.Add(card.characterName.ToString());
+            }
+
+            names.Sort(string.CompareOrdinal);
+            return names;
+        }
+
+        private static void OpenLocalAvatarPicker()
+        {
+            FileBrowserHelper.OpenFileBrowser(
+                SaveAvatar,
+                fail =>
+                {
+                    switch (fail)
+                    {
+                        case ImagePickFail.InvalidType:
+                            NexusSnackbar.Show(UiText.ProfileAvatarInvalidType);
+                            break;
+                        case ImagePickFail.TooLarge:
+                            NexusSnackbar.Show(UiText.ProfileAvatarTooLarge);
+                            break;
+                        default:
+                            NexusSnackbar.Show(UiText.ProfileAvatarBadImage);
+                            break;
+                    }
+                });
+        }
+
+        private static void BuildFramePicker(Transform parent)
+        {
+            NexusUiFactory.CreateText(
+                parent,
+                "Frame Label",
+                UiText.ProfileFrameLabel,
+                new Vector2(28f, 362f),
+                new Vector2(400f, 20f),
+                12f,
+                NexusTheme.MutedText);
+
+            string equippedId = AvatarFrameService.Equipped()?.frameId;
+            Sprite avatar = ProfilePortrait.LoadAvatarSprite();
+            var frames = AvatarFrameCatalog.All;
+            for (int i = 0; i < frames.Count; i++)
+            {
+                var def = frames[i];
+                if (def == null) continue;
+                float x = 28f + i * 62f;
+                bool unlocked = AvatarFrameService.IsUnlocked(def.frameId);
+                bool equipped = def.frameId == equippedId;
+                Color ring = ProfilePortrait.ParseFrameColor(def.colorHex);
+                if (!unlocked)
+                    ring = NexusTheme.WithAlpha(ring, 0.35f);
+
+                var chip = NexusUiFactory.CreateBox(
+                    parent,
+                    "Frame " + def.frameId,
+                    new Vector2(x, 386f),
+                    new Vector2(56f, 56f),
+                    ring,
+                    equipped ? NexusTheme.Gold : (Color?)null);
+                var image = chip.GetComponent<Image>();
+                image.raycastTarget = true;
+                var button = chip.AddComponent<Button>();
+                string frameId = def.frameId;
+                button.onClick.AddListener(() => OnFrameClicked(frameId));
+
+                var inset = NexusUiFactory.CreateIcon(
+                    chip.transform,
+                    "Thumb",
+                    avatar,
+                    new Vector2(6f, 6f),
+                    new Vector2(44f, 44f),
+                    unlocked ? Color.white : new Color(0.45f, 0.45f, 0.5f, 0.85f));
+                inset.raycastTarget = false;
+            }
+        }
+
+        private static void OnFrameClicked(string frameId)
+        {
+            var def = AvatarFrameCatalog.TryGet(frameId);
+            if (def == null) return;
+            if (!AvatarFrameService.IsUnlocked(frameId))
+            {
+                AvatarFrameUi.ShowLocked(def);
+                return;
+            }
+
+            if (!AvatarFrameService.TryEquip(frameId))
+                return;
+            AppShell.Instance?.RefreshProfileChrome();
+            AppShell.Instance?.RebuildSettingsIfActive();
+            NexusSnackbar.Show(UiText.ProfileFrameEquipped);
         }
 
         private static void SaveDisplayName(string raw)
@@ -211,7 +398,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             player.playerName = name;
             DataUtil.Instance.SavePlayerData(player);
-            AppShell.Instance?.RefreshCommanderLabel();
+            AppShell.Instance?.RefreshProfileChrome();
             NexusSnackbar.Show(UiText.ProfileSaved);
         }
 
@@ -221,7 +408,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             string path = DataUtil.Instance.GetPlayerAvatarPath(DataUtil.Instance.currentPlayer.playerID);
             if (ImageUtil.TrySaveSpritePng(sprite, path))
+            {
                 NexusSnackbar.Show(UiText.ProfileAvatarSaved);
+                AppShell.Instance?.RefreshProfileChrome();
+                AppShell.Instance?.RebuildSettingsIfActive();
+            }
+            else
+            {
+                NexusSnackbar.Show(UiText.ProfileAvatarSaveFailed);
+            }
         }
 
         private static void BuildGiftCodeSection(Transform parent)
@@ -271,11 +466,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 () =>
                 {
                     bool ok = GiftCodeService.TryRedeem(input.text, out string en, out string zh);
-                    status.text = LocalizationUtil.IsSimplifiedChinese ? zh : en;
-                    status.color = ok ? NexusTheme.Gold : NexusTheme.Red;
-                    NexusSnackbar.Show(status.text);
+                    string message = LocalizationUtil.IsSimplifiedChinese ? zh : en;
+                    NexusSnackbar.Show(message);
                     if (ok)
-                        input.text = string.Empty;
+                    {
+                        AppShell.Instance?.RefreshProfileChrome();
+                        AppShell.Instance?.RebuildSettingsIfActive();
+                    }
+                    else
+                    {
+                        status.text = message;
+                        status.color = NexusTheme.Red;
+                    }
                 },
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
                 NexusTheme.Gold,

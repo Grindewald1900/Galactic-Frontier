@@ -10,6 +10,7 @@ using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Unlock;
+using Assets.Resources.Scripts.Cosmetics;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -68,6 +69,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private TextMeshProUGUI toggleLabel;
         private TextMeshProUGUI creditsLabel;
         private TextMeshProUGUI commanderLabel;
+        private TextMeshProUGUI commanderIdLabel;
+        private TextMeshProUGUI commanderLevelLabel;
+        private Image commanderPortrait;
+        private Image commanderFrame;
         private Image brandIcon;
 
         private static AppScreen PendingScreen { get; set; } = AppScreen.Bridge;
@@ -79,6 +84,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             LocalizationUtil.LanguageChanged += OnLanguageChanged;
             CurrencyService.Changed += OnCreditsChanged;
             FeatureUnlockService.UnlocksChanged += OnUnlocksChanged;
+            AvatarFrameService.UnlocksChanged += OnUnlocksChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed += OnDebugModeChanged;
             yield return null;
@@ -104,6 +110,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         IdleSettlementService.EnsureLoaded(DataUtil.Instance);
                         OnboardingService.EnsureLoaded(DataUtil.Instance);
                         FeatureUnlockService.EnsureLoaded(DataUtil.Instance);
+                        AvatarFrameService.EnsurePlayer();
+                        AvatarFrameService.Evaluate();
                         Assets.Resources.Scripts.Gacha.GachaService.EnsureLoaded(DataUtil.Instance);
                         IdleSettlementService.OnAppResume(CardListManager.Instance?.cardEntities);
                     }
@@ -141,6 +149,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             LocalizationUtil.LanguageChanged -= OnLanguageChanged;
             CurrencyService.Changed -= OnCreditsChanged;
             FeatureUnlockService.UnlocksChanged -= OnUnlocksChanged;
+            AvatarFrameService.UnlocksChanged -= OnUnlocksChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed -= OnDebugModeChanged;
             if (Instance == this)
@@ -239,6 +248,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             toggleLabel = null;
             creditsLabel = null;
             commanderLabel = null;
+            commanderIdLabel = null;
+            commanderLevelLabel = null;
+            commanderPortrait = null;
+            commanderFrame = null;
             brandIcon = null;
             breadcrumbTitle = null;
             statusShortcuts = null;
@@ -341,6 +354,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 if (mainReady)
                 {
                     FeatureUnlockService.Evaluate();
+                    AvatarFrameService.Evaluate();
                     RefreshNavLockStyles();
                     FeatureUnlockUi.PresentPending(ShowScreen);
                 }
@@ -458,6 +472,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (mainReady)
             {
                 FeatureUnlockService.Evaluate();
+                AvatarFrameService.Evaluate();
                 RefreshNavLockStyles();
                 FeatureUnlockUi.PresentPending(ShowScreen);
             }
@@ -535,17 +550,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero);
             topBarRect = topBar.GetComponent<RectTransform>();
 
-            GameObject notice = NexusUiFactory.CreatePanel(
-                chrome.transform,
-                "Notification Strip",
-                NexusTheme.SurfaceRaised,
-                new Vector2(0f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(navWidth, -(NexusTheme.TopBarHeight + NexusTheme.NotificationBarHeight)),
-                new Vector2(0f, -NexusTheme.TopBarHeight),
-                true);
-            notificationRect = notice.GetComponent<RectTransform>();
-            NexusNotificationBar.Attach(notice.transform);
+            if (NexusTheme.NotificationBarEnabled)
+            {
+                GameObject notice = NexusUiFactory.CreatePanel(
+                    chrome.transform,
+                    "Notification Strip",
+                    NexusTheme.SurfaceRaised,
+                    new Vector2(0f, 1f),
+                    new Vector2(1f, 1f),
+                    new Vector2(navWidth, -(NexusTheme.TopBarHeight + NexusTheme.NotificationBarHeight)),
+                    new Vector2(0f, -NexusTheme.TopBarHeight),
+                    true);
+                notificationRect = notice.GetComponent<RectTransform>();
+                NexusNotificationBar.Attach(notice.transform);
+            }
+            else
+            {
+                notificationRect = null;
+            }
 
             GameObject breadcrumb = NexusUiFactory.CreatePanel(
                 chrome.transform,
@@ -576,31 +598,64 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildTopBar(Transform parent)
         {
-            string commanderName = DataUtil.Instance?.currentPlayer?.playerName;
+            var player = DataUtil.Instance?.currentPlayer;
+            string commanderName = player?.playerName;
             if (string.IsNullOrWhiteSpace(commanderName)) commanderName = "COMMANDER";
-            int level = DataUtil.Instance?.currentPlayer?.level ?? 1;
-            int credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
+            int level = player?.level ?? 1;
+            int credits = player?.creditPoints ?? 0;
+            string id = TruncatePlayerId(player?.playerID);
 
+            AvatarFrameService.EnsurePlayer();
+            const float portrait = 72f;
+            var portraitImage = ProfilePortrait.Draw(parent, "Commander", new Vector2(8f, 4f), portrait);
+            commanderPortrait = portraitImage;
+            commanderFrame = portraitImage != null ? portraitImage.transform.parent.GetComponent<Image>() : null;
+
+            float textX = 8f + portrait + 12f;
             commanderLabel = NexusUiFactory.CreateText(
                 parent,
                 "Commander",
-                $"{commanderName}  <size=11><color=#{ColorUtility.ToHtmlStringRGB(NexusTheme.Gold)}>LV.{level}</color></size>",
-                new Vector2(18f, 12f),
-                new Vector2(280f, 28f),
-                15f,
+                commanderName,
+                new Vector2(textX, 6f),
+                new Vector2(360f, 28f),
+                18f,
                 NexusTheme.Text,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            commanderIdLabel = NexusUiFactory.CreateText(
+                parent,
+                "Commander Id",
+                UiText.ProfileIdLabel(id),
+                new Vector2(textX, 36f),
+                new Vector2(280f, 20f),
+                14f,
+                NexusTheme.Cyan);
+            commanderLevelLabel = NexusUiFactory.CreateText(
+                parent,
+                "Commander Level",
+                $"LV.{level}",
+                new Vector2(textX + 286f, 32f),
+                new Vector2(120f, 24f),
+                16f,
+                NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
             creditsLabel = NexusUiFactory.CreateText(
                 parent,
                 "Credits",
                 $"₵ {credits:N0}",
-                new Vector2(320f, 14f),
-                new Vector2(180f, 24f),
-                14f,
+                new Vector2(640f, 24f),
+                new Vector2(220f, 32f),
+                18f,
                 NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+        }
+
+        private static string TruncatePlayerId(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return "—";
+            return raw.Length > 12 ? raw.Substring(0, 12) + "…" : raw;
         }
 
         private void OnCreditsChanged()
@@ -1025,17 +1080,35 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void RefreshCommanderLabel()
         {
-            if (commanderLabel == null) return;
-            string commanderName = DataUtil.Instance?.currentPlayer?.playerName;
+            var player = DataUtil.Instance?.currentPlayer;
+            string commanderName = player?.playerName;
             if (string.IsNullOrWhiteSpace(commanderName)) commanderName = "COMMANDER";
-            int level = DataUtil.Instance?.currentPlayer?.level ?? 1;
-            commanderLabel.text =
-                $"{commanderName}  <size=11><color=#{ColorUtility.ToHtmlStringRGB(NexusTheme.Gold)}>LV.{level}</color></size>";
+            if (commanderLabel != null)
+                commanderLabel.text = commanderName;
+            if (commanderIdLabel != null)
+                commanderIdLabel.text = UiText.ProfileIdLabel(TruncatePlayerId(player?.playerID));
+            if (commanderLevelLabel != null)
+                commanderLevelLabel.text = $"LV.{player?.level ?? 1}";
+        }
+
+        public void RefreshProfileChrome()
+        {
+            RefreshCommanderLabel();
+            ProfilePortrait.Apply(commanderFrame, commanderPortrait);
+        }
+
+        public void RebuildSettingsIfActive()
+        {
+            if (activeScreen != AppScreen.Settings) return;
+            if (settingsRoot != null) Destroy(settingsRoot);
+            settingsRoot = SettingsScreen.Build(ContentRoot());
+            settingsRoot.SetActive(true);
         }
 
         private void OnUnlocksChanged()
         {
             RefreshNavLockStyles();
+            RefreshProfileChrome();
             if (mainReady)
                 FeatureUnlockUi.PresentPending(ShowScreen);
         }

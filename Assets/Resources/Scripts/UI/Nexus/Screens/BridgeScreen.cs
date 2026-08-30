@@ -27,6 +27,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action openExplore;
         private readonly System.Action openShip;
         private readonly System.Action<AppScreen> navigate;
+        private BridgeLogCategory? logFilter;
 
         /// <summary>Desaturated wash applied to locked sector art.</summary>
         private static readonly Color LockedTint = new Color(0.36f, 0.40f, 0.48f, 0.55f);
@@ -712,6 +713,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildLog(int inLine, int cards, int progress, int credits, int power)
         {
+            BridgeEventLog.Ensure();
+            BridgeEventLog.UpsertLive("live_fleet", BridgeLogCategory.Combat,
+                $"Fleet status: {inLine} units deployed · roster {cards}",
+                $"舰队状态：{inLine} 人上阵 · 卡池 {cards}");
+            BridgeEventLog.UpsertLive("live_explore", BridgeLogCategory.Explore,
+                $"Exploration {progress}% · credits {credits:N0}₵",
+                $"探索进度 {progress}% · 信用点 {credits:N0}₵");
+            BridgeEventLog.UpsertLive("live_power", BridgeLogCategory.Combat,
+                $"Combat power estimate {power:N0}",
+                $"预估战力 {power:N0}");
+            BridgeEventLog.UpsertLive("live_ops", BridgeLogCategory.Production,
+                $"Parallel ops {DeckService.CountBusyDecks()}/{DeckService.MaxParallelActions}",
+                $"并行行动 {DeckService.CountBusyDecks()}/{DeckService.MaxParallelActions}");
+
             GameObject log = NexusUiFactory.CreateBox(
                 root,
                 "Log",
@@ -723,49 +738,114 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 log.transform,
                 "Heading",
                 UiText.EventLog,
-                new Vector2(20f, 12f),
-                new Vector2(400f, 28f),
+                new Vector2(20f, 10f),
+                new Vector2(400f, 24f),
                 16f,
                 NexusTheme.Text,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
 
-            string[] logLines =
+            DrawLogFilters(log.transform);
+
+            var rows = BridgeEventLog.Query(logFilter);
+            if (rows.Count == 0)
             {
-                UiText.BridgeLogLine(0, inLine, cards),
-                UiText.BridgeLogLine(1, progress, credits),
-                UiText.BridgeLogLine(2, power, 0),
-                UiText.BridgeLogLine(3, 0, 0),
-                UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)
-            };
-            for (int i = 0; i < logLines.Length; i++)
+                NexusUiFactory.CreateText(
+                    log.transform,
+                    "Empty",
+                    UiText.EventLogEmpty,
+                    new Vector2(20f, 86f),
+                    new Vector2(638f, 40f),
+                    13f,
+                    NexusTheme.DimText);
+                return;
+            }
+
+            int shown = Mathf.Min(rows.Count, 4);
+            for (int i = 0; i < shown; i++)
             {
-                float ly = 48f + i * 48f;
+                var entry = rows[i];
+                float ly = 82f + i * 50f;
                 GameObject row = NexusUiFactory.CreateBox(
                     log.transform,
                     $"LogRow {i}",
                     new Vector2(16f, ly),
-                    new Vector2(646f, 44f),
+                    new Vector2(646f, 46f),
                     NexusTheme.SurfaceRaised,
                     NexusTheme.BorderSoft);
                 NexusUiFactory.CreateIcon(
                     row.transform,
                     "Icon",
-                    NexusCardVisual.EventSprite(i),
+                    NexusCardVisual.EventSprite((int)entry.Category % 5),
                     new Vector2(10f, 8f),
                     new Vector2(28f, 28f),
                     Color.white);
+                var tag = NexusUiFactory.CreateText(
+                    row.transform,
+                    "Tag",
+                    UiText.EventLogFilter(entry.Category),
+                    new Vector2(48f, 4f),
+                    new Vector2(160f, 16f),
+                    10f,
+                    CategoryTint(entry.Category),
+                    TextAlignmentOptions.Left,
+                    FontStyles.Bold);
+                tag.textWrappingMode = TextWrappingModes.NoWrap;
                 var line = NexusUiFactory.CreateText(
                     row.transform,
                     "Text",
-                    logLines[i],
-                    new Vector2(48f, 6f),
-                    new Vector2(580f, 32f),
+                    UiText.T(entry.En, entry.Zh),
+                    new Vector2(48f, 20f),
+                    new Vector2(580f, 22f),
                     12f,
                     NexusTheme.Text);
-                line.textWrappingMode = TextWrappingModes.Normal;
+                line.textWrappingMode = TextWrappingModes.NoWrap;
             }
         }
+
+        private void DrawLogFilters(Transform log)
+        {
+            BridgeLogCategory?[] filters =
+            {
+                null,
+                BridgeLogCategory.Explore,
+                BridgeLogCategory.Combat,
+                BridgeLogCategory.Production,
+                BridgeLogCategory.Trade
+            };
+            float x = 16f;
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var cat = filters[i];
+                bool on = cat == logFilter || (!cat.HasValue && !logFilter.HasValue);
+                string label = cat.HasValue ? UiText.EventLogFilter(cat.Value) : UiText.EventLogFilterAll;
+                var captured = cat;
+                NexusUiFactory.CreateButton(
+                    log,
+                    "LogFilter " + (cat?.ToString() ?? "All"),
+                    label,
+                    new Vector2(x, 38f),
+                    new Vector2(86f, 36f),
+                    () =>
+                    {
+                        logFilter = captured;
+                        Rebuild();
+                    },
+                    on ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.22f) : NexusTheme.SurfaceRaised,
+                    on ? NexusTheme.Gold : NexusTheme.MutedText,
+                    11f);
+                x += 92f;
+            }
+        }
+
+        private static Color CategoryTint(BridgeLogCategory category) => category switch
+        {
+            BridgeLogCategory.Explore => NexusTheme.Cyan,
+            BridgeLogCategory.Combat => NexusTheme.Gold,
+            BridgeLogCategory.Production => NexusTheme.Green,
+            BridgeLogCategory.Trade => NexusTheme.Purple,
+            _ => NexusTheme.MutedText
+        };
 
         private void BuildOnboardingCta()
         {

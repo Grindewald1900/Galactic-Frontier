@@ -22,6 +22,12 @@ namespace Assets.Resources.Scripts.Entity
         public CharacterTier tier; // Rating (S/A/B/C/D)
         public List<string> titles; // Title
         public List<string> skills; // Skill list
+        /// <summary>Equipped cosmetic frame id (catalog). Default <c>frame_default</c>.</summary>
+        public string avatarFrameId;
+        public List<string> unlockedAvatarFrameIds;
+        public List<string> announcedAvatarFrameIds;
+        /// <summary>True after first boot seeded achievement frames without announcement spam.</summary>
+        public bool avatarFramesSeeded;
 
         public PlayerEntity()
         {
@@ -38,6 +44,7 @@ namespace Assets.Resources.Scripts.Entity
             skillCount = 0;
             titles = new List<string>();
             skills = new List<string>();
+            InitAvatarFrames();
         }
 
         public PlayerEntity(string name, int lvl, int power, CharacterTier playerTier, int credits, List<string> playerTitle, int explore, List<string> playerSkills)
@@ -52,6 +59,15 @@ namespace Assets.Resources.Scripts.Entity
             explorationProgress = explore;
             skillCount = playerSkills.Count;
             skills = playerSkills;
+            InitAvatarFrames();
+        }
+
+        private void InitAvatarFrames()
+        {
+            avatarFrameId = "frame_default";
+            unlockedAvatarFrameIds = new List<string> { "frame_default" };
+            announcedAvatarFrameIds = new List<string>();
+            avatarFramesSeeded = false;
         }
     }
 }

@@ -322,8 +322,43 @@
     },
     {
       "id": "ui.bridge.event_log",
-      "en": "EVENT LOG",
+      "en": "SITUATION LOG",
       "zh": "战情日志"
+    },
+    {
+      "id": "ui.bridge.log_filter_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.bridge.log_filter_explore",
+      "en": "Explore",
+      "zh": "探索"
+    },
+    {
+      "id": "ui.bridge.log_filter_combat",
+      "en": "Combat",
+      "zh": "战斗"
+    },
+    {
+      "id": "ui.bridge.log_filter_prod",
+      "en": "Prod.",
+      "zh": "生产"
+    },
+    {
+      "id": "ui.bridge.log_filter_trade",
+      "en": "Trade",
+      "zh": "交易"
+    },
+    {
+      "id": "ui.bridge.log_filter_system",
+      "en": "System",
+      "zh": "系统"
+    },
+    {
+      "id": "ui.bridge.log_empty",
+      "en": "No entries in this filter.",
+      "zh": "该筛选下暂无记录。"
     },
     {
       "id": "ui.bridge.empty_fleet",
@@ -2052,8 +2087,8 @@
     },
     {
       "id": "ui.settings.profile_avatar",
-      "en": "Avatar",
-      "zh": "头像"
+      "en": "Avatar — unlocked characters or upload",
+      "zh": "头像 — 已解锁角色或本地上传"
     },
     {
       "id": "ui.settings.profile_saved",
@@ -2069,6 +2104,71 @@
       "id": "ui.settings.profile_avatar_saved",
       "en": "Avatar updated.",
       "zh": "头像已更新。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_upload",
+      "en": "Upload",
+      "zh": "上传"
+    },
+    {
+      "id": "ui.settings.profile_avatar_empty",
+      "en": "Unlock a character to use their portrait.",
+      "zh": "解锁角色后可使用其立绘作为头像。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_invalid_type",
+      "en": "Use a PNG or JPG image.",
+      "zh": "请选择 PNG 或 JPG 图片。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_too_large",
+      "en": "Image must be 2 MB or smaller.",
+      "zh": "图片须不超过 2 MB。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_bad_image",
+      "en": "Could not read that image.",
+      "zh": "无法读取该图片。"
+    },
+    {
+      "id": "ui.settings.profile_avatar_save_failed",
+      "en": "Could not save avatar.",
+      "zh": "头像保存失败。"
+    },
+    {
+      "id": "ui.settings.profile_frame",
+      "en": "Avatar frame",
+      "zh": "头像框"
+    },
+    {
+      "id": "ui.settings.profile_frame_equipped",
+      "en": "Avatar frame equipped.",
+      "zh": "已装备头像框。"
+    },
+    {
+      "id": "ui.settings.profile_frame_locked_title",
+      "en": "Frame locked",
+      "zh": "头像框未解锁"
+    },
+    {
+      "id": "ui.settings.profile_frame_locked_body",
+      "en": "{0} is still locked.\n{1}",
+      "zh": "「{0}」尚未解锁。\n{1}"
+    },
+    {
+      "id": "ui.frame.unlocked_title",
+      "en": "Frame unlocked — {0}",
+      "zh": "头像框解锁 — {0}"
+    },
+    {
+      "id": "ui.frame.unlocked_body",
+      "en": "A new avatar frame is available in Settings.\n{0}",
+      "zh": "可在设置中装备新的头像框。\n{0}"
+    },
+    {
+      "id": "ui.frame.unlocked_notify",
+      "en": "Avatar frame unlocked: {0}",
+      "zh": "头像框已解锁：{0}"
     },
     {
       "id": "ui.settings.game_saved",

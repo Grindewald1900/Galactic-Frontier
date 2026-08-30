@@ -9,10 +9,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
     {
         public const float NavCollapsedWidth = 64f;
         public const float NavExpandedWidth = 220f;
-        public const float TopBarHeight = 48f;
+        public const float TopBarHeight = 80f;
         public const float BreadcrumbHeight = 32f;
         public const float StatusBarHeight = 22f;
-        public const float NotificationBarHeight = 24f;
+        /// <summary>Top marquee is parked; keep 0 so chrome/content offsets stay aligned.</summary>
+        public const float NotificationBarHeight = 0f;
+        public const bool NotificationBarEnabled = false;
         public static float ChromeHeaderHeight => TopBarHeight + NotificationBarHeight + BreadcrumbHeight;
 
         public static readonly Color Background = Hex("#07091A");

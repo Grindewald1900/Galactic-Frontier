@@ -66,6 +66,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static void Push(string message)
         {
             if (string.IsNullOrWhiteSpace(message)) return;
+            BridgeEventLog.Push(BridgeLogCategory.System, message, message);
             if (instance == null)
             {
                 Debug.Log("[NOTIFY] " + message);

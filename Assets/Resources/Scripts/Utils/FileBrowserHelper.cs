@@ -1,61 +1,126 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.IO;
+using Assets.Resources.Scripts.Utils;
 using SimpleFileBrowser;
 
 namespace Assets.Scripts.Utils
 {
+    public enum ImagePickFail
+    {
+        InvalidType,
+        TooLarge,
+        DecodeFailed
+    }
+
     public static class FileBrowserHelper
     {
-        /// <summary>
-        /// 打开文件浏览器选择图片，并通过回调返回 `Sprite`
-        /// </summary>
-        public static void OpenFileBrowser(System.Action<Sprite> onImageSelected)
+        /// <summary>Opens a PNG/JPG picker and returns a Sprite, or reports why it failed.</summary>
+        public static void OpenFileBrowser(Action<Sprite> onImageSelected, Action<ImagePickFail> onFailed = null)
         {
-            // 启动协程处理文件选择
-            GameObject coroutineRunner = new GameObject("FileBrowserCoroutineRunner");
-            coroutineRunner.AddComponent<MonoBehaviourRunner>().StartCoroutine(ShowLoadDialogCoroutine(onImageSelected));
+            var runner = new GameObject("FileBrowserCoroutineRunner");
+            UnityEngine.Object.DontDestroyOnLoad(runner);
+            runner.AddComponent<MonoBehaviourRunner>()
+                .StartCoroutine(ShowLoadDialogCoroutine(onImageSelected, onFailed, runner));
         }
 
-        private static IEnumerator ShowLoadDialogCoroutine(System.Action<Sprite> onImageSelected)
+        private static IEnumerator ShowLoadDialogCoroutine(
+            Action<Sprite> onImageSelected,
+            Action<ImagePickFail> onFailed,
+            GameObject runner)
         {
-            // 显示文件选择窗口，允许选择 PNG / JPG
-            yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files, false, null, null, "选择图片", "加载");
-
-            if (FileBrowser.Success && FileBrowser.Result.Length > 0)
+            try
             {
-                string filePath = FileBrowser.Result[0]; // 获取用户选择的图片路径
-                string destinationPath = Path.Combine(Application.persistentDataPath, FileBrowserHelpers.GetFilename(filePath));
+                FileBrowser.SetFilters(false, ".png", ".jpg", ".jpeg");
+                FileBrowser.SetDefaultFilter(".png");
 
-                // 复制文件到本地存储（防止原文件被删除）
-                FileBrowserHelpers.CopyFile(filePath, destinationPath);
+                yield return FileBrowser.WaitForLoadDialog(
+                    FileBrowser.PickMode.Files,
+                    false,
+                    null,
+                    null,
+                    "Select image",
+                    "Load");
 
-                // 读取图片并转换为 Sprite
-                Sprite sprite = LoadSpriteFromFile(destinationPath);
+                if (!FileBrowser.Success || FileBrowser.Result == null || FileBrowser.Result.Length == 0)
+                    yield break;
 
-                // 调用回调函数，返回 `Sprite`
+                string filePath = FileBrowser.Result[0];
+                string fileName = FileBrowserHelpers.GetFilename(filePath);
+                if (!IsAllowedImageName(fileName))
+                {
+                    onFailed?.Invoke(ImagePickFail.InvalidType);
+                    yield break;
+                }
+
+                string tempPath = Path.Combine(
+                    Application.temporaryCachePath,
+                    "gf_avatar_pick" + Path.GetExtension(fileName));
+                try
+                {
+                    if (File.Exists(tempPath))
+                        File.Delete(tempPath);
+                    FileBrowserHelpers.CopyFile(filePath, tempPath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning("[AVATAR] Copy failed: " + ex.Message);
+                    onFailed?.Invoke(ImagePickFail.DecodeFailed);
+                    yield break;
+                }
+
+                if (!File.Exists(tempPath))
+                {
+                    onFailed?.Invoke(ImagePickFail.DecodeFailed);
+                    yield break;
+                }
+
+                var info = new FileInfo(tempPath);
+                if (info.Length <= 0 || info.Length > ImageUtil.AvatarMaxBytes)
+                {
+                    TryDelete(tempPath);
+                    onFailed?.Invoke(ImagePickFail.TooLarge);
+                    yield break;
+                }
+
+                Sprite sprite = ImageUtil.LoadSpriteFromFile(tempPath);
+                TryDelete(tempPath);
+                if (sprite == null || sprite.texture == null || sprite.texture.width < 8 || sprite.texture.height < 8)
+                {
+                    onFailed?.Invoke(ImagePickFail.DecodeFailed);
+                    yield break;
+                }
+
                 onImageSelected?.Invoke(sprite);
+            }
+            finally
+            {
+                if (runner != null)
+                    UnityEngine.Object.Destroy(runner);
             }
         }
 
-        /// <summary>
-        /// 读取本地图片并转换为 `Sprite`
-        /// </summary>
-        public static Sprite LoadSpriteFromFile(string filePath)
+        private static bool IsAllowedImageName(string fileName)
         {
-            if (!File.Exists(filePath))
-                return null;
+            if (string.IsNullOrEmpty(fileName)) return false;
+            string ext = Path.GetExtension(fileName).ToLowerInvariant();
+            return ext == ".png" || ext == ".jpg" || ext == ".jpeg";
+        }
 
-            byte[] imageData = File.ReadAllBytes(filePath);
-            Texture2D texture = new Texture2D(2, 2);
-            texture.LoadImage(imageData);
-
-            return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.one * 0.5f);
+        private static void TryDelete(string path)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    File.Delete(path);
+            }
+            catch (Exception)
+            {
+                // Temp cleanup is best-effort.
+            }
         }
     }
 
-    /// <summary>
-    /// `MonoBehaviourRunner` 让 `static` 方法也能使用 `Coroutine`
-    /// </summary>
     public class MonoBehaviourRunner : MonoBehaviour { }
 }

@@ -117,9 +117,23 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ProfileIdLabel(string id) => F("ui.settings.profile_id", id);
         public static string ProfileIdHint => G("ui.settings.profile_id_hint");
         public static string ProfileAvatarLabel => G("ui.settings.profile_avatar");
+        public static string ProfileAvatarUpload => G("ui.settings.profile_avatar_upload");
+        public static string ProfileAvatarEmpty => G("ui.settings.profile_avatar_empty");
+        public static string ProfileAvatarInvalidType => G("ui.settings.profile_avatar_invalid_type");
+        public static string ProfileAvatarTooLarge => G("ui.settings.profile_avatar_too_large");
+        public static string ProfileAvatarBadImage => G("ui.settings.profile_avatar_bad_image");
+        public static string ProfileAvatarSaveFailed => G("ui.settings.profile_avatar_save_failed");
         public static string ProfileSaved => G("ui.settings.profile_saved");
         public static string ProfileNameInvalid => G("ui.settings.profile_name_invalid");
         public static string ProfileAvatarSaved => G("ui.settings.profile_avatar_saved");
+        public static string ProfileFrameLabel => G("ui.settings.profile_frame");
+        public static string ProfileFrameEquipped => G("ui.settings.profile_frame_equipped");
+        public static string ProfileFrameLockedTitle => G("ui.settings.profile_frame_locked_title");
+        public static string ProfileFrameLockedBody(string name, string hint) =>
+            F("ui.settings.profile_frame_locked_body", name, hint);
+        public static string ProfileFrameUnlockedTitle(string name) => F("ui.frame.unlocked_title", name);
+        public static string ProfileFrameUnlockedBody(string hint) => F("ui.frame.unlocked_body", hint);
+        public static string ProfileFrameUnlockedNotify(string name) => F("ui.frame.unlocked_notify", name);
         public static string GameSaved => G("ui.settings.game_saved");
 
         // Branding
@@ -146,6 +160,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ParallelOps(int current, int max) => F("ui.bridge.parallel_ops", current, max);
         public static string BridgeSectors => G("ui.bridge.sectors");
         public static string EventLog => G("ui.bridge.event_log");
+        public static string EventLogFilterAll => G("ui.bridge.log_filter_all");
+        public static string EventLogEmpty => G("ui.bridge.log_empty");
+        public static string EventLogFilter(BridgeLogCategory category) => category switch
+        {
+            BridgeLogCategory.Explore => G("ui.bridge.log_filter_explore"),
+            BridgeLogCategory.Combat => G("ui.bridge.log_filter_combat"),
+            BridgeLogCategory.Production => G("ui.bridge.log_filter_prod"),
+            BridgeLogCategory.Trade => G("ui.bridge.log_filter_trade"),
+            _ => G("ui.bridge.log_filter_system")
+        };
 
         public static string EmptyFleet => G("ui.bridge.empty_fleet");
         public static string NoRunningOps => G("ui.bridge.no_running_ops");

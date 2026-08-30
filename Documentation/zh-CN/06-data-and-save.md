@@ -70,16 +70,30 @@ Application.persistentDataPath/
 | --- | --- | --- | --- |
 | **玩家 ID**（`PlayerEntity.playerID`） | `playerData.json` | **不可更改** | 在 `CreatePlayerData()` 时生成 GUID；存档生命周期内只读；用于目录名、`GiftRedeemed_*`、日后 Online 账号关联 |
 | **显示名称**（`playerName`） | `playerData.json` | **可自定义** | 设置页 / 资料页修改；舰桥副标题、排行榜等展示用 |
-| **头像** | `saves/{playerId}/avatar.png` | **可自定义** | 创角默认图或占位；玩家可选预设或导入（格式/尺寸上限在 UI 文档约定） |
+| **头像** | `saves/{playerId}/avatar.png` | **可自定义** | 已解锁角色立绘，或本地上传 PNG/JPG（≤2 MB，边长超过 1024 时缩小后写入） |
+| **头像框**（`avatarFrameId`） | `playerData.json` | **可装备已解锁框** | 当前装备的框 id，默认 `frame_default`；展示为头像外圈色环 |
+| **已解锁头像框**（`unlockedAvatarFrameIds`） | `playerData.json` | **只增不减**（MVP） | 活动 / 礼品码 / 成就解锁后写入；缺省含 `frame_default` |
+| **已播报头像框**（`announcedAvatarFrameIds`） | `playerData.json` | 内部 | 避免重复弹出解锁 Dialog；旧档首次启动会 seed 为已播报 |
 
 硬约束：
 
 1. **禁止**提供任何 UI 或 Debug 指令修改已存在档的 `playerID`。  
-2. 改 `playerName` / 头像后须 `SavePlayerData()` 并刷新舰桥等展示位。  
+2. 改 `playerName` / 头像 / 装备头像框后须 `SavePlayerData()` 并刷新舰桥顶栏与设置页展示位。  
 3. 玩家目录路径以创档时的 `playerID` 为准；**改名不改目录名**（避免破坏路径引用）。  
-4. Online 迁移时以 `playerID` 为稳定主键，`playerName` 仅为展示层。
+4. Online 迁移时以 `playerID` 为稳定主键，`playerName` 仅为展示层。  
+5. 头像框字段为 **additive**（`JsonUtility` 缺字段走默认），**不升 `saveVersion`**；权威目录在 `AvatarFrameCatalog`（C#，避免 `Assets.Resources` 与 `UnityEngine.Resources` 冲突）。
 
-UI 入口：Settings 或舰桥资料区 — 见 [09-figma-ui.md](09-figma-ui.md)（实现待做）。
+解锁来源（MVP）：
+
+| frameId | 来源 | 条件 |
+| --- | --- | --- |
+| `frame_default` | 开局 | 始终解锁 |
+| `frame_pioneer` | 成就 | 新手航线全部完成 |
+| `frame_first_victory` | 成就 | 领取 `ob_first_battle` |
+| `frame_beta` | 礼品码 | `GF-FRAME` |
+| `frame_event_rift` | 活动（MVP 用礼品码占位） | `EVENT-RIFT` |
+
+UI 入口：Settings 玩家 ID 旁展示带框头像；顶栏指挥官名左侧同步 — 见 [09-figma-ui.md](09-figma-ui.md)。
 
 ### 卡组 API（P1.1）
 

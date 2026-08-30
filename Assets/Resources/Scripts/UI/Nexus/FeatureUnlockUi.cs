@@ -32,12 +32,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (NexusDialog.IsOpen) return;
             var pending = FeatureUnlockService.PendingAnnouncements();
+            if (pending == null || pending.Count == 0)
+            {
+                AvatarFrameUi.PresentPending();
+                return;
+            }
+
             PresentAt(pending, 0, navigate);
         }
 
         private static void PresentAt(List<string> ids, int index, Action<AppScreen> navigate)
         {
-            if (ids == null || index >= ids.Count) return;
+            if (ids == null || index >= ids.Count)
+            {
+                AvatarFrameUi.PresentPending();
+                return;
+            }
             var def = FeatureUnlockCatalog.Get(ids[index]);
             FeatureUnlockService.MarkAnnounced(ids[index]);
             if (def == null)
