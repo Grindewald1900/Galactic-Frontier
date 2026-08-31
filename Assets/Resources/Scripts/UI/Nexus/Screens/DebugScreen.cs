@@ -9,6 +9,8 @@ using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.Utils.Save;
+using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine;
 
@@ -20,20 +22,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
     internal sealed class DebugScreen
     {
         private readonly Transform root;
+        private readonly System.Action onUniverseRegenerated;
 
-        private DebugScreen(Transform root)
+        private DebugScreen(Transform root, System.Action onUniverseRegenerated)
         {
             this.root = root;
+            this.onUniverseRegenerated = onUniverseRegenerated;
         }
 
         public GameObject Root => root.gameObject;
 
-        public static DebugScreen Build(Transform parent)
+        public static DebugScreen Build(Transform parent, System.Action onUniverseRegenerated = null)
         {
             var panel = NexusUiFactory.CreatePanel(
                 parent, "Debug Screen", NexusTheme.Background,
                 Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            var screen = new DebugScreen(panel.transform);
+            var screen = new DebugScreen(panel.transform, onUniverseRegenerated);
             screen.Rebuild();
             return screen;
         }
@@ -55,10 +59,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildCreditsRow();
             BuildItemsSection();
             BuildCardsSection();
+            BuildMapGenSection();
 
             NexusUiFactory.CreateButton(
                 root, "Disable Debug", UiText.DebugDisable,
-                new Vector2(28f, 790f), new Vector2(280f, 40f),
+                new Vector2(28f, 830f), new Vector2(280f, 40f),
                 () => DebugModeController.Instance?.SetEnabled(false),
                 NexusTheme.SurfaceRaised, NexusTheme.Red, 14f);
         }
@@ -259,6 +264,89 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(1380f, 450f), new Vector2(260f, 40f),
                 () => { listLabel.text = BuildCardSummary(); },
                 NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
+        }
+
+        private void BuildMapGenSection()
+        {
+            NexusUiFactory.CreateText(
+                root, "Map Gen Header", UiText.DebugMapGenHeader,
+                new Vector2(1100f, 500f), new Vector2(400f, 22f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            int currentSeed = WorldService.IsLoaded ? WorldService.State.universeSeed : UniverseMapCatalog.ActiveSeed;
+            var seedField = NexusUiFactory.CreateInputField(
+                root, "Universe Seed", currentSeed.ToString(),
+                new Vector2(1100f, 528f), new Vector2(160f, 32f));
+
+            var report = NexusUiFactory.CreateText(
+                root, "Map Gen Report", DescribeUniverse(),
+                new Vector2(1100f, 568f), new Vector2(560f, 200f), 11f, NexusTheme.MutedText,
+                TextAlignmentOptions.TopLeft);
+            report.textWrappingMode = TextWrappingModes.Normal;
+            report.overflowMode = TextOverflowModes.Truncate;
+
+            NexusUiFactory.CreateButton(
+                root, "Regenerate Universe", UiText.DebugMapGenRegenerate,
+                new Vector2(1280f, 528f), new Vector2(180f, 32f),
+                () =>
+                {
+                    if (!int.TryParse(seedField.text, out int seed))
+                    {
+                        report.text = UiText.DebugInvalidNumber;
+                        return;
+                    }
+
+                    WorldService.RegenerateUniverse(seed, DataUtil.Instance);
+                    seedField.text = WorldService.State.universeSeed.ToString();
+                    report.text = DescribeUniverse();
+                    onUniverseRegenerated?.Invoke();
+                },
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 12f);
+
+            NexusUiFactory.CreateButton(
+                root, "Validate Universe", UiText.DebugMapGenValidate,
+                new Vector2(1470f, 528f), new Vector2(180f, 32f),
+                () => { report.text = DescribeUniverse(validateOnly: true); },
+                NexusTheme.SurfaceRaised, NexusTheme.Text, 12f);
+        }
+
+        private static string DescribeUniverse(bool validateOnly = false)
+        {
+            var universe = UniverseMapCatalog.ActiveUniverse;
+            if (universe == null)
+                return UiText.DebugMapGenNoData;
+
+            var validation = validateOnly
+                ? UniverseValidator.Validate(universe)
+                : universe.validation ?? UniverseValidator.Validate(universe);
+
+            var lines = new List<string>
+            {
+                UiText.DebugMapGenSummary(
+                    universe.sectors?.Count ?? 0,
+                    universe.routes?.Count ?? 0,
+                    WorldService.IsLoaded ? WorldService.State.universeSeed : universe.seed)
+            };
+
+            if (universe.planeModifiers != null)
+            {
+                lines.Add(UiText.DebugMapGenPlane(
+                    universe.planeModifiers.primary,
+                    universe.planeModifiers.secondary,
+                    universe.planeModifiers.gap));
+            }
+
+            lines.Add(validation.isValid ? UiText.DebugMapGenValid : UiText.DebugMapGenInvalid);
+            if (validation.issues != null)
+            {
+                foreach (var issue in validation.issues)
+                {
+                    if (issue == null) continue;
+                    lines.Add($"- {issue.code}: {issue.message}");
+                }
+            }
+
+            return string.Join("\n", lines);
         }
 
         private static string BuildCardSummary()

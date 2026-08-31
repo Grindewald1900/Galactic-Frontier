@@ -80,6 +80,9 @@ namespace Assets.Resources.Scripts.World.Domain
         public List<GridNodeRuntime> sectorNodes = new List<GridNodeRuntime>();
         public List<string> unlockedCharts = new List<string>();
         public int explorePoints;
+        /// <summary>Deterministic universe graph seed (doc 23). 0 = assign on load.</summary>
+        public int universeSeed;
+        public PlaneModifiersState planeModifiers = new PlaneModifiersState();
     }
 
     [Serializable]

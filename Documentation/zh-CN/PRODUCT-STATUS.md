@@ -2,7 +2,7 @@
 
 > 更新日期：2026-08-30  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
-> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3+，未实现）。
+> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。
 
 ---
 
@@ -26,7 +26,7 @@
 | 核心循环 | 战斗→区域→采集/制造→NPC→成长，已打通 |
 | 里程碑 | M0–M4 已达成；**M5 接近**（引导/星域/招募/36 人已通） |
 | MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣 |
-| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M3+（20：宇宙层/信标跃迁）、**程序生成航网（23）** |
+| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M3+（20：信标跃迁/完整宇宙交互）、程序生成航网深化（23：热力图/导出报告） |
 | **P6 UX** | 指挥官循环 / 五级 IA / 缺口跳转 — 见 [22](22-ux-loop-and-ia.md)；**M6 未验收** |
 
 ---
@@ -51,7 +51,7 @@
 | 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.3** 航网主形态；M2 域内已落地；宇宙层生成见 **23** |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
-| 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | 规则/方向 | 未开始 | — | **v0.1 已拍板**：固定骨架 + 种子 + 验证器；M3 试点 15–20 星域 |
+| 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | 规则/方向 | 部分 | 进行中 | **v0.1 试点**：`UniverseGenerator` + 验证器 + 种子持久化；Debug 屏可重掷/验证；M3 约 18 星域 |
 
 ---
 
@@ -88,7 +88,8 @@
 | 舰桥舰队滑动组件 | 已实现 | 顶栏三统计；RunningOps → Fleet Carousel（旗舰卡 + 泊位卡） |
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
 | 舰队 / 探索度 | 部分 | 探索度条已接航网恢复加权（[20](20-stellar-map-and-navigation.md) M2）；舰队规则仍在 [21](21-fleet-factions-and-exploration.md) |
-| 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 未开始 | 规则 [20](20-stellar-map-and-navigation.md) v0.3；生成管线 [23](23-procedural-universe-generation.md) v0.1；M2 域内雏形已落地 |
+| 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 部分 | 宇宙层 procedural 图已生成（`UniverseGenerator`）；Explore 宇宙缩放已接；信标跃迁/完整 M3 交互待做 |
+| 程序生成航网（23） | 部分 | `UniverseGenerator` / `UniverseValidator` / `universeSeed`；Debug 重掷+验证；EditMode 测试 |
 | P6 指挥官循环（M6） | 部分 | Wave 0–2 已落地；M6 三十分钟验收待 PlayMode 回归 |
 
 ---

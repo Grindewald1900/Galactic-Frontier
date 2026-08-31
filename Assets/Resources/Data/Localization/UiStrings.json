@@ -912,13 +912,13 @@
     },
     {
       "id": "ui.explore.side_title",
-      "en": "NAVIGATION",
-      "zh": "航行面板"
+      "en": "NODE DETAIL",
+      "zh": "节点详情"
     },
     {
       "id": "ui.explore.side_body",
-      "en": "Frontier VII — outer-rim grid (in-sector).\n• Unobserved is hidden; fog is a silhouette you can probe\n• Located nodes can be sailed (provisional cost)\n• Repair the beacon to stabilize the lane\n• Buy a chart at Outer Haven for more silhouettes\n• Region combat gates (prereq + ship) still apply\n\nRecommended expedition level is a soft gate.",
-      "zh": "第七前沿 — 外缘带域内航网。\n• 未观测完全隐藏；熵雾是可探测的轮廓\n• 已定位节点可航行（临时通航有额外代价）\n• 修复航标使航线进入稳定通航\n• 在外缘港购买海图可揭示更多轮廓\n• Region 开战仍受前置通关 + 舰船门限制\n\n推荐远征等级是软门，不是锁。"
+      "en": "Frontier VII — outer-rim grid (in-sector).\n• Unobserved is hidden; fog is a silhouette you can probe\n• Located nodes can be challenged directly\n• Repair the beacon to stabilize the lane\n• Buy a chart at Outer Haven for more silhouettes\n• Region combat gates (prereq + ship) still apply\n\nRecommended expedition level is a soft gate.",
+      "zh": "第七前沿 — 外缘带域内航网。\n• 未观测完全隐藏；熵雾是可探测的轮廓\n• 已定位节点可直接挑战\n• 修复航标使航线进入稳定通航\n• 在外缘港购买海图可揭示更多轮廓\n• Region 开战仍受前置通关 + 舰船门限制\n\n推荐远征等级是软门，不是锁。"
     },
     {
       "id": "ui.explore.map_label",
@@ -972,13 +972,13 @@
     },
     {
       "id": "ui.explore.charted_hint",
-      "en": "Fogged silhouettes need a probe. Located nodes can be sailed. Stabilize lanes after docking.",
-      "zh": "熵雾轮廓需要探测。已定位节点可以航行。停靠后修复航标以稳定航线。"
+      "en": "Fogged silhouettes need a probe. Located nodes can be challenged directly.",
+      "zh": "熵雾轮廓需要探测。已定位节点可直接挑战。"
     },
     {
       "id": "ui.explore.charted_empty",
-      "en": "No signals yet — sweep radar to paint entropy fog.",
-      "zh": "尚无信号 — 巡航扫描以绘出熵雾轮廓。"
+      "en": "No signals yet — clear adjacent regions to reveal more nodes.",
+      "zh": "尚无信号 — 通关相邻区域以揭示更多节点。"
     },
     {
       "id": "ui.explore.list_docked",
@@ -1944,6 +1944,46 @@
       "id": "ui.debug.disable",
       "en": "Turn Off Debug Mode",
       "zh": "关闭 Debug 模式"
+    },
+    {
+      "id": "ui.debug.map_gen_header",
+      "en": "Universe Map Generation",
+      "zh": "宇宙航网生成"
+    },
+    {
+      "id": "ui.debug.map_gen_regenerate",
+      "en": "Regenerate",
+      "zh": "重新生成"
+    },
+    {
+      "id": "ui.debug.map_gen_validate",
+      "en": "Validate",
+      "zh": "运行验证"
+    },
+    {
+      "id": "ui.debug.map_gen_no_data",
+      "en": "No universe graph loaded.",
+      "zh": "未加载宇宙航网。"
+    },
+    {
+      "id": "ui.debug.map_gen_valid",
+      "en": "Validation: PASS",
+      "zh": "验证：通过"
+    },
+    {
+      "id": "ui.debug.map_gen_invalid",
+      "en": "Validation: FAIL",
+      "zh": "验证：失败"
+    },
+    {
+      "id": "ui.debug.map_gen_summary",
+      "en": "Sectors: {0}  Routes: {1}  Seed: {2}",
+      "zh": "星域：{0}  航线：{1}  种子：{2}"
+    },
+    {
+      "id": "ui.debug.map_gen_plane",
+      "en": "Plane bonuses — primary: {0}, secondary: {1}, gap: {2}",
+      "zh": "位面修正 — 主：{0}，次：{1}，缺口：{2}"
     },
     {
       "id": "ui.missions.title",

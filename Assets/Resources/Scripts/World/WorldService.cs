@@ -21,6 +21,7 @@ namespace Assets.Resources.Scripts.World
             State = loaded != null && loaded.regions != null && loaded.regions.Count > 0
                 ? Normalize(loaded)
                 : WorldRules.CreateNewPlayerWorld();
+            ApplyUniverseCatalog(dataUtil);
             if (loaded == null || loaded.regions == null || loaded.regions.Count == 0)
                 dataUtil.SaveWorldState(State, touchMeta: true);
             NavigationService.EnsureReady();
@@ -29,8 +30,49 @@ namespace Assets.Resources.Scripts.World
         public static void CreateForNewPlayer(DataUtil dataUtil)
         {
             State = WorldRules.CreateNewPlayerWorld();
+            ApplyUniverseCatalog(dataUtil);
             dataUtil.SaveWorldState(State, touchMeta: false);
             NavigationService.EnsureReady();
+        }
+
+        /// <summary>Regenerates universe graph from seed (Debug). Resets universe-layer discovery.</summary>
+        public static void RegenerateUniverse(int seed, DataUtil dataUtil = null)
+        {
+            EnsureReady();
+            if (seed == 0) seed = 1;
+            State.universeSeed = seed;
+            UniverseMapCatalog.ResetCache();
+            UniverseMapCatalog.Configure(seed);
+            State.planeModifiers = ClonePlane(UniverseMapCatalog.ActiveUniverse?.planeModifiers);
+            State.sectorNodes = new List<GridNodeRuntime>();
+            GridService.EnsureReady();
+            Save(dataUtil);
+        }
+
+        private static void ApplyUniverseCatalog(DataUtil dataUtil)
+        {
+            if (State.universeSeed == 0)
+            {
+                string pid = dataUtil?.currentPlayer?.playerID;
+                State.universeSeed = UniverseSeedUtil.FromPlayerId(pid);
+            }
+
+            State.planeModifiers ??= new PlaneModifiersState();
+            UniverseMapCatalog.Configure(State.universeSeed, State.planeModifiers);
+            var active = UniverseMapCatalog.ActiveUniverse;
+            if (active?.planeModifiers != null)
+                State.planeModifiers = ClonePlane(active.planeModifiers);
+        }
+
+        private static PlaneModifiersState ClonePlane(PlaneModifiersState src)
+        {
+            if (src == null) return new PlaneModifiersState();
+            return new PlaneModifiersState
+            {
+                primary = src.primary,
+                secondary = src.secondary,
+                gap = src.gap
+            };
         }
 
         public static void Save(DataUtil dataUtil = null)
@@ -137,6 +179,7 @@ namespace Assets.Resources.Scripts.World
             world.gridEdges ??= new List<GridEdgeRuntime>();
             world.sectorNodes ??= new List<GridNodeRuntime>();
             world.unlockedCharts ??= new List<string>();
+            world.planeModifiers ??= new PlaneModifiersState();
             if (world.navX <= 0.01f && world.navY <= 0.01f)
             {
                 world.navX = SectorMapCatalog.SpawnX;

@@ -17,24 +17,33 @@ namespace Assets.Resources.Scripts.World.Domain
         public int recommendedExpeditionLv = 1;
         public int danger = 1;
         public int spriteIndex;
+        public string factionTag = "";
+        public string resourceProfile = "";
+        public int difficulty;
     }
 
     /// <summary>
-    /// Universe-layer graph: each node is a sector. Only Frontier VII is playable in Solo.
+    /// Universe-layer graph: seeded procedural sectors (doc 23) with pinned Frontier VII + Core.
     /// </summary>
     public static class UniverseMapCatalog
     {
         public const float MapMin = 0f;
         public const float MapMax = 100f;
 
+        private static int configuredSeed;
+        private static GeneratedUniverse cachedUniverse;
         private static List<SectorNodeDef> cachedSectors;
         private static List<InnerEdgeDef> cachedEdges;
+
+        public static int ActiveSeed => configuredSeed;
+
+        public static GeneratedUniverse ActiveUniverse => cachedUniverse;
 
         public static IReadOnlyList<SectorNodeDef> Sectors
         {
             get
             {
-                cachedSectors ??= BuildSectors();
+                EnsureConfigured();
                 return cachedSectors;
             }
         }
@@ -43,9 +52,37 @@ namespace Assets.Resources.Scripts.World.Domain
         {
             get
             {
-                cachedEdges ??= BuildEdges();
+                EnsureConfigured();
                 return cachedEdges;
             }
+        }
+
+        public static void Configure(int seed, PlaneModifiersState plane = null, UniverseGenOptions options = null)
+        {
+            if (seed == 0)
+                seed = 1;
+            if (configuredSeed == seed && cachedUniverse != null)
+            {
+                if (plane != null)
+                    cachedUniverse.planeModifiers = plane;
+                return;
+            }
+
+            configuredSeed = seed;
+            cachedUniverse = UniverseGenerator.Generate(seed, options ?? new UniverseGenOptions());
+            if (plane != null)
+                cachedUniverse.planeModifiers = plane;
+
+            cachedSectors = MapSectors(cachedUniverse);
+            cachedEdges = MapEdges(cachedUniverse);
+        }
+
+        public static void ResetCache()
+        {
+            configuredSeed = 0;
+            cachedUniverse = null;
+            cachedSectors = null;
+            cachedEdges = null;
         }
 
         public static SectorNodeDef Get(string sectorId)
@@ -73,64 +110,83 @@ namespace Assets.Resources.Scripts.World.Domain
             return null;
         }
 
-        private static List<SectorNodeDef> BuildSectors() => new List<SectorNodeDef>
+        private static void EnsureConfigured()
         {
-            Sector(WorldConstants.SectorId, 18f, 82f, "Frontier VII", "第七前沿",
-                "Outer Rim", "外缘带", playable: true, recLv: 1, danger: 1, sprite: 0),
-            Sector(WorldConstants.SectorMiningId, 40f, 70f, "Mining Belt", "矿业星域",
-                "Pioneer", "开拓带", playable: false, recLv: 12, danger: 2, sprite: 3),
-            Sector(WorldConstants.SectorRelicId, 22f, 52f, "Relic Reach", "遗迹星域",
-                "Pioneer", "开拓带", playable: false, recLv: 14, danger: 3, sprite: 9),
-            Sector(WorldConstants.SectorFaultId, 50f, 46f, "Entropy Fault", "熵雾断层",
-                "Severance", "断航带", playable: false, recLv: 20, danger: 4, sprite: 12),
-            Sector(WorldConstants.SectorTradeId, 70f, 66f, "Trade Relay", "商贸中继",
-                "Plane", "位面带", playable: false, recLv: 18, danger: 2, sprite: 6),
-            Sector(WorldConstants.SectorInnerId, 72f, 34f, "Inner Ring", "内环星域",
-                "Inner", "内环带", playable: false, recLv: 28, danger: 4, sprite: 15),
-            Sector(WorldConstants.SectorCoreId, 88f, 16f, "Astral Core", "中枢区域",
-                "Core", "中枢区", playable: false, recLv: 40, danger: 5, sprite: 15)
-        };
+            if (cachedSectors != null && cachedEdges != null)
+                return;
+            Configure(UniverseSeedUtil.DefaultServerSeed ^ UniverseSeedUtil.DefaultSeasonId);
+        }
 
-        private static List<InnerEdgeDef> BuildEdges() => new List<InnerEdgeDef>
+        private static List<SectorNodeDef> MapSectors(GeneratedUniverse universe)
         {
-            Edge("ulane_vii_mining", WorldConstants.SectorId, WorldConstants.SectorMiningId, GridRouteTag.Industry, 0.18f),
-            Edge("ulane_vii_relic", WorldConstants.SectorId, WorldConstants.SectorRelicId, GridRouteTag.Military, 0.22f),
-            Edge("ulane_mining_fault", WorldConstants.SectorMiningId, WorldConstants.SectorFaultId, GridRouteTag.Rift, 0.40f, rift: true),
-            Edge("ulane_relic_fault", WorldConstants.SectorRelicId, WorldConstants.SectorFaultId, GridRouteTag.Rift, 0.38f, rift: true),
-            Edge("ulane_mining_trade", WorldConstants.SectorMiningId, WorldConstants.SectorTradeId, GridRouteTag.Trade, 0.20f),
-            Edge("ulane_trade_inner", WorldConstants.SectorTradeId, WorldConstants.SectorInnerId, GridRouteTag.Trade, 0.28f),
-            Edge("ulane_fault_inner", WorldConstants.SectorFaultId, WorldConstants.SectorInnerId, GridRouteTag.Military, 0.35f),
-            Edge("ulane_inner_core", WorldConstants.SectorInnerId, WorldConstants.SectorCoreId, GridRouteTag.Military, 0.55f)
-        };
-
-        private static SectorNodeDef Sector(
-            string id, float x, float y, string en, string zh,
-            string ringEn, string ringZh, bool playable, int recLv, int danger, int sprite) =>
-            new SectorNodeDef
+            var list = new List<SectorNodeDef>();
+            if (universe?.sectors == null) return list;
+            foreach (var s in universe.sectors)
             {
-                sectorId = id,
-                x = x,
-                y = y,
-                displayNameEn = en,
-                displayNameZh = zh,
-                ringEn = ringEn,
-                ringZh = ringZh,
-                playable = playable,
-                recommendedExpeditionLv = recLv,
-                danger = danger,
-                spriteIndex = sprite
-            };
+                if (s == null) continue;
+                RingLabels(s.ring, out var ringEn, out var ringZh);
+                list.Add(new SectorNodeDef
+                {
+                    sectorId = s.sectorId,
+                    x = s.x,
+                    y = s.y,
+                    displayNameEn = s.displayNameEn,
+                    displayNameZh = s.displayNameZh,
+                    ringEn = ringEn,
+                    ringZh = ringZh,
+                    playable = s.playable,
+                    recommendedExpeditionLv = s.recommendedExpeditionLv,
+                    danger = s.danger,
+                    spriteIndex = s.spriteIndex,
+                    factionTag = s.factionTag ?? "",
+                    resourceProfile = s.resourceProfile ?? "",
+                    difficulty = s.difficulty
+                });
+            }
 
-        private static InnerEdgeDef Edge(
-            string id, string a, string b, GridRouteTag route, float entropy, bool rift = false) =>
-            new InnerEdgeDef
+            return list;
+        }
+
+        private static List<InnerEdgeDef> MapEdges(GeneratedUniverse universe)
+        {
+            var list = new List<InnerEdgeDef>();
+            if (universe?.routes == null) return list;
+            foreach (var r in universe.routes)
             {
-                edgeId = id,
-                a = a,
-                b = b,
-                route = route,
-                entropy = entropy,
-                rift = rift
-            };
+                if (r == null) continue;
+                list.Add(new InnerEdgeDef
+                {
+                    edgeId = r.edgeId,
+                    a = r.fromId,
+                    b = r.toId,
+                    route = r.route,
+                    entropy = r.entropy,
+                    rift = r.rift || r.wormhole
+                });
+            }
+
+            return list;
+        }
+
+        private static void RingLabels(UniverseRingId ring, out string en, out string zh)
+        {
+            switch (ring)
+            {
+                case UniverseRingId.OuterRim:
+                    en = "Outer Rim"; zh = "外缘带"; return;
+                case UniverseRingId.Pioneer:
+                    en = "Pioneer"; zh = "开拓带"; return;
+                case UniverseRingId.Severance:
+                    en = "Severance"; zh = "断航带"; return;
+                case UniverseRingId.Plane:
+                    en = "Plane"; zh = "位面带"; return;
+                case UniverseRingId.Inner:
+                    en = "Inner"; zh = "内环带"; return;
+                case UniverseRingId.Core:
+                    en = "Core"; zh = "中枢区"; return;
+                default:
+                    en = "Unknown"; zh = "未知"; return;
+            }
+        }
     }
 }

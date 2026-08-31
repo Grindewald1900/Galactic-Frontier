@@ -25,11 +25,6 @@ namespace Assets.Resources.Scripts.World
             }
 
             GridService.EnsureReady();
-            if (GridService.FogBodiesInRadar() > 0)
-            {
-                GridService.RecalcExplore();
-                WorldService.Save();
-            }
         }
 
         public static float GetRadarRange()

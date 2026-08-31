@@ -462,7 +462,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     break;
                 case AppScreen.Debug:
                     if (debugScreen == null)
-                        debugScreen = DebugScreen.Build(ContentRoot());
+                        debugScreen = DebugScreen.Build(ContentRoot(), () => exploreScreen?.Rebuild());
                     else
                         debugScreen.Rebuild();
                     debugScreen.Root.SetActive(true);

@@ -32,7 +32,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private string selectedBodyId = "body_outer_haven";
         private string selectedSectorId = WorldConstants.SectorId;
-        private string lastNavMessage = "";
         private ExploreMapRig mapRig;
 
         private bool IsUniverseView => mapRig != null && mapRig.IsUniverseLod;
@@ -85,7 +84,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance.cardEntities);
             }
 
-            NavigationService.EnsureReady();
             GridService.EnsureReady();
 
             NexusUiFactory.CreateText(
@@ -105,13 +103,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(28f, 110f), new Vector2(600f, 24f), 13f,
                 inLine > 0 ? NexusTheme.Green : NexusTheme.Red);
 
-            float radar = NavigationService.GetRadarRange();
             int gridPct = WorldService.State?.explorationProgress ?? 0;
             NexusUiFactory.CreateText(
-                root, "NavStatus",
-                UiText.ExploreNavStatus(NavigationService.ShipX, NavigationService.ShipY, radar)
-                + "  ·  " + UiText.ExploreGridProgress(gridPct),
-                new Vector2(640f, 110f), new Vector2(760f, 24f), 13f, NexusTheme.Cyan);
+                root, "GridProgress",
+                UiText.ExploreGridProgress(gridPct),
+                new Vector2(640f, 110f), new Vector2(420f, 24f), 13f, NexusTheme.Cyan);
 
             if (WorldService.IsSectorComplete())
             {
@@ -250,12 +246,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
             else
                 BuildSectorMap(content);
 
-            var overlayMsg = root.Find(ExploreMapRig.HostName)?.Find("NavMsg");
-            if (overlayMsg != null)
-                overlayMsg.GetComponent<TextMeshProUGUI>().text = lastNavMessage ?? "";
-            var cruise = root.Find(ExploreMapRig.HostName)?.Find("CruiseRandom");
-            if (cruise != null)
-                cruise.gameObject.SetActive(!IsUniverseView);
             var layerLabel = root.Find(ExploreMapRig.HostName)?.Find("MapLabel");
             if (layerLabel != null)
                 layerLabel.GetComponent<TextMeshProUGUI>().text =
@@ -367,27 +357,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(MapW - 42f, 6f), new Vector2(36f, 28f),
                 ZoomIn,
                 NexusTheme.SurfaceRaised, NexusTheme.Text, 16f);
-            NexusUiFactory.CreateButton(
-                map, "CruiseRandom", UiText.ExploreCruiseRandom,
-                new Vector2(12f, MapH - 48f), new Vector2(170f, 36f),
-                CruiseRandom,
-                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan, 11f);
-            var msg = NexusUiFactory.CreateText(
-                map, "NavMsg", lastNavMessage ?? "",
-                new Vector2(192f, MapH - 44f), new Vector2(480f, 28f), 11f, NexusTheme.MutedText);
-            msg.textWrappingMode = TextWrappingModes.Normal;
         }
 
         private void BuildBodyMarker(Transform map, StellarBodyDef body)
         {
             var local = SectorToLocal(body.x, body.y);
             bool selected = body.bodyId == selectedBodyId;
-            bool docked = NavigationService.IsDocked(body);
             var gridState = GridService.GetState(body.bodyId);
             bool fogged = GridService.ShowsFog(body.bodyId);
             float size = selected ? 42f : fogged ? 28f : 34f;
             Color tint = fogged ? NexusTheme.Purple : BodyTint(body.bodyType);
-            if (docked)
+            if (gridState >= GridNodeState.Stable)
                 tint = NexusTheme.Green;
 
             string regionId = PrimaryRegion(body);
@@ -496,15 +476,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             string regionId = PrimaryRegion(body);
             var view = string.IsNullOrEmpty(regionId) || fogged ? null : WorldService.GetRegionView(regionId);
-            float dist = NavigationService.DistanceToBody(body);
-            bool docked = NavigationService.IsDocked(body);
-            var cost = GridService.EstimateCruise(body);
-            float eta = NavigationService.EstimateCruiseSeconds(dist, body);
+            ShipService.EnsureReady();
+            int recLv = body.recommendedExpeditionLv;
+            int shipLv = Mathf.Max(1, ShipService.State?.level ?? 1);
+            bool softGate = shipLv < recLv;
 
             string discovery = ExploreDiscoveryLabel(gridState);
             string lane = ExploreLaneLabel(body.bodyId);
             string dev = ExploreDevLabel(view);
-            string fleet = docked ? UiText.ExploreDocked : UiText.ExploreSailEta(dist, eta);
             NexusUiFactory.CreateText(
                 side, "AxisDiscovery", UiText.ExploreStatusDiscovery(discovery),
                 new Vector2(20f, 80f), new Vector2(420f, 18f), 11f, NexusTheme.Cyan);
@@ -514,28 +493,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateText(
                 side, "AxisDev", UiText.ExploreStatusDev(dev),
                 new Vector2(20f, 120f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
-            var fleetLine = NexusUiFactory.CreateText(
-                side, "AxisFleet", UiText.ExploreStatusFleet(fleet),
-                new Vector2(20f, 140f), new Vector2(420f, 36f), 11f,
-                docked ? NexusTheme.Green : NexusTheme.MutedText);
-            fleetLine.textWrappingMode = TextWrappingModes.Normal;
 
-            float y = 182f;
-            if (!fogged && cost.Overleveled)
+            float y = 148f;
+            if (!fogged && softGate)
             {
-                int extra = Mathf.RoundToInt((cost.Multiplier - 1f) * 100f);
+                int extra = (recLv - shipLv) * 15;
                 var gate = NexusUiFactory.CreateText(
-                    side, "SoftGate", UiText.ExploreSoftGate(cost.RecommendedLv, extra),
+                    side, "SoftGate", UiText.ExploreSoftGate(recLv, extra),
                     new Vector2(20f, y), new Vector2(420f, 36f), 11f, NexusTheme.Gold);
                 gate.textWrappingMode = TextWrappingModes.Normal;
                 y += 38f;
-            }
-            else if (!fogged)
-            {
-                NexusUiFactory.CreateText(
-                    side, "CruiseCost", UiText.ExploreCruiseCost(cost.Multiplier, cost.AutoReturn),
-                    new Vector2(20f, y), new Vector2(420f, 20f), 11f, NexusTheme.MutedText);
-                y += 24f;
             }
 
             if (view?.Config != null)
@@ -565,7 +532,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 y += 44f;
             }
 
-            float actionY = Mathf.Max(y, 248f);
+            float actionY = Mathf.Max(y, 220f);
             if (fogged)
             {
                 NexusUiFactory.CreateButton(
@@ -573,16 +540,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(20f, actionY), new Vector2(420f, 44f),
                     () => ProbeBody(body.bodyId),
                     NexusTheme.WithAlpha(NexusTheme.Purple, 0.22f), NexusTheme.Purple, 14f);
-                return;
-            }
-
-            if (!docked)
-            {
-                NexusUiFactory.CreateButton(
-                    side, "Sail", UiText.ExploreSailHere,
-                    new Vector2(20f, actionY), new Vector2(420f, 44f),
-                    () => CruiseToBody(body.bodyId),
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f), NexusTheme.Gold, 14f);
                 return;
             }
 
@@ -748,7 +705,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (!GridService.CanEnterSector(sectorId))
             {
-                lastNavMessage = UiText.ExploreSectorSealed;
                 Rebuild();
                 return;
             }
@@ -756,7 +712,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
             selectedSectorId = sectorId;
             if (WorldService.State != null)
                 WorldService.State.currentSectorId = sectorId;
-            lastNavMessage = "";
             mapRig?.OpenSectorView(ExploreMapRig.SectorEnterZoom, Vector2.zero);
             Rebuild();
         }
@@ -767,39 +722,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Rebuild();
         }
 
-        private void CruiseToBody(string bodyId)
-        {
-            var result = NavigationService.TryCruiseToBody(bodyId);
-            lastNavMessage = string.IsNullOrEmpty(result.Message)
-                ? (result.Success ? UiText.ExploreArrived : UiText.ExploreCruiseFailed)
-                : result.Message;
-            if (result.Success)
-                selectedBodyId = bodyId;
-            if (result.Success)
-            {
-                BridgeEventLog.Push(
-                    BridgeLogCategory.Explore,
-                    "Cruise complete. Inner-grid lane marked provisional.",
-                    "巡航抵达。域内航道记为临时通航。");
-            }
-            Rebuild();
-        }
-
-        private void CruiseRandom()
-        {
-            var result = NavigationService.TryCruiseRandom(18f);
-            lastNavMessage = string.IsNullOrEmpty(result.Message)
-                ? (result.Success ? UiText.ExploreArrived : UiText.ExploreCruiseFailed)
-                : result.Message;
-            Rebuild();
-        }
-
         private void ProbeBody(string bodyId)
         {
             var result = GridService.TryProbe(bodyId);
-            lastNavMessage = string.IsNullOrEmpty(result.Message)
-                ? UiText.ExploreCruiseFailed
-                : result.Message;
             if (result.Success)
             {
                 selectedBodyId = bodyId;
@@ -808,6 +733,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "Probe locked a fogged node on the inner grid.",
                     "探测锁定了域内航网上一处熵雾节点。");
             }
+            else
+                Debug.LogWarning("[EXPLORE] probe: " + result.Message);
 
             Rebuild();
         }
@@ -815,9 +742,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void StabilizeBody(string bodyId)
         {
             var result = GridService.TryStabilize(bodyId);
-            lastNavMessage = string.IsNullOrEmpty(result.Message)
-                ? UiText.ExploreCruiseFailed
-                : result.Message;
             if (result.Success)
             {
                 BridgeEventLog.Push(
@@ -825,6 +749,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "Beacon repaired. A lane is now stable.",
                     "航标已修复。一段航线进入稳定通航。");
             }
+            else
+                Debug.LogWarning("[EXPLORE] stabilize: " + result.Message);
 
             Rebuild();
         }
@@ -832,16 +758,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void BuyChart()
         {
             var result = GridService.TryBuyChart();
-            lastNavMessage = string.IsNullOrEmpty(result.Message)
-                ? UiText.ExploreCruiseFailed
-                : result.Message;
             if (result.Success)
             {
                 BridgeEventLog.Push(
                     BridgeLogCategory.Explore,
-                    "Sector chart purchased. Silhouettes persist; still sail to dock.",
-                    "已购入星域海图。轮廓常亮，仍须航行才能停靠。");
+                    "Sector chart purchased. More silhouettes revealed.",
+                    "已购入星域海图。更多轮廓已揭示。");
             }
+            else
+                Debug.LogWarning("[EXPLORE] chart: " + result.Message);
 
             Rebuild();
         }

@@ -17,7 +17,9 @@ namespace Assets.Resources.Scripts.World.Domain
                 gridEdges = new List<GridEdgeRuntime>(),
                 sectorNodes = new List<GridNodeRuntime>(),
                 unlockedCharts = new List<string>(),
-                gridSeeded = false
+                gridSeeded = false,
+                universeSeed = 0,
+                planeModifiers = new PlaneModifiersState()
             };
             foreach (var cfg in RegionCatalog.All)
             {

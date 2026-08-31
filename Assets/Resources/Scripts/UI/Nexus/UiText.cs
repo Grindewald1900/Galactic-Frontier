@@ -560,6 +560,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string DebugCardLeveled(string name, int level) => F("ui.debug.card_leveled", name, level);
         public static string DebugDisable => G("ui.debug.disable");
 
+        public static string DebugMapGenHeader => G("ui.debug.map_gen_header");
+        public static string DebugMapGenRegenerate => G("ui.debug.map_gen_regenerate");
+        public static string DebugMapGenValidate => G("ui.debug.map_gen_validate");
+        public static string DebugMapGenNoData => G("ui.debug.map_gen_no_data");
+        public static string DebugMapGenValid => G("ui.debug.map_gen_valid");
+        public static string DebugMapGenInvalid => G("ui.debug.map_gen_invalid");
+        public static string DebugMapGenSummary(int sectors, int routes, int seed) =>
+            F("ui.debug.map_gen_summary", sectors, routes, seed);
+        public static string DebugMapGenPlane(string primary, string secondary, string gap) =>
+            F("ui.debug.map_gen_plane", primary, secondary, gap);
+
         // Missions / onboarding
         public static string MissionsTitle => G("ui.missions.title");
         public static string MissionsBody => G("ui.missions.body");

@@ -121,11 +121,8 @@ namespace Assets.Resources.Scripts.World
 
         public static bool CanProbe(string bodyId)
         {
-            var body = SectorMapCatalog.Get(bodyId);
-            if (body == null || GetState(bodyId) != GridNodeState.Fogged)
+            if (GetState(bodyId) != GridNodeState.Fogged)
                 return false;
-            if (NavigationService.DistanceToBody(body) <= NavigationService.GetRadarRange() * 1.25f)
-                return true;
             return HasLocatedNeighbor(bodyId);
         }
 
@@ -133,15 +130,13 @@ namespace Assets.Resources.Scripts.World
         {
             if (!IsLocatedOrBetter(bodyId) || GetState(bodyId) >= GridNodeState.Stable)
                 return false;
-            var body = SectorMapCatalog.Get(bodyId);
-            return body != null && NavigationService.IsDocked(body);
+            return SectorMapCatalog.Get(bodyId) != null;
         }
 
         public static bool CanBuyChart()
         {
             if (HasChart()) return false;
-            var haven = SectorMapCatalog.Get(WorldConstants.OuterHavenBodyId);
-            return haven != null && NavigationService.IsDocked(haven);
+            return GetState(WorldConstants.OuterHavenBodyId) >= GridNodeState.Located;
         }
 
         public static WorldCommandResult TryProbe(string bodyId)
@@ -153,12 +148,12 @@ namespace Assets.Resources.Scripts.World
             if (GetState(bodyId) != GridNodeState.Fogged)
                 return WorldCommandResult.Fail("No fogged signal to lock.");
             if (!CanProbe(bodyId))
-                return WorldCommandResult.Fail("Signal too faint — close in or probe from a located neighbor.");
+                return WorldCommandResult.Fail("Signal too faint — probe from a located neighbor.");
 
             SetNodeState(bodyId, GridNodeState.Located);
             RecalcExplore();
             WorldService.Save();
-            return WorldCommandResult.OkMessage("Signal locked. Node located — plot a lane when ready.");
+            return WorldCommandResult.OkMessage("Signal locked. Node located — challenge when ready.");
         }
 
         public static WorldCommandResult TryStabilize(string bodyId)
@@ -168,7 +163,7 @@ namespace Assets.Resources.Scripts.World
             if (body == null)
                 return WorldCommandResult.Fail("Unknown body.");
             if (!CanStabilize(bodyId))
-                return WorldCommandResult.Fail("Dock at the node to repair its beacon.");
+                return WorldCommandResult.Fail("Locate the node before repairing its beacon.");
 
             string regionId = PrimaryRegion(body);
             bool cleared = !string.IsNullOrEmpty(regionId) && RegionCleared(regionId);
@@ -193,7 +188,7 @@ namespace Assets.Resources.Scripts.World
             if (HasChart())
                 return WorldCommandResult.Fail("Sector chart already unlocked.");
             if (!CanBuyChart())
-                return WorldCommandResult.Fail("Dock at Outer Haven to buy the sector chart.");
+                return WorldCommandResult.Fail("Outer Haven must be located to buy the sector chart.");
 
             if (!CurrencyService.TrySpendCredits(WorldConstants.ChartCreditCost, out var err))
                 return WorldCommandResult.Fail(err);
@@ -203,7 +198,7 @@ namespace Assets.Resources.Scripts.World
             ApplyChartReveal(world);
             RecalcExplore();
             WorldService.Save();
-            return WorldCommandResult.OkMessage("Chart burned in. Fogged silhouettes persist; still sail to dock.");
+            return WorldCommandResult.OkMessage("Chart burned in. More silhouettes revealed on the grid.");
         }
 
         public static void OnArrived(string fromBodyId, string toBodyId)
