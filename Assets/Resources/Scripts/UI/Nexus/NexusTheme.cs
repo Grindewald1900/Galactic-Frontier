@@ -30,7 +30,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static readonly Color Red = Hex("#F87171");
         public static readonly Color Text = Hex("#E2E8F0");
         public static readonly Color MutedText = Hex("#64748B");
-        public static readonly Color DimText = Hex("#374151");
+        public static readonly Color DimText = Hex("#94A3B8");
 
         public static Color WithAlpha(Color color, float alpha)
         {

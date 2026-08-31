@@ -54,7 +54,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateText(
                 root, "Hint", UiText.InventoryHintHover,
-                new Vector2(28f, 48f), new Vector2(1200f, 24f), 12f, NexusTheme.MutedText);
+                new Vector2(28f, 48f), new Vector2(900f, 24f), 12f, NexusTheme.MutedText);
+            NexusUiFactory.CreateText(
+                root, "NeedNote", UiText.InventoryNeedFilter + " · " + UiText.AccessibilityContrastNote,
+                new Vector2(28f, 72f), new Vector2(1200f, 20f), 11f, NexusTheme.DimText);
 
             DrawTypeTabs();
             DrawQualityTabs();

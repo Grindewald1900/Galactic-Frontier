@@ -164,10 +164,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             BuildActiveFleet(combatMembers);
             BuildFleetCarousel();
+            BuildCommanderGoal();
             BuildPendingLoot();
             BuildSectors();
             BuildLog(inLine, cards, progress, credits, power);
-            BuildCtas();
 
             string opsHint = WorldService.IsSectorComplete()
                 ? UiText.SectorComplete
@@ -182,47 +182,53 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.DimText);
         }
 
+        private void BuildCommanderGoal()
+        {
+            var goal = CommanderGoalService.GetCurrent();
+            GameObject panel = NexusUiFactory.CreateBox(
+                root, "Commander Goal",
+                new Vector2(1090f, 128f), new Vector2(678f, 280f),
+                NexusTheme.Surface, NexusTheme.BorderSoft);
+
+            NexusUiFactory.CreateText(
+                panel.transform, "GoalHead", UiText.BridgeCommanderGoal,
+                new Vector2(16f, 12f), new Vector2(640f, 22f), 12f, NexusTheme.MutedText);
+            NexusUiFactory.CreateText(
+                panel.transform, "GoalTitle", goal.Title,
+                new Vector2(16f, 34f), new Vector2(640f, 28f), 16f, NexusTheme.Gold,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                panel.transform, "Progress", goal.Progress,
+                new Vector2(16f, 68f), new Vector2(640f, 22f), 12f, NexusTheme.Cyan);
+            NexusUiFactory.CreateText(
+                panel.transform, "BottleneckHead", UiText.BridgeBottleneck,
+                new Vector2(16f, 98f), new Vector2(640f, 20f), 11f, NexusTheme.MutedText);
+            NexusUiFactory.CreateText(
+                panel.transform, "Bottleneck", goal.Bottleneck,
+                new Vector2(16f, 118f), new Vector2(640f, 48f), 12f, NexusTheme.Text);
+
+            NexusUiFactory.CreateText(
+                panel.transform, "RecHead", UiText.BridgeRecommended,
+                new Vector2(16f, 168f), new Vector2(200f, 20f), 11f, NexusTheme.MutedText);
+
+            NexusUiFactory.CreateRoleButton(
+                panel.transform, "Recommended", goal.RecommendedAction,
+                new Vector2(16f, 192f), new Vector2(320f, 44f),
+                () =>
+                {
+                    if (goal.OnRecommended != null)
+                        goal.OnRecommended();
+                    else if (navigate != null)
+                        navigate(goal.RecommendedScreen);
+                    else
+                        openExplore?.Invoke();
+                },
+                NexusButtonRole.Primary, 14f);
+        }
+
         private void BuildCtas()
         {
-            void Cta(string name, string label, float x, AppScreen target, UnityEngine.Events.UnityAction action, Color fill, Color tint)
-            {
-                bool locked = !FeatureUnlockUi.CanOpen(target);
-                NexusUiFactory.CreateButton(
-                    root, name, label,
-                    new Vector2(x, 548f),
-                    new Vector2(126f, 40f),
-                    () =>
-                    {
-                        if (locked)
-                            FeatureUnlockUi.ShowLocked(target);
-                        else
-                            action?.Invoke();
-                    },
-                    locked ? NexusTheme.WithAlpha(NexusTheme.Surface, 0.7f) : fill,
-                    locked ? NexusTheme.DimText : tint,
-                    12f);
-            }
-
-            Cta("CTA Recruit", UiText.BridgeOpenRecruit, 1090f,
-                AppScreen.Recruit,
-                () => navigate?.Invoke(AppScreen.Recruit),
-                NexusTheme.WithAlpha(NexusTheme.Purple, 0.16f), NexusTheme.Purple);
-            Cta("CTA Formation", UiText.BridgeOpenFormation, 1226f,
-                AppScreen.Formation,
-                () => openFormation?.Invoke(),
-                NexusTheme.SurfaceRaised, NexusTheme.Text);
-            Cta("CTA Explore", UiText.BridgeStartAutoBattle, 1362f,
-                AppScreen.Battle,
-                () => openExplore?.Invoke(),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold);
-            Cta("CTA Ship", UiText.OpenShipBay, 1498f,
-                AppScreen.Ship,
-                () => openShip?.Invoke(),
-                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan);
-            Cta("CTA Missions", UiText.TodaysMissions, 1634f,
-                AppScreen.Missions,
-                () => openMissions?.Invoke(),
-                NexusTheme.SurfaceRaised, NexusTheme.Cyan);
+            // P6: peer CTAs removed; use commander goal + shell navigation.
         }
 
         private void BuildActiveFleet(List<CardEntity> lineup)
@@ -718,8 +724,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 $"Fleet status: {inLine} units deployed · roster {cards}",
                 $"舰队状态：{inLine} 人上阵 · 卡池 {cards}");
             BridgeEventLog.UpsertLive("live_explore", BridgeLogCategory.Explore,
-                $"Exploration {progress}% · credits {credits:N0}₵",
-                $"探索进度 {progress}% · 信用点 {credits:N0}₵");
+                $"Grid restore {progress}% · credits {credits:N0}₵",
+                $"航网恢复 {progress}% · 信用点 {credits:N0}₵");
             BridgeEventLog.UpsertLive("live_power", BridgeLogCategory.Combat,
                 $"Combat power estimate {power:N0}",
                 $"预估战力 {power:N0}");

@@ -44,7 +44,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(28f, 16f), new Vector2(640f, 32f), 22f, NexusTheme.Gold,
                 TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(
-                root, "Hint", UiText.CardsHint(all.Count),
+                root, "Hint", UiText.CardsManageHint + " · " + UiText.CardsHint(all.Count),
                 new Vector2(28f, 48f), new Vector2(900f, 24f), 13f, NexusTheme.MutedText);
 
             DrawFilter(28f, 80f, 0, UiText.CardFilterAll);

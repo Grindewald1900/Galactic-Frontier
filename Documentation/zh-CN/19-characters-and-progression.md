@@ -311,6 +311,15 @@ UI（`CardDrawingManager` / 未来 Nexus `RecruitScreen`）只调服务，不直
 
 Nexus：建议新增 `AppScreen.Recruit` 或挂在舰桥「招募」；旧 `SHOP_MENU` / `DRAWCARDS_MENU` 可作过渡，最终迁原生 Screen。
 
+#### P6 角色页 vs 卡牌页（见 [22](22-ux-loop-and-ia.md)）
+
+| 页 | 职责 | UI 形态 |
+| --- | --- | --- |
+| **Characters** | 人物培养：立绘、最高能级、副本数、专长、故事、推荐用途 | 横向人物档案，非完整卡牌框 |
+| **Cards** | 实例管理：搜索、品质/职业/占用筛选、排序、堆叠、对比、强化/分解 | 网格 + 固定右侧详情 |
+
+两页不得视觉雷同；Characters 入口「查看该角色所有卡实例」链到 Cards 并预筛选。
+
 ---
 
 ### 8. 概率与展示（契约形状）

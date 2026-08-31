@@ -326,6 +326,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             BuildDeckTabs();
             BuildRoster(all);
+            EnsureSelectedCard(all);
             BuildDetail(all);
             BuildSlots(all);
             RefreshStats(all);
@@ -419,6 +420,46 @@ namespace Assets.Resources.Scripts.UI.Nexus
             selectedCard = null;
             selectedSlot = -1;
             Rebuild();
+        }
+
+        private void EnsureSelectedCard(List<CardEntity> all)
+        {
+            var editing = DeckService.GetEditingDeck();
+
+            if (selectedCard != null && all != null)
+            {
+                bool found = false;
+                foreach (var entity in all)
+                {
+                    if (entity != null && entity.id == selectedCard.id)
+                    {
+                        selectedCard = entity;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found && editing != null && IndexInEditingDeck(editing, selectedCard.id) >= 0)
+                    return;
+            }
+
+            if (selectedSlot >= 0 && selectedCard == null)
+                return;
+
+            selectedCard = null;
+            selectedSlot = -1;
+            if (editing == null)
+                return;
+
+            for (int i = 0; i < DeckConstants.SlotsPerDeck; i++)
+            {
+                var member = DeckService.FindMemberInSlot(editing.deckId, i, all);
+                if (member == null)
+                    continue;
+                selectedCard = member;
+                selectedSlot = i;
+                return;
+            }
         }
 
         private void BuildRoster(List<CardEntity> all)
@@ -1909,6 +1950,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 : CombatStrategyRules.Parse(editing.combatStrategyId).ToString();
 
             statsText.text =
+                UiText.FormationTeamSummary + "\n\n" +
                 $"<color=#{muted}>{UiText.SelectedDeckLabel}</color>\n" +
                 $"<size=16><color=#{gold}>{Truncate(editing?.displayName ?? "-", 20)}</color></size>\n" +
                 $"<color=#{cyan}>{UiText.DeckPurposeLabel(editing?.purpose.ToString() ?? "Flexible")}" +

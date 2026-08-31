@@ -30,6 +30,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly Dictionary<AppScreen, Button> navigationButtons = new();
         private readonly Dictionary<AppScreen, TextMeshProUGUI> navigationLabels = new();
         private readonly Dictionary<AppScreen, Image> navigationIcons = new();
+        private readonly Dictionary<NavGroup, Button> groupNavButtons = new();
+        private readonly Dictionary<NavGroup, TextMeshProUGUI> groupNavLabels = new();
+        private readonly Dictionary<AppScreen, Button> subNavButtons = new();
+        private Transform subNavHost;
+        private QuestTrackerDrawer questTracker;
+        private TextMeshProUGUI compactStatusLabel;
 
         private Canvas contentCanvas;
         private RectTransform contentHost;
@@ -194,6 +200,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
+            groupNavButtons.Clear();
+            groupNavLabels.Clear();
+            subNavButtons.Clear();
 
             BuildChrome(true);
             ShowScreen(restore);
@@ -236,6 +245,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             navigationButtons.Clear();
             navigationLabels.Clear();
             navigationIcons.Clear();
+            groupNavButtons.Clear();
+            groupNavLabels.Clear();
+            subNavButtons.Clear();
             navigationRect = null;
             topBarRect = null;
             breadcrumbRect = null;
@@ -330,6 +342,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             activeScreen = screen;
             SetActiveNavigation(screen);
             SetBreadcrumb(screen);
+            RefreshCompactStatus();
 
             if (screen == AppScreen.Battle)
             {
@@ -550,24 +563,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero);
             topBarRect = topBar.GetComponent<RectTransform>();
 
-            if (NexusTheme.NotificationBarEnabled)
-            {
-                GameObject notice = NexusUiFactory.CreatePanel(
-                    chrome.transform,
-                    "Notification Strip",
-                    NexusTheme.SurfaceRaised,
-                    new Vector2(0f, 1f),
-                    new Vector2(1f, 1f),
-                    new Vector2(navWidth, -(NexusTheme.TopBarHeight + NexusTheme.NotificationBarHeight)),
-                    new Vector2(0f, -NexusTheme.TopBarHeight),
-                    true);
-                notificationRect = notice.GetComponent<RectTransform>();
-                NexusNotificationBar.Attach(notice.transform);
-            }
-            else
-            {
-                notificationRect = null;
-            }
+            notificationRect = null;
+            // Notification strip is gated by NexusTheme.NotificationBarEnabled (currently off).
 
             GameObject breadcrumb = NexusUiFactory.CreatePanel(
                 chrome.transform,
@@ -593,6 +590,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildBreadcrumb(breadcrumb.transform);
             BuildStatusBar(statusBar.transform);
             BuildNavigation(navigation.transform, fullNavigation);
+            questTracker = new QuestTrackerDrawer();
+            questTracker.Attach(chrome.transform, ShowScreen);
             ApplyNavigationLayout();
         }
 
@@ -644,12 +643,64 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 parent,
                 "Credits",
                 $"₵ {credits:N0}",
-                new Vector2(640f, 24f),
-                new Vector2(220f, 32f),
-                18f,
+                new Vector2(880f, 24f),
+                new Vector2(160f, 32f),
+                16f,
                 NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+
+            NexusUiFactory.CreateButton(
+                parent, "QuestToggle", UiText.QuestToggle,
+                new Vector2(1060f, 20f), new Vector2(88f, 36f),
+                () => questTracker?.Toggle(),
+                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.14f), NexusTheme.Cyan, 12f);
+
+            var portraitBtn = portraitImage != null
+                ? portraitImage.transform.parent.gameObject.GetComponent<Button>()
+                : null;
+            if (portraitBtn == null && portraitImage != null)
+            {
+                portraitBtn = portraitImage.transform.parent.gameObject.AddComponent<Button>();
+                var pImg = portraitImage.transform.parent.GetComponent<Image>();
+                if (pImg != null)
+                {
+                    pImg.raycastTarget = true;
+                    var pc = portraitBtn.colors;
+                    pc.normalColor = Color.white;
+                    portraitBtn.colors = pc;
+                }
+            }
+            if (portraitBtn != null)
+            {
+                portraitBtn.onClick.RemoveAllListeners();
+                portraitBtn.onClick.AddListener(OpenAvatarMenu);
+            }
+        }
+
+        private void OpenAvatarMenu()
+        {
+            string body = UiText.ProfileIdLabel(TruncatePlayerId(DataUtil.Instance?.currentPlayer?.playerID));
+            if (DebugModeController.Instance != null && DebugModeController.Instance.IsEnabled)
+            {
+                NexusDialog.Show(
+                    UiText.MenuSettings,
+                    body,
+                    UiText.MenuSettings,
+                    () => Navigate(AppScreen.Settings),
+                    UiText.MenuDebug,
+                    () => Navigate(AppScreen.Debug));
+            }
+            else
+            {
+                NexusDialog.Show(
+                    UiText.MenuSettings,
+                    body,
+                    UiText.MenuSettings,
+                    () => Navigate(AppScreen.Settings),
+                    UiText.Back,
+                    null);
+            }
         }
 
         private static string TruncatePlayerId(string raw)
@@ -678,23 +729,42 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 "Current",
                 UiText.Breadcrumb(AppScreen.Bridge),
                 new Vector2(206f, 6f),
-                new Vector2(640f, 20f),
+                new Vector2(420f, 20f),
                 12f,
                 NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+
+            var subHostGo = new GameObject("Sub Nav Host", typeof(RectTransform));
+            subHostGo.transform.SetParent(parent, false);
+            subNavHost = subHostGo.transform;
+            var subRect = subHostGo.GetComponent<RectTransform>();
+            subRect.anchorMin = new Vector2(0f, 1f);
+            subRect.anchorMax = new Vector2(1f, 1f);
+            subRect.pivot = new Vector2(0f, 1f);
+            subRect.anchoredPosition = new Vector2(640f, -4f);
+            subRect.sizeDelta = new Vector2(-660f, 24f);
         }
 
         private void BuildStatusBar(Transform parent)
         {
+            compactStatusLabel = NexusUiFactory.CreateText(
+                parent,
+                "CompactStatus",
+                CompactStatusBar.BuildSummary(),
+                new Vector2(16f, 2f),
+                new Vector2(1180f, 18f),
+                10f,
+                NexusTheme.Text);
             statusShortcuts = NexusUiFactory.CreateText(
                 parent,
                 "Shortcuts",
                 UiText.StatusShortcuts,
-                new Vector2(16f, 2f),
-                new Vector2(1100f, 18f),
-                10f,
-                NexusTheme.DimText);
+                new Vector2(1200f, 2f),
+                new Vector2(240f, 18f),
+                9f,
+                NexusTheme.DimText,
+                TextAlignmentOptions.Right);
             statusVersion = NexusUiFactory.CreateText(
                 parent,
                 "Version",
@@ -706,40 +776,124 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Right);
         }
 
+        public void RefreshCompactStatus()
+        {
+            CompactStatusBar.Apply(compactStatusLabel);
+        }
+
         private void BuildNavigation(Transform parent, bool fullNavigation)
         {
             BuildNavHeader(parent);
 
             float y = 70f;
-            AddNav(parent, AppScreen.Bridge, y); y += 52f;
-            AddNav(parent, AppScreen.Battle, y); y += 52f;
-            AddNav(parent, AppScreen.Ship, y); y += 52f;
-            AddNav(parent, AppScreen.Formation, y); y += 52f;
-            AddNav(parent, AppScreen.Characters, y); y += 52f;
-            AddNav(parent, AppScreen.Cards, y); y += 52f;
-            AddNav(parent, AppScreen.Inventory, y); y += 52f;
-            AddNav(parent, AppScreen.Crafting, y); y += 52f;
-            AddNav(parent, AppScreen.Market, y); y += 52f;
-            AddNav(parent, AppScreen.Recruit, y); y += 52f;
-            AddNav(parent, AppScreen.Missions, y);
-
-            if (DebugModeController.Instance != null && DebugModeController.Instance.IsEnabled)
+            foreach (NavGroup group in System.Enum.GetValues(typeof(NavGroup)))
             {
+                AddGroupNav(parent, group, y);
                 y += 52f;
-                AddNav(parent, AppScreen.Debug, y);
             }
 
-            AddNav(parent, AppScreen.Settings, 1000f);
+            const float utilityY = 1000f;
+            if (DebugModeController.Instance != null && DebugModeController.Instance.IsEnabled)
+                AddNav(parent, AppScreen.Debug, utilityY - 52f);
+            AddNav(parent, AppScreen.Settings, utilityY);
 
             if (!fullNavigation)
             {
+                foreach (var pair in groupNavButtons)
+                {
+                    NavGroup g = pair.Key;
+                    pair.Value.onClick.RemoveAllListeners();
+                    if (g != NavGroup.StarMap)
+                        pair.Value.onClick.AddListener(() => Navigate(NavGroupRules.DefaultScreen(g)));
+                }
+
                 foreach (var pair in navigationButtons)
                 {
                     AppScreen target = pair.Key;
                     pair.Value.onClick.RemoveAllListeners();
-                    if (target != AppScreen.Battle)
-                        pair.Value.onClick.AddListener(() => Navigate(target));
+                    pair.Value.onClick.AddListener(() => Navigate(target));
                 }
+            }
+        }
+
+        private void AddGroupNav(Transform parent, NavGroup group, float y)
+        {
+            float width = NavButtonWidth();
+            AppScreen defaultScreen = NavGroupRules.DefaultScreen(group);
+            GameObject buttonObject = NexusUiFactory.CreateBox(
+                parent,
+                $"NavGroup {group}",
+                new Vector2(6f, y),
+                new Vector2(width, 44f),
+                NexusTheme.Surface,
+                NexusTheme.BorderSoft);
+            var image = buttonObject.GetComponent<Image>();
+            image.raycastTarget = true;
+            var button = buttonObject.AddComponent<Button>();
+            var colors = button.colors;
+            colors.normalColor = NexusTheme.Surface;
+            colors.highlightedColor = NexusTheme.SurfaceHover;
+            colors.pressedColor = NexusTheme.WithAlpha(NexusTheme.Gold, 0.45f);
+            colors.selectedColor = NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f);
+            button.colors = colors;
+            button.onClick.AddListener(() => Navigate(defaultScreen));
+
+            Image icon = NexusUiFactory.CreateIcon(
+                buttonObject.transform,
+                "Icon",
+                GroupIconSprite(group),
+                new Vector2(12f, 8f),
+                new Vector2(28f, 28f),
+                NexusTheme.MutedText);
+
+            TextMeshProUGUI label = NexusUiFactory.CreateText(
+                buttonObject.transform,
+                "Label",
+                UiText.NavGroupLabel(group),
+                new Vector2(48f, 8f),
+                new Vector2(150f, 28f),
+                14f,
+                NexusTheme.MutedText,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+
+            groupNavButtons[group] = button;
+            groupNavLabels[group] = label;
+            navigationIcons[defaultScreen] = icon;
+        }
+
+        private static Sprite GroupIconSprite(NavGroup group) => group switch
+        {
+            NavGroup.Bridge => NexusCardVisual.UiIcon("Bell"),
+            NavGroup.StarMap => NexusCardVisual.UiIcon("Battle"),
+            NavGroup.Fleet => NexusCardVisual.UiIcon("Character"),
+            NavGroup.Industry => NexusCardVisual.UiIcon("Building"),
+            NavGroup.Starport => NexusCardVisual.UiIcon("Shop"),
+            _ => NexusCardVisual.UiIcon("circle")
+        };
+
+        private void RebuildSubNav(NavGroup group)
+        {
+            subNavButtons.Clear();
+            if (subNavHost == null) return;
+            for (int i = subNavHost.childCount - 1; i >= 0; i--)
+                Destroy(subNavHost.GetChild(i).gameObject);
+
+            if (!NavGroupRules.HasSubNav(group))
+                return;
+
+            float x = 0f;
+            foreach (var screen in NavGroupRules.SubScreens(group))
+            {
+                var btn = NexusUiFactory.CreateButton(
+                    subNavHost, "Sub_" + screen, NavTitle(screen),
+                    new Vector2(x, 0f), new Vector2(110f, 24f),
+                    () => Navigate(screen),
+                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 11f);
+                subNavButtons[screen] = btn;
+                x += 116f;
             }
         }
 
@@ -985,6 +1139,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void ApplyNavItemLayout()
         {
             float buttonWidth = NavButtonWidth();
+            foreach (var pair in groupNavButtons)
+            {
+                var rect = pair.Value.GetComponent<RectTransform>();
+                if (rect != null)
+                    rect.sizeDelta = new Vector2(buttonWidth, rect.sizeDelta.y);
+
+                if (groupNavLabels.TryGetValue(pair.Key, out TextMeshProUGUI label) && label != null)
+                {
+                    label.text = UiText.NavGroupLabel(pair.Key);
+                    label.gameObject.SetActive(navExpanded);
+                    if (navExpanded)
+                    {
+                        label.rectTransform.anchoredPosition = new Vector2(48f, -8f);
+                        label.rectTransform.sizeDelta = new Vector2(buttonWidth - 56f, 28f);
+                    }
+                }
+            }
+
             foreach (var pair in navigationButtons)
             {
                 var rect = pair.Value.GetComponent<RectTransform>();
@@ -996,23 +1168,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     var iconRect = icon.rectTransform;
                     if (navExpanded)
                     {
+                        iconRect.anchorMin = new Vector2(0f, 1f);
+                        iconRect.anchorMax = new Vector2(0f, 1f);
+                        iconRect.pivot = new Vector2(0f, 1f);
                         iconRect.anchoredPosition = new Vector2(12f, -8f);
+                        iconRect.sizeDelta = new Vector2(28f, 28f);
                     }
                     else
                     {
-                        // Center icon in collapsed rail.
                         iconRect.anchorMin = new Vector2(0.5f, 0.5f);
                         iconRect.anchorMax = new Vector2(0.5f, 0.5f);
                         iconRect.pivot = new Vector2(0.5f, 0.5f);
                         iconRect.anchoredPosition = Vector2.zero;
-                        iconRect.sizeDelta = new Vector2(28f, 28f);
-                    }
-
-                    if (navExpanded)
-                    {
-                        iconRect.anchorMin = new Vector2(0f, 1f);
-                        iconRect.anchorMax = new Vector2(0f, 1f);
-                        iconRect.pivot = new Vector2(0f, 1f);
                         iconRect.sizeDelta = new Vector2(28f, 28f);
                     }
                 }
@@ -1021,11 +1188,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 {
                     label.text = NavTitle(pair.Key);
                     label.gameObject.SetActive(navExpanded);
-                    if (navExpanded)
-                    {
-                        label.rectTransform.anchoredPosition = new Vector2(48f, -8f);
-                        label.rectTransform.sizeDelta = new Vector2(buttonWidth - 56f, 28f);
-                    }
                 }
             }
         }
@@ -1033,6 +1195,50 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void SetActiveNavigation(AppScreen screen)
         {
             RefreshNavLockStyles();
+            bool utilityScreen = screen == AppScreen.Settings || screen == AppScreen.Debug;
+            NavGroup group = NavGroupRules.GroupOf(screen);
+
+            if (utilityScreen)
+            {
+                if (subNavHost != null)
+                {
+                    for (int i = subNavHost.childCount - 1; i >= 0; i--)
+                        Destroy(subNavHost.GetChild(i).gameObject);
+                }
+
+                subNavButtons.Clear();
+                foreach (var pair in groupNavButtons)
+                {
+                    pair.Value.image.color = NexusTheme.Surface;
+                    if (groupNavLabels.TryGetValue(pair.Key, out var gl) && gl != null)
+                        gl.color = NexusTheme.MutedText;
+                }
+            }
+            else
+            {
+                RebuildSubNav(group);
+                foreach (var pair in groupNavButtons)
+                {
+                    bool active = pair.Key == group;
+                    pair.Value.image.color = active
+                        ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
+                        : NexusTheme.Surface;
+                    if (groupNavLabels.TryGetValue(pair.Key, out var gl) && gl != null)
+                        gl.color = active ? NexusTheme.Gold : NexusTheme.MutedText;
+                }
+
+                foreach (var pair in subNavButtons)
+                {
+                    bool active = pair.Key == screen;
+                    pair.Value.image.color = active
+                        ? NexusTheme.WithAlpha(NexusTheme.Cyan, 0.2f)
+                        : NexusTheme.SurfaceRaised;
+                    var lbl = pair.Value.GetComponentInChildren<TextMeshProUGUI>();
+                    if (lbl != null)
+                        lbl.color = active ? NexusTheme.Cyan : NexusTheme.MutedText;
+                }
+            }
+
             foreach (var pair in navigationButtons)
             {
                 bool locked = !FeatureUnlockUi.CanOpen(pair.Key);
@@ -1054,6 +1260,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void RefreshNavLockStyles()
         {
+            foreach (var pair in groupNavButtons)
+            {
+                AppScreen probe = NavGroupRules.DefaultScreen(pair.Key);
+                bool locked = !FeatureUnlockUi.CanOpen(probe);
+                bool active = !IsUtilityScreen(activeScreen)
+                    && NavGroupRules.GroupOf(activeScreen) == pair.Key
+                    && !locked;
+                if (!locked)
+                {
+                    pair.Value.image.color = active
+                        ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
+                        : NexusTheme.Surface;
+                    if (groupNavLabels.TryGetValue(pair.Key, out var label) && label != null)
+                        label.color = active ? NexusTheme.Gold : NexusTheme.MutedText;
+                    continue;
+                }
+
+                pair.Value.image.color = NexusTheme.WithAlpha(NexusTheme.Surface, 0.55f);
+                if (groupNavLabels.TryGetValue(pair.Key, out var lockLabel) && lockLabel != null)
+                    lockLabel.color = NexusTheme.DimText;
+            }
+
             foreach (var pair in navigationButtons)
             {
                 bool locked = !FeatureUnlockUi.CanOpen(pair.Key);
@@ -1077,6 +1305,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     lockLabel.color = NexusTheme.DimText;
             }
         }
+
+        private static bool IsUtilityScreen(AppScreen screen) =>
+            screen == AppScreen.Settings || screen == AppScreen.Debug;
 
         public void RefreshCommanderLabel()
         {

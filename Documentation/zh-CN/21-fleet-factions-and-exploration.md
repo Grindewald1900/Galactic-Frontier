@@ -339,7 +339,7 @@ StellarBody
 | --- | --- | --- |
 | 单 `ShipEntity` 主舰 | 多舰 `FleetState` | 首艘迁移为 `ShipInstance[0]` |
 | 多 `DeckEntity` 不绑舰 | 一舰一 deck | 卡组挂到 `boundDeckId` |
-| 区域列表 Explore | 星图 + 探索度 | 第七前沿先加 `explorePercent` 条，地图沿用 M1 |
+| 区域列表 Explore | 星图 + 探索度 | 第七前沿已加航网恢复% + 五种状态；地图为 M2 域内网 |
 | 采集 / AutoCombat 不绑星球 | 驻扎 `Stationed` | 通关后 UI 增加「驻扎」 |
 
 **MVP 可保留**：单主舰 + 多卡组为 **Solo 简化模式**，叙事上解释为「尚未扩建港口第二泊位」；文档与 UI 逐步切到舰队语义。

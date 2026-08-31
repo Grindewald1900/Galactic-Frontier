@@ -70,8 +70,30 @@ namespace Assets.Resources.Scripts.World.Domain
         /// <summary>Ship position on the Frontier VII sector map (0–100 units).</summary>
         public float navX = 12f;
         public float navY = 88f;
-        /// <summary>Bodies revealed by radar, charts, or docking (bodyId list).</summary>
+        /// <summary>Bodies at Located or better (legacy radar list; kept in sync with gridNodes).</summary>
         public List<string> knownBodyIds = new List<string>();
+        /// <summary>False until M2 grid runtime is seeded from known bodies / region clears.</summary>
+        public bool gridSeeded;
+        public List<GridNodeRuntime> gridNodes = new List<GridNodeRuntime>();
+        public List<GridEdgeRuntime> gridEdges = new List<GridEdgeRuntime>();
+        /// <summary>Universe-layer sector nodes. <see cref="GridNodeRuntime.bodyId"/> stores sectorId.</summary>
+        public List<GridNodeRuntime> sectorNodes = new List<GridNodeRuntime>();
+        public List<string> unlockedCharts = new List<string>();
+        public int explorePoints;
+    }
+
+    [Serializable]
+    public class GridNodeRuntime
+    {
+        public string bodyId = "";
+        public GridNodeState state = GridNodeState.Unobserved;
+    }
+
+    [Serializable]
+    public class GridEdgeRuntime
+    {
+        public string edgeId = "";
+        public GridEdgeTier tier = GridEdgeTier.Unknown;
     }
 
     [Serializable]

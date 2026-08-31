@@ -12,7 +12,12 @@ namespace Assets.Resources.Scripts.World.Domain
                 regions = new List<RegionRuntimeState>(),
                 navX = SectorMapCatalog.SpawnX,
                 navY = SectorMapCatalog.SpawnY,
-                knownBodyIds = new List<string> { "body_outer_haven" }
+                knownBodyIds = new List<string> { WorldConstants.OuterHavenBodyId },
+                gridNodes = new List<GridNodeRuntime>(),
+                gridEdges = new List<GridEdgeRuntime>(),
+                sectorNodes = new List<GridNodeRuntime>(),
+                unlockedCharts = new List<string>(),
+                gridSeeded = false
             };
             foreach (var cfg in RegionCatalog.All)
             {

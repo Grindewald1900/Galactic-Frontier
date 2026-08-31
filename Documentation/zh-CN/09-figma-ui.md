@@ -1,8 +1,21 @@
 # Figma UI 重构（全量重写）
 
-> vNext（2026-08-30）：指挥官头像框（活动 / 礼品码 / 成就解锁）；Settings 玩家 ID 旁带框头像；统一反馈层、功能解锁、舰桥舰队滑动组件 — 见下文专节。
+> vNext（2026-08-30）：指挥官头像框；**P6 五级 IA / 状态栏 / 按钮角色 / 缺口跳转 / 任务抽屉** — 见 [22-ux-loop-and-ia.md](22-ux-loop-and-ia.md) 与下文 P6 专节。
 
-## 设计来源
+## P6 壳层（2026-08-30）
+
+| 项 | 约定 |
+| --- | --- |
+| 一级导航 | 五组：舰桥 / 星图 / 舰队 / 工业 / 星港（`NavGroup`）；子 Tab 切换组内屏 |
+| 任务 | `QuestTrackerDrawer` 右侧抽屉；`MissionsScreen` 保留供深链 |
+| 设置 / Debug | 头像菜单；Debug 仅开发者模式 |
+| 状态栏 | 等级、信用、能源、舰队占用、制造队列、仓库、航行摘要、任务按钮 |
+| 按钮 | `NexusButtonRole`：Primary=Gold、Secondary=Cyan、Confirm=Green、Danger=Red、Disabled、Link |
+| 缺口 | `ShortageJump` 行组件；复用 `ItemAcquireCatalog` |
+
+热键 F1–F9 不变。实现：`AppShell`、`NexusUiFactory`、`UiStrings.json`。
+
+---
 
 - Figma Make：[PC Card Based Idle RPG](https://www.figma.com/make/zBemuUe0jkpQiLxSpSKXRo/PC-Card-Based-Idle-RPG)
 - 目标画布：桌面端 `1920 × 1080`
@@ -35,20 +48,21 @@ Unity 现有 `BattleController` + `Character` 策略与此一致。
 
 ```text
 NexusUiBootstrap
-  └── AppShell（主导航与内容宿主）
-        ├── BridgeScreen / FormationScreen / SettingsScreen（本阶段原生重建）
-        ├── LegacyPanelAdapter（Characters / Cards / Inventory / Crafting / Market 临时委托旧面板）
-        └── BattleScene → BattleChrome（Figma chrome，战斗逻辑不变）
+  └── AppShell（五级分组导航 + 状态栏 + 任务抽屉）
+        ├── BridgeScreen / ExploreScreen / FormationScreen / ShipScreen / …
+        ├── CharactersScreen / CardsScreen / InventoryScreen / CraftingScreen / MarketScreen / RecruitScreen（原生）
+        └── BattleScene → BattleChrome
 ```
 
 | Figma 页面 | Unity | Phase |
 | --- | --- | --- |
-| Bridge | `BridgeScreen` | 1 | 顶栏三统计 + 当前卡组 + **舰队滑动组件**（vNext） |
-| Formation | `FormationScreen` → `CardListManager` / lineup positions | 1 |
-| Settings | `SettingsScreen` | 1 |
-| Explore / Auto Battle | `F2` → `ExploreScreen` → `BattleScene` + `BattleChrome` | 1 |
-| Formation | `FormationScreen`（legacy 立绘/徽章） | 1 |
-| Crafting / Marketplace / Missions | 需新领域系统 + 新视图 | 4 |
+| Bridge | `BridgeScreen` — P6 舰长决策面板 | P6 |
+| Explore | `ExploreScreen` — 星图 ≥70%、四轴状态 | P6 |
+| Formation | `FormationScreen` — 前排2/后排3 | P6 |
+| Fleet tabs | Ship / Characters / Cards | P6 |
+| Industry | Crafting + Inventory | P6 |
+| Starport | Market + Recruit | P6 |
+| Settings | 头像菜单 | P6 |
 
 ## 关键约定
 

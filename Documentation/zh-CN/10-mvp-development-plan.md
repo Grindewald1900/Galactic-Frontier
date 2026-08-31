@@ -18,8 +18,8 @@
 
 **当前进度与验收完成度以 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) 为准**（约 **85%** MVP）。
 
-项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通；Explore 已切到 **M1 单星域 2D 地图**（雷达/巡航/已探索列表），物品说明与模块升级 UI 已补齐。  
-相对 MVP，剩余主要是角色继续扩容（可选至 50）、抽卡分解、Characters/Cards 原生页。后 MVP 设定（舰队/探索度、流水线、星图 M2+）规则已写、实现未开始。
+项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通；Explore 已切到 **M2 域内航网雏形**（五种状态 / 探测 / 航标 / 海图），物品说明与模块升级 UI 已补齐。  
+相对 MVP，剩余主要是角色继续扩容（可选至 50）。后 MVP：舰队、流水线、星图 M3+（宇宙层）。
 
 ---
 
@@ -385,6 +385,7 @@ flowchart LR
 | **M3 经济自转** | 采集→制造→修装备形成材料消耗 | P3 | **已达成** |
 | **M4 交易闭环** | NPC 可买可卖；经济可读 | P4 | **已达成** |
 | **M5 MVP 可演示** | ~2 小时新手 + 内容量达标（纯单机） | P5 + 前序 | **接近**：引导/星域/招募/36 人/Explore M1 已通；可选扩至 50 + 分解/原生卡册 |
+| **M6 指挥官循环** | 新档 30 分钟内：舰桥推荐 → 星图 → 编队 → 战斗 → 采集 → 制造 → 舰船/星港 → 回星图；缺口可点跳 | P6 Wave 0–1 | **未开始**（见 [22](22-ux-loop-and-ia.md)） |
 
 ---
 
@@ -416,10 +417,19 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 8b. ~~**头像框**：活动 / 礼品码 / 成就解锁；Settings 装备；顶栏与 ID 旁展示~~ **已完成**
 9. ~~**舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）~~ **已完成**
 10. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
-11. （后 MVP · 规则已拍板）舰队 / 探索度按 [21](21-fleet-factions-and-exploration.md) 立项  
-12. （后 MVP）星图 M2+ 按 [20](20-stellar-map-and-navigation.md) **v0.2 航网主形态**（两层网络、五种通航状态、航线资产）；Online 按 [18](18-online-and-play-modes.md)  
+11. （后 MVP · 规则已拍板）舰队按 [21](21-fleet-factions-and-exploration.md) 立项；探索度条已随 M2 航网恢复加权  
+12. ~~星图 M2 域内航网雏形~~ **部分完成**（[20](20-stellar-map-and-navigation.md) §12.2）；M3+ 宇宙层 / 信标跃迁 / Online 按 [18](18-online-and-play-modes.md)  
 
-**不要**在 Solo 启动玩家市场或特殊星域模式（非 MVP）。
+### P6 Commander Loop（UX / IA — 后 MVP 体验）
+
+> 规则与顺序见 [22-ux-loop-and-ia.md](22-ux-loop-and-ia.md)。**Wave 0 壳层 → Wave 1 三十分钟循环 → Wave 2 支撑页 → Wave 3 抛光**。
+
+13. **Wave 0**：五级分组导航、紧凑状态栏、`NexusButtonRole`、`ShortageJump`、任务追踪抽屉  
+14. **Wave 1（P0）**：舰桥决策面板 → 星图 70% → 编队 2+3 → 战报下一行动 → 制造三栏 → 舰船模块缺口 → 星港需求筛选  
+15. **Wave 2（P1）**：招募表现、仓库/商店正式名+用途、角色/卡牌分工  
+16. **Wave 3（P2）**：按钮/contrast/轻反馈  
+
+**不要**在 P6 启动 `ProductionLine` 实体或 Online 玩家市场。
 
 建议 Bridge / Debug 标签：`Build: M5 (near)`。
 

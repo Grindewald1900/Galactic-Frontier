@@ -69,6 +69,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(28f, 84f), new Vector2(1100f, 28f), 12f, NexusTheme.DimText);
             OnboardingBanner.TryDraw(root, AppScreen.Market, new Vector2(28f, 108f));
 
+            NexusUiFactory.CreateText(
+                root, "NeedFilter", UiText.MarketNeedFilter,
+                new Vector2(960f, 84f), new Vector2(280f, 24f), 12f, NexusTheme.Cyan,
+                TextAlignmentOptions.Right);
+
             if (PlayModeService.IsSolo)
             {
                 NexusUiFactory.CreateText(

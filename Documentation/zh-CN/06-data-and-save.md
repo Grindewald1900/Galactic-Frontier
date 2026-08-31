@@ -38,7 +38,7 @@ Application.persistentDataPath/
       ├─ inventory_local.json
       ├─ inventory_remote.json
       ├─ decks.json
-      ├─ world.json                  // P2：区域进度
+      ├─ world.json                  // P2 区域进度 + M2 域内航网状态
       ├─ ship.json                   // P2：舰船与模块
       ├─ idle.json                   // P3：离线结算 / Pending / 熟练度
       ├─ onboarding.json
@@ -348,6 +348,21 @@ saves/{playerId}/meta.json
 | 1 | 若无 `unlocks.json`：写入空 `FeatureUnlockState` |
 | 2 | 首次 `FeatureUnlockService.EnsureLoaded` 按当前进度 **seed** 已满足条件的功能（不弹解锁 Dialog） |
 | 3 | 写入 `meta.json`（`saveVersion = 5`） |
+
+#### 4.3.6 `world.json` 航网字段（加法，不升 saveVersion）
+
+`PlayerWorldState` 在 v5 上追加（缺省由 `GridService.EnsureReady` 从 `knownBodyIds` / 区域通关 seed）：
+
+| 字段 | 说明 |
+| --- | --- |
+| `gridSeeded` | 旧档首次打开时迁移五种状态 |
+| `gridNodes` | `bodyId` + `GridNodeState` |
+| `gridEdges` | `edgeId` + `GridEdgeTier` |
+| `sectorNodes` | 宇宙层星域；`bodyId` 存 `sectorId` |
+| `unlockedCharts` | 如 `chart_frontier_vii` |
+| `explorePoints` | 航网恢复百分（内部）；展示用 `explorationProgress` 为区域通关与航网加权 |
+
+`knownBodyIds` 与 **已定位及以上** 保持同步。
 
 #### 4.4 物品分文件
 

@@ -54,7 +54,26 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(28f, 56f), new Vector2(1100f, 28f), 13f, NexusTheme.MutedText);
             OnboardingBanner.TryDraw(root, AppScreen.Crafting, new Vector2(28f, 82f));
 
-            float y = 100f;
+            NexusUiFactory.CreateText(
+                root, "QueueTitle", UiText.CraftQueueTitle,
+                new Vector2(28f, 100f), new Vector2(260f, 22f), 13f, NexusTheme.MutedText);
+            float qy = 128f;
+            foreach (var deck in DeckService.GetBusyDecks())
+            {
+                if (deck?.action == null) continue;
+                if (deck.action.actionType is not (DeckActionType.Process or DeckActionType.Manufacture))
+                    continue;
+                NexusUiFactory.CreateText(
+                    root, "Q_" + deck.deckId,
+                    $"{deck.displayName}: {deck.action.actionType}",
+                    new Vector2(28f, qy), new Vector2(260f, 20f), 11f, NexusTheme.Cyan);
+                qy += 24f;
+            }
+
+            NexusUiFactory.CreateText(
+                root, "RecipesTitle", UiText.CraftRecipesTitle,
+                new Vector2(320f, 100f), new Vector2(460f, 22f), 13f, NexusTheme.MutedText);
+            float y = 128f;
             foreach (var recipe in RecipeCatalog.All)
             {
                 if (recipe == null) continue;
@@ -66,7 +85,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusUiFactory.CreateButton(
                     root, "Recipe " + captured,
                     $"{name}  [{preview}] {(can ? "" : UiText.CraftingMissingMats)}",
-                    new Vector2(28f, y), new Vector2(720f, 40f),
+                    new Vector2(320f, y), new Vector2(460f, 40f),
                     () =>
                     {
                         selectedRecipeId = captured;
@@ -87,8 +106,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void BuildDetail()
         {
             GameObject box = NexusUiFactory.CreateBox(
-                root, "Detail", new Vector2(780f, 100f), new Vector2(900f, 520f),
+                root, "Detail", new Vector2(820f, 100f), new Vector2(880f, 520f),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
+
+            NexusUiFactory.CreateText(
+                box.transform, "OutTitle", UiText.CraftOutputTitle,
+                new Vector2(24f, 12f), new Vector2(400f, 22f), 13f, NexusTheme.MutedText);
 
             var recipe = RecipeCatalog.Get(selectedRecipeId);
             if (recipe == null)
@@ -107,6 +130,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             var inputs = new System.Text.StringBuilder();
             inputs.AppendLine(UiText.CraftingInputs);
+            int inputIndex = 0;
             foreach (var input in recipe.inputs)
             {
                 if (input == null) continue;
@@ -121,6 +145,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     ? UiText.T(def.displayNameEn, def.displayNameZh)
                     : input.itemDefId;
                 inputs.AppendLine($"  · {inputName} x{input.quantity} (Q≥{input.minQuality})  have {have}");
+                if (have < input.quantity)
+                {
+                    float sy = 60f + inputIndex * 22f;
+                    ShortageJump.DrawItem(box.transform, "Gap" + input.itemDefId, sy, def, input.quantity, have);
+                }
+
+                inputIndex++;
             }
 
             var outDef = ItemCatalog.Get(recipe.outputDefId);
@@ -145,7 +176,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(24f, 390f), new Vector2(850f, 24f), 12f, NexusTheme.Cyan);
             }
 
-            NexusUiFactory.CreateButton(
+            NexusUiFactory.CreateRoleButton(
                 box.transform, "Start", UiText.CraftingStart,
                 new Vector2(24f, 420f), new Vector2(200f, 48f),
                 () =>
@@ -161,7 +192,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     Debug.Log("[CRAFT] start: " + (r.Success ? "ok " + r.Message : r.Message));
                     Rebuild();
                 },
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                NexusButtonRole.Primary, 14f);
 
             NexusUiFactory.CreateButton(
                 box.transform, "Stop", UiText.StopAction,
@@ -186,6 +217,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildRepairStrip()
         {
+            if (string.IsNullOrEmpty(selectedRecipeId))
+                return;
             NexusUiFactory.CreateButton(
                 root, "AutoRepair", UiText.CraftingAutoRepair,
                 new Vector2(780f, 640f), new Vector2(280f, 44f),

@@ -59,6 +59,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             var ship = ShipService.State ?? ShipRules.CreateStarterShip();
 
+            NexusUiFactory.CreateBox(
+                root, "ExpeditionBottleneck",
+                new Vector2(LeftColumnX, 8f), new Vector2(RightColumnX + RightColumnWidth - LeftColumnX, 36f),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.1f), NexusTheme.Gold);
+            NexusUiFactory.CreateText(
+                root, "BottleneckText", UiText.ShipExpeditionBottleneck,
+                new Vector2(LeftColumnX + 12f, 14f), new Vector2(900f, 24f), 12f, NexusTheme.Gold);
+
             BuildAppearance(ship);
             BuildMascot(ship);
             BuildUpgrades(ship);
@@ -70,7 +78,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             GameObject box = NexusUiFactory.CreateBox(
                 root, "Appearance",
-                new Vector2(LeftColumnX, 20f), new Vector2(LeftColumnWidth, AppearanceHeight),
+                new Vector2(LeftColumnX, 52f), new Vector2(LeftColumnWidth, AppearanceHeight),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
 
             NexusUiFactory.CreateText(

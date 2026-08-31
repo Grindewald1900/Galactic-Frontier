@@ -462,13 +462,13 @@
     },
     {
       "id": "ui.explore.title",
-      "en": "Frontier Map",
-      "zh": "星域地图"
+      "en": "Astral Grid",
+      "zh": "航网星图"
     },
     {
       "id": "ui.explore.hint",
-      "en": "Cruise the sector. Radar reveals bodies; dock within range to challenge, farm, or gather. Combat gates unchanged.",
-      "zh": "在星域内巡航。雷达揭示天体；进入停靠范围后可挑战、挂机或采集。战斗门槛规则不变。"
+      "en": "Scroll and drag to zoom/pan like a star chart. Zoom out for sectors, in for planets. Only unlocked regions and their neighbors are shown.",
+      "zh": "滚轮与拖拽可平滑缩放、平移。缩小看星域，放大看星球。地图最多显示已解锁地区及其相邻节点。"
     },
     {
       "id": "ui.explore.fleet_ready",
@@ -917,13 +917,13 @@
     },
     {
       "id": "ui.explore.side_body",
-      "en": "Frontier Sector VII — dense trial cluster.\n• Radar reveals nearby bodies\n• Sail to dock, then challenge / farm\n• Upgrade Scanner for wider radar\n• Gates: clear prereq + ship stats\n\nRecommended power is advisory only.",
-      "zh": "群星边境·第七前沿——试验星域团块。\n• 雷达揭示附近天体\n• 航行停靠后可挑战 / 挂机\n• 升级扫描模块扩大雷达\n• 门槛：通关前置 + 舰船分项\n\n推荐战力仅提示，不硬锁。"
+      "en": "Frontier VII — outer-rim grid (in-sector).\n• Unobserved is hidden; fog is a silhouette you can probe\n• Located nodes can be sailed (provisional cost)\n• Repair the beacon to stabilize the lane\n• Buy a chart at Outer Haven for more silhouettes\n• Region combat gates (prereq + ship) still apply\n\nRecommended expedition level is a soft gate.",
+      "zh": "第七前沿 — 外缘带域内航网。\n• 未观测完全隐藏；熵雾是可探测的轮廓\n• 已定位节点可航行（临时通航有额外代价）\n• 修复航标使航线进入稳定通航\n• 在外缘港购买海图可揭示更多轮廓\n• Region 开战仍受前置通关 + 舰船门限制\n\n推荐远征等级是软门，不是锁。"
     },
     {
       "id": "ui.explore.map_label",
-      "en": "FRONTIER VII · SECTOR MAP",
-      "zh": "第七前沿 · 星域地图"
+      "en": "FRONTIER VII · INNER GRID",
+      "zh": "第七前沿 · 域内航网"
     },
     {
       "id": "ui.explore.ship_marker",
@@ -932,8 +932,8 @@
     },
     {
       "id": "ui.explore.cruise_random",
-      "en": "Cruise Random",
-      "zh": "随机巡航"
+      "en": "Sweep Radar",
+      "zh": "扫描巡航"
     },
     {
       "id": "ui.explore.sail_here",
@@ -967,18 +967,18 @@
     },
     {
       "id": "ui.explore.charted_title",
-      "en": "CHARTED BODIES ({0})",
-      "zh": "已探索星球（{0}）"
+      "en": "Grid nodes  {0}",
+      "zh": "航网节点  {0}"
     },
     {
       "id": "ui.explore.charted_hint",
-      "en": "Radar locks persist on the chart. Select a body to sail or dock.",
-      "zh": "雷达锁定会保留在海图上。点选星球以航行或停靠。"
+      "en": "Fogged silhouettes need a probe. Located nodes can be sailed. Stabilize lanes after docking.",
+      "zh": "熵雾轮廓需要探测。已定位节点可以航行。停靠后修复航标以稳定航线。"
     },
     {
       "id": "ui.explore.charted_empty",
-      "en": "No bodies charted yet — cruise to sweep radar.",
-      "zh": "尚无已探索星球 — 巡航以扫描雷达。"
+      "en": "No signals yet — sweep radar to paint entropy fog.",
+      "zh": "尚无信号 — 巡航扫描以绘出熵雾轮廓。"
     },
     {
       "id": "ui.explore.list_docked",
@@ -989,6 +989,136 @@
       "id": "ui.explore.list_dist",
       "en": "Dist {0}",
       "zh": "距离 {0}"
+    },
+    {
+      "id": "ui.explore.grid_progress",
+      "en": "Grid restore {0}%",
+      "zh": "航网恢复 {0}%"
+    },
+    {
+      "id": "ui.explore.probe",
+      "en": "Probe Signal",
+      "zh": "探测信号"
+    },
+    {
+      "id": "ui.explore.stabilize",
+      "en": "Repair Beacon",
+      "zh": "修复航标"
+    },
+    {
+      "id": "ui.explore.buy_chart",
+      "en": "Buy Sector Chart  {0}₵",
+      "zh": "购买星域海图  {0}₵"
+    },
+    {
+      "id": "ui.explore.fog_name",
+      "en": "Entropy silhouette",
+      "zh": "熵雾轮廓"
+    },
+    {
+      "id": "ui.explore.soft_gate",
+      "en": "Recommended expedition Lv.{0}. Entropy +{1}%. Auto-return unavailable.",
+      "zh": "建议远征等级 {0}。熵雾侵蚀 +{1}%。无法自动返航。"
+    },
+    {
+      "id": "ui.explore.cruise_mult",
+      "en": "Lane cost ×{0}  ·  auto-return ready",
+      "zh": "航道代价 ×{0}  ·  可自动返航"
+    },
+    {
+      "id": "ui.explore.cruise_mult_no_return",
+      "en": "Lane cost ×{0}  ·  auto-return disabled",
+      "zh": "航道代价 ×{0}  ·  无法自动返航"
+    },
+    {
+      "id": "ui.explore.grid_unobserved",
+      "en": "Unobserved",
+      "zh": "未观测"
+    },
+    {
+      "id": "ui.explore.grid_fogged",
+      "en": "Fogged",
+      "zh": "熵雾覆盖"
+    },
+    {
+      "id": "ui.explore.grid_located",
+      "en": "Located",
+      "zh": "已定位"
+    },
+    {
+      "id": "ui.explore.grid_provisional",
+      "en": "Provisional",
+      "zh": "临时通航"
+    },
+    {
+      "id": "ui.explore.grid_stable",
+      "en": "Stable",
+      "zh": "稳定通航"
+    },
+    {
+      "id": "ui.explore.route_military",
+      "en": "Military lane",
+      "zh": "军事航线"
+    },
+    {
+      "id": "ui.explore.route_industry",
+      "en": "Industry lane",
+      "zh": "工业航线"
+    },
+    {
+      "id": "ui.explore.route_trade",
+      "en": "Trade lane",
+      "zh": "商贸航线"
+    },
+    {
+      "id": "ui.explore.route_rift",
+      "en": "Rift lane",
+      "zh": "裂隙航线"
+    },
+    {
+      "id": "ui.explore.universe_label",
+      "en": "ASTRAL GRID · UNIVERSE",
+      "zh": "群星航网 · 宇宙层"
+    },
+    {
+      "id": "ui.explore.zoom_out",
+      "en": "−",
+      "zh": "−"
+    },
+    {
+      "id": "ui.explore.zoom_in",
+      "en": "+",
+      "zh": "+"
+    },
+    {
+      "id": "ui.explore.zoom_universe",
+      "en": "{0}% · Sectors",
+      "zh": "{0}% · 星域"
+    },
+    {
+      "id": "ui.explore.zoom_sector",
+      "en": "{0}% · Planets",
+      "zh": "{0}% · 星球"
+    },
+    {
+      "id": "ui.explore.enter_sector",
+      "en": "Enter Sector",
+      "zh": "进入星域"
+    },
+    {
+      "id": "ui.explore.sector_sealed",
+      "en": "Entropy still seals this sector. Inner bodies are not charted.",
+      "zh": "熵雾仍封闭该星域。域内天体尚未成图。"
+    },
+    {
+      "id": "ui.explore.sector_list_title",
+      "en": "Sectors  {0}",
+      "zh": "星域  {0}"
+    },
+    {
+      "id": "ui.explore.sector_list_hint",
+      "en": "Zoom in to planets. Beat a sector capital to unlock adjacent sectors.",
+      "zh": "放大查看星球。挑战星域主星成功可解锁相邻星域。"
     },
     {
       "id": "ui.formation.available",
@@ -2174,6 +2304,276 @@
       "id": "ui.settings.game_saved",
       "en": "Game saved.",
       "zh": "游戏已保存。"
+    },
+    {
+      "id": "ui.nav.group.bridge",
+      "en": "Bridge",
+      "zh": "舰桥"
+    },
+    {
+      "id": "ui.nav.group.starmap",
+      "en": "Star Map",
+      "zh": "星图"
+    },
+    {
+      "id": "ui.nav.group.fleet",
+      "en": "Fleet",
+      "zh": "舰队"
+    },
+    {
+      "id": "ui.nav.group.industry",
+      "en": "Industry",
+      "zh": "工业"
+    },
+    {
+      "id": "ui.nav.group.starport",
+      "en": "Starport",
+      "zh": "星港"
+    },
+    {
+      "id": "ui.status.bar_summary",
+      "en": "Lv.{0}  ₵{1}  Fleet {2}/{3}  Queue {4}  Cargo {5}  {6}",
+      "zh": "Lv.{0}  ₵{1}  舰队 {2}/{3}  队列 {4}  仓库 {5}  {6}"
+    },
+    {
+      "id": "ui.status.cruise_active",
+      "en": "Ops running",
+      "zh": "行动进行中"
+    },
+    {
+      "id": "ui.status.cruise_idle",
+      "en": "Idle",
+      "zh": "待命"
+    },
+    {
+      "id": "ui.quest.tracker_title",
+      "en": "Mission Tracker",
+      "zh": "任务追踪"
+    },
+    {
+      "id": "ui.quest.next_goal_title",
+      "en": "Restore the mining lane beacon",
+      "zh": "修复矿脉支线航标"
+    },
+    {
+      "id": "ui.quest.next_goal_steps",
+      "en": "1. Locate mining lane\n2. Defeat guards\n3. Gather iron x20\n4. Craft scan module",
+      "zh": "1. 定位矿脉支线\n2. 击败守卫\n3. 采集铁矿 20\n4. 制造扫描模块"
+    },
+    {
+      "id": "ui.quest.step_active",
+      "en": "In progress",
+      "zh": "进行中"
+    },
+    {
+      "id": "ui.quest.step_done",
+      "en": "Completed",
+      "zh": "已完成"
+    },
+    {
+      "id": "ui.quest.step_locked",
+      "en": "Locked",
+      "zh": "未解锁"
+    },
+    {
+      "id": "ui.quest.claim",
+      "en": "Claim",
+      "zh": "领取"
+    },
+    {
+      "id": "ui.quest.go",
+      "en": "Go",
+      "zh": "前往"
+    },
+    {
+      "id": "ui.quest.toggle",
+      "en": "Quests",
+      "zh": "任务"
+    },
+    {
+      "id": "ui.shortage.item",
+      "en": "Need {0} x{1}",
+      "zh": "缺少 {0} ×{1}"
+    },
+    {
+      "id": "ui.shortage.credits",
+      "en": "Need {0} more credits",
+      "zh": "缺少信用点 {0}"
+    },
+    {
+      "id": "ui.shortage.go_acquire",
+      "en": "Go obtain",
+      "zh": "前往获取"
+    },
+    {
+      "id": "ui.shortage.go_market",
+      "en": "Sell / buy",
+      "zh": "出售/购买"
+    },
+    {
+      "id": "ui.bridge.commander_goal",
+      "en": "Current objective",
+      "zh": "当前主目标"
+    },
+    {
+      "id": "ui.bridge.bottleneck",
+      "en": "Bottleneck",
+      "zh": "瓶颈"
+    },
+    {
+      "id": "ui.bridge.recommended",
+      "en": "Recommended",
+      "zh": "推荐行动"
+    },
+    {
+      "id": "ui.bridge.mini_map",
+      "en": "Sector net (tap to open star map)",
+      "zh": "缩略航网（点击进入星图）"
+    },
+    {
+      "id": "ui.commander.goal_onboarding",
+      "en": "Onboarding step",
+      "zh": "新手步骤"
+    },
+    {
+      "id": "ui.commander.goal_post",
+      "en": "Expand the astral grid",
+      "zh": "扩展航网"
+    },
+    {
+      "id": "ui.commander.scan_hint",
+      "en": "Upgrade scan array to locate inner nodes",
+      "zh": "升级扫描阵列以定位内层节点"
+    },
+    {
+      "id": "ui.menu.settings",
+      "en": "Settings",
+      "zh": "设置"
+    },
+    {
+      "id": "ui.menu.debug",
+      "en": "Debug",
+      "zh": "Debug"
+    },
+    {
+      "id": "ui.explore.legend",
+      "en": "Lanes: cyan stable · gold provisional · purple rift · grey fog",
+      "zh": "航线：青=稳定 · 金=临时 · 紫=裂隙 · 灰=断航"
+    },
+    {
+      "id": "ui.explore.status_discovery",
+      "en": "Discovery: {0}",
+      "zh": "发现：{0}"
+    },
+    {
+      "id": "ui.explore.status_lane",
+      "en": "Lane: {0}",
+      "zh": "航线：{0}"
+    },
+    {
+      "id": "ui.explore.status_dev",
+      "en": "Clearance: {0}",
+      "zh": "开发：{0}"
+    },
+    {
+      "id": "ui.explore.status_fleet",
+      "en": "Fleet: {0}",
+      "zh": "舰队：{0}"
+    },
+    {
+      "id": "ui.formation.front_row",
+      "en": "Front",
+      "zh": "前排"
+    },
+    {
+      "id": "ui.formation.back_row",
+      "en": "Back",
+      "zh": "后排"
+    },
+    {
+      "id": "ui.formation.team_summary",
+      "en": "Armor break: —  Survival: —  Heal: —",
+      "zh": "破甲：—  生存：—  治疗：—"
+    },
+    {
+      "id": "ui.battle.next_action",
+      "en": "Suggested next step",
+      "zh": "建议下一步"
+    },
+    {
+      "id": "ui.craft.queue_title",
+      "en": "Queue",
+      "zh": "生产队列"
+    },
+    {
+      "id": "ui.craft.recipes_title",
+      "en": "Recipes",
+      "zh": "配方"
+    },
+    {
+      "id": "ui.craft.output_title",
+      "en": "Output",
+      "zh": "产出"
+    },
+    {
+      "id": "ui.ship.expedition_bottleneck",
+      "en": "Expedition bottleneck: upgrade scan array",
+      "zh": "远征瓶颈：推荐升级扫描阵列"
+    },
+    {
+      "id": "ui.market.need_filter",
+      "en": "Current needs",
+      "zh": "当前需求"
+    },
+    {
+      "id": "ui.market.item_use",
+      "en": "Use: {0}",
+      "zh": "用途：{0}"
+    },
+    {
+      "id": "ui.recruit.pool_title",
+      "en": "Frontier recruit pool",
+      "zh": "前沿招募池"
+    },
+    {
+      "id": "ui.recruit.pity",
+      "en": "Pity progress: {0}/{1}",
+      "zh": "保底进度：{0}/{1}"
+    },
+    {
+      "id": "ui.recruit.ticket_sources",
+      "en": "Tickets: missions · market · rewards",
+      "zh": "招募券：任务 · 星港 · 可领奖励"
+    },
+    {
+      "id": "ui.inventory.need_filter",
+      "en": "Shortages only",
+      "zh": "仅缺口"
+    },
+    {
+      "id": "ui.inventory.source",
+      "en": "Source: {0}",
+      "zh": "来源：{0}"
+    },
+    {
+      "id": "ui.inventory.use",
+      "en": "Use: {0}",
+      "zh": "用途：{0}"
+    },
+    {
+      "id": "ui.characters.profile_hint",
+      "en": "Character roster — growth and lore",
+      "zh": "人物档案 — 培养与故事"
+    },
+    {
+      "id": "ui.cards.manage_hint",
+      "en": "Card instances — filter, compare, upgrade",
+      "zh": "卡牌实例 — 筛选、对比、强化"
+    },
+    {
+      "id": "ui.accessibility.contrast_note",
+      "en": "Locked items use text labels, not color alone.",
+      "zh": "锁定项使用文字标签，不仅靠颜色区分。"
     }
   ]
 }

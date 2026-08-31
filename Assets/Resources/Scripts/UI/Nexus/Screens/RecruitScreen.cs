@@ -57,9 +57,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root, "Hint", UiText.RecruitHint,
                 new Vector2(28f, 92f), new Vector2(1200f, 48f), 12f, NexusTheme.DimText);
 
+            NexusUiFactory.CreateText(
+                root, "PoolTitle", UiText.RecruitPoolTitle,
+                new Vector2(28f, 120f), new Vector2(600f, 28f), 18f, NexusTheme.Gold,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                root, "Pity", UiText.RecruitPity(pity, GachaRules.PityThreshold),
+                new Vector2(28f, 152f), new Vector2(600f, 22f), 12f, NexusTheme.Cyan);
+            NexusUiFactory.CreateText(
+                root, "TicketSrc", UiText.RecruitTicketSources,
+                new Vector2(640f, 120f), new Vector2(520f, 48f), 11f, NexusTheme.MutedText);
+
             NexusUiFactory.CreateButton(
                 root, "PullOne", UiText.RecruitPullOne,
-                new Vector2(28f, 160f), new Vector2(220f, 48f),
+                new Vector2(28f, 200f), new Vector2(220f, 48f),
                 () => Pull(1),
                 canOne
                     ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
@@ -69,7 +80,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 root, "PullTen", UiText.RecruitPullTen,
-                new Vector2(268f, 160f), new Vector2(220f, 48f),
+                new Vector2(268f, 200f), new Vector2(220f, 48f),
                 () => Pull(10),
                 canTen
                     ? NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f)
@@ -79,7 +90,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 root, "BuyTickets", UiText.RecruitBuyTickets,
-                new Vector2(508f, 160f), new Vector2(240f, 48f),
+                new Vector2(508f, 200f), new Vector2(240f, 48f),
                 () => navigate?.Invoke(AppScreen.Market),
                 NexusTheme.SurfaceRaised, NexusTheme.Text, 13f);
 

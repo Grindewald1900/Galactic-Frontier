@@ -26,7 +26,8 @@
 | 核心循环 | 战斗→区域→采集/制造→NPC→成长，已打通 |
 | 里程碑 | M0–M4 已达成；**M5 接近**（引导/星域/招募/36 人已通） |
 | MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣 |
-| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M2+（20：航网主形态已拍板） |
+| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M3+（20：宇宙层/信标跃迁） |
+| **P6 UX** | 指挥官循环 / 五级 IA / 缺口跳转 — 见 [22](22-ux-loop-and-ia.md)；**M6 未验收** |
 
 ---
 
@@ -47,8 +48,9 @@
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | 五步+RewardService；星域叙事可再厚 |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub；MVP 不做 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级未接 UI |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.2 航网主形态已拍板**；代码仍为 **M1** 单星域 2D+雷达+巡航；M2–M4 未开始 |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.2 航网主形态已拍板**；**M2 域内雏形已落地**；**P6**：星图 70%、四轴状态、条件 CTA（见 22） |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
+| 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
 
 ---
 
@@ -62,7 +64,7 @@
 | NPC 商店 / 6 区首领 / 新手五步 | 已实现 |
 | 36 角色+抽卡 | 部分（约 36/50；原生卡册与分解已通） |
 | 玩家市场 | Online only |
-| 舰队 / 流水线 / 探索度 | 未开始（见 15 / 20 / **21**） |
+| 舰队 / 流水线 / 探索度 | 部分（探索度随 M2 航网恢复；舰队 / 流水线未开始） |
 
 ---
 
@@ -72,7 +74,7 @@
 
 | 主题 | 状态 | 主要证据 |
 | --- | --- | --- |
-| Explore M1 星域小地图 | 已实现（M1） | `ExploreScreen` + `NavigationService` + `SectorMapCatalog`；舰船坐标 `navX/navY`；`knownBodyIds`；紧凑雷达 + 已探索列表 |
+| Explore 两层缩放地图 | 部分（M2） | `ExploreMapRig` 连续缩放+拖拽；缩小出星域进宇宙，回星域仅「进入星域」；仅已解锁+相邻节点 |
 | 物品双语说明 + 获取提示 | 已实现 | `ItemDef.descriptionEn/Zh`；`ItemAcquireCatalog`；`ItemTooltip` |
 | 舰船模块升级 UI | 已实现 | `ModuleUpgradePopup`；`ShipService` 走仓库扣费 |
 | 加载遮罩 / 奖励弹窗 / 采集仓 | 已实现 | `LoadingOverlay`；`RewardPopup`；Gather Bank |
@@ -84,8 +86,9 @@
 | 头像框 | 已实现 | `AvatarFrameCatalog` + Settings 装备；活动/礼品码/成就解锁 |
 | 舰桥舰队滑动组件 | 已实现 | 顶栏三统计；RunningOps → Fleet Carousel（旗舰卡 + 泊位卡） |
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
-| 舰队 / 探索度 | 未开始 | 规则在 [21](21-fleet-factions-and-exploration.md) |
-| 星图 M2+（航网 / 海图 / 信标） | 未开始 | 规则 [20](20-stellar-map-and-navigation.md) v0.2；代码停在 M1 |
+| 舰队 / 探索度 | 部分 | 探索度条已接航网恢复加权（[20](20-stellar-map-and-navigation.md) M2）；舰队规则仍在 [21](21-fleet-factions-and-exploration.md) |
+| 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 未开始 | 规则 [20](20-stellar-map-and-navigation.md) v0.2；M2 域内雏形已落地 |
+| P6 指挥官循环（M6） | 部分 | Wave 0–2 已落地；M6 三十分钟验收待 PlayMode 回归 |
 
 ---
 

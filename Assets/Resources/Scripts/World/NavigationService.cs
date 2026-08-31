@@ -1,12 +1,10 @@
-using System;
-using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World.Domain;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.World
 {
     /// <summary>
-    /// M1 stellar navigation: ship position, radar reveal, and in-sector cruise (no jump yet).
+    /// In-sector cruise: ship position, radar fog, sail to located nodes. Grid states live in GridService.
     /// </summary>
     public static class NavigationService
     {
@@ -26,10 +24,12 @@ namespace Assets.Resources.Scripts.World
                 world.navY = SectorMapCatalog.SpawnY;
             }
 
-            // Starter: outer haven is always charted so the player has a first docking target.
-            RememberBody("body_outer_haven");
-            if (RevealRadar() > 0)
+            GridService.EnsureReady();
+            if (GridService.FogBodiesInRadar() > 0)
+            {
+                GridService.RecalcExplore();
                 WorldService.Save();
+            }
         }
 
         public static float GetRadarRange()
@@ -59,48 +59,51 @@ namespace Assets.Resources.Scripts.World
         public static bool IsDocked(StellarBodyDef body) =>
             body != null && DistanceToBody(body) <= SectorMapCatalog.DockingRange;
 
-        public static bool IsKnown(string bodyId)
+        public static string DockedBodyId()
         {
-            var world = WorldService.State;
-            if (world?.knownBodyIds == null || string.IsNullOrEmpty(bodyId)) return false;
-            foreach (var id in world.knownBodyIds)
+            foreach (var body in SectorMapCatalog.Bodies)
             {
-                if (id == bodyId) return true;
+                if (body != null && IsDocked(body))
+                    return body.bodyId;
             }
 
-            return false;
+            return "";
         }
+
+        public static string NearestLocatedBodyId()
+        {
+            string best = DockedBodyId();
+            if (!string.IsNullOrEmpty(best)) return best;
+
+            float bestDist = float.MaxValue;
+            foreach (var body in SectorMapCatalog.Bodies)
+            {
+                if (body == null || !GridService.IsLocatedOrBetter(body.bodyId))
+                    continue;
+                float d = DistanceToBody(body);
+                if (d >= bestDist) continue;
+                bestDist = d;
+                best = body.bodyId;
+            }
+
+            return best ?? "";
+        }
+
+        public static bool IsKnown(string bodyId) => GridService.IsLocatedOrBetter(bodyId);
 
         public static bool IsVisible(StellarBodyDef body)
         {
             if (body == null) return false;
-            if (IsKnown(body.bodyId)) return true;
-            return DistanceToBody(body) <= GetRadarRange();
+            return GridService.GetState(body.bodyId) >= GridNodeState.Fogged;
         }
 
-        public static void RememberBody(string bodyId)
-        {
-            var world = WorldService.State;
-            if (world == null || string.IsNullOrEmpty(bodyId)) return;
-            world.knownBodyIds ??= new System.Collections.Generic.List<string>();
-            if (IsKnown(bodyId)) return;
-            world.knownBodyIds.Add(bodyId);
-        }
+        public static void RememberBody(string bodyId) => GridService.EnsureLocated(bodyId);
 
         public static int RevealRadar()
         {
-            int newly = 0;
-            float range = GetRadarRange();
-            foreach (var body in SectorMapCatalog.Bodies)
-            {
-                if (body == null || IsKnown(body.bodyId)) continue;
-                if (DistanceToBody(body) <= range)
-                {
-                    RememberBody(body.bodyId);
-                    newly++;
-                }
-            }
-
+            int newly = GridService.FogBodiesInRadar();
+            if (newly > 0)
+                GridService.RecalcExplore();
             return newly;
         }
 
@@ -118,10 +121,11 @@ namespace Assets.Resources.Scripts.World
             world.navX = x;
             world.navY = y;
             int revealed = RevealRadar();
+            GridService.RecalcExplore();
             WorldService.Save();
             return WorldCommandResult.OkMessage(
                 revealed > 0
-                    ? $"Arrived. Radar locked {revealed} new signal(s)."
+                    ? $"Arrived. Radar painted {revealed} entropy silhouette(s)."
                     : "Arrived.");
         }
 
@@ -130,13 +134,17 @@ namespace Assets.Resources.Scripts.World
             var body = SectorMapCatalog.Get(bodyId);
             if (body == null)
                 return WorldCommandResult.Fail("Unknown body.");
-            if (!IsVisible(body))
-                return WorldCommandResult.Fail("Target is outside radar / chart coverage.");
+            if (GridService.GetState(bodyId) < GridNodeState.Located)
+                return WorldCommandResult.Fail("Target is not located. Probe the fogged signal first.");
 
+            string from = DockedBodyId();
             var result = TryCruiseTo(body.x, body.y);
             if (result.Success)
-                RememberBody(bodyId);
-            WorldService.Save();
+            {
+                GridService.OnArrived(from, bodyId);
+                WorldService.Save();
+            }
+
             return result;
         }
 
@@ -150,10 +158,13 @@ namespace Assets.Resources.Scripts.World
             return TryCruiseTo(x, y);
         }
 
-        public static float EstimateCruiseSeconds(float distance)
+        public static float EstimateCruiseSeconds(float distance, StellarBodyDef target = null)
         {
             float speed = Mathf.Max(1f, GetCruiseSpeed());
-            return distance / speed * 60f; // flavor ETA in seconds for UI
+            float seconds = distance / speed * 60f;
+            if (target != null)
+                seconds *= GridService.EstimateCruise(target).Multiplier;
+            return seconds;
         }
     }
 }

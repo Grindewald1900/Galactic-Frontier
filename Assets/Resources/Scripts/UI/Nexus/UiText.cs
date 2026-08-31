@@ -1,4 +1,5 @@
 using Assets.Resources.Scripts.Economy.Domain;
+using Assets.Resources.Scripts.World.Domain;
 using Assets.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.UI.Nexus
@@ -225,6 +226,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ClaimPendingLoot => G("ui.explore.claim_all");
         public static string ExploreRecPower(int power) => F("ui.explore.rec_power", power);
         public static string ExploreMapLabel => G("ui.explore.map_label");
+        public static string ExploreUniverseLabel => G("ui.explore.universe_label");
+        public static string ExploreZoomOut => G("ui.explore.zoom_out");
+        public static string ExploreZoomIn => G("ui.explore.zoom_in");
+        public static string ExploreZoomScale(float zoom, bool universe) => universe
+            ? F("ui.explore.zoom_universe", (int)System.Math.Round(zoom * 100f))
+            : F("ui.explore.zoom_sector", (int)System.Math.Round(zoom * 100f));
+        public static string ExploreEnterSector => G("ui.explore.enter_sector");
+        public static string ExploreSectorSealed => G("ui.explore.sector_sealed");
+        public static string ExploreSectorListTitle(int count) => F("ui.explore.sector_list_title", count);
+        public static string ExploreSectorListHint => G("ui.explore.sector_list_hint");
         public static string ExploreShipMarker => G("ui.explore.ship_marker");
         public static string ExploreCruiseRandom => G("ui.explore.cruise_random");
         public static string ExploreSailHere => G("ui.explore.sail_here");
@@ -233,6 +244,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ExploreCruiseFailed => G("ui.explore.cruise_failed");
         public static string ExploreNavStatus(float x, float y, float radar) =>
             F("ui.explore.nav_status", x.ToString("0"), y.ToString("0"), radar.ToString("0"));
+        public static string ExploreGridProgress(int percent) => F("ui.explore.grid_progress", percent);
         public static string ExploreSailEta(float dist, float etaSec) =>
             F("ui.explore.sail_eta", dist.ToString("0.0"), (int)System.Math.Ceiling(etaSec));
         public static string ExploreChartedTitle(int count) => F("ui.explore.charted_title", count);
@@ -311,6 +323,30 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ShipMascotNoneOwned => G("ui.ship.mascot_none_owned");
         public static string ExploreSideTitle => G("ui.explore.side_title");
         public static string ExploreSideBody => G("ui.explore.side_body");
+        public static string ExploreProbe => G("ui.explore.probe");
+        public static string ExploreStabilize => G("ui.explore.stabilize");
+        public static string ExploreBuyChart(int credits) => F("ui.explore.buy_chart", credits);
+        public static string ExploreFogName => G("ui.explore.fog_name");
+        public static string ExploreSoftGate(int rec, int extraPct) => F("ui.explore.soft_gate", rec, extraPct);
+        public static string ExploreCruiseCost(float mult, bool autoReturn) => autoReturn
+            ? F("ui.explore.cruise_mult", mult.ToString("0.00"))
+            : F("ui.explore.cruise_mult_no_return", mult.ToString("0.00"));
+        public static string GridStateLabel(GridNodeState state) => state switch
+        {
+            GridNodeState.Fogged => G("ui.explore.grid_fogged"),
+            GridNodeState.Located => G("ui.explore.grid_located"),
+            GridNodeState.Provisional => G("ui.explore.grid_provisional"),
+            GridNodeState.Stable => G("ui.explore.grid_stable"),
+            _ => G("ui.explore.grid_unobserved")
+        };
+        public static string GridRouteLabel(GridRouteTag tag) => tag switch
+        {
+            GridRouteTag.Military => G("ui.explore.route_military"),
+            GridRouteTag.Industry => G("ui.explore.route_industry"),
+            GridRouteTag.Trade => G("ui.explore.route_trade"),
+            GridRouteTag.Rift => G("ui.explore.route_rift"),
+            _ => ""
+        };
 
         // Formation
         public static string AvailableCharacters => G("ui.formation.available");
@@ -564,5 +600,72 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BattleLogRound(int round) => F("ui.battle.log_round", round);
         public static string BattleLogEnded => G("ui.battle.log_ended");
         public static string Turn(int round) => round > 0 ? F("ui.battle.turn", round) : G("ui.battle.turn_empty");
+
+        // P6 Commander loop
+        public static string NavGroupBridge => G("ui.nav.group.bridge");
+        public static string NavGroupStarMap => G("ui.nav.group.starmap");
+        public static string NavGroupFleet => G("ui.nav.group.fleet");
+        public static string NavGroupIndustry => G("ui.nav.group.industry");
+        public static string NavGroupStarport => G("ui.nav.group.starport");
+        public static string StatusBarSummary(int lv, int credits, int running, int berths, int queue, int cargo, string cruise) =>
+            F("ui.status.bar_summary", lv, credits, running, berths, queue, cargo, cruise);
+        public static string StatusCruiseActive => G("ui.status.cruise_active");
+        public static string StatusCruiseIdle => G("ui.status.cruise_idle");
+        public static string QuestTrackerTitle => G("ui.quest.tracker_title");
+        public static string QuestNextGoalTitle => G("ui.quest.next_goal_title");
+        public static string QuestNextGoalSteps => G("ui.quest.next_goal_steps");
+        public static string QuestStepActive => G("ui.quest.step_active");
+        public static string QuestStepDone => G("ui.quest.step_done");
+        public static string QuestStepLocked => G("ui.quest.step_locked");
+        public static string QuestClaim => G("ui.quest.claim");
+        public static string QuestGo => G("ui.quest.go");
+        public static string QuestToggle => G("ui.quest.toggle");
+        public static string ShortageItemLabel(string name, int qty) => F("ui.shortage.item", name, qty);
+        public static string ShortageCreditsLabel(int amount) => F("ui.shortage.credits", amount);
+        public static string ShortageGoAcquire => G("ui.shortage.go_acquire");
+        public static string ShortageGoMarket => G("ui.shortage.go_market");
+        public static string BridgeCommanderGoal => G("ui.bridge.commander_goal");
+        public static string BridgeBottleneck => G("ui.bridge.bottleneck");
+        public static string BridgeRecommended => G("ui.bridge.recommended");
+        public static string BridgeMiniMap => G("ui.bridge.mini_map");
+        public static string CommanderGoalOnboarding => G("ui.commander.goal_onboarding");
+        public static string CommanderGoalPostOnboarding => G("ui.commander.goal_post");
+        public static string CommanderGoalScanHint => G("ui.commander.scan_hint");
+        public static string MenuSettings => G("ui.menu.settings");
+        public static string MenuDebug => G("ui.menu.debug");
+        public static string ExploreLegend => G("ui.explore.legend");
+        public static string ExploreStatusDiscovery(string s) => F("ui.explore.status_discovery", s);
+        public static string ExploreStatusLane(string s) => F("ui.explore.status_lane", s);
+        public static string ExploreStatusDev(string s) => F("ui.explore.status_dev", s);
+        public static string ExploreStatusFleet(string s) => F("ui.explore.status_fleet", s);
+        public static string FormationFrontRow => G("ui.formation.front_row");
+        public static string FormationBackRow => G("ui.formation.back_row");
+        public static string FormationTeamSummary => G("ui.formation.team_summary");
+        public static string BattleNextAction => G("ui.battle.next_action");
+        public static string CraftQueueTitle => G("ui.craft.queue_title");
+        public static string CraftRecipesTitle => G("ui.craft.recipes_title");
+        public static string CraftOutputTitle => G("ui.craft.output_title");
+        public static string ShipExpeditionBottleneck => G("ui.ship.expedition_bottleneck");
+        public static string MarketNeedFilter => G("ui.market.need_filter");
+        public static string MarketItemUse(string use) => F("ui.market.item_use", use);
+        public static string RecruitPoolTitle => G("ui.recruit.pool_title");
+        public static string RecruitPity(int current, int max) => F("ui.recruit.pity", current, max);
+        public static string RecruitTicketSources => G("ui.recruit.ticket_sources");
+        public static string InventoryNeedFilter => G("ui.inventory.need_filter");
+        public static string InventorySource(string s) => F("ui.inventory.source", s);
+        public static string InventoryUse(string s) => F("ui.inventory.use", s);
+        public static string CharactersProfileHint => G("ui.characters.profile_hint");
+        public static string CardsManageHint => G("ui.cards.manage_hint");
+        public static string AccessibilityContrastNote => G("ui.accessibility.contrast_note");
+
+        public static string NavGroupLabel(NavGroup group) => group switch
+        {
+            NavGroup.Bridge => NavGroupBridge,
+            NavGroup.StarMap => NavGroupStarMap,
+            NavGroup.Fleet => NavGroupFleet,
+            NavGroup.Industry => NavGroupIndustry,
+            NavGroup.Starport => NavGroupStarport,
+            _ => NavGroupBridge
+        };
     }
 }

@@ -1,6 +1,6 @@
 # Galactic Frontier 中文开发文档
 
-本目录为**唯一**中文文档集（共 **21** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+本目录为**唯一**中文文档集（共 **22** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ## 必读入口
 
@@ -34,8 +34,9 @@
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级） |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则（航网/星图；M1 为实现过渡） |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则（航网/星图；M2 域内雏形已落地，宇宙层为 M3+） |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
+| 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | **产品（P6 指挥官循环 / IA / UX 契约）** |
 
 ## 推荐阅读
 

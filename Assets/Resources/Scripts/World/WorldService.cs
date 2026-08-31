@@ -40,6 +40,7 @@ namespace Assets.Resources.Scripts.World
             if (util == null) return;
             State.count = State.regions?.Count ?? 0;
             util.SaveWorldState(State, touchMeta: true);
+            SyncPlayerExploration();
         }
 
         public static RegionView GetRegionView(string regionId)
@@ -76,7 +77,8 @@ namespace Assets.Resources.Scripts.World
             var result = WorldRules.RegisterVictory(State, regionId, encounterId, now);
             if (result.Success)
             {
-                State.explorationProgress = WorldRules.ComputeExplorationProgress(State);
+                GridService.OnRegionCleared(regionId);
+                GridService.RecalcExplore();
                 Save();
                 SyncPlayerExploration();
                 Assets.Resources.Scripts.Unlock.FeatureUnlockService.Evaluate();
@@ -131,13 +133,16 @@ namespace Assets.Resources.Scripts.World
                 ? WorldConstants.SectorId
                 : world.currentSectorId;
             world.knownBodyIds ??= new List<string>();
+            world.gridNodes ??= new List<GridNodeRuntime>();
+            world.gridEdges ??= new List<GridEdgeRuntime>();
+            world.sectorNodes ??= new List<GridNodeRuntime>();
+            world.unlockedCharts ??= new List<string>();
             if (world.navX <= 0.01f && world.navY <= 0.01f)
             {
                 world.navX = SectorMapCatalog.SpawnX;
                 world.navY = SectorMapCatalog.SpawnY;
             }
 
-            world.explorationProgress = WorldRules.ComputeExplorationProgress(world);
             world.count = world.regions.Count;
             return world;
         }

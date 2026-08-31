@@ -169,6 +169,23 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return button;
         }
 
+        public static Button CreateRoleButton(
+            Transform parent,
+            string name,
+            string label,
+            Vector2 position,
+            Vector2 size,
+            UnityAction onClick,
+            NexusButtonRole role,
+            float fontSize = 14f)
+        {
+            var button = CreateButton(parent, name, label, position, size, onClick,
+                NexusTheme.SurfaceRaised, NexusTheme.Text, fontSize);
+            NexusButtonStyles.Apply(button, button.GetComponent<Image>(),
+                button.GetComponentInChildren<TextMeshProUGUI>(), role);
+            return button;
+        }
+
         public static TMP_InputField CreateInputField(
             Transform parent,
             string name,

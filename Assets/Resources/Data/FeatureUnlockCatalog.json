@@ -61,10 +61,10 @@
       "titleZh": "探索",
       "hintEn": "Claim the Formation mission first.",
       "hintZh": "请先领取「编成首支队伍」任务。",
-      "bodyEn": "Sector map, gathering, and automatic combat. Form a deck and claim the starter mission to open Explore.",
-      "bodyZh": "星域地图、采集与自动战斗。编成卡组并领取新手任务后开放探索。",
-      "notifyEn": "Explore unlocked — challenge a region from the map.",
-      "notifyZh": "探索已开放 — 可从星域地图发起挑战。"
+      "bodyEn": "Astral Grid: probe entropy fog, repair beacons, and challenge regions. Form a deck and claim the starter mission to open Explore.",
+      "bodyZh": "航网探索：探测熵雾、修复航标、挑战区域。编成卡组并领取新手任务后开放探索。",
+      "notifyEn": "Explore unlocked — weave the inner grid from the sector map.",
+      "notifyZh": "探索已开放 — 可从星域航网探测并航行。"
     },
     {
       "featureId": "feat_characters",

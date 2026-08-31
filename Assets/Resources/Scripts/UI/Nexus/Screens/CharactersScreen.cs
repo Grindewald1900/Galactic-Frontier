@@ -48,7 +48,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(28f, 16f), new Vector2(640f, 32f), 22f, NexusTheme.Gold,
                 TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(
-                root, "Hint", UiText.CharactersHint(groups.Count, all.Count),
+                root, "Hint", UiText.CharactersProfileHint + " · " + UiText.CharactersHint(groups.Count, all.Count),
                 new Vector2(28f, 48f), new Vector2(1100f, 24f), 13f, NexusTheme.MutedText);
 
             const float cardW = 168f;
