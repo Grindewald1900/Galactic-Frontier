@@ -364,6 +364,18 @@ saves/{playerId}/meta.json
 
 `knownBodyIds` 与 **已定位及以上** 保持同步。
 
+#### 4.3.7 宇宙生成种子（规划，M3+）
+
+程序生成航网见 `23-procedural-universe-generation.md`。存档侧建议：
+
+| 字段 | 存储 | 说明 |
+| --- | --- | --- |
+| `universeSeed` | `world.json` 或 `meta.json` | `Hash(服务器种子 + 位面ID + 赛季ID)`；确定性重现整张航网骨架 |
+| `planeModifiers` | `world.json` | 主/次资源优势与缺口（JSON 对象） |
+| `generationReport` | 可选，仅 Debug | 上次 `ValidateUniverse` 结果摘要 |
+
+**只存 seed + 玩家改变的状态**（通航 tier、探索度、修复记录），不序列化完整生成过程。旧档缺 `universeSeed` 时：Solo 继续用手工第七前沿；M3+ 新档或迁移时写入默认 seed。
+
 #### 4.4 物品分文件
 
 | 集合 | 文件名 | 读写方 |

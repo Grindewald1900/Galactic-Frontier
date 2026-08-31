@@ -1,12 +1,12 @@
 # 《Galactic Frontier / 群星边境》世界观与故事背景
 
-> 文档版本：v1.1  
+> 文档版本：v1.2  
 > 文档类型：**设定（叙事权威）**  
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。  
 > 上级约束：`02-core-product-design.md`（玩法约束）；本文不改写已拍板的系统数值。  
 > 关联：第七前沿内容 `17-sector-and-onboarding.md`；角色名册 `19-characters-and-progression.md`；Online `18-online-and-play-modes.md`；航网探索 `20-stellar-map-and-navigation.md`。  
 > 更新日期：2026-08-30  
-> 变更：v1.1 对齐航网玩法——抵达中心是结果，恢复连接才是持续玩法；出生扇区与五种通航状态见 `20`。
+> 变更：v1.2 对齐程序生成航网——相位偏移解释位面差异，见 `23-procedural-universe-generation.md`；v1.1 对齐航网玩法。
 
 ---
 
@@ -141,6 +141,8 @@
 
 断航并未简单摧毁宇宙，而是令航网覆盖范围内的空间发生了**相位分裂**。每位在线舰长所开发的星域，都是一个相对独立的平行位面。区域结构大体相同，但资源丰度、异常类型和遗迹保存程度不同。
 
+从叙事上，这也可以解释为：开拓者看到的**航网骨架**（环带、中枢、主线锚点）在各相位中相似，但断航后的**相位偏移**使具体星域坐标、邻接航线、虫洞出口与势力边界并不完全一致——程序上的种子生成与设定上的「相似却不相同的位面」是同一套说法。技术契约见 `23-procedural-universe-generation.md`。
+
 玩家出生在宇宙**边缘扇区**（富矿 / 晶潮 / 生物 / 遗迹等），各有比较优势与缺口，但必须能自给第一条生产链并独立进入第二环带，不存在明显最优出生区。进入位面带后，专业化与跨位面贸易才成为主旋律。扇区表与约束见 `20` §7；位面偏置见 `18`。
 
 例如：
@@ -265,6 +267,7 @@
 | Solo NPC / Online Hub | 市场终端 vs 中转站 | `16-market-and-card-trade.md`、`18-online-and-play-modes.md` |
 | 平行位面 | 断航隔离机制，非装饰设定 | `18-online-and-play-modes.md`、本文 §9 |
 | 向宇宙中心探索 | 两层航网、五种通航状态、航线资产 | `20-stellar-map-and-navigation.md` |
+| 位面地图差异 | 相位偏移下的种子航网 | `23-procedural-universe-generation.md` |
 
 ## 附录 B. 核心用语（中英）
 

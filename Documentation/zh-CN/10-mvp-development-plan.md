@@ -19,7 +19,7 @@
 **当前进度与验收完成度以 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) 为准**（约 **85%** MVP）。
 
 项目处于可演示的单人核心循环阶段：战斗、多卡组、采集/制造/耐久/离线、星港 NPC、新手五步、Frontier VII 奖励、约 36 名角色与招募抽卡已打通；Explore 已切到 **M2 域内航网雏形**（五种状态 / 探测 / 航标 / 海图），物品说明与模块升级 UI 已补齐。  
-相对 MVP，剩余主要是角色继续扩容（可选至 50）。后 MVP：舰队、流水线、星图 M3+（宇宙层）。
+相对 MVP，剩余主要是角色继续扩容（可选至 50）。后 MVP：舰队、流水线、星图 M3+（宇宙层 + [23](23-procedural-universe-generation.md) 种子生成试点）。
 
 ---
 
@@ -418,7 +418,7 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 9. ~~**舰桥 UI**：删顶栏并行统计卡；RunningOps → 舰队水平滑动组件（[09](09-figma-ui.md)、[21](21-fleet-factions-and-exploration.md) §3.5）~~ **已完成**
 10. （后 MVP · 规则已拍板）自动化流水线按 [15](15-economy.md) §4.10 立项  
 11. （后 MVP · 规则已拍板）舰队按 [21](21-fleet-factions-and-exploration.md) 立项；探索度条已随 M2 航网恢复加权  
-12. ~~星图 M2 域内航网雏形~~ **部分完成**（[20](20-stellar-map-and-navigation.md) §12.2）；M3+ 宇宙层 / 信标跃迁 / Online 按 [18](18-online-and-play-modes.md)  
+12. ~~星图 M2 域内航网雏形~~ **部分完成**（[20](20-stellar-map-and-navigation.md) §12.2）；M3+ 宇宙层 / 信标跃迁 / **小型随机航网（[23](23-procedural-universe-generation.md) §12）** / Online 按 [18](18-online-and-play-modes.md)  
 
 ### P6 Commander Loop（UX / IA — 后 MVP 体验）
 
@@ -448,4 +448,5 @@ P0–P4 与 M0–M4 已闭合；**P5 主切片与 Explore M1 / 物品 UX 补丁�
 | [08-known-issues.md](08-known-issues.md) | 技术债 |
 | [19-characters-and-progression.md](19-characters-and-progression.md) | 抽卡 / 名册 / 能级 |
 | [20-stellar-map-and-navigation.md](20-stellar-map-and-navigation.md) | 星图 / 航行（方向稿） |
+| [23-procedural-universe-generation.md](23-procedural-universe-generation.md) | 宇宙层种子生成 + 验证器（M3+） |
 | [21-fleet-factions-and-exploration.md](21-fleet-factions-and-exploration.md) | 舰队 / 阵营 / 探索度 |

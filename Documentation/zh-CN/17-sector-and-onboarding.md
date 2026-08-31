@@ -2,7 +2,8 @@
 > 文档版本：v1.0
 > 文档类型：**规则 / 内容契约**
 > 由原 `23-onboarding-and-missions` + `24-sector-and-region-content` 合并。
-> 叙事主线见 `03-worldbuilding.md` §10。
+> 叙事主线见 `03-worldbuilding.md` §10。  
+> **第七前沿**为 M2 **手工星域模板**；宇宙层随机生成规则见 `23-procedural-universe-generation.md`（M3+ 不替换本域主链，除非显式迁移）。  
 > 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ---

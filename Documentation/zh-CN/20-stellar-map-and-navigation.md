@@ -1,12 +1,12 @@
 # 系统文档：星域地图与舰船航行（航网探索）
 
-> 文档版本：v0.2  
+> 文档版本：v0.3  
 > 文档类型：**规则（后 MVP 主形态）**；域内 M2 已落地，宇宙层为 M3+  
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。  
 > 上级约束：`02-core-product-design.md`、`03-worldbuilding.md`  
-> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`、`15-economy.md`、`16-market-and-card-trade.md`、`17-sector-and-onboarding.md`、`18-online-and-play-modes.md`、`21-fleet-factions-and-exploration.md`  
+> 关联：`13-region-and-ship.md`（区域战斗门）、`14-idle-and-offline.md`、`15-economy.md`、`16-market-and-card-trade.md`、`17-sector-and-onboarding.md`、`18-online-and-play-modes.md`、`21-fleet-factions-and-exploration.md`、**`23-procedural-universe-generation.md`（宇宙层生成管线）**  
 > 更新日期：2026-08-30  
-> 变更：拍板 **两层航网**、五种通航状态、环带+网状路线、航线资产化；目标从「打到中心」改为「重新编织通往中心的航网」。M2 域内雏形已按本文落地（见 §12.2）。
+> 变更：v0.3 对齐程序生成航网（固定骨架 + 种子随机 + 验证器，见 `23`）；v0.2 拍板两层航网、五种通航状态、环带+网状路线。M2 域内雏形已按本文落地（见 §12.2）。
 
 ---
 
@@ -210,7 +210,9 @@ Region 的 `Locked / Visible / Cleared` 描述**地点内容**；上表描述**�
 
 环带**不是**固定章节墙。玩家可在环带内横向探索，也可冒险提前进入下一层（付 §4 软门代价）。
 
-MVP：第七前沿落在**外缘带**；M3+ 才展开开拓带及以远。
+**宇宙层节点布局：** 环带层级与中心/终局锚点为**固定规则**；星域坐标、邻接、势力与资源填充为**种子驱动随机**，须通过 `23-procedural-universe-generation.md` 验证器。环带在视觉上可呈熵雾扭曲的不规则区域，而非绝对同心圆。
+
+MVP：第七前沿落在**外缘带**（手工模板，见 `17`）；M3+ 展开开拓带及以远，并试点 §23 小型随机航网。
 
 ---
 
@@ -237,9 +239,11 @@ MVP：第七前沿落在**外缘带**；M3+ 才展开开拓带及以远。
 
 主线所需能力须能通过自给、绕行或交易获得，禁止随机出「劣等宇宙」。
 
+**生成契约（M3+）：** 出生扇区与位面比较优势由 `UniverseSeed` 驱动（主/次优势 + 缺口），基础保障资源不得缺失；公式与验证见 `23-procedural-universe-generation.md` §5。
+
 玩家在外缘独立发展；进入**位面带**后才真正感到：我擅长别人缺少的东西，别人也拥有我需要的资源。与 `18` 位面偏置、`03` §9 对齐。
 
-**Solo / MVP：** 固定第七前沿（可叙事为「开拓局试验投放」的富矿或平衡扇区），不随机出生。
+**Solo / MVP：** 固定第七前沿（可叙事为「开拓局试验投放」的富矿或平衡扇区），不随机出生；M3 起第二个星域或宇宙层试点接 `23`。
 
 ---
 
@@ -315,7 +319,7 @@ MVP：第七前沿落在**外缘带**；M3+ 才展开开拓带及以远。
 - 提供资源 / 任务 / 危险 / 贸易图层；  
 - 使用节点聚类与缩放层级。
 
-部分星域可在不同玩家位面中偏移（丰度、某条航线被熵雾盖住、虫洞出口、遗迹保存度、事件），但须遵守 §7 的「无劣等宇宙」。
+部分星域可在不同玩家位面中偏移（丰度、某条航线被熵雾盖住、虫洞出口、遗迹保存度、事件），但须遵守 §7 的「无劣等宇宙」。偏移由 **UniverseSeed + 验证器** 保证可玩性，详见 `23` §1、§10。
 
 ---
 
@@ -408,9 +412,9 @@ Repair beacon / clear → Stable
 | **现况** | Region 战斗门 `13` | 开战硬门不变 |
 | **M1** | 单星域 2D + 雷达 + 巡航 + 已探索列表 | 已实现（见 STATUS） |
 | **M2** | 海图/中枢 + 域内航网状态雏形 | **部分实现**：五种状态 + 缩放两层 + 邻接解锁 + 探测/航标/海图；其他星域不可进入 |
-| **M3** | 第二星域可玩 + 信标跃迁 | 外缘→开拓带；路线差试点 |
-| **M4** | 环带径向 + 航线升级 + 虫洞边 | 长线探索；推荐远征等级 |
-| **M5+** | 出生扇区 / 位面偏移 / 跨位面航线 | 依赖 Online `18` |
+| **M3** | 第二星域可玩 + 信标跃迁 + **小型随机航网试点** | 外缘→开拓带；15–20 星域 / 4 环带；见 `23` §12 |
+| **M4** | 环带径向 + 航线升级 + 虫洞边 + **生成验证器** | 长线探索；推荐远征等级；局部修复坏图 |
+| **M5+** | 完整宇宙生成 + 出生扇区 seed + 跨位面航线 | 依赖 Online `18`；秘境槽位动态激活 |
 
 MVP 演示不阻塞于 M3+；语义以本文为准。
 
@@ -420,8 +424,9 @@ MVP 演示不阻塞于 M3+；语义以本文为准。
 
 ```text
 UniverseConfig
-- center, rings[]          // 环带
+- center, rings[]          // 环带（固定层级；节点坐标见 23）
 - threatBands[]            // 五维基线，非仅等级
+- universeSeed             // Hash(服务器+位面+赛季)；见 23 §2.1、06 §4.3.7
 
 GridNode                  // 宇宙层：星域
 - sectorId, ringId
@@ -455,7 +460,7 @@ BirthSector               // Online；Solo 固定第七前沿
 - exportBias, importGap
 ```
 
-服务方向：`NavigationService`（巡航）+ `GridService`（节点状态、边升级、海图、探测）。宇宙层 `GridService` 扩展为 M3。
+服务方向：`NavigationService`（巡航）+ `GridService`（节点状态、边升级、海图、探测）。宇宙层 `GridService` 扩展为 M3；**生成**见 `UniverseGenerator`（`23` §11）。
 
 ---
 
@@ -501,4 +506,5 @@ BirthSector               // Online；Solo 固定第七前沿
 - `13-region-and-ship.md`、`17-sector-and-onboarding.md`  
 - `14-idle-and-offline.md`、`15-economy.md`、`16-market-and-card-trade.md`  
 - `18-online-and-play-modes.md`、`21-fleet-factions-and-exploration.md`  
+- **`23-procedural-universe-generation.md`**（种子生成、验证器、位面比较优势）  
 - 舰船模块：`mod_scanner` / `mod_propulsion` / `mod_reactor` / `mod_entropy`

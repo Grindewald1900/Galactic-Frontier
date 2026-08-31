@@ -2,7 +2,7 @@
 
 > 更新日期：2026-08-30  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
-> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.1）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。
+> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3+，未实现）。
 
 ---
 
@@ -11,7 +11,7 @@
 | 角色 | 阅读 |
 | --- | --- |
 | 新人 | [README](README.md) → 本文 → [03-worldbuilding](03-worldbuilding.md) |
-| 实现 | 本文查状态 → 读 `11`–`21` 规则 → [10-mvp-development-plan](10-mvp-development-plan.md) |
+| 实现 | 本文查状态 → 读 `11`–`23` 规则 → [10-mvp-development-plan](10-mvp-development-plan.md) |
 | 改语义 | 升对应文档主版本 + 更新本文 +（若触 §20/§22）改 [02](02-core-product-design.md) |
 
 **实现状态**：已实现 / 部分 / 未开始 / —（不适用）
@@ -26,7 +26,7 @@
 | 核心循环 | 战斗→区域→采集/制造→NPC→成长，已打通 |
 | 里程碑 | M0–M4 已达成；**M5 接近**（引导/星域/招募/36 人已通） |
 | MVP 缺口 | 角色扩至 50（可选）、抽卡概率公示/十连折扣 |
-| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M3+（20：宇宙层/信标跃迁） |
+| 后 MVP 缺口 | 舰队/探索度（21）、自动化流水线（15）、星图 M3+（20：宇宙层/信标跃迁）、**程序生成航网（23）** |
 | **P6 UX** | 指挥官循环 / 五级 IA / 缺口跳转 — 见 [22](22-ux-loop-and-ia.md)；**M6 未验收** |
 
 ---
@@ -36,7 +36,7 @@
 | # | 文档 | 类型 | 实现 | 验收 | 说明 |
 | ---: | --- | --- | --- | --- | --- |
 | 02 | [core-product-design](02-core-product-design.md) | 产品 | — | — | MVP 约束 |
-| 03 | [worldbuilding](03-worldbuilding.md) | 设定 | — | — | **叙事权威 v1.1**（航网恢复语义对齐 20） |
+| 03 | [worldbuilding](03-worldbuilding.md) | 设定 | — | — | **叙事权威 v1.2**（相位偏移 ↔ 种子航网，见 23） |
 | 04–09 | 工程文档 | 工程 | — | — | 描述现状代码 |
 | 10 | [mvp-development-plan](10-mvp-development-plan.md) | 计划 | — | — | 阶段任务；近期顺序见 §10 |
 | 11 | [deck-and-occupation](11-deck-and-occupation.md) | 规则 | 已实现 | 完成 | 多卡组占用 |
@@ -48,9 +48,10 @@
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | 五步+RewardService；星域叙事可再厚 |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub；MVP 不做 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级未接 UI |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.2 航网主形态已拍板**；**M2 域内雏形已落地**；**P6**：星图 70%、四轴状态、条件 CTA（见 22） |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.3** 航网主形态；M2 域内已落地；宇宙层生成见 **23** |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
+| 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | 规则/方向 | 未开始 | — | **v0.1 已拍板**：固定骨架 + 种子 + 验证器；M3 试点 15–20 星域 |
 
 ---
 
@@ -87,7 +88,7 @@
 | 舰桥舰队滑动组件 | 已实现 | 顶栏三统计；RunningOps → Fleet Carousel（旗舰卡 + 泊位卡） |
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
 | 舰队 / 探索度 | 部分 | 探索度条已接航网恢复加权（[20](20-stellar-map-and-navigation.md) M2）；舰队规则仍在 [21](21-fleet-factions-and-exploration.md) |
-| 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 未开始 | 规则 [20](20-stellar-map-and-navigation.md) v0.2；M2 域内雏形已落地 |
+| 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 未开始 | 规则 [20](20-stellar-map-and-navigation.md) v0.3；生成管线 [23](23-procedural-universe-generation.md) v0.1；M2 域内雏形已落地 |
 | P6 指挥官循环（M6） | 部分 | Wave 0–2 已落地；M6 三十分钟验收待 PlayMode 回归 |
 
 ---
