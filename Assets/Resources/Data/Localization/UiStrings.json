@@ -2614,6 +2614,51 @@
       "id": "ui.accessibility.contrast_note",
       "en": "Locked items use text labels, not color alone.",
       "zh": "锁定项使用文字标签，不仅靠颜色区分。"
+    },
+    {
+      "id": "ui.dialogue.back",
+      "en": "Back",
+      "zh": "后退"
+    },
+    {
+      "id": "ui.dialogue.forward",
+      "en": "Next",
+      "zh": "前进"
+    },
+    {
+      "id": "ui.dialogue.fast_forward",
+      "en": "Fast",
+      "zh": "快进"
+    },
+    {
+      "id": "ui.dialogue.skip",
+      "en": "Skip",
+      "zh": "跳过"
+    },
+    {
+      "id": "ui.dialogue.close",
+      "en": "Close",
+      "zh": "关闭"
+    },
+    {
+      "id": "ui.dialogue.log",
+      "en": "Log",
+      "zh": "记录"
+    },
+    {
+      "id": "ui.dialogue.log_title",
+      "en": "Dialogue Log",
+      "zh": "对话记录"
+    },
+    {
+      "id": "ui.dialogue.page",
+      "en": "{0} / {1}",
+      "zh": "{0} / {1}"
+    },
+    {
+      "id": "ui.debug.test_dialogue",
+      "en": "Test NPC Dialogue",
+      "zh": "测试 NPC 对话"
     }
   ]
 }

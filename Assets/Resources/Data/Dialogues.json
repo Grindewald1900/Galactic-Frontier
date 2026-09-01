@@ -1,0 +1,37 @@
+{
+  "dialogues": [
+    {
+      "dialogueId": "demo_bridge_intro",
+      "lines": [
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "Commander, welcome back to Frontier VII.",
+          "textZh": "指挥官，欢迎回到第七前沿。"
+        },
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "The astral grid is stable for now — but entropy readings are climbing on the outer lanes.",
+          "textZh": "航网暂时稳定，但外缘航线的熵读数正在攀升。"
+        },
+        {
+          "speakerNameEn": "Bridge AI",
+          "speakerNameZh": "舰桥 AI",
+          "portraitId": "",
+          "textEn": "Tip: select a located node on Explore to challenge a region directly.",
+          "textZh": "提示：在探索界面选中已定位节点，可直接挑战对应区域。"
+        },
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "When you're ready, open Formation and deploy your combat deck.",
+          "textZh": "准备好了就打开编队，部署你的战斗卡组。"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Dialogue;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
@@ -60,10 +61,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BuildItemsSection();
             BuildCardsSection();
             BuildMapGenSection();
+            BuildDialogueSection();
 
             NexusUiFactory.CreateButton(
                 root, "Disable Debug", UiText.DebugDisable,
-                new Vector2(28f, 830f), new Vector2(280f, 40f),
+                new Vector2(28f, 880f), new Vector2(280f, 40f),
                 () => DebugModeController.Instance?.SetEnabled(false),
                 NexusTheme.SurfaceRaised, NexusTheme.Red, 14f);
         }
@@ -347,6 +349,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             return string.Join("\n", lines);
+        }
+
+        private void BuildDialogueSection()
+        {
+            NexusUiFactory.CreateText(
+                root, "Dialogue Header", UiText.DialogueLogTitle,
+                new Vector2(1100f, 780f), new Vector2(280f, 22f), 14f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            NexusUiFactory.CreateButton(
+                root, "Test Dialogue", UiText.DebugTestDialogue,
+                new Vector2(1100f, 808f), new Vector2(220f, 36f),
+                () => DialogueService.Play("demo_bridge_intro"),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 12f);
         }
 
         private static string BuildCardSummary()

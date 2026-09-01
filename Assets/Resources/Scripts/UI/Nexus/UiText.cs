@@ -669,6 +669,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CardsManageHint => G("ui.cards.manage_hint");
         public static string AccessibilityContrastNote => G("ui.accessibility.contrast_note");
 
+        public static string DialogueBack => G("ui.dialogue.back");
+        public static string DialogueForward => G("ui.dialogue.forward");
+        public static string DialogueFastForward => G("ui.dialogue.fast_forward");
+        public static string DialogueSkip => G("ui.dialogue.skip");
+        public static string DialogueClose => G("ui.dialogue.close");
+        public static string DialogueLog => G("ui.dialogue.log");
+        public static string DialogueLogTitle => G("ui.dialogue.log_title");
+        public static string DialoguePage(int current, int total) => F("ui.dialogue.page", current, total);
+        public static string DebugTestDialogue => G("ui.debug.test_dialogue");
+
         public static string NavGroupLabel(NavGroup group) => group switch
         {
             NavGroup.Bridge => NavGroupBridge,
