@@ -89,6 +89,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StatusShortcuts => G("ui.status.shortcuts");
         public static string StatusVersion => G("ui.status.version");
         public static string MainMenuTagline => G("ui.main.tagline");
+        public static string LoadDelete => G("ui.load.delete");
+        public static string LoadDeleteConfirm => G("ui.load.delete_confirm");
+        public static string LoadDeleteConfirmTitle => G("ui.load.delete_confirm_title");
+        public static string LoadDeleteConfirmBody(string playerName) => F("ui.load.delete_confirm_body", playerName);
 
         // Reward popup
         public static string RewardTitle => G("ui.reward.title");
@@ -631,6 +635,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string QuestClaim => G("ui.quest.claim");
         public static string QuestGo => G("ui.quest.go");
         public static string QuestToggle => G("ui.quest.toggle");
+        public static string QuestChapterTitle => G("ui.quest.chapter_title");
+        public static string QuestOnboardingTitle => G("ui.quest.onboarding_title");
+        public static string CommanderGoalChapter => G("ui.commander.goal_chapter");
+        public static string ChapterStrategyTitle => G("ui.chapter.strategy_title");
+        public static string ChapterStrategyBody => G("ui.chapter.strategy_body");
+        public static string ChapterRecruitHint => G("ui.chapter.recruit_hint");
+        public static string ChapterScanHint => G("ui.chapter.scan_hint");
         public static string ShortageItemLabel(string name, int qty) => F("ui.shortage.item", name, qty);
         public static string ShortageCreditsLabel(int amount) => F("ui.shortage.credits", amount);
         public static string ShortageGoAcquire => G("ui.shortage.go_acquire");

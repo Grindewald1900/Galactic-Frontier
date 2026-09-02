@@ -1,4 +1,6 @@
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Onboarding.Domain;
@@ -44,6 +46,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance?.cardEntities);
                 WorldService.EnsureLoaded(DataUtil.Instance);
                 OnboardingService.EnsureLoaded(DataUtil.Instance);
+                ChapterQuestService.EnsureLoaded(DataUtil.Instance);
             }
 
             NexusUiFactory.CreateText(
@@ -55,25 +58,46 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root, "Hint", UiText.MissionsOnboardingHint,
                 new Vector2(28f, 48f), new Vector2(1200f, 24f), 12f, NexusTheme.MutedText);
 
-            if (OnboardingService.IsChainComplete)
+            float y = 90f;
+            if (!ChapterQuestService.IsChapterComplete)
+            {
+                NexusUiFactory.CreateText(
+                    root, "ChapterHead", UiText.QuestChapterTitle,
+                    new Vector2(28f, y), new Vector2(900f, 28f), 16f, NexusTheme.Cyan,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                y += 36f;
+                foreach (var view in ChapterQuestService.GetStepViews())
+                {
+                    if (view?.Def == null) continue;
+                    DrawChapterRow(view, ref y);
+                }
+
+                y += 12f;
+                NexusUiFactory.CreateText(
+                    root, "OnboardingHead", UiText.QuestOnboardingTitle,
+                    new Vector2(28f, y), new Vector2(900f, 24f), 14f, NexusTheme.MutedText,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                y += 32f;
+            }
+            else if (OnboardingService.IsChainComplete)
             {
                 NexusUiFactory.CreateText(
                     root, "Done", UiText.MissionsChainComplete,
-                    new Vector2(28f, 90f), new Vector2(900f, 36f), 16f, NexusTheme.Cyan,
+                    new Vector2(28f, y), new Vector2(900f, 36f), 16f, NexusTheme.Cyan,
                     TextAlignmentOptions.Left, FontStyles.Bold);
                 NexusUiFactory.CreateButton(
                     root, "GoExplore", UiText.EnterExploreBattle,
-                    new Vector2(28f, 140f), new Vector2(240f, 44f),
+                    new Vector2(28f, y + 50f), new Vector2(240f, 44f),
                     () => navigate?.Invoke(AppScreen.Battle),
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
                 NexusUiFactory.CreateButton(
                     root, "GoShip", UiText.OpenShipBay,
-                    new Vector2(288f, 140f), new Vector2(240f, 44f),
+                    new Vector2(288f, y + 50f), new Vector2(240f, 44f),
                     () => navigate?.Invoke(AppScreen.Ship),
                     NexusTheme.SurfaceRaised, NexusTheme.Text, 14f);
+                y += 120f;
             }
 
-            float y = OnboardingService.IsChainComplete ? 210f : 90f;
             foreach (var view in OnboardingService.GetStepViews())
             {
                 if (view?.Def == null) continue;
@@ -87,6 +111,65 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     root, "Status", statusMessage,
                     new Vector2(28f, y + 8f), new Vector2(1100f, 28f), 12f, NexusTheme.Cyan);
             }
+        }
+
+        private void DrawChapterRow(ChapterQuestStepView view, ref float y)
+        {
+            var def = view.Def;
+            var title = UiText.T(def.titleEn, def.titleZh);
+            var statusLabel = view.Status switch
+            {
+                ChapterQuestStepStatus.Completed => UiText.MissionsStatusDone,
+                ChapterQuestStepStatus.Active => UiText.MissionsStatusActive,
+                _ => UiText.MissionsStatusLocked
+            };
+            var bg = view.Status == ChapterQuestStepStatus.Active
+                ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
+                : NexusTheme.SurfaceRaised;
+
+            NexusUiFactory.CreateBox(
+                root, "ChStep " + def.stepId,
+                new Vector2(28f, y), new Vector2(1480f, 78f),
+                bg, NexusTheme.BorderSoft);
+
+            NexusUiFactory.CreateText(
+                root, "ChTitle " + def.stepId,
+                $"{def.order}. {title}  ·  {statusLabel}",
+                new Vector2(44f, y + 8f), new Vector2(900f, 24f), 15f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            NexusUiFactory.CreateText(
+                root, "ChHint " + def.stepId,
+                UiText.T(def.hintEn, def.hintZh),
+                new Vector2(44f, y + 36f), new Vector2(980f, 28f), 12f, NexusTheme.MutedText);
+
+            if (view.Status == ChapterQuestStepStatus.Active || view.Status == ChapterQuestStepStatus.Completed)
+            {
+                var target = MapTarget(def.targetScreen);
+                NexusUiFactory.CreateButton(
+                    root, "ChGo " + def.stepId, UiText.MissionsGo,
+                    new Vector2(1080f, y + 20f), new Vector2(140f, 40f),
+                    () => navigate?.Invoke(target),
+                    NexusTheme.SurfaceRaised, NexusTheme.Text, 12f);
+            }
+
+            if (view.CanClaim)
+            {
+                NexusUiFactory.CreateButton(
+                    root, "ChClaim " + def.stepId, UiText.MissionsClaim,
+                    new Vector2(1240f, y + 20f), new Vector2(160f, 40f),
+                    () =>
+                    {
+                        var r = ChapterQuestService.TryClaim(def.stepId);
+                        statusMessage = r.Success
+                            ? UiText.MissionsClaimed(UiText.T(def.titleEn, def.titleZh))
+                            : r.Message;
+                        Rebuild();
+                    },
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.22f), NexusTheme.Gold, 12f);
+            }
+
+            y += 86f;
         }
 
         private void DrawStepRow(OnboardingStepView view, float y)
@@ -152,6 +235,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 "Formation" => AppScreen.Formation,
                 "Battle" => AppScreen.Battle,
+                "Recruit" => AppScreen.Recruit,
                 "Crafting" => AppScreen.Crafting,
                 "Market" => AppScreen.Market,
                 "Ship" => AppScreen.Ship,

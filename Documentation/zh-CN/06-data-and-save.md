@@ -42,6 +42,8 @@ Application.persistentDataPath/
       ├─ ship.json                   // P2：舰船与模块
       ├─ idle.json                   // P3：离线结算 / Pending / 熟练度
       ├─ onboarding.json
+      ├─ chapter_quests.json          // Wave A：首章剧情链 chapter_v1
+      ├─ gacha.json                   // 招募状态（含 starterColeGranted）
       ├─ unlocks.json               // 功能解锁
       ├─ expertData.json
       ├─ avatar.png
@@ -478,6 +480,8 @@ InventoryFile
 | `playerData.json` / `playerCards.json` | 按现有创角流程；禁止 Fake 覆盖 |
 | `inventory_*.json` | 空列表；若是**刚刚 CreatePlayer** 则 Apply Starter Seed（仅 Local） |
 | `decks.json` 等未来文件 | 由对应系统文档的「缺省初始化 / 迁移」负责；存档层提供 `LoadOrDefault` |
+| `chapter_quests.json` | `ChapterQuestService.EnsureLoaded`：缺文件则 `activeStepId=ch1_prologue`；若 `onboarding_v1` 已完成则 `SkipChapterForLegacySave`（见 [24-early-chapter-experience.md](24-early-chapter-experience.md) §6.4） |
+| `gacha.json` | 缺文件则空 `PlayerGachaState`；`starterColeGranted` 默认 false |
 
 #### 5.4 与静态配置的边界
 

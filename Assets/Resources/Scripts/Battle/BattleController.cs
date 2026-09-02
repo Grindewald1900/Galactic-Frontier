@@ -15,6 +15,7 @@ using Assets.Resources.Scripts.Battle.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine.UI;
@@ -65,6 +66,12 @@ namespace Assets.Resources.Scripts.Battle
 
         /// <summary>Encounter id for enemy party load (P2.3).</summary>
         public static string PendingEncounterId { get; set; }
+
+        /// <summary>Chapter 1 prologue battle — skips world region registration.</summary>
+        public static bool PendingIsChapterPrologue { get; set; }
+
+        /// <summary>Screen to open when leaving BattleScene (defaults to Explore).</summary>
+        public static AppScreen? PendingReturnScreen { get; set; }
 
         [Tooltip("Non-zero overrides PendingBattleSeed / auto seed (Editor testing).")]
         [SerializeField] private long battleSeedOverride;
@@ -502,6 +509,15 @@ namespace Assets.Resources.Scripts.Battle
                 return;
             progressApplied = true;
 
+            if (PendingIsChapterPrologue)
+            {
+                ChapterQuestService.NotifyPrologueWon();
+                PendingIsChapterPrologue = false;
+                PendingBattleTargetId = null;
+                PendingEncounterId = null;
+                return;
+            }
+
             var regionId = PendingBattleTargetId;
             var encounterId = PendingEncounterId;
             if (string.IsNullOrEmpty(regionId))
@@ -525,6 +541,10 @@ namespace Assets.Resources.Scripts.Battle
             {
                 Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyFirstBattleWon();
                 RewardService.GrantForRegionVictory(regionId, result.WasFirstClear);
+                if (regionId == WorldConstants.OuterBeltId)
+                    ChapterQuestService.NotifyOuterCleanupWon();
+                else if (regionId == WorldConstants.MiningSpurId)
+                    ChapterQuestService.NotifyMiningSpurWon();
             }
             Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(
                 CardListManager.Instance?.cardEntities);
@@ -575,10 +595,16 @@ namespace Assets.Resources.Scripts.Battle
 
         private void OnReportConfirm()
         {
-            Debug.Log($"{GetType().Name}: Report confirmed → Explore/Main.");
+            Debug.Log($"{GetType().Name}: Report confirmed → Main.");
             if (reportPanel != null)
                 reportPanel.SetActive(false);
-            BattleSceneExit.ReturnToExplore();
+            var screen = PendingReturnScreen ?? AppScreen.Battle;
+            PendingReturnScreen = null;
+            PendingIsChapterPrologue = false;
+            if (screen == AppScreen.Bridge)
+                BattleSceneExit.ReturnToBridge();
+            else
+                BattleSceneExit.ReturnToExplore();
         }
 
     }

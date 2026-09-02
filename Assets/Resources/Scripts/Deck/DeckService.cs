@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Utils;
@@ -241,6 +242,7 @@ namespace Assets.Resources.Scripts.Deck
                         if (d != null && d.unlocked && d.MemberCount >= 1)
                         {
                             Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyFormationReady();
+                            ChapterQuestService.Evaluate();
                             break;
                         }
                     }
@@ -294,6 +296,7 @@ namespace Assets.Resources.Scripts.Deck
                 return DeckCommandResult.Fail(DeckCommandError.DeckLocked, "Deck slot is locked.");
             deck.combatStrategyId = strategyId ?? "Balanced";
             Save();
+            ChapterQuestService.Evaluate();
             return DeckCommandResult.Ok();
         }
 

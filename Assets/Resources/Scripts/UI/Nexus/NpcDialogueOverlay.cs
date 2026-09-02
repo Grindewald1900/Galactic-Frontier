@@ -4,6 +4,7 @@ using Assets.Resources.Scripts.Dialogue.Domain;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
@@ -253,7 +254,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         }
 
         private static Button CreateControlButton(
-            Transform parent, string name, string label, Vector2 pos, Vector2 size, Action onClick)
+            Transform parent, string name, string label, Vector2 pos, Vector2 size, UnityAction onClick)
         {
             return NexusUiFactory.CreateButton(
                 parent, name, label, pos, size, onClick,

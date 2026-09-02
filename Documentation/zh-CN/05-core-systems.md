@@ -91,7 +91,11 @@ flowchart LR
 
 `CardDrawingManager` 材料仅在 **Dev Data Mode** 下由 `IDevDataProvider.FillSampleGachaMaterials` 注入（内存，不写档）；正式模式材料列表为空，待接真实背包。`InitCards` 在 Dev OFF 时目前不会调用 `CardDataManager` 生成（空结果）——正式路径见系统文档拍板。
 
-完整规则、代价表、软保底、绑定/分解与落地顺序：见 [19-characters-and-progression.md](19-characters-and-progression.md)。
+完整规则、代价表、软保底、绑定/分解与落地顺序：见 [19-characters-and-progression.md](19-characters-and-progression.md)。首章首次招募必得科尔（`gacha.json` → `starterColeGranted`）见 [24-early-chapter-experience.md](24-early-chapter-experience.md) §2.5。
+
+### 5.1 首章剧情任务（`chapter_v1`）
+
+`ChapterQuestService`（`Assets/Resources/Scripts/ChapterQuest/`）管理首章线性链 `chapter_v1`（六步：`ch1_prologue` … `ch1_mining_spur`），持久化 `chapter_quests.json`，与 `OnboardingService` 并行。序章入口 `TryBeginEntryFlow`（`AppShell`）；步骤 Claim 可镜像 `ob_formation` / `ob_first_battle`。契约见 [24-early-chapter-experience.md](24-early-chapter-experience.md)。
 
 ### 6. 战斗
 
@@ -361,6 +365,7 @@ P3 字段：`itemDefId`、`quality`、`itemInstanceId`、`durability` / `maxDura
 | 修改物品存档 | `ItemEntity`、`DataUtil` | 本地/远程 Item Manager、`ProductionService` | `ItemSlot` / `CraftingScreen` |
 | 采集/制造/离线 | `ItemCatalog` / `idle.json` | `IdleEconomyTicker`、`IdleSettlementService` | Explore / Crafting / Bridge Claim |
 | NPC 商店 | `NpcShops.json` / `credits` | `NpcShopService`、`CurrencyService` | `MarketScreen` |
+| 首章剧情任务 | `chapter_quests.json` | `ChapterQuestService` | `QuestTrackerDrawer`、`MissionsScreen`、`CommanderGoalService` |
 | 新增主导航页 | 对应业务模型 | 对应业务 Controller | `AppShell`、必要时 `LegacyPanelAdapter` |
 
 ### 面向 Codex 的检查清单

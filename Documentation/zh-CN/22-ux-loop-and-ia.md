@@ -94,7 +94,13 @@
 
 ### 3.4 任务追踪器
 
-右侧可展开抽屉，替代任务一级页：
+右侧可展开抽屉，替代任务一级页。**双层结构（Wave A）**：上层 **首章剧情**（`ChapterQuestService` / `chapter_v1`：标题、进度、Go、Claim）；下层 **新手航线**（`OnboardingService` / `onboarding_v1`）。`CommanderGoalService` 与舰桥主目标**优先** Active 剧情步骤。详见 [24-early-chapter-experience.md](24-early-chapter-experience.md) §6.5。
+
+弥塔舰桥短句（示例，实现可走 `DialogueService` 或 `BridgeEventLog`）：
+
+- 「外缘港信标已锁定。我们还活着——暂时。」
+- 「人员信标还在响。先招募，再编队。」
+- 「集火后排——科尔守住后方时胜率会跳升。」
 
 | 分区 | 内容 |
 | --- | --- |

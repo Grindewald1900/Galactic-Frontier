@@ -446,6 +446,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (selectedSlot >= 0 && selectedCard == null)
                 return;
 
+            if (selectedSlot >= 0 && selectedCard != null)
+                return;
+
             selectedCard = null;
             selectedSlot = -1;
             if (editing == null)
@@ -479,7 +482,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var visible = FilterAndSort(all, memberIds);
             var header = rosterRoot.Find("Header")?.GetComponent<TextMeshProUGUI>();
             if (header != null)
-                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{CountValid(all)}";
+            {
+                int availableTotal = CountAvailableForDeck(all, memberIds);
+                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{availableTotal}";
+            }
 
             DrawRosterFilters();
             var content = CreateRosterScroll(rosterRoot);
@@ -813,6 +819,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 button.onClick.AddListener(() =>
                 {
                     selectedCard = captured;
+                    var deck = DeckService.GetEditingDeck();
+                    if (selectedSlot >= 0 && deck != null && !IsSlotEmpty(deck, selectedSlot))
+                        selectedSlot = -1;
                     Rebuild();
                 });
             }
@@ -866,6 +875,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             foreach (CardEntity entity in all)
             {
                 if (entity == null) continue;
+                if (memberIds != null && memberIds.Contains(entity.id))
+                    continue;
                 if (archetypeFilter > 0 && entity.archetype != ArchetypeCycle[archetypeFilter - 1])
                     continue;
                 if (rarityFilter > 0 && entity.CharacterTier < RarityMins[rarityFilter])
@@ -900,6 +911,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return string.Compare(DisplayName(a), DisplayName(b), StringComparison.OrdinalIgnoreCase);
             });
             return filtered;
+        }
+
+        private static int CountAvailableForDeck(List<CardEntity> all, HashSet<string> memberIds)
+        {
+            int count = 0;
+            foreach (var entity in all)
+            {
+                if (entity != null && (memberIds == null || !memberIds.Contains(entity.id)))
+                    count++;
+            }
+
+            return count;
         }
 
         private static int CountValid(List<CardEntity> all)
@@ -1552,13 +1575,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
             PinBottomLeft(equip, pad + (btnW + gap) * 2f, bottom, new Vector2(btnW, btnH));
         }
 
-        private static bool CanJoinSelected(
+        private bool CanJoinSelected(
             DeckEntity editing, CardEntity card, bool inCurrent, bool inOther, out string reason)
         {
             reason = "";
             if (card == null)
             {
-                reason = UiText.InspectHint;
+                reason = UiText.SelectRosterFirst;
                 return false;
             }
 
@@ -1580,13 +1603,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return false;
             }
 
-            if (FirstEmptySlot(editing) < 0)
+            if (!IsSelectedSlotEmpty(editing))
             {
                 reason = UiText.JoinNeedsEmptySlot;
                 return false;
             }
 
             return true;
+        }
+
+        private bool IsSelectedSlotEmpty(DeckEntity editing) => IsSlotEmpty(editing, selectedSlot);
+
+        private static bool IsSlotEmpty(DeckEntity editing, int slot)
+        {
+            if (editing?.slotCardIds == null)
+                return false;
+            if (slot < 0 || slot >= editing.slotCardIds.Length)
+                return false;
+            return string.IsNullOrEmpty(editing.slotCardIds[slot]);
         }
 
         private static bool CanLeaveSelected(DeckEntity editing, bool inCurrent)
@@ -1693,7 +1727,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 slotButton.onClick.AddListener(() =>
                 {
                     selectedSlot = slotIndex;
-                    selectedCard = occupant;
+                    if (occupant != null)
+                        selectedCard = occupant;
                     Rebuild();
                 });
             }
@@ -1714,24 +1749,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             }
 
-            int target = selectedSlot >= 0
-                && selectedSlot < DeckConstants.SlotsPerDeck
-                && string.IsNullOrEmpty(editing.slotCardIds[selectedSlot])
-                    ? selectedSlot
-                    : FirstEmptySlot(editing);
-            if (target < 0)
-            {
-                statusText.text = UiText.JoinNeedsEmptySlot;
-                return;
-            }
-
-            selectedSlot = target;
+            int target = selectedSlot;
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities();
             if (all == null) return;
             var assign = DeckService.TryAssignToEditing(target, selectedCard.id, all);
             statusText.text = assign.Success ? string.Empty : assign.Message;
             if (assign.Success)
+            {
+                selectedCard = null;
+                var refreshed = DeckService.GetEditingDeck();
+                selectedSlot = FirstEmptySlot(refreshed);
                 Persist();
+            }
             Rebuild();
         }
 
@@ -1765,6 +1794,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var result = DeckService.TryAssignToEditing(index, "", all);
             if (!result.Success)
                 statusText.text = result.Message;
+            else
+            {
+                selectedCard = null;
+                selectedSlot = index;
+            }
             Persist();
             Rebuild();
         }

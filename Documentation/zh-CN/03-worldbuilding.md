@@ -6,7 +6,7 @@
 > 上级约束：`02-core-product-design.md`（玩法约束）；本文不改写已拍板的系统数值。  
 > 关联：第七前沿内容 `17-sector-and-onboarding.md`；角色名册 `19-characters-and-progression.md`；Online `18-online-and-play-modes.md`；航网探索 `20-stellar-map-and-navigation.md`。  
 > 更新日期：2026-08-30  
-> 变更：v1.2 对齐程序生成航网——相位偏移解释位面差异，见 `23-procedural-universe-generation.md`；v1.1 对齐航网玩法。
+> 变更：v1.2 对齐程序生成航网——相位偏移解释位面差异，见 `23-procedural-universe-generation.md`；v1.1 对齐航网玩法；v1.2.1 序章「失控返航」与弥塔身份与 [24](24-early-chapter-experience.md) 对齐。
 
 ---
 
@@ -161,6 +161,8 @@
 ### 序章：许可证
 
 玩家抵达第七前沿时，前任舰长已经失联，只留下一艘损坏的开拓舰和三份尚未失效的人员档案：阿斯拉、玛吉与瑟妮娅。三人分别代表卫队技术、商盟武力和裂隙知识，也从一开始暗示玩家必须利用不同立场的人完成远征。
+
+**Wave A  playable 开场**（与上文「平静抵达」并存为体验层实现）：新档首次进 Nexus 走**失控返航**序章——玩家在熵雾中漂出的残破舰上醒来，舰载导航 AI **弥塔**（前任舰长遗留的旧式导航核心，资料库损坏）误将玩家识别为失踪舰长，外缘港以清扫无人机拦截；击退 `enc_prologue_sweep` 后获临时停靠。弥塔身份错乱与「您不是那个人」伏笔见 [24-early-chapter-experience.md](24-early-chapter-experience.md) §2.1。完整分镜与任务链以文档 24 为准。
 
 开拓局要求玩家恢复边境锚点，却拒绝解释前任舰长失联的原因。
 

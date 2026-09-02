@@ -32,6 +32,104 @@
           "textZh": "准备好了就打开编队，部署你的战斗卡组。"
         }
       ]
+    },
+    {
+      "dialogueId": "ch1_wake",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Commander — wake up. We're bleeding atmosphere on the outer lane.",
+          "textZh": "指挥官，醒醒。外缘航线正在失压。"
+        },
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Sweep drones are on our tail. Hold formation — I'll bring us in.",
+          "textZh": "清扫无人机追上来了。保持编队，我来引导进港。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_prologue_clear",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Outer Haven beacon locked. We're alive — for now.",
+          "textZh": "外缘港信标已锁定。我们还活着——暂时。"
+        },
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "Hull stress is high, but the crew held. Commander, we need reinforcements.",
+          "textZh": "船体应力很高，但船员撑住了。指挥官，我们需要增援。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_mita_recruit",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "A personnel beacon is still pinging in the debris field. Emergency recruit — now.",
+          "textZh": "残骸带里还有人员信标在响。立刻紧急招募。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_asra_formation",
+      "lines": [
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "Put me on the front line. Cole hits from the back — and change our combat strategy.",
+          "textZh": "把我放前排。科尔打后排——再把战术调一下。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_mita_strategy",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "See that? Focus fire on their back line — win rate jumps when Cole covers rear.",
+          "textZh": "看到了吗？集火后排——科尔守住后方时胜率会跳升。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_sernia_signal",
+      "lines": [
+        {
+          "speakerNameEn": "Sernia",
+          "speakerNameZh": "瑟妮娅",
+          "portraitId": "Sernia",
+          "textEn": "Periodic signal southeast — mining spur, maybe. Probe it before the fog swallows it.",
+          "textZh": "东南方有周期信号——可能是矿脉支线。趁熵雾还没吞掉它，先探测。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_magki_armor",
+      "lines": [
+        {
+          "speakerNameEn": "Magki",
+          "speakerNameZh": "玛吉",
+          "portraitId": "Magki",
+          "textEn": "Raiders on the spur run heavy plating. I'll strip their armor — push when I break them.",
+          "textZh": "矿脉上的劫掠者装甲很厚。我来破甲——破防了就推进。"
+        }
+      ]
     }
   ]
 }

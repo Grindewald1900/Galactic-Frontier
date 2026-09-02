@@ -1,5 +1,6 @@
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
+using Assets.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,7 @@ namespace Assets.Resources.Scripts.Main
 
         void Start()
         {
+            LocalizationUtil.Initialize();
             buttonLoad.onClick.AddListener(OnLoadButtonClick);
             buttonNewGame.onClick.AddListener(OnNewButtonClick);
             if (buttonSettings != null)

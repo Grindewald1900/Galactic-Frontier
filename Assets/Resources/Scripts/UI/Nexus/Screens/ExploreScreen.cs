@@ -1,6 +1,8 @@
 using System.Text;
 using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Scene;
@@ -533,6 +535,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             float actionY = Mathf.Max(y, 220f);
+            ChapterQuestService.EnsureLoaded(DataUtil.Instance);
+            if (!ChapterQuestService.IsChapterComplete
+                && ChapterQuestService.ActiveStep?.stepId == ChapterQuestCatalog.StepScanSignal
+                && body.bodyId == "body_mining_spur"
+                && fogged)
+            {
+                var scanHint = NexusUiFactory.CreateText(
+                    side, "ChapterScan", UiText.ChapterScanHint,
+                    new Vector2(20f, actionY), new Vector2(420f, 36f), 12f, NexusTheme.Cyan);
+                scanHint.textWrappingMode = TextWrappingModes.Normal;
+                actionY += 40f;
+            }
+
             if (fogged)
             {
                 NexusUiFactory.CreateButton(

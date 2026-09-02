@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.UI;
+using Assets.Resources.Scripts.UI.Nexus;
 using Assets.Resources.Scripts.Utils;
+using Assets.Scripts.Utils;
 
 namespace Assets.Resources.Scripts.Main
 {
@@ -17,7 +20,8 @@ namespace Assets.Resources.Scripts.Main
         public Transform contentParent;
         private List<GameLoadSlot> items = new();
         private List<PlayerEntity> playerEntities = new();
-        private int currentIndex = 0;
+        private int currentIndex = -1;
+        private Button deleteButton;
 
         void Awake()
         {
@@ -27,9 +31,16 @@ namespace Assets.Resources.Scripts.Main
             }
         }
 
+        void OnDisable()
+        {
+            LoadSaveDeleteDialog.Close();
+        }
+
         /// <summary>Reloads all player profiles from disk and creates their save-selection slots.</summary>
         public void LoadGame()
         {
+            LocalizationUtil.Initialize();
+            LoadSaveDeleteDialog.Close();
             RemoveAllItems();
             playerEntities = DataUtil.Instance.LoadPlayerEntities();
             Debug.Log("Loading game... players: " + playerEntities.Count);
@@ -37,6 +48,8 @@ namespace Assets.Resources.Scripts.Main
             {
                 AddItem(player);
             }
+            EnsureDeleteButton();
+            RefreshDeleteButton();
             InitFocus();
         }
 
@@ -45,6 +58,11 @@ namespace Assets.Resources.Scripts.Main
             if (items.Count > 0)
             {
                 SetCurrentFocus(items[0]);
+            }
+            else
+            {
+                currentIndex = -1;
+                RefreshDeleteButton();
             }
         }
 
@@ -55,7 +73,13 @@ namespace Assets.Resources.Scripts.Main
             {
                 item.SetFocus(item == newFocus);
             }
-            currentIndex = items.IndexOf(newFocus);
+            currentIndex = newFocus != null ? items.IndexOf(newFocus) : -1;
+            if (newFocus?.playerEntity == null)
+            {
+                RefreshDeleteButton();
+                return;
+            }
+
             // Update current player in DataUtil when item selected (also migrates save schema).
             if (!DataUtil.Instance.SetCurrentPlayer(newFocus.playerEntity))
             {
@@ -63,6 +87,8 @@ namespace Assets.Resources.Scripts.Main
                     "[SAVE] Cannot use this save: " +
                     (DataUtil.Instance.LastSaveError ?? "unknown migration error"));
             }
+
+            RefreshDeleteButton();
         }
 
         public void AddItem(PlayerEntity player)
@@ -75,7 +101,15 @@ namespace Assets.Resources.Scripts.Main
 
         public void RemoveItem(string ID)
         {
-            items.RemoveAll(item => item.playerEntity.playerID == ID);
+            for (int i = items.Count - 1; i >= 0; i--)
+            {
+                var item = items[i];
+                if (item?.playerEntity?.playerID != ID)
+                    continue;
+                items.RemoveAt(i);
+                if (item != null)
+                    Destroy(item.gameObject);
+            }
         }
 
         public void RemoveAllItems()
@@ -87,6 +121,58 @@ namespace Assets.Resources.Scripts.Main
             }
             items.Clear();
             playerEntities.Clear();
+            currentIndex = -1;
+        }
+
+        private void EnsureDeleteButton()
+        {
+            if (deleteButton != null)
+                return;
+
+            deleteButton = NexusUiFactory.CreateButton(
+                transform, "Delete Save", UiText.LoadDelete,
+                new Vector2(0f, 20f), new Vector2(220f, 44f),
+                PromptDeleteSelected,
+                NexusTheme.WithAlpha(NexusTheme.Red, 0.18f), NexusTheme.Red, 14f);
+            var rect = deleteButton.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = new Vector2(0f, 20f);
+        }
+
+        private void RefreshDeleteButton()
+        {
+            if (deleteButton == null)
+                return;
+            bool hasSelection = currentIndex >= 0 && currentIndex < items.Count;
+            deleteButton.interactable = hasSelection;
+        }
+
+        private void PromptDeleteSelected()
+        {
+            if (currentIndex < 0 || currentIndex >= items.Count)
+                return;
+
+            var slot = items[currentIndex];
+            if (slot?.playerEntity == null)
+                return;
+
+            LoadSaveDeleteDialog.Show(transform, slot.playerEntity, ConfirmDelete);
+        }
+
+        private void ConfirmDelete(PlayerEntity player)
+        {
+            if (player == null || string.IsNullOrWhiteSpace(player.playerID))
+                return;
+
+            if (!DataUtil.Instance.TryDeletePlayerSave(player.playerID))
+            {
+                Debug.LogError("[SAVE] Delete failed: " + (DataUtil.Instance.LastSaveError ?? "unknown error"));
+                return;
+            }
+
+            LoadGame();
         }
     }
 }

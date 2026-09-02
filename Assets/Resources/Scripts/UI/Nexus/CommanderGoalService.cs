@@ -1,4 +1,6 @@
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Onboarding;
@@ -25,8 +27,26 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static GoalView GetCurrent()
         {
             OnboardingService.EnsureLoaded(DataUtil.Instance);
+            ChapterQuestService.EnsureLoaded(DataUtil.Instance);
             WorldService.EnsureLoaded(DataUtil.Instance);
             DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance?.cardEntities);
+
+            if (!ChapterQuestService.IsChapterComplete)
+            {
+                foreach (var view in ChapterQuestService.GetStepViews())
+                {
+                    if (view?.Def == null || view.Status != ChapterQuestStepStatus.Active)
+                        continue;
+                    return new GoalView
+                    {
+                        Title = UiText.T(view.Def.titleEn, view.Def.titleZh),
+                        Progress = UiText.CommanderGoalChapter,
+                        Bottleneck = UiText.T(view.Def.hintEn ?? "", view.Def.hintZh ?? ""),
+                        RecommendedAction = UiText.QuestGo,
+                        RecommendedScreen = MapTarget(view.Def.targetScreen),
+                    };
+                }
+            }
 
             if (!OnboardingService.IsChainComplete)
             {
@@ -60,6 +80,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             "Formation" => AppScreen.Formation,
             "Battle" => AppScreen.Battle,
+            "Recruit" => AppScreen.Recruit,
             "Crafting" => AppScreen.Crafting,
             "Market" => AppScreen.Market,
             "Ship" => AppScreen.Ship,

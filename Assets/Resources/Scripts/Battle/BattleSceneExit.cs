@@ -31,10 +31,13 @@ namespace Assets.Resources.Scripts.Battle
 
             // P1.3: MainCombat occupation ends when leaving BattleScene.
             DeckService.StopAllMainCombat();
+            var returnScreen = BattleController.PendingReturnScreen;
             BattleController.PendingBattleTargetId = null;
             BattleController.PendingEncounterId = null;
+            BattleController.PendingIsChapterPrologue = false;
+            BattleController.PendingReturnScreen = null;
 
-            AppShell.RequestScreen(screen);
+            AppShell.RequestScreen(returnScreen ?? screen);
 
             var sceneName = nameof(SceneLoader.SceneName.MainScene);
             LoadingOverlay.LoadScene(sceneName);

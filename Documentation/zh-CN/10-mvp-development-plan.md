@@ -273,9 +273,23 @@ flowchart LR
 | P5.2 2 基础阵营 | **已完成** `FactionTags` + Explore/编队标签 | Guard / Syndicate 可辨；无完整阵营玩法 |
 | P5.5 数值初平衡 | **已完成** 挂机 45s、维修/NPC 价差粗调 | AFK 有材料压力但不软锁 |
 | 抽卡正式路径 | **已完成** `GachaService` + `RecruitScreen` + 招募券扣库存 | Dev OFF 可抽；Lv1 入池；软保底 |
+| **首章 Wave A** | **部分** `ChapterQuestService` + `chapter_v1` 六步 | 序章→矿脉；与 onboarding 并行；验收见 [24](24-early-chapter-experience.md) §7 |
 | （后置）P4.6 / `12` | Online 玩家市场；特殊星域模式 | **非 MVP** |
 
 > Characters / Cards 页仍可接 Legacy；P5 优先 Missions 原生页与内容表，不强求一次重写全部 Legacy 面板。
+
+### P5.6 — 首章前期 Wave A（2026-09）
+
+**目标**：在保留 `onboarding_v1` 的前提下，交付约 **0–48 分钟** playable slice（序章 + 任务 1–5）。权威契约：[24-early-chapter-experience.md](24-early-chapter-experience.md)。
+
+| 里程碑 | 产出 | 验收 |
+| --- | --- | --- |
+| Wave A.1 领域层 | `ChapterQuestService`、`chapter_quests.json`、`ChapterQuestCatalog`（`chapter_v1` 六步） | EditMode 条件判定；新档缺文件初始化 |
+| Wave A.2 序章 | `enc_prologue_sweep`、`TryBeginEntryFlow`、`ch1_wake` / `ch1_prologue_clear` | 新档自动序章战斗 ≤2 分钟 |
+| Wave A.3 招募科尔 | `Cole.cs`、`starterColeGranted`、首次 pull 必 Cole | `ch1_recruit_cole` 可 Claim |
+| Wave A.4 任务 2–3 | 编队检测、`StrategyComparePopup`、外缘带胜利 | `linkedOnboardingStepId` 镜像 `ob_formation` / `ob_first_battle` |
+| Wave A.5 任务 4–5 | `body_mining_spur` 扫描、矿脉胜利 | 双层任务追踪器；PlayMode 清单见文档 24 §7 |
+| Wave B（后置） | 任务 6–10、挂机/制造闭环、米娅、Boss | 不在 Wave A 验收内 |
 
 ---
 

@@ -1,8 +1,8 @@
 # 产品与文档状态（唯一权威）
 
-> 更新日期：2026-08-30  
+> 更新日期：2026-09-01  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
-> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。
+> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。首章前期 Wave A：[24](24-early-chapter-experience.md)。
 
 ---
 
@@ -52,6 +52,7 @@
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
 | 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | 规则/方向 | 部分 | 进行中 | **v0.1 试点**：`UniverseGenerator` + 验证器 + 种子持久化；Debug 屏可重掷/验证；M3 约 18 星域 |
+| 24 | [early-chapter-experience](24-early-chapter-experience.md) | 内容/体验 | 部分 | 进行中 | **Wave A**：`chapter_v1` 六步、序章战斗、科尔保底、双层任务追踪；PlayMode 验收见文档 24 §7 |
 
 ---
 
@@ -91,6 +92,7 @@
 | 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 部分 | 宇宙层 procedural 图已生成（`UniverseGenerator`）；Explore 宇宙缩放已接；信标跃迁/完整 M3 交互待做 |
 | 程序生成航网（23） | 部分 | `UniverseGenerator` / `UniverseValidator` / `universeSeed`；Debug 重掷+验证；EditMode 测试 |
 | P6 指挥官循环（M6） | 部分 | Wave 0–2 已落地；M6 三十分钟验收待 PlayMode 回归 |
+| 首章 Wave A（24） | 部分 | `ChapterQuestService`、`chapter_quests.json`、`enc_prologue_sweep`、`starterColeGranted`、七条 `ch1_*` 对话；任务 6–10 未做 |
 
 ---
 

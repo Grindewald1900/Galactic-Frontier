@@ -138,6 +138,7 @@ namespace Assets.Resources.Scripts.World.Domain
         public string displayNameZh = "";
         public string factionTag = "";
         public bool isBoss;
+        public bool isTutorial;
         public EncounterEnemySlot[] enemies = Array.Empty<EncounterEnemySlot>();
         public int lootScrap = 1;
         public string rewardTableId = "";

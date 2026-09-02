@@ -45,6 +45,8 @@ namespace Assets.Resources.Scripts.World.Domain
         {
             return new List<EncounterConfig>
             {
+                Enc("enc_prologue_sweep", "Sweep Drones", "清扫无人机", FactionTags.FrontierGuard, false, 0, true,
+                    Slot("Asra", 1)),
                 Enc("enc_outer_main", "Outer Belt Patrol", "外缘巡逻队", FactionTags.FrontierGuard, false, 2,
                     Slot("Asra", 1), Slot("Magki", 1)),
                 Enc("enc_outer_farm", "Outer Belt Scraps", "外缘残骸清扫", FactionTags.FrontierGuard, false, 1,
@@ -74,6 +76,7 @@ namespace Assets.Resources.Scripts.World.Domain
 
         private static EncounterConfig Enc(
             string id, string nameEn, string nameZh, string faction, bool boss, int loot,
+            bool isTutorial,
             params EncounterEnemySlot[] enemies) =>
             new EncounterConfig
             {
@@ -82,9 +85,15 @@ namespace Assets.Resources.Scripts.World.Domain
                 displayNameZh = nameZh,
                 factionTag = faction ?? "",
                 isBoss = boss,
+                isTutorial = isTutorial,
                 lootScrap = loot,
                 enemies = enemies
             };
+
+        private static EncounterConfig Enc(
+            string id, string nameEn, string nameZh, string faction, bool boss, int loot,
+            params EncounterEnemySlot[] enemies) =>
+            Enc(id, nameEn, nameZh, faction, boss, loot, false, enemies);
 
         private static EncounterEnemySlot Slot(string key, int level) =>
             new EncounterEnemySlot { characterKey = key, level = level, weight = 1 };

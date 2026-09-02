@@ -8,6 +8,7 @@ using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.Cosmetics;
@@ -115,6 +116,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         ShipService.EnsureLoaded(DataUtil.Instance);
                         IdleSettlementService.EnsureLoaded(DataUtil.Instance);
                         OnboardingService.EnsureLoaded(DataUtil.Instance);
+                        ChapterQuestService.EnsureLoaded(DataUtil.Instance);
                         FeatureUnlockService.EnsureLoaded(DataUtil.Instance);
                         AvatarFrameService.EnsurePlayer();
                         AvatarFrameService.Evaluate();
@@ -127,6 +129,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     mainReady = true;
                     PushStartupNotifications();
                     FeatureUnlockUi.PresentPending(ShowScreen);
+                    ChapterQuestService.TryBeginEntryFlow(null);
                     LoadingOverlay.NotifySceneReady();
                     break;
             }

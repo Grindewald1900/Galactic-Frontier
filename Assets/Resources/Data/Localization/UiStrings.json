@@ -256,6 +256,26 @@
       "zh": "界面重写 · 全自动战斗"
     },
     {
+      "id": "ui.load.delete",
+      "en": "Delete save",
+      "zh": "删除存档"
+    },
+    {
+      "id": "ui.load.delete_confirm",
+      "en": "Delete",
+      "zh": "确认删除"
+    },
+    {
+      "id": "ui.load.delete_confirm_title",
+      "en": "Delete this save?",
+      "zh": "删除此存档？"
+    },
+    {
+      "id": "ui.load.delete_confirm_body",
+      "en": "This permanently removes \"{0}\" and all progress. This cannot be undone.",
+      "zh": "将永久删除「{0}」及其全部进度，且无法恢复。"
+    },
+    {
       "id": "ui.bridge.title",
       "en": "Bridge",
       "zh": "舰桥"
@@ -1197,8 +1217,8 @@
     },
     {
       "id": "ui.formation.no_empty_slot",
-      "en": "This deck has no empty slot.",
-      "zh": "该卡组没有空槽。"
+      "en": "Select an empty deck slot.",
+      "zh": "请选择一个空白卡组位。"
     },
     {
       "id": "ui.equip.weapon",
@@ -2429,6 +2449,41 @@
       "id": "ui.quest.toggle",
       "en": "Quests",
       "zh": "任务"
+    },
+    {
+      "id": "ui.quest.chapter_title",
+      "en": "Chapter 1 — Frontier Arrival",
+      "zh": "第一章 · 抵达前沿"
+    },
+    {
+      "id": "ui.quest.onboarding_title",
+      "en": "System tutorials",
+      "zh": "系统教学"
+    },
+    {
+      "id": "ui.commander.goal_chapter",
+      "en": "Story objective",
+      "zh": "剧情目标"
+    },
+    {
+      "id": "ui.chapter.strategy_title",
+      "en": "Strategy check",
+      "zh": "战术对比"
+    },
+    {
+      "id": "ui.chapter.strategy_body",
+      "en": "Simulated win rate: 52% → 86%\nBack-row focus with Cole in rear and updated combat strategy.",
+      "zh": "模拟胜率：52% → 86%\n科尔守后排并调整战术后，集火后排效果显著。"
+    },
+    {
+      "id": "ui.chapter.recruit_hint",
+      "en": "First recruit is guaranteed to be Cole — add him to your fleet.",
+      "zh": "首次招募必得科尔——把他编入舰队。"
+    },
+    {
+      "id": "ui.chapter.scan_hint",
+      "en": "Probe the southeast signal on Explore to locate the mining spur.",
+      "zh": "在探索界面探测东南信号，定位矿脉支线。"
     },
     {
       "id": "ui.shortage.item",

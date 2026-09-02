@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Characters;
+using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
@@ -81,7 +83,16 @@ namespace Assets.Resources.Scripts.Gacha
                 {
                     var pityForce = GachaRules.ShouldForceHighTier(State.pityCounter);
                     if (pityForce) forced++;
-                    var character = mgr.GetCharacter(rng);
+                    Character character;
+                    if (!State.starterColeGranted)
+                    {
+                        character = CharacterSkillController.GetCharacter(CharacterName.Cole);
+                        State.starterColeGranted = true;
+                    }
+                    else
+                    {
+                        character = mgr.GetCharacter(rng);
+                    }
                     if (character == null)
                         throw new InvalidOperationException("Empty character pool.");
                     var entity = mgr.GetGachaCardEntity(character, pityForce, rng);
@@ -107,6 +118,8 @@ namespace Assets.Resources.Scripts.Gacha
             {
                 Grant(cards);
                 granted = true;
+                ChapterQuestService.NotifyEmergencyRecruit();
+                ChapterQuestService.Evaluate();
             }
 
             return GachaPullResult.Ok(cards, need, State.pityCounter, forced, granted);

@@ -1,6 +1,6 @@
 # Galactic Frontier 中文开发文档
 
-本目录为**唯一**中文文档集（共 **23** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+本目录为**唯一**中文文档集（共 **24** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ## 必读入口
 
@@ -11,7 +11,7 @@
 | [03-worldbuilding.md](03-worldbuilding.md) | **世界观与故事（叙事权威）** |
 | [10-mvp-development-plan.md](10-mvp-development-plan.md) | 阶段路线图 |
 
-## 文档总表（01–23）
+## 文档总表（01–24）
 
 | # | 文档 | 类别 |
 | ---: | --- | --- |
@@ -38,6 +38,7 @@
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | **产品（P6 指挥官循环 / IA / UX 契约）** |
 | 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | **规则（种子航网生成 + 验证器；M3+）** |
+| 24 | [early-chapter-experience](24-early-chapter-experience.md) | **内容（首章前期体验 · Wave A 权威）** |
 
 ## 推荐阅读
 
@@ -45,7 +46,7 @@
 2. [03-worldbuilding](03-worldbuilding.md)（故事与主题）  
 3. [02-core-product-design](02-core-product-design.md)（玩法硬约束）  
 4. [04-architecture](04-architecture.md) → [05-core-systems](05-core-systems.md) → [06-data-and-save](06-data-and-save.md)  
-5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`23`
+5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`24`
 
 ## 合并说明（相对旧树）
 

@@ -2,7 +2,7 @@
 > 文档版本：v1.0
 > 文档类型：**规则 / 内容契约**
 > 由原 `23-onboarding-and-missions` + `24-sector-and-region-content` 合并。
-> 叙事主线见 `03-worldbuilding.md` §10。  
+> 叙事主线见 `03-worldbuilding.md` §10；**首章剧情任务链**见 [24-early-chapter-experience.md](24-early-chapter-experience.md)（`chapter_v1`）。  
 > **第七前沿**为 M2 **手工星域模板**；宇宙层随机生成规则见 `23-procedural-universe-generation.md`（M3+ 不替换本域主链，除非显式迁移）。  
 > 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
@@ -14,7 +14,9 @@
 
 #### 1.1 目标
 
-把已打通的单人核心循环，收成一条**约两小时可演示**的新手脊骨，并以**开拓舰长**身份开场：
+把已打通的单人核心循环，收成一条**约两小时可演示**的新手脊骨，并以**开拓舰长**身份开场。
+
+**与 `chapter_v1` 的关系（Wave A）：** 本文 `onboarding_v1` 五步仍为**系统教学与功能解锁骨架**；序章至矿脉支线的**剧情、弥塔对话与首章战斗节奏**由 `ChapterQuestService` / `chapter_v1` 驱动，与 onboarding **并行**（见 [24-early-chapter-experience.md](24-early-chapter-experience.md) §6）。剧情步骤 Claim 时可经 `linkedOnboardingStepId` 镜像满足 `ob_formation` / `ob_first_battle`，避免双轨重复操作。P6 舰桥主目标与任务追踪器优先展示 Active 剧情步骤，其次才是 onboarding 步骤。
 
 1. 用 **线性主任务链**（5 步）教会：编队 → 首战 → 采集 → 制造 → **NPC 商店（市场终端）**；  
 2. 进度可**持久化**，重进游戏不丢；  

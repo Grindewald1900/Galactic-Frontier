@@ -1,5 +1,9 @@
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Onboarding.Domain;
 using Assets.Resources.Scripts.Utils;
@@ -51,6 +55,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance?.cardEntities);
                 WorldService.EnsureLoaded(DataUtil.Instance);
                 OnboardingService.EnsureLoaded(DataUtil.Instance);
+                ChapterQuestService.EnsureLoaded(DataUtil.Instance);
             }
 
             float y = 8f;
@@ -60,7 +65,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Left, FontStyles.Bold);
             y += 32f;
 
-            if (OnboardingService.IsChainComplete)
+            if (!ChapterQuestService.IsChapterComplete)
+            {
+                NexusUiFactory.CreateText(
+                    content, "ChapterHead", UiText.QuestChapterTitle,
+                    new Vector2(12f, y), new Vector2(320f, 20f), 12f, NexusTheme.Cyan,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                y += 24f;
+                foreach (var view in ChapterQuestService.GetStepViews())
+                {
+                    if (view?.Def == null) continue;
+                    DrawChapterStep(view, ref y);
+                }
+
+                y += 8f;
+                NexusUiFactory.CreateText(
+                    content, "OnboardingHead", UiText.QuestOnboardingTitle,
+                    new Vector2(12f, y), new Vector2(320f, 20f), 12f, NexusTheme.MutedText,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                y += 24f;
+            }
+
+            if (OnboardingService.IsChainComplete && ChapterQuestService.IsChapterComplete)
             {
                 NexusUiFactory.CreateText(
                     content, "NextGoal", UiText.QuestNextGoalTitle,
@@ -81,6 +107,68 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             panel.sizeDelta = new Vector2(360f, Mathf.Min(720f, y + 16f));
+        }
+
+        private void DrawChapterStep(ChapterQuestStepView view, ref float y)
+        {
+            bool active = view.Status == ChapterQuestStepStatus.Active;
+            bool done = view.Status == ChapterQuestStepStatus.Completed;
+            bool claimable = view.CanClaim;
+
+            Color row = active
+                ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
+                : done
+                    ? NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.5f)
+                    : NexusTheme.SurfaceRaised;
+
+            NexusUiFactory.CreateBox(
+                content, "ChStep_" + view.Def.stepId,
+                new Vector2(8f, y), new Vector2(344f, claimable ? 88f : 64f),
+                row, NexusTheme.BorderSoft);
+
+            string title = UiText.T(view.Def.titleEn, view.Def.titleZh);
+            NexusUiFactory.CreateText(
+                content, "ChT_" + view.Def.stepId, title,
+                new Vector2(16f, y + 8f), new Vector2(320f, 20f), 11f,
+                active ? NexusTheme.Text : NexusTheme.MutedText,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            string status = done
+                ? UiText.QuestStepDone
+                : active
+                    ? UiText.QuestStepActive
+                    : UiText.QuestStepLocked;
+            NexusUiFactory.CreateText(
+                content, "ChS_" + view.Def.stepId, status,
+                new Vector2(16f, y + 30f), new Vector2(320f, 18f), 10f, NexusTheme.DimText);
+
+            if (claimable)
+            {
+                NexusUiFactory.CreateButton(
+                    content, "ChClaim_" + view.Def.stepId, UiText.QuestClaim,
+                    new Vector2(16f, y + 50f), new Vector2(120f, 28f),
+                    () =>
+                    {
+                        ChapterQuestService.TryClaim(view.Def.stepId);
+                        Rebuild();
+                    },
+                    NexusTheme.WithAlpha(NexusTheme.Green, 0.2f), NexusTheme.Green, 11f);
+            }
+            else if (active && !string.IsNullOrEmpty(view.Def.targetScreen))
+            {
+                var target = MapTarget(view.Def.targetScreen);
+                NexusUiFactory.CreateButton(
+                    content, "ChGo_" + view.Def.stepId, UiText.QuestGo,
+                    new Vector2(16f, y + 50f), new Vector2(120f, 28f),
+                    () =>
+                    {
+                        SetOpen(false);
+                        navigate?.Invoke(target);
+                    },
+                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.14f), NexusTheme.Cyan, 11f);
+            }
+
+            y += claimable ? 96f : 72f;
         }
 
         private void DrawStep(OnboardingStepView view, ref float y)
@@ -149,6 +237,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             "Formation" => AppScreen.Formation,
             "Battle" => AppScreen.Battle,
+            "Recruit" => AppScreen.Recruit,
             "Crafting" => AppScreen.Crafting,
             "Market" => AppScreen.Market,
             "Ship" => AppScreen.Ship,

@@ -31,7 +31,7 @@ namespace Assets.Resources.Scripts.Dialogue.Domain
             loaded = true;
             byId = new Dictionary<string, DialogueScriptDef>();
 
-            var asset = Resources.Load<TextAsset>(ResourcePath);
+            var asset = UnityEngine.Resources.Load<TextAsset>(ResourcePath);
             if (asset != null && !string.IsNullOrEmpty(asset.text))
             {
                 var file = JsonUtility.FromJson<DialogueCatalogFile>(asset.text);

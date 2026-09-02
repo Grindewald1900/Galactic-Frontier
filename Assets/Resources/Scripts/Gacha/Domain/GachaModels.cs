@@ -10,6 +10,7 @@ namespace Assets.Resources.Scripts.Gacha.Domain
         public string lastPoolId = "pool_standard";
         public int pityCounter;
         public int totalPulls;
+        public bool starterColeGranted;
         public int count;
     }
 

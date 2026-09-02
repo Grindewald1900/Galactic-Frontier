@@ -9,7 +9,12 @@ using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Gacha;
+using Assets.Resources.Scripts.Economy;
+using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
@@ -113,6 +118,7 @@ namespace Assets.Resources.Scripts.Utils
         public bool CreatePlayerData()
         {
             LastSaveError = null;
+            PlayerScopedServices.FlushAndClear(this);
             currentPlayer = new PlayerEntity();
             UpdatePaths();
             CheckIfPathExist(playerSavePath);
@@ -270,6 +276,11 @@ namespace Assets.Resources.Scripts.Utils
             DeckService.Save(this);
             WorldService.Save(this);
             ShipService.Save(this);
+            ChapterQuestService.Save(this);
+            OnboardingService.Save(this);
+            GachaService.Save(this);
+            IdleSettlementService.Save(this);
+            FeatureUnlockService.Save(this);
 
             SaveInventoryIfPopulated(InventoryStore.Local, ItemManager.Instance?.GetItems());
             SaveInventoryIfPopulated(InventoryStore.Remote, RemoteItemManager.Instance?.GetItems());
@@ -634,6 +645,53 @@ namespace Assets.Resources.Scripts.Utils
             return SaveData(state, directory, DefaultProperty.GACHA_DATA);
         }
 
+        public bool SaveChapterQuestState(
+            Assets.Resources.Scripts.ChapterQuest.Domain.ChapterQuestState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.completedStepIds?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.CHAPTER_QUEST_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.ChapterQuest.Domain.ChapterQuestState LoadChapterQuestState()
+        {
+            EnsurePlayerBound();
+            return ReadChapterQuestStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.ChapterQuest.Domain.ChapterQuestState ReadChapterQuestStateFromDirectory(
+            string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.CHAPTER_QUEST_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.ChapterQuest.Domain.ChapterQuestState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read chapter_quests.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteChapterQuestStateToDirectory(
+            string directory, Assets.Resources.Scripts.ChapterQuest.Domain.ChapterQuestState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.completedStepIds?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.CHAPTER_QUEST_DATA);
+        }
+
         public List<CardEntity> ReadCardListFromDirectory(string directory)
         {
             var path = CombinePath(directory, DefaultProperty.PLAYER_CARDS_DATA);
@@ -726,8 +784,93 @@ namespace Assets.Resources.Scripts.Utils
 
                 playerEntities.Add(player);
             }
+
+            playerEntities.Sort((a, b) =>
+                GetPlayerLastSavedUtc(b.playerID).CompareTo(GetPlayerLastSavedUtc(a.playerID)));
+
             Debug.Log("已加载存档数据：共" + playerEntities.Count + "个存档");
             return playerEntities;
+        }
+
+        /// <summary>UTC unix seconds for sorting saves; falls back to profile date or file mtime.</summary>
+        public long GetPlayerLastSavedUtc(string playerID)
+        {
+            if (string.IsNullOrWhiteSpace(playerID))
+                return 0;
+
+            try
+            {
+                var dir = GetPlayerSavePath(playerID);
+                var meta = LoadMetaFromDirectory(dir);
+                if (meta != null && meta.lastSavedAtUtc > 0)
+                    return meta.lastSavedAtUtc;
+
+                var profilePath = GetPlayerDataPath(playerID);
+                if (!File.Exists(profilePath))
+                    return 0;
+
+                var profile = ReadPlayerProfile(profilePath);
+                if (profile != null && !string.IsNullOrWhiteSpace(profile.saveDate)
+                    && DateTime.TryParse(profile.saveDate, out var parsed))
+                    return new DateTimeOffset(parsed.ToUniversalTime()).ToUnixTimeSeconds();
+
+                return new DateTimeOffset(File.GetLastWriteTimeUtc(profilePath)).ToUnixTimeSeconds();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[SAVE] Could not resolve last-saved time for '{playerID}': {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>Deletes a player save directory and refreshes the in-memory player list.</summary>
+        public bool TryDeletePlayerSave(string playerID)
+        {
+            LastSaveError = null;
+            if (string.IsNullOrWhiteSpace(playerID))
+            {
+                LastSaveError = "No save selected.";
+                return false;
+            }
+
+            try
+            {
+                ValidatePlayerId(playerID);
+            }
+            catch (ArgumentException ex)
+            {
+                LastSaveError = ex.Message;
+                return false;
+            }
+
+            var directory = GetPlayerSavePath(playerID);
+            if (!Directory.Exists(directory))
+            {
+                LastSaveError = "Save folder not found.";
+                LoadPlayerEntities();
+                SavePlayerEntities();
+                return false;
+            }
+
+            if (currentPlayer != null && currentPlayer.playerID == playerID)
+                currentPlayer = null;
+
+            PlayerScopedServices.Clear();
+
+            try
+            {
+                Directory.Delete(directory, recursive: true);
+            }
+            catch (Exception ex)
+            {
+                LastSaveError = "Failed to delete save: " + ex.Message;
+                Debug.LogError("[SAVE] " + LastSaveError);
+                return false;
+            }
+
+            LoadPlayerEntities();
+            SavePlayerEntities();
+            return true;
         }
 
         /// <summary>Reads one profile file, returning null when it is absent or cannot be parsed.</summary>
@@ -775,6 +918,16 @@ namespace Assets.Resources.Scripts.Utils
         /// <returns>False when the save is newer than this build or migration fails.</returns>
         public bool SetCurrentPlayer(PlayerEntity player)
         {
+            if (player == null)
+                throw new ArgumentNullException(nameof(player));
+
+            if (currentPlayer != null
+                && !string.IsNullOrWhiteSpace(currentPlayer.playerID)
+                && currentPlayer.playerID != player.playerID)
+            {
+                PlayerScopedServices.FlushAndClear(this);
+            }
+
             currentPlayer = player;
             UpdatePaths();
             return EnsurePlayerSaveReady();

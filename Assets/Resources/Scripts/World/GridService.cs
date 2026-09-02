@@ -153,6 +153,8 @@ namespace Assets.Resources.Scripts.World
             SetNodeState(bodyId, GridNodeState.Located);
             RecalcExplore();
             WorldService.Save();
+            if (bodyId == "body_mining_spur")
+                Assets.Resources.Scripts.ChapterQuest.ChapterQuestService.NotifyMiningSignalScanned();
             return WorldCommandResult.OkMessage("Signal locked. Node located — challenge when ready.");
         }
 
