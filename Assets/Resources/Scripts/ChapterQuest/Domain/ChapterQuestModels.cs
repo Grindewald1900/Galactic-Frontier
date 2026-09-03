@@ -23,6 +23,7 @@ namespace Assets.Resources.Scripts.ChapterQuest.Domain
         public List<string> completedStepIds = new List<string>();
         public List<string> claimedStepIds = new List<string>();
         public ChapterQuestFlags flags = new ChapterQuestFlags();
+        public List<string> completedGuideIds = new List<string>();
         public bool chapterCompleted;
         public bool chapterSkipped;
         public int count;

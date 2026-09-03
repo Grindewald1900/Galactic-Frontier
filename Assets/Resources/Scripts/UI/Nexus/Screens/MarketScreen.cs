@@ -2,6 +2,9 @@ using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Market.Domain;
+using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using TMPro;
@@ -35,6 +38,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void Rebuild()
         {
+            TutorialGuideService.UnregisterAnchor("market_buy");
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
 
@@ -47,6 +51,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NpcShopService.EnsureCatalogLoaded();
             var shop = NpcShopCatalog.DefaultShop();
             var ctx = NpcShopService.BuildUnlockContext();
+
+            if (string.IsNullOrEmpty(selectedOfferId)
+                && OnboardingService.ActiveStep?.stepId == OnboardingCatalog.StepNpcShop
+                && shop?.offers != null)
+            {
+                foreach (var offer in shop.offers)
+                {
+                    if (offer == null) continue;
+                    selectedOfferId = offer.offerId;
+                    break;
+                }
+            }
 
             NexusUiFactory.CreateText(
                 root, "Title", UiText.StarportShopTitle,
@@ -179,7 +195,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 UiText.ShopPrices(offer.buyPrice, NpcShopRules.ResolveSellPrice(shop, offer)),
                 new Vector2(24f, 110f), new Vector2(640f, 28f), 13f, NexusTheme.DimText);
 
-            NexusUiFactory.CreateButton(
+            var buy = NexusUiFactory.CreateButton(
                 box.transform, "Buy", UiText.ShopBuy,
                 new Vector2(24f, 160f), new Vector2(200f, 48f),
                 () =>
@@ -187,15 +203,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     if (!unlocked)
                     {
                         statusMessage = UiText.OfferLocked;
+                        NexusSnackbar.Show(UiText.OfferLocked);
                         Rebuild();
                         return;
                     }
 
                     var r = NpcShopService.TryBuy(shop.shopId, offer.offerId, 1);
-                    statusMessage = r.Success ? r.Message : r.Message;
+                    statusMessage = r.Message;
+                    if (!r.Success)
+                        NexusSnackbar.Show(r.Message);
                     Rebuild();
                 },
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+            TutorialGuideService.RegisterAnchor(
+                "market_buy",
+                buy.GetComponent<RectTransform>(),
+                buy);
 
             NexusUiFactory.CreateButton(
                 box.transform, "Sell", UiText.ShopSell,
@@ -204,6 +227,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 {
                     var r = NpcShopService.TrySell(shop.shopId, offer.offerId, 1);
                     statusMessage = r.Message;
+                    if (!r.Success)
+                        NexusSnackbar.Show(r.Message);
                     Rebuild();
                 },
                 NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan, 14f);

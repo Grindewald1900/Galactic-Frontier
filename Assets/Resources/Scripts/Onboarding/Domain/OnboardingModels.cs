@@ -21,6 +21,7 @@ namespace Assets.Resources.Scripts.Onboarding.Domain
         public List<string> completedStepIds = new List<string>();
         public List<string> claimedStepIds = new List<string>();
         public OnboardingFlags flags = new OnboardingFlags();
+        public List<string> completedGuideIds = new List<string>();
         public bool chainCompleted;
         public int count;
     }

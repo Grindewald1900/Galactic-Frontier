@@ -340,6 +340,9 @@ namespace Assets.Resources.Scripts.ChapterQuest
             var def = ActiveStep;
             if (def == null || string.IsNullOrEmpty(def.dialogueIdOnStart)) return;
             if (IsClaimed(def.stepId)) return;
+            if (Assets.Resources.Scripts.UI.Nexus.Tutorial.TutorialGuideService
+                .ShouldSuppressFullscreenDialogue(def.stepId))
+                return;
             TryPlayDialogue(def.dialogueIdOnStart);
         }
 

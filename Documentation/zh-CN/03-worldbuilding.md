@@ -1,12 +1,12 @@
 # 《Galactic Frontier / 群星边境》世界观与故事背景
 
-> 文档版本：v1.2  
+> 文档版本：v1.3  
 > 文档类型：**设定（叙事权威）**  
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。  
 > 上级约束：`02-core-product-design.md`（玩法约束）；本文不改写已拍板的系统数值。  
-> 关联：第七前沿内容 `17-sector-and-onboarding.md`；角色名册 `19-characters-and-progression.md`；Online `18-online-and-play-modes.md`；航网探索 `20-stellar-map-and-navigation.md`。  
-> 更新日期：2026-08-30  
-> 变更：v1.2 对齐程序生成航网——相位偏移解释位面差异，见 `23-procedural-universe-generation.md`；v1.1 对齐航网玩法；v1.2.1 序章「失控返航」与弥塔身份与 [24](24-early-chapter-experience.md) 对齐。
+> 关联：第七前沿内容 `17-sector-and-onboarding.md`；角色名册与自动成长 `19-characters-and-progression.md`；Online `18-online-and-play-modes.md`；航网探索 `20-stellar-map-and-navigation.md`。  
+> 更新日期：2026-09-02  
+> 变更：v1.3 对齐三层自动成长（舰长 / 战斗等级 / 专业技能）；v1.2 对齐程序生成航网——相位偏移解释位面差异，见 `23-procedural-universe-generation.md`；v1.1 对齐航网玩法；v1.2.1 序章「失控返航」与弥塔身份与 [24](24-early-chapter-experience.md) 对齐。
 
 ---
 
@@ -96,8 +96,10 @@
 | 抽卡 | 市场终端解译新的人员信标、佣兵合同或休眠舱档案 |
 | 获得角色 | 对应人物接受合同、获救或被定位到当前位面 |
 | 重复角色 | 获得更完整的档案片段、训练记录与权限密钥，用于强化而非出现两个同名人物 |
-| 角色升级 | 实战经验、舰内训练与装备适配提高 |
-| F–S 能级 | 人物与航网相位技术的共振等级；能级提升会觉醒新的职业能力 |
+| 舰长等级 | 开拓许可证与调度权限扩张；不直接改变单名舰员战力 |
+| 战斗等级 | 实战、护航与危险任务中自动积累的作战经验 |
+| 专业技能 | 采集 / 制造 / 扫描 / 航行 / 后勤：舰员在对应岗位上的熟练度 |
+| F–S 能级 | 人物与航网相位技术的共振等级；决定成长上限并觉醒职业能力 |
 | 一人只能加入一个行动卡组 | 舰员是真实个体，同一时间不能同时战斗、采集和生产 |
 | 普通卡牌交易 | 在线模式下交易的是招募权、合同转让权或可验证的相位档案，不是买卖人物本身 |
 | 不同玩家可拥有同一角色 | 玩家处于不同平行位面，对应的是该人物在各位面的相位个体 |
@@ -262,6 +264,7 @@
 | --- | --- | --- |
 | 区域双重门槛 | 航道未稳：清威胁 + 舰体扛熵雾 | `13-region-and-ship.md` |
 | 相位人员档案 / 抽卡 | 信标、合同与休眠舱档案 | `19-characters-and-progression.md` |
+| 舰长 / 战斗 / 专业自动成长 | 任务分配即培养；能级为相位突破 | `19-characters-and-progression.md` |
 | F–S 能级 | 人物与航网相位共振 | `19-characters-and-progression.md` |
 | 一人一行动 | 舰员是真实个体 | `11-deck-and-occupation.md` |
 | 手动工坊 → 自动化流水线 | 自建产线，非瞬间制造 | `15-economy.md` |

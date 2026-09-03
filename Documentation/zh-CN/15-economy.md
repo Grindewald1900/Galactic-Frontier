@@ -1,9 +1,10 @@
 # 经济：生产、品质、资源表与耐久
-> 文档版本：v1.0
+> 文档版本：v1.1
 > 文档类型：**规则 / 内容契约**
 > 由原 `18-production-and-quality` + `22-resources-and-warehouse` + `19-durability-and-repair` 合并。
 > 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 > 世界观解释见 `03-worldbuilding.md` §8。
+> 变更：v1.1 对齐 `19` 专业技能——**领队门槛** + **团队能力**；效率与里程碑品质分轨。
 
 ---
 
@@ -194,10 +195,10 @@ quality = min(quality, recipe.maxQualityCap)
 
 | 项目 | MVP 规则 |
 | --- | --- |
-| 启动 | `TryStart(Process|Manufacture, recipeId)`；校验设施等级、材料、并行与占用 |
+| 启动 | `TryStart(Process|Manufacture, recipeId)`；校验设施等级、材料、并行、占用，以及 **领队专业技能门槛**（§4.7a） |
 | 扣料 | **启动时预扣**本批次全部材料（含保底加料） |
 | 周期 | `cycleSeconds = recipe.baseSeconds / speedMultiplier` |
-| 速度乘区 | 角色生产属性、设施、不满编效率（默认线性：`members/5`，下限 0.4） |
+| 速度乘区 | 团队制造/采集能力（§4.7a）、设施、不满编效率（默认线性：`members/5`，下限 0.4） |
 | 完成 | 产出写入仓库或 Pending；`mastery++`；若队列模式则尝试扣下一批材料 |
 | 材料不足 | `PausedBlock`；已完成批次保留 |
 | 仓库满 | `PausedBlock`；产出进 Pending（与离线文档一致） |
@@ -206,6 +207,30 @@ quality = min(quality, recipe.maxQualityCap)
 队列：MVP 允许「单卡组单配方重复批次」；不强制多配方队列 UI。
 
 > **制造非瞬间完成**：无论手动或流水线，产出均须走完 `baseSeconds` 周期（受速度乘区影响）。不存在「点击即得」的制造（调试/任务特例除外）。
+
+#### 4.7a 领队门槛与团队能力
+
+权威成长规则见 `19-characters-and-progression.md` 自动成长 §5。生产侧实现契约：
+
+**领队门槛（硬）**：配方声明 `requiredProfession` + `requiredSkillLevel`。卡组中至少一名成员达到该技能，任务才能启动。主线配方必须提供替代路径（雇佣 NPC、购买成品、工坊门槛补正、教学赠卡），禁止因抽卡失败永久卡死。
+
+**团队能力（效率与品质）**：
+
+```text
+团队制造能力 =
+领队制造技能
++ 两名最高助手技能 × 20%
++ 舰船工坊等级
++ 装备与专长加成
+```
+
+采集同构，技能换成采集。团队能力进入 `speedMultiplier` 与品质 score，**不**在每一级同时叠产量、品质、稀有掉落。普通等级约 +1%–2% 速度；Q2/Q3 权限与特殊掉落放在每 5 / 10 级里程碑（见 `19` §4.2）。
+
+```text
+cycleSeconds = baseSeconds / (1 + skillEfficiency)
+```
+
+生产经验按标准工时与物品价值结算，禁止按完成次数刷低耗时配方。
 
 #### 4.8 采集产量（本文件补齐节点侧）
 
@@ -220,7 +245,7 @@ yield = floor(node.baseYieldPerCycle
 
 | 项目 | 默认 |
 | --- | --- |
-| `deckGatherMultiplier` | `1 + 0.05 * sum(gatherStat)` 或配置表，须可调 |
+| `deckGatherMultiplier` | 来自团队采集能力（`19` §5.2）；过渡期可用 `1 + 0.05 * sum(gatherStat)`，须可调 |
 | 节点品质 | 原料默认产出 **Q2**；稀有节点可加权出 Q3 |
 | 高风险节点 | 额外耐久损耗（耐久文档）；产量更高 |
 

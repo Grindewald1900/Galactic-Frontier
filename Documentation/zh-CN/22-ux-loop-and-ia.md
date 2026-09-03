@@ -86,10 +86,11 @@
 ```text
 缺少铁矿 ×12　[前往采集]
 缺少信用点 20　[出售物资]
-扫描等级不足　[升级扫描阵列]
+制造技能不足（需要 10）　[培训 / 雇佣专家 / 购买成品]
 ```
 
-实现复用 `ItemAcquireCatalog` + `ItemTooltip.Jump`；扩展非物品类缺口（模块、扫描、券）走统一 `ShortageJumpService` 解析器。  
+实现复用 `ItemAcquireCatalog` + `ItemTooltip.Jump`；扩展非物品类缺口（模块、专业技能门槛、券）走统一 `ShortageJumpService` 解析器。  
+技能门槛缺口须列出替代方案（培训、雇佣、购买、工坊补正），见 `19` 自动成长 §5.3。  
 禁止仅 Snackbar「不足」而无跳转（Snackbar 可并存）。
 
 ### 3.4 任务追踪器

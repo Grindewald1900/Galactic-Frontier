@@ -2714,6 +2714,36 @@
       "id": "ui.debug.test_dialogue",
       "en": "Test NPC Dialogue",
       "zh": "测试 NPC 对话"
+    },
+    {
+      "id": "ui.snackbar.fleet_busy",
+      "en": "Fleet is on another mission — stop it before starting a new action.",
+      "zh": "舰队正在执行其他任务，无法开始新的行动。"
+    },
+    {
+      "id": "ui.snackbar.parallel_limit",
+      "en": "Parallel action limit reached — stop a running deck first.",
+      "zh": "并行行动已达上限，请先停止一个正在运行的卡组。"
+    },
+    {
+      "id": "ui.snackbar.card_occupied",
+      "en": "Some crew are busy on another deck.",
+      "zh": "部分船员正在其他卡组执行任务。"
+    },
+    {
+      "id": "ui.snackbar.empty_deck",
+      "en": "Combat deck has no members — add crew in Formation first.",
+      "zh": "战斗卡组没有成员，请先在编队中加入船员。"
+    },
+    {
+      "id": "ui.snackbar.region_unavailable",
+      "en": "This region is not available yet.",
+      "zh": "该区域暂不可进入。"
+    },
+    {
+      "id": "ui.snackbar.farm_locked",
+      "en": "Clear the region once before farming.",
+      "zh": "需要先通关该区域才能挂机刷取。"
     }
   ]
 }

@@ -1,8 +1,8 @@
 # 产品与文档状态（唯一权威）
 
-> 更新日期：2026-09-01  
+> 更新日期：2026-09-02  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
-> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.2）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。首章前期 Wave A：[24](24-early-chapter-experience.md)。
+> 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.3）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。首章前期 Wave A：[24](24-early-chapter-experience.md)。成长权威：[19](19-characters-and-progression.md) v1.1 三层自动成长。
 
 ---
 
@@ -36,18 +36,18 @@
 | # | 文档 | 类型 | 实现 | 验收 | 说明 |
 | ---: | --- | --- | --- | --- | --- |
 | 02 | [core-product-design](02-core-product-design.md) | 产品 | — | — | MVP 约束 |
-| 03 | [worldbuilding](03-worldbuilding.md) | 设定 | — | — | **叙事权威 v1.2**（相位偏移 ↔ 种子航网，见 23） |
+| 03 | [worldbuilding](03-worldbuilding.md) | 设定 | — | — | **叙事权威 v1.3**（相位偏移 ↔ 种子航网，见 23；对齐自动成长） |
 | 04–09 | 工程文档 | 工程 | — | — | 描述现状代码 |
 | 10 | [mvp-development-plan](10-mvp-development-plan.md) | 计划 | — | — | 阶段任务；近期顺序见 §10 |
 | 11 | [deck-and-occupation](11-deck-and-occupation.md) | 规则 | 已实现 | 完成 | 多卡组占用 |
 | 12 | [auto-battle](12-auto-battle.md) | 规则 | 部分 | 进行中 | 策略深度仍薄 |
 | 13 | [region-and-ship](13-region-and-ship.md) | 规则 | 已实现 | 进行中 | 硬门/Boss；模块升级弹窗+仓库扣费已通 |
-| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 | 部分 | 进行中 | yield/cap；采集仓 Gather Bank 已接 |
+| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 | 部分 | 进行中 | **v1.2** 废止 50% yield；cap + 足额离线经验/资源；采集仓 Gather Bank 已接 |
 | 15 | [economy](15-economy.md) | 规则 | 部分 | 进行中 | 手动制造+物品说明/获取提示已通；**流水线未实现** |
 | 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 | 部分 | 进行中 | Solo NPC；玩家市场 Online |
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | 五步+RewardService；星域叙事可再厚 |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub；MVP 不做 |
-| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | 抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级未接 UI |
+| 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | **v1.1 自动成长已拍板**（未实现）；抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级未接 UI |
 | 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.3** 航网主形态；M2 域内已落地；宇宙层生成见 **23** |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
@@ -62,7 +62,7 @@
 | --- | --- |
 | 全自动战斗 / 5 人多卡组占用 | 已实现 |
 | 区域+舰船门 / 挂机采集制造 | 已实现 |
-| 离线 cap+yield / 品质 / 耐久 | 已实现 |
+| 离线 cap+yield / 品质 / 耐久 | 部分（cap 已通；**yield 打折按 14 v1.2 应改为 100%**） |
 | NPC 商店 / 6 区首领 / 新手五步 | 已实现 |
 | 36 角色+抽卡 | 部分（约 36/50；原生卡册与分解已通） |
 | 玩家市场 | Online only |

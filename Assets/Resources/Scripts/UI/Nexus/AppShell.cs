@@ -9,9 +9,10 @@ using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.Cosmetics;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Unlock;
-using Assets.Resources.Scripts.Cosmetics;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -318,6 +319,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 }
 
                 ShowScreen(screen);
+                TutorialGuideService.NotifyNavigated(screen);
             }
             else
             {
@@ -373,6 +375,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     AvatarFrameService.Evaluate();
                     RefreshNavLockStyles();
                     FeatureUnlockUi.PresentPending(ShowScreen);
+                    TutorialGuideService.PresentForScreen(activeScreen, this);
                 }
                 return;
             }
@@ -491,6 +494,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 AvatarFrameService.Evaluate();
                 RefreshNavLockStyles();
                 FeatureUnlockUi.PresentPending(ShowScreen);
+                TutorialGuideService.PresentForScreen(activeScreen, this);
             }
         }
 
@@ -1401,5 +1405,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateText(canvas.transform, "Brand Title Alt", UiText.BrandTitleAlt, new Vector2(122f, 194f), new Vector2(760f, 42f), 24f, NexusTheme.Text, TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(canvas.transform, "Build", UiText.MainMenuTagline, new Vector2(122f, 244f), new Vector2(760f, 28f), 12f, NexusTheme.MutedText);
         }
+
+        internal Button TryGetGroupNavButton(NavGroup group) =>
+            groupNavButtons.TryGetValue(group, out var button) ? button : null;
+
+        internal Button TryGetSubNavButton(AppScreen screen) =>
+            subNavButtons.TryGetValue(screen, out var button) ? button : null;
     }
 }

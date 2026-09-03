@@ -7,6 +7,7 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World.Domain;
 using TMPro;
@@ -313,6 +314,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void Rebuild()
         {
+            TutorialGuideService.UnregisterAnchor("formation_empty_slot");
+            TutorialGuideService.UnregisterAnchor("formation_join");
             CloseFilterMenu();
             CloseGearPicker();
             ClearChildren(deckTabsRoot, keepHeader: true);
@@ -1547,6 +1550,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 14f);
             join.interactable = canJoin;
             PinBottomLeft(join, pad, bottom, new Vector2(btnW, btnH));
+            TutorialGuideService.RegisterAnchor(
+                "formation_join",
+                join.GetComponent<RectTransform>(),
+                join);
 
             var leave = NexusUiFactory.CreateButton(
                 detailRoot,
@@ -1670,6 +1677,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             string[] labels = UiText.FormationSlotLabels;
             const float slotW = 148f;
             const float gap = 8f;
+            bool registeredEmptySlot = false;
             for (int i = 0; i < DeckConstants.SlotsPerDeck; i++)
             {
                 float sx = i * (slotW + gap);
@@ -1731,6 +1739,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         selectedCard = occupant;
                     Rebuild();
                 });
+
+                if (!registeredEmptySlot && occupant == null)
+                {
+                    TutorialGuideService.RegisterAnchor(
+                        "formation_empty_slot",
+                        slot.GetComponent<RectTransform>(),
+                        slotButton);
+                    registeredEmptySlot = true;
+                }
             }
         }
 
@@ -1746,6 +1763,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (!CanJoinSelected(editing, selectedCard, inCurrent, inOther, out string reason))
             {
                 statusText.text = reason;
+                NexusSnackbar.Show(reason);
                 return;
             }
 
@@ -1753,7 +1771,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities();
             if (all == null) return;
             var assign = DeckService.TryAssignToEditing(target, selectedCard.id, all);
-            statusText.text = assign.Success ? string.Empty : assign.Message;
+            if (!assign.Success)
+            {
+                statusText.text = UiText.DeckCommandMessage(assign);
+                NexusSnackbar.Show(assign);
+            }
+            else
+            {
+                statusText.text = string.Empty;
+            }
+
             if (assign.Success)
             {
                 selectedCard = null;

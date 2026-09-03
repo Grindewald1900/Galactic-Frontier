@@ -130,6 +130,138 @@
           "textZh": "矿脉上的劫掠者装甲很厚。我来破甲——破防了就推进。"
         }
       ]
+    },
+    {
+      "dialogueId": "ob_guide_formation_nav",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Commander, open Fleet and tap Formation — we need at least one crew member in a deck.",
+          "textZh": "指挥官，打开舰队并进入编队——我们得先往卡组里塞至少一名船员。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_formation_slot",
+      "lines": [
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "Pick an empty slot in the lineup, then choose someone from the roster.",
+          "textZh": "先点一个空位，再从名册里选人。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_formation_join",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Good. Now tap Join Deck to lock them in.",
+          "textZh": "很好。现在点「加入卡组」确认编入。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_battle_nav",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Star Map next — open Explore and challenge a region.",
+          "textZh": "接下来去星图——打开探索，挑战一个区域。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_battle_start",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Select a located node, then start the battle. Win it to complete this step.",
+          "textZh": "选中已定位的节点，然后开战。赢下这场才算完成本步。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_gather_nav",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Back to Explore — we need raw materials from a gather node.",
+          "textZh": "回到探索——我们需要从采集点弄点原材料。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_gather_start",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Start Gather on an unlocked region. Loot can also count if you already have some.",
+          "textZh": "在已解锁区域点「开始采集」。若仓库里已有产物也算完成。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_craft_nav",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Open Industry, then Crafting — turn those mats into something useful.",
+          "textZh": "打开工业，再进制造——把材料做成能用的东西。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_craft_start",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Pick a recipe and tap Start. Output goes straight to Inventory.",
+          "textZh": "选一条配方并点「开始」。产物会直接进入仓库。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_shop_nav",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Visit Starport — buy or sell once at the NPC shop.",
+          "textZh": "去星港——在 NPC 商店完成一次买或卖。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ob_guide_shop_buy",
+      "lines": [
+        {
+          "speakerNameEn": "Mita",
+          "speakerNameZh": "弥塔",
+          "portraitId": "Asra",
+          "textEn": "Select an offer, then Buy or Sell once. Either direction counts.",
+          "textZh": "选中一条商品，买或卖一次都行。"
+        }
+      ]
     }
   ]
 }

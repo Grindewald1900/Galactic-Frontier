@@ -1,3 +1,4 @@
+using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.World.Domain;
 using Assets.Scripts.Utils;
@@ -423,6 +424,27 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string TierShort(string tierName) =>
             string.IsNullOrEmpty(tierName) || tierName == "None" ? "-" : tierName.Replace("Tier", "");
         public static string DeckBusyHint => G("ui.formation.deck_busy");
+        public static string SnackbarFleetBusy => G("ui.snackbar.fleet_busy");
+        public static string SnackbarParallelLimit => G("ui.snackbar.parallel_limit");
+        public static string SnackbarCardOccupied => G("ui.snackbar.card_occupied");
+        public static string SnackbarEmptyDeck => G("ui.snackbar.empty_deck");
+        public static string SnackbarRegionUnavailable => G("ui.snackbar.region_unavailable");
+        public static string SnackbarFarmLocked => G("ui.snackbar.farm_locked");
+
+        public static string DeckCommandMessage(DeckCommandResult result)
+        {
+            if (result == null) return "";
+            return result.Error switch
+            {
+                DeckCommandError.DeckBusy => SnackbarFleetBusy,
+                DeckCommandError.ParallelLimit => SnackbarParallelLimit,
+                DeckCommandError.CardOccupied => SnackbarCardOccupied,
+                DeckCommandError.EmptyDeck => SnackbarEmptyDeck,
+                DeckCommandError.DeckLocked => DeckBusyHint,
+                _ => string.IsNullOrEmpty(result.Message) ? SnackbarFleetBusy : result.Message
+            };
+        }
+
         public static string OccupationBadge(string state) => state switch
         {
             "MainCombat" => G("ui.occupation.main_combat"),

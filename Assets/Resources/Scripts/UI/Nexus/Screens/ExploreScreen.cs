@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Scene;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
@@ -70,6 +71,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void Rebuild()
         {
+            TutorialGuideService.UnregisterAnchor("explore_start");
+            TutorialGuideService.UnregisterAnchor("explore_gather");
+            TutorialGuideService.UnregisterAnchor("explore_probe");
             for (int i = root.childCount - 1; i >= 0; i--)
             {
                 var child = root.GetChild(i).gameObject;
@@ -550,11 +554,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             if (fogged)
             {
-                NexusUiFactory.CreateButton(
+                var probe = NexusUiFactory.CreateButton(
                     side, "Probe", UiText.ExploreProbe,
                     new Vector2(20f, actionY), new Vector2(420f, 44f),
                     () => ProbeBody(body.bodyId),
                     NexusTheme.WithAlpha(NexusTheme.Purple, 0.22f), NexusTheme.Purple, 14f);
+                TutorialGuideService.RegisterAnchor(
+                    "explore_probe",
+                    probe.GetComponent<RectTransform>(),
+                    probe);
                 return;
             }
 
@@ -583,11 +591,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             if (view.CanEnter)
             {
-                NexusUiFactory.CreateButton(
+                var start = NexusUiFactory.CreateButton(
                     side, "Start", UiText.StartAutoBattle,
                     new Vector2(20f, actionY), new Vector2(420f, 44f),
                     () => StartBattle(regionId),
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                TutorialGuideService.RegisterAnchor(
+                    "explore_start",
+                    start.GetComponent<RectTransform>(),
+                    start);
             }
             else
             {
@@ -610,11 +622,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 if (nodes.Count > 0)
                 {
                     var nodeId = nodes[0].nodeId;
-                    NexusUiFactory.CreateButton(
+                    var gather = NexusUiFactory.CreateButton(
                         side, "Gather", UiText.StartGather,
                         new Vector2(240f, actionY), new Vector2(200f, 40f),
                         () => StartGather(nodeId),
                         NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 13f);
+                    TutorialGuideService.RegisterAnchor(
+                        "explore_gather",
+                        gather.GetComponent<RectTransform>(),
+                        gather);
                 }
             }
         }
@@ -749,7 +765,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "探测锁定了域内航网上一处熵雾节点。");
             }
             else
-                Debug.LogWarning("[EXPLORE] probe: " + result.Message);
+                NexusSnackbar.Show(result.Message);
 
             Rebuild();
         }
@@ -765,7 +781,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "航标已修复。一段航线进入稳定通航。");
             }
             else
-                Debug.LogWarning("[EXPLORE] stabilize: " + result.Message);
+                NexusSnackbar.Show(result.Message);
 
             Rebuild();
         }
@@ -781,7 +797,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "已购入星域海图。更多轮廓已揭示。");
             }
             else
-                Debug.LogWarning("[EXPLORE] chart: " + result.Message);
+                NexusSnackbar.Show(result.Message);
 
             Rebuild();
         }
@@ -801,7 +817,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var result = Economy.ProductionService.TryStartGather(
                 nodeId, CardListManager.Instance?.cardEntities);
             if (!result.Success)
-                Debug.LogWarning("[GATHER] " + result.Message);
+                NexusSnackbar.Show(result.Message);
             else
                 Debug.Log("[GATHER] started " + nodeId);
             Rebuild();
@@ -839,7 +855,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (!WorldService.CanEnter(regionId, out var view) || view?.Config == null)
             {
-                Debug.LogWarning("[EXPLORE] CanEnter failed for " + regionId);
+                NexusSnackbar.Show(UiText.SnackbarRegionUnavailable);
                 Rebuild();
                 return;
             }
@@ -854,6 +870,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var deck = DeckService.GetActiveCombatDeck();
             if (deck == null || deck.MemberCount < 1)
             {
+                NexusSnackbar.Show(UiText.SnackbarEmptyDeck);
                 openFormation?.Invoke();
                 return;
             }
@@ -862,7 +879,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 deck.deckId, DeckActionType.MainCombat, regionId, CardListManager.Instance?.cardEntities);
             if (!start.Success)
             {
-                Debug.LogWarning("[DECK] Cannot start battle: " + start.Message);
+                NexusSnackbar.Show(start);
                 return;
             }
 
@@ -880,13 +897,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (!WorldService.IsFarmUnlocked(regionId))
             {
-                Debug.LogWarning("[EXPLORE] Farm locked for " + regionId);
+                NexusSnackbar.Show(UiText.SnackbarFarmLocked);
                 return;
             }
 
             var deck = DeckService.GetActiveCombatDeck();
             if (deck == null || deck.MemberCount < 1)
             {
+                NexusSnackbar.Show(UiText.SnackbarEmptyDeck);
                 openFormation?.Invoke();
                 return;
             }
@@ -895,7 +913,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 deck.deckId, DeckActionType.AutoCombat, regionId, CardListManager.Instance?.cardEntities);
             if (!start.Success)
             {
-                Debug.LogWarning("[DECK] Cannot start farm: " + start.Message);
+                NexusSnackbar.Show(start);
                 return;
             }
 

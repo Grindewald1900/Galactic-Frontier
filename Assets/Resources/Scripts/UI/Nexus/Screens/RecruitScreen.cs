@@ -3,6 +3,7 @@ using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Market;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -86,7 +87,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(640f, poolY), new Vector2(520f, 48f), 11f, NexusTheme.MutedText);
 
             float pullY = poolY + 80f;
-            NexusUiFactory.CreateButton(
+            var pullOne = NexusUiFactory.CreateButton(
                 root, "PullOne", UiText.RecruitPullOne,
                 new Vector2(28f, pullY), new Vector2(220f, 48f),
                 () => Pull(1),
@@ -95,6 +96,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     : NexusTheme.SurfaceRaised,
                 canOne ? NexusTheme.Gold : NexusTheme.DimText,
                 14f);
+            TutorialGuideService.RegisterAnchor(
+                "recruit_pull_one",
+                pullOne.GetComponent<RectTransform>(),
+                pullOne);
 
             NexusUiFactory.CreateButton(
                 root, "PullTen", UiText.RecruitPullTen,

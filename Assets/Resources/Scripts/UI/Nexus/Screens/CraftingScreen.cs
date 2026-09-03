@@ -4,6 +4,9 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
+using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -36,8 +39,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public void Rebuild()
         {
+            TutorialGuideService.UnregisterAnchor("crafting_start");
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
+
+            if (string.IsNullOrEmpty(selectedRecipeId)
+                && OnboardingService.ActiveStep?.stepId == OnboardingCatalog.StepCraft)
+            {
+                foreach (var recipe in RecipeCatalog.All)
+                {
+                    if (recipe == null) continue;
+                    selectedRecipeId = recipe.recipeId;
+                    break;
+                }
+            }
 
             if (DataUtil.Instance != null && CardListManager.Instance != null)
                 DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance.cardEntities);
@@ -176,7 +191,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(24f, 390f), new Vector2(850f, 24f), 12f, NexusTheme.Cyan);
             }
 
-            NexusUiFactory.CreateRoleButton(
+            var start = NexusUiFactory.CreateRoleButton(
                 box.transform, "Start", UiText.CraftingStart,
                 new Vector2(24f, 420f), new Vector2(200f, 48f),
                 () =>
@@ -189,10 +204,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
                             outDef != null ? UiText.T(outDef.displayNameEn, outDef.displayNameZh) : recipe.outputDefId,
                             recipe.outputQty)
                         : r.Message;
+                    if (!r.Success)
+                        NexusSnackbar.Show(r.Message);
                     Debug.Log("[CRAFT] start: " + (r.Success ? "ok " + r.Message : r.Message));
                     Rebuild();
                 },
                 NexusButtonRole.Primary, 14f);
+            TutorialGuideService.RegisterAnchor(
+                "crafting_start",
+                start.GetComponent<RectTransform>(),
+                start);
 
             NexusUiFactory.CreateButton(
                 box.transform, "Stop", UiText.StopAction,
