@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using UnityEngine;
@@ -130,6 +134,7 @@ namespace Assets.Resources.Scripts.Economy
                 foreach (var s in stacks)
                     list.Add(ItemFactory.FromStack(s));
                 Persist(list);
+                GrantRepairProgression(list);
             }
 
             return repaired;
@@ -167,6 +172,7 @@ namespace Assets.Resources.Scripts.Economy
             foreach (var s in stacks)
                 list.Add(ItemFactory.FromStack(s));
             Persist(list);
+            GrantRepairProgression(items);
             return true;
         }
 
@@ -261,6 +267,41 @@ namespace Assets.Resources.Scripts.Economy
             }
 
             DataUtil.Instance?.SaveInventory(InventoryStore.Local, items, touchMeta: true);
+        }
+
+        private static void GrantRepairProgression(IList<ItemEntity> items)
+        {
+            var cards = CardListManager.Instance?.cardEntities;
+            var members = new List<CardEntity>();
+            if (items != null && cards != null)
+            {
+                var seen = new HashSet<string>();
+                foreach (var item in items)
+                {
+                    if (item == null || string.IsNullOrEmpty(item.equippedToCardId)) continue;
+                    if (!seen.Add(item.equippedToCardId)) continue;
+                    foreach (var card in cards)
+                    {
+                        if (card != null && card.id == item.equippedToCardId)
+                        {
+                            members.Add(card);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (members.Count == 0)
+            {
+                var deck = DeckService.GetActiveCombatDeck();
+                if (deck != null)
+                    members = DeckService.GetOrderedMembers(deck.deckId, cards);
+            }
+
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantProfessionToParty(members, ProfessionSkill.Logistics, 1, 20f);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderRepairXp);
+            ProgressionService.EndGrant(presentUi: false);
         }
     }
 }

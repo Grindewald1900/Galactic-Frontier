@@ -26,6 +26,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             public string FallbackName = "";
             public int Quantity = 1;
             public int Quality = EconomyConstants.DefaultQuality;
+            public bool IsNote;
         }
 
         private const float DialogWidth = 560f;
@@ -54,6 +55,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     Quantity = entry.quantity,
                     Quality = entry.quality
                 });
+            }
+
+            return lines;
+        }
+
+        public static List<Line> FromProgressNotes(IList<OfflineProgressNote> notes)
+        {
+            var lines = new List<Line>();
+            if (notes == null) return lines;
+            foreach (var note in notes)
+            {
+                if (note == null) continue;
+                var text = UiText.T(note.textEn, note.textZh);
+                if (string.IsNullOrWhiteSpace(text)) continue;
+                lines.Add(new Line { FallbackName = text, Quantity = 0, IsNote = true });
             }
 
             return lines;
@@ -189,6 +205,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private static void DrawRow(Transform parent, Line line, int index, float y, float width)
         {
+            if (line.IsNote)
+            {
+                NexusUiFactory.CreateText(
+                    parent,
+                    $"Note {index}",
+                    line.FallbackName,
+                    new Vector2(16f, y + 10f),
+                    new Vector2(width - 32f, RowHeight - 16f),
+                    13f,
+                    NexusTheme.Cyan);
+                return;
+            }
+
             var def = ItemCatalog.Get(line.DefId);
             string name = def != null
                 ? UiText.T(def.displayNameEn, def.displayNameZh)

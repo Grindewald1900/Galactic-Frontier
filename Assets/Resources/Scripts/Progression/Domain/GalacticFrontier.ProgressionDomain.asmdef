@@ -1,9 +1,7 @@
 {
-    "name": "GalacticFrontier.EconomyDomain",
-    "rootNamespace": "Assets.Resources.Scripts.Economy.Domain",
-    "references": [
-        "GalacticFrontier.ProgressionDomain"
-    ],
+    "name": "GalacticFrontier.ProgressionDomain",
+    "rootNamespace": "Assets.Resources.Scripts.Progression.Domain",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

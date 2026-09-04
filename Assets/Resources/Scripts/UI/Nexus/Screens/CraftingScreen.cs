@@ -6,6 +6,8 @@ using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
@@ -178,6 +180,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
             inputs.AppendLine($"  · {outputName} x{recipe.outputQty}");
             inputs.AppendLine(UiText.CraftingExpectedQuality(
                 ProductionService.PreviewQuality(recipe.recipeId, CardListManager.Instance?.cardEntities)));
+            var crew = CardListManager.Instance?.cardEntities;
+            var deck = DeckService.GetEditingDeck() ?? DeckService.GetActiveCombatDeck();
+            var members = deck != null
+                ? DeckService.GetOrderedMembers(deck.deckId, crew)
+                : new List<Assets.Resources.Scripts.Entity.CardEntity>();
+            var best = ProgressionService.BestProfessionLevel(members, recipe.requiredProfession);
+            var facility = 0;
+            Assets.Resources.Scripts.World.ShipService.EnsureReady();
+            if (!string.IsNullOrEmpty(recipe.facilityModuleId))
+                facility = Assets.Resources.Scripts.World.ShipService.GetModuleLevel(recipe.facilityModuleId);
+            inputs.AppendLine(UiText.CraftReqLine(
+                recipe.requiredProfession.ToString(), recipe.requiredSkillLevel, best));
+            inputs.AppendLine(UiText.TeamPowerLine(
+                ProgressionService.TeamPower(members, ProfessionSkill.Craft, facility)));
 
             var body = NexusUiFactory.CreateText(
                 box.transform, "Body", inputs.ToString(),

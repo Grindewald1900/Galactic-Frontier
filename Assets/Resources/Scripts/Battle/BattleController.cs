@@ -16,6 +16,8 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.World.Domain;
 using TMPro;
 using UnityEngine.UI;
@@ -69,6 +71,11 @@ namespace Assets.Resources.Scripts.Battle
 
         /// <summary>Chapter 1 prologue battle — skips world region registration.</summary>
         public static bool PendingIsChapterPrologue { get; set; }
+
+        /// <summary>
+        /// Watch a live farm fight without starting MainCombat or stopping AutoCombat.
+        /// </summary>
+        public static bool PendingSpectateAutoCombat { get; set; }
 
         /// <summary>Screen to open when leaving BattleScene (defaults to Explore).</summary>
         public static AppScreen? PendingReturnScreen { get; set; }
@@ -257,6 +264,9 @@ namespace Assets.Resources.Scripts.Battle
 
         private void EnsureMainCombatOccupation()
         {
+            if (PendingSpectateAutoCombat)
+                return;
+
             if (!DeckService.IsLoaded)
                 return;
 
@@ -505,9 +515,20 @@ namespace Assets.Resources.Scripts.Battle
 
         private void ApplyWorldProgressOnVictory()
         {
-            if (progressApplied || LastOutcome != BattleOutcome.Victory)
+            if (progressApplied)
+                return;
+
+            if (PendingSpectateAutoCombat)
+            {
+                progressApplied = true;
+                ApplyAutoCombatSpectateSettlement(LastOutcome == BattleOutcome.Victory);
+                return;
+            }
+
+            if (LastOutcome != BattleOutcome.Victory)
                 return;
             progressApplied = true;
+            GrantCombatProgression();
 
             if (PendingIsChapterPrologue)
             {
@@ -548,6 +569,109 @@ namespace Assets.Resources.Scripts.Battle
             }
             Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(
                 CardListManager.Instance?.cardEntities);
+        }
+
+        /// <summary>
+        /// Spectate settlement mirrors one online farm cycle so AutoCombat keeps running
+        /// and the ticker does not double-grant the same window.
+        /// </summary>
+        private void ApplyAutoCombatSpectateSettlement(bool victory)
+        {
+            var regionId = PendingBattleTargetId;
+            var cards = CardListManager.Instance?.cardEntities;
+            var deck = DeckService.GetActiveCombatDeck();
+            var members = deck != null
+                ? DeckService.GetOrderedMembers(deck.deckId, cards)
+                : null;
+
+            if (members != null)
+            {
+                foreach (var m in members)
+                {
+                    if (m != null)
+                        m.farmWear += WorldConstants.FarmWearPerCycle;
+                }
+            }
+
+            if (victory)
+            {
+                Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
+                if (!string.IsNullOrEmpty(regionId))
+                    RewardService.GrantForFarmCycle(regionId);
+            }
+
+            if (!string.IsNullOrEmpty(regionId))
+                WorldService.MarkFarmTick(regionId);
+
+            var ko = new List<bool>();
+            var grantMembers = new List<CardEntity>();
+            if (playerCards != null && cards != null)
+            {
+                foreach (var view in playerCards)
+                {
+                    if (view?.cardEntity == null || !view.gameObject.activeSelf) continue;
+                    CardEntity match = null;
+                    foreach (var card in cards)
+                    {
+                        if (card != null && card.id == view.cardEntity.id)
+                        {
+                            match = card;
+                            break;
+                        }
+                    }
+
+                    if (match == null) continue;
+                    grantMembers.Add(match);
+                    ko.Add(!view.IsAlive());
+                }
+            }
+
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantCombatToParty(
+                grantMembers, ko, ProgressionCatalog.FarmCombatXpPerCycle);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderFarmXp);
+            ProgressionService.EndGrant(presentUi: true);
+
+            if (deck?.action != null)
+            {
+                deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                DeckService.Save();
+            }
+
+            DataUtil.Instance?.SaveCardData(cards);
+        }
+
+        private void GrantCombatProgression()
+        {
+            var originals = CardListManager.Instance?.cardEntities;
+            if (originals == null) return;
+            var members = new List<CardEntity>();
+            var ko = new List<bool>();
+            if (playerCards != null)
+            {
+                foreach (var view in playerCards)
+                {
+                    if (view?.cardEntity == null || !view.gameObject.activeSelf) continue;
+                    CardEntity match = null;
+                    foreach (var card in originals)
+                    {
+                        if (card != null && card.id == view.cardEntity.id)
+                        {
+                            match = card;
+                            break;
+                        }
+                    }
+
+                    if (match == null) continue;
+                    members.Add(match);
+                    ko.Add(!view.IsAlive());
+                }
+            }
+
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantCombatToParty(members, ko, ProgressionCatalog.MainBattleCombatXp);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderBattleXp);
+            ProgressionService.EndGrant(presentUi: true);
         }
 
         private void WireReportConfirm()

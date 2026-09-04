@@ -94,7 +94,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 detail = Best(groups[selectedName]);
 
             CardCollectionUi.DrawDetail(
-                root, detail, new Vector2(1130f, 88f), new Vector2(540f, 520f),
+                root, detail, new Vector2(1130f, 64f), new Vector2(540f, 560f),
                 () => CardCollectionUi.ShowDismantleConfirm(root, detail, Rebuild));
 
             if (detail != null && groups.TryGetValue(detail.characterName, out var copiesOf))
@@ -105,7 +105,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             NexusUiFactory.CreateText(
                 root, "CopiesTitle", UiText.CharacterCopyList,
-                new Vector2(1130f, 624f), new Vector2(540f, 24f), 13f, NexusTheme.MutedText,
+                new Vector2(1130f, 640f), new Vector2(540f, 24f), 13f, NexusTheme.MutedText,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
             float x = 1130f;

@@ -138,16 +138,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateText(
                 parent, "Stats",
-                $"Lv.{card.Level}  ATK {card.Attack:0}  HP {card.Health:0}  DEF {card.Defense:0}\n" +
+                $"Lv.{card.Level}  {UiText.EnergyRankLabel(card.EnergyRank.ToString())}  ATK {card.Attack:0}  HP {card.Health:0}  DEF {card.Defense:0}\n" +
                 $"POW {card.power:0}  ACC {card.Accuracy:0}  DOD {card.Dodge:0}",
-                new Vector2(origin.x + 220f, origin.y + 120f), new Vector2(size.x - 244f, 64f),
+                new Vector2(origin.x + 220f, origin.y + 120f), new Vector2(size.x - 244f, 48f),
                 13f, NexusTheme.Cyan);
 
+            float xpHeight = NexusProgressUi.DrawCardXpStack(
+                parent,
+                card,
+                new Vector2(origin.x + 220f, origin.y + 176f),
+                size.x - 244f,
+                24f);
+
+            float actionY = origin.y + 176f + xpHeight + 8f;
             var block = CardDismantleService.Evaluate(card);
             bool can = block == DismantleBlock.None;
             NexusUiFactory.CreateButton(
                 parent, "Dismantle", UiText.Dismantle,
-                new Vector2(origin.x + 220f, origin.y + 200f), new Vector2(220f, 44f),
+                new Vector2(origin.x + 220f, actionY), new Vector2(220f, 44f),
                 can ? () => onDismantle?.Invoke() : null,
                 can ? NexusTheme.WithAlpha(NexusTheme.Red, 0.2f) : NexusTheme.SurfaceRaised,
                 can ? NexusTheme.Red : NexusTheme.DimText,
@@ -157,7 +165,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 NexusUiFactory.CreateText(
                     parent, "Block", BlockReason(block),
-                    new Vector2(origin.x + 220f, origin.y + 252f), new Vector2(size.x - 244f, 40f),
+                    new Vector2(origin.x + 220f, actionY + 52f), new Vector2(size.x - 244f, 40f),
                     12f, NexusTheme.MutedText);
             }
         }

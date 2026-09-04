@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Progression.Domain;
 
 namespace Assets.Resources.Scripts.Economy.Domain
 {
@@ -75,7 +76,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "mat_crystal_sand",
                 outputQty = 2,
                 outputQuality = EconomyConstants.DefaultQuality,
-                riskLevel = 2
+                riskLevel = 2,
+                requiredProfession = ProfessionSkill.Gather,
+                requiredSkillLevel = 5
             });
             Add(new GatherNodeDef
             {
@@ -86,7 +89,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "mat_fungal",
                 outputQty = 2,
                 outputQuality = EconomyConstants.DefaultQuality,
-                riskLevel = 2
+                riskLevel = 2,
+                requiredProfession = ProfessionSkill.Gather,
+                requiredSkillLevel = 5
             });
             Add(new GatherNodeDef
             {
@@ -97,7 +102,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "mat_energy_cell",
                 outputQty = 1,
                 outputQuality = EconomyConstants.DefaultQuality,
-                riskLevel = 2
+                riskLevel = 2,
+                requiredProfession = ProfessionSkill.Gather,
+                requiredSkillLevel = 5
             });
             Add(new GatherNodeDef
             {
@@ -108,7 +115,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "mat_scrap",
                 outputQty = 3,
                 outputQuality = EconomyConstants.DefaultQuality,
-                riskLevel = 3
+                riskLevel = 3,
+                requiredProfession = ProfessionSkill.Gather,
+                requiredSkillLevel = 10
             });
             Add(new GatherNodeDef
             {
@@ -119,7 +128,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "mat_biofiber",
                 outputQty = 2,
                 outputQuality = EconomyConstants.DefaultQuality,
-                riskLevel = 2
+                riskLevel = 2,
+                requiredProfession = ProfessionSkill.Gather,
+                requiredSkillLevel = 5
             });
         }
 

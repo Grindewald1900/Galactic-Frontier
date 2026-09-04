@@ -46,9 +46,9 @@ namespace Assets.Resources.Scripts.ChapterQuest
                 if (string.IsNullOrEmpty(id)) continue;
                 var entity = FindCard(cards, id);
                 if (entity == null) continue;
-                if (entity.characterName == CharacterName.Asra && i <= 2)
+                if (entity.characterName == CharacterName.Asra && i < 2)
                     asraFront = true;
-                if (entity.characterName == CharacterName.Cole && i >= 3)
+                if (entity.characterName == CharacterName.Cole && i >= 2)
                     coleBack = true;
             }
 

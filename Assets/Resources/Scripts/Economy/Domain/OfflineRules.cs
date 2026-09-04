@@ -1,30 +1,23 @@
 using System;
+using Assets.Resources.Scripts.Progression.Domain;
 
 namespace Assets.Resources.Scripts.Economy.Domain
 {
     public static class OfflineRules
     {
-        public static int EffectiveCapSeconds(int shipLevel, int cargoModuleLevel)
+        public static int EffectiveCapSeconds(int shipLevel, int cargoModuleLevel, int commanderLevel = 1)
         {
             var baseCap = EconomyConstants.OfflineCapBaseSeconds;
-            var bonus = Math.Max(0, shipLevel - 1) * 600 + Math.Max(0, cargoModuleLevel) * 900;
+            var bonus = Math.Max(0, shipLevel - 1) * 600
+                        + Math.Max(0, cargoModuleLevel) * 900
+                        + ProgressionRules.CommanderOfflineBonusSeconds(commanderLevel);
             return Math.Min(EconomyConstants.OfflineCapHardSeconds, baseCap + bonus);
         }
 
         public static float YieldRatio(long elapsedSeconds, int capSeconds)
         {
             if (elapsedSeconds <= 0) return 0f;
-            var soft = EconomyConstants.OfflineCapSoftSeconds;
-            var hard = Math.Max(capSeconds, EconomyConstants.OfflineCapHardSeconds);
-            if (elapsedSeconds <= soft)
-                return EconomyConstants.OfflineYieldBase
-                       + (EconomyConstants.OfflineYieldSoft - EconomyConstants.OfflineYieldBase)
-                       * (elapsedSeconds / (float)soft);
-            if (elapsedSeconds <= hard)
-                return EconomyConstants.OfflineYieldSoft
-                       + (EconomyConstants.OfflineYieldHard - EconomyConstants.OfflineYieldSoft)
-                       * ((elapsedSeconds - soft) / (float)Math.Max(1, hard - soft));
-            return EconomyConstants.OfflineYieldHard;
+            return 1f;
         }
 
         public static int ScaleReward(int baseQty, float yieldRatio)

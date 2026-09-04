@@ -30,11 +30,13 @@ namespace Assets.Resources.Scripts.Battle
                 GameStatusManager.Instance.IsBattle = false;
 
             // P1.3: MainCombat occupation ends when leaving BattleScene.
+            // AutoCombat spectate leaves farm running.
             DeckService.StopAllMainCombat();
             var returnScreen = BattleController.PendingReturnScreen;
             BattleController.PendingBattleTargetId = null;
             BattleController.PendingEncounterId = null;
             BattleController.PendingIsChapterPrologue = false;
+            BattleController.PendingSpectateAutoCombat = false;
             BattleController.PendingReturnScreen = null;
 
             AppShell.RequestScreen(returnScreen ?? screen);

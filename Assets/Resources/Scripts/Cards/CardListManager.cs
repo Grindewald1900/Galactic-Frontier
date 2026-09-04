@@ -58,6 +58,8 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCardList()
         {
             cardEntities = DataUtil.Instance.LoadCardData() ?? new List<CardEntity>();
+            foreach (var card in cardEntities)
+                card?.EnsureProgressionDefaults();
             if (DataUtil.Instance != null)
                 DeckService.EnsureLoaded(DataUtil.Instance, cardEntities);
             UpdateCardObjects(cardEntities.Count);

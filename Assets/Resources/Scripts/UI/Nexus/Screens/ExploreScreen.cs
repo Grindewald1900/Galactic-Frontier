@@ -5,6 +5,8 @@ using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
@@ -369,34 +371,68 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             var local = SectorToLocal(body.x, body.y);
             bool selected = body.bodyId == selectedBodyId;
-            var gridState = GridService.GetState(body.bodyId);
             bool fogged = GridService.ShowsFog(body.bodyId);
+            bool docked = NavigationService.IsDocked(body);
             float size = selected ? 42f : fogged ? 28f : 34f;
-            Color tint = fogged ? NexusTheme.Purple : BodyTint(body.bodyType);
-            if (gridState >= GridNodeState.Stable)
-                tint = NexusTheme.Green;
 
             string regionId = PrimaryRegion(body);
             var view = string.IsNullOrEmpty(regionId) || fogged ? null : WorldService.GetRegionView(regionId);
-            int spriteIndex = body.planetSpriteIndex;
+            bool reachable = !fogged && (view == null || view.CanEnter || GridService.IsLocatedOrBetter(body.bodyId));
+            bool cleared = view != null &&
+                (view.Progress == RegionProgressState.Cleared || view.Progress == RegionProgressState.BossDefeated);
+
+            Color border;
+            if (fogged)
+                border = NexusTheme.WithAlpha(NexusTheme.Purple, 0.85f);
+            else if (selected || docked || cleared)
+                border = NexusTheme.Green;
+            else if (reachable)
+                border = NexusTheme.Cyan;
+            else
+                border = NexusTheme.BorderSoft;
+
+            Color fill = fogged
+                ? NexusTheme.WithAlpha(NexusTheme.Purple, selected ? 0.28f : 0.16f)
+                : NexusTheme.WithAlpha(border, selected ? 0.32f : 0.14f);
 
             var marker = NexusUiFactory.CreateButton(
                 map, "Body_" + body.bodyId, "",
                 new Vector2(local.x - size * 0.5f, local.y - size * 0.5f),
                 new Vector2(size, size),
                 () => SelectBody(body.bodyId),
-                NexusTheme.WithAlpha(tint, selected ? 0.35f : fogged ? 0.22f : 0.18f),
-                tint, 1f);
+                fill,
+                border, 1f);
+
+            var outline = marker.GetComponent<Outline>();
+            if (outline != null)
+            {
+                outline.effectColor = border;
+                outline.effectDistance = selected || docked
+                    ? new Vector2(2.5f, -2.5f)
+                    : new Vector2(1.5f, -1.5f);
+            }
 
             var label = marker.transform.Find("Label");
             if (label != null)
                 Object.DestroyImmediate(label.gameObject);
 
-            NexusUiFactory.CreateIcon(
-                marker.transform, "Icon",
-                NexusCardVisual.PlanetSprite(spriteIndex),
-                new Vector2(4f, 4f), new Vector2(size - 8f, size - 8f),
-                fogged ? NexusTheme.WithAlpha(Color.white, 0.22f) : Color.white);
+            if (fogged)
+            {
+                NexusUiFactory.CreateText(
+                    marker.transform, "Signal", "???",
+                    new Vector2(0f, 0f), new Vector2(size, size),
+                    Mathf.Max(10f, size * 0.35f),
+                    NexusTheme.WithAlpha(NexusTheme.Text, 0.55f),
+                    TextAlignmentOptions.Center, FontStyles.Bold);
+            }
+            else
+            {
+                NexusUiFactory.CreateIcon(
+                    marker.transform, "Icon",
+                    NexusCardVisual.PlanetSprite(body.planetSpriteIndex),
+                    new Vector2(4f, 4f), new Vector2(size - 8f, size - 8f),
+                    Color.white);
+            }
 
             string name = fogged
                 ? "???"
@@ -511,6 +547,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 y += 38f;
             }
 
+            y = DrawVoyageStub(side, body, view, y);
+
             if (view?.Config != null)
             {
                 var blurb = UiText.T(view.Config.blurbEn, view.Config.blurbZh);
@@ -589,7 +627,87 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (view == null || view.Config == null)
                 return;
 
-            if (view.CanEnter)
+            bool cleared = view.Progress == RegionProgressState.Cleared
+                || view.Progress == RegionProgressState.BossDefeated;
+            var nodes = Economy.Domain.GatherNodeCatalog.ForRegion(regionId);
+            bool hasGather = nodes.Count > 0;
+
+            if (!view.CanEnter)
+            {
+                NexusUiFactory.CreateText(
+                    side, "Locked", UiText.RegionLocked,
+                    new Vector2(20f, actionY + 6f), new Vector2(420f, 32f), 13f, NexusTheme.DimText,
+                    TextAlignmentOptions.Center, FontStyles.Bold);
+                return;
+            }
+
+            if (cleared)
+            {
+                if (view.FarmUnlocked)
+                {
+                    NexusUiFactory.CreateButton(
+                        side, "Farm", UiText.StartFarm,
+                        new Vector2(20f, actionY), new Vector2(420f, 44f),
+                        () => StartFarm(regionId),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                    actionY += 50f;
+                }
+                else if (hasGather)
+                {
+                    var nodeId = nodes[0].nodeId;
+                    var gather = NexusUiFactory.CreateButton(
+                        side, "Gather", UiText.StartGather,
+                        new Vector2(20f, actionY), new Vector2(420f, 44f),
+                        () => StartGather(nodeId),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                    TutorialGuideService.RegisterAnchor(
+                        "explore_gather",
+                        gather.GetComponent<RectTransform>(),
+                        gather);
+                    actionY += 50f;
+                    var best = ProgressionService.BestProfessionLevel(
+                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
+                    NexusUiFactory.CreateText(
+                        side, "GatherReq",
+                        UiText.GatherReqLine(
+                            nodes[0].requiredProfession.ToString(),
+                            nodes[0].requiredSkillLevel,
+                            best),
+                        new Vector2(20f, actionY), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
+                    actionY += 24f;
+                }
+
+                NexusUiFactory.CreateButton(
+                    side, "Rechallenge", UiText.ExploreRechallenge,
+                    new Vector2(20f, actionY), new Vector2(420f, 40f),
+                    () => StartBattle(regionId),
+                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
+                actionY += 46f;
+
+                if (view.FarmUnlocked && hasGather)
+                {
+                    var nodeId = nodes[0].nodeId;
+                    var gather = NexusUiFactory.CreateButton(
+                        side, "Gather", UiText.StartGather,
+                        new Vector2(20f, actionY), new Vector2(200f, 40f),
+                        () => StartGather(nodeId),
+                        NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 13f);
+                    TutorialGuideService.RegisterAnchor(
+                        "explore_gather",
+                        gather.GetComponent<RectTransform>(),
+                        gather);
+                    var best = ProgressionService.BestProfessionLevel(
+                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
+                    NexusUiFactory.CreateText(
+                        side, "GatherReq",
+                        UiText.GatherReqLine(
+                            nodes[0].requiredProfession.ToString(),
+                            nodes[0].requiredSkillLevel,
+                            best),
+                        new Vector2(230f, actionY + 10f), new Vector2(210f, 18f), 11f, NexusTheme.MutedText);
+                }
+            }
+            else
             {
                 var start = NexusUiFactory.CreateButton(
                     side, "Start", UiText.StartAutoBattle,
@@ -600,39 +718,82 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "explore_start",
                     start.GetComponent<RectTransform>(),
                     start);
-            }
-            else
-            {
-                NexusUiFactory.CreateText(
-                    side, "Locked", UiText.RegionLocked,
-                    new Vector2(20f, actionY + 6f), new Vector2(420f, 32f), 13f, NexusTheme.DimText,
-                    TextAlignmentOptions.Center, FontStyles.Bold);
-            }
+                actionY += 50f;
 
-            actionY += 50f;
-            if (view.FarmUnlocked)
-            {
-                NexusUiFactory.CreateButton(
-                    side, "Farm", UiText.StartFarm,
-                    new Vector2(20f, actionY), new Vector2(200f, 40f),
-                    () => StartFarm(regionId),
-                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
+                if (view.FarmUnlocked)
+                {
+                    NexusUiFactory.CreateButton(
+                        side, "Farm", UiText.StartFarm,
+                        new Vector2(20f, actionY), new Vector2(200f, 40f),
+                        () => StartFarm(regionId),
+                        NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
+                }
 
-                var nodes = Economy.Domain.GatherNodeCatalog.ForRegion(regionId);
-                if (nodes.Count > 0)
+                if (hasGather)
                 {
                     var nodeId = nodes[0].nodeId;
+                    float gx = view.FarmUnlocked ? 240f : 20f;
                     var gather = NexusUiFactory.CreateButton(
                         side, "Gather", UiText.StartGather,
-                        new Vector2(240f, actionY), new Vector2(200f, 40f),
+                        new Vector2(gx, actionY), new Vector2(200f, 40f),
                         () => StartGather(nodeId),
                         NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 13f);
                     TutorialGuideService.RegisterAnchor(
                         "explore_gather",
                         gather.GetComponent<RectTransform>(),
                         gather);
+                    var best = ProgressionService.BestProfessionLevel(
+                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
+                    NexusUiFactory.CreateText(
+                        side, "GatherReq",
+                        UiText.GatherReqLine(
+                            nodes[0].requiredProfession.ToString(),
+                            nodes[0].requiredSkillLevel,
+                            best),
+                        new Vector2(20f, actionY + 42f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
                 }
             }
+        }
+
+        private float DrawVoyageStub(Transform side, StellarBodyDef body, RegionView view, float y)
+        {
+            NavigationService.EnsureReady();
+            string fromId = NavigationService.DockedBodyId();
+            if (string.IsNullOrEmpty(fromId))
+                fromId = NavigationService.NearestLocatedBodyId();
+            var fromBody = SectorMapCatalog.Get(fromId);
+            string fromName = fromBody != null
+                ? UiText.T(fromBody.displayNameEn, fromBody.displayNameZh)
+                : UiText.ExploreShipMarker;
+            string toName = GridService.ShowsFog(body.bodyId)
+                ? UiText.ExploreFogName
+                : UiText.T(body.displayNameEn, body.displayNameZh);
+
+            NexusUiFactory.CreateText(
+                side, "VoyagePlan", UiText.ExploreVoyagePlan(fromName, toName),
+                new Vector2(20f, y), new Vector2(420f, 18f), 11f, NexusTheme.Text);
+            y += 20f;
+
+            float dist = NavigationService.DistanceToBody(body);
+            float speed = Mathf.Max(1f, NavigationService.GetCruiseSpeed());
+            float eta = dist / speed;
+            NexusUiFactory.CreateText(
+                side, "VoyageEta", UiText.ExploreSailEta(dist, eta),
+                new Vector2(20f, y), new Vector2(420f, 18f), 11f, NexusTheme.Cyan);
+            y += 20f;
+
+            int power = NexusProgressUi.ActiveCombatPower();
+            int recPower = view?.Config?.recommendedPower ?? 0;
+            if (recPower > 0)
+            {
+                NexusUiFactory.CreateText(
+                    side, "VoyageRisk", UiText.ExploreVoyageRisk(power, recPower),
+                    new Vector2(20f, y), new Vector2(420f, 18f), 11f,
+                    power < recPower ? NexusTheme.Gold : NexusTheme.Green);
+                y += 20f;
+            }
+
+            return y + 4f;
         }
 
         private void BuildGatherBank(Transform side)
@@ -750,6 +911,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void SelectBody(string bodyId)
         {
             selectedBodyId = bodyId ?? "";
+            var body = SectorMapCatalog.Get(selectedBodyId);
+            string regionId = PrimaryRegion(body);
+            if (!string.IsNullOrEmpty(regionId))
+            {
+                PlayerPrefs.SetString("nexus_last_region_id", regionId);
+                PlayerPrefs.Save();
+            }
+
             Rebuild();
         }
 
@@ -853,6 +1022,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void StartBattle(string regionId)
         {
+            if (DeckService.IsActiveCombatAutoCombatRunning())
+            {
+                NexusSnackbar.Show(UiText.SnackbarChallengeWhileAutoCombat);
+                return;
+            }
+
             if (!WorldService.CanEnter(regionId, out var view) || view?.Config == null)
             {
                 NexusSnackbar.Show(UiText.SnackbarRegionUnavailable);
@@ -968,15 +1143,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
             };
         }
 
-        private static Color BodyTint(StellarBodyType type) => type switch
-        {
-            StellarBodyType.Station => NexusTheme.Cyan,
-            StellarBodyType.Anomaly => NexusTheme.Gold,
-            StellarBodyType.Hub => NexusTheme.Gold,
-            StellarBodyType.Beacon => NexusTheme.Purple,
-            _ => NexusTheme.Text
-        };
-
         private static void DrawInnerLanes(Transform map)
         {
             foreach (var edge in SectorMapCatalog.Edges)
@@ -992,28 +1158,68 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 var to = SectorToLocal(b.x, b.y);
                 var tier = GridService.GetEdgeTier(edge.edgeId);
                 Color color = LaneColor(edge, tier);
-                DrawLane(map, "Lane_" + edge.edgeId, from, to, color);
+                float thickness = LaneThickness(edge, tier);
+                bool dashed = tier == GridEdgeTier.Provisional && !edge.rift;
+                DrawLane(map, "Lane_" + edge.edgeId, from, to, color, thickness, dashed);
             }
         }
 
         private static Color LaneColor(InnerEdgeDef edge, GridEdgeTier tier)
         {
             if (tier >= GridEdgeTier.Stable)
-                return NexusTheme.WithAlpha(NexusTheme.Cyan, 0.55f);
+                return NexusTheme.WithAlpha(NexusTheme.Cyan, 0.75f);
             if (tier == GridEdgeTier.Provisional)
-                return NexusTheme.WithAlpha(NexusTheme.Gold, 0.45f);
+                return NexusTheme.WithAlpha(NexusTheme.Gold, 0.55f);
             if (edge.rift)
-                return NexusTheme.WithAlpha(NexusTheme.Purple, 0.32f);
+                return NexusTheme.WithAlpha(NexusTheme.Purple, 0.55f);
             return NexusTheme.WithAlpha(NexusTheme.MutedText, 0.28f);
         }
 
-        private static void DrawLane(Transform map, string name, Vector2 from, Vector2 to, Color color)
+        private static float LaneThickness(InnerEdgeDef edge, GridEdgeTier tier)
+        {
+            if (tier >= GridEdgeTier.Stable) return 5f;
+            if (edge != null && edge.rift) return 3.5f;
+            if (tier == GridEdgeTier.Provisional) return 2f;
+            return 2f;
+        }
+
+        private static void DrawLane(
+            Transform map, string name, Vector2 from, Vector2 to, Color color,
+            float thickness = 3f, bool dashed = false)
         {
             float dx = to.x - from.x;
             float dy = to.y - from.y;
             float len = Mathf.Sqrt(dx * dx + dy * dy);
             if (len < 4f) return;
 
+            float visualDy = from.y - to.y;
+            float angle = Mathf.Atan2(visualDy, dx) * Mathf.Rad2Deg;
+
+            if (!dashed)
+            {
+                SpawnLaneSegment(map, name, from, to, len, thickness, color, angle);
+                return;
+            }
+
+            const float dash = 10f;
+            const float gap = 6f;
+            float stride = dash + gap;
+            int count = Mathf.Max(1, Mathf.FloorToInt(len / stride));
+            for (int i = 0; i < count; i++)
+            {
+                float t0 = (i * stride) / len;
+                float t1 = Mathf.Min(1f, (i * stride + dash) / len);
+                var a = Vector2.Lerp(from, to, t0);
+                var b = Vector2.Lerp(from, to, t1);
+                float segLen = Vector2.Distance(a, b);
+                if (segLen < 2f) continue;
+                SpawnLaneSegment(map, name + "_" + i, a, b, segLen, thickness, color, angle);
+            }
+        }
+
+        private static void SpawnLaneSegment(
+            Transform map, string name, Vector2 from, Vector2 to, float len, float thickness, Color color, float angle)
+        {
             var go = new GameObject(name, typeof(RectTransform), typeof(UnityEngine.UI.Image));
             go.transform.SetParent(map, false);
             var rect = go.GetComponent<RectTransform>();
@@ -1023,9 +1229,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             float midX = (from.x + to.x) * 0.5f;
             float midY = (from.y + to.y) * 0.5f;
             rect.anchoredPosition = new Vector2(midX, -midY);
-            rect.sizeDelta = new Vector2(len, 3f);
-            float visualDy = from.y - to.y;
-            rect.localEulerAngles = new Vector3(0f, 0f, Mathf.Atan2(visualDy, dx) * Mathf.Rad2Deg);
+            rect.sizeDelta = new Vector2(len, thickness);
+            rect.localEulerAngles = new Vector3(0f, 0f, angle);
             go.GetComponent<UnityEngine.UI.Image>().color = color;
             go.GetComponent<UnityEngine.UI.Image>().raycastTarget = false;
             go.transform.SetAsFirstSibling();

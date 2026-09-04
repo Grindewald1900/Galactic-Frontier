@@ -5,6 +5,8 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using UnityEngine;
@@ -232,27 +234,43 @@ namespace Assets.Resources.Scripts.Economy
                         cargo = m.level;
             }
 
-            var cap = OfflineRules.EffectiveCapSeconds(ShipService.State?.level ?? 1, cargo);
+            var cap = OfflineRules.EffectiveCapSeconds(
+                ShipService.State?.level ?? 1,
+                cargo,
+                Math.Max(1, DataUtil.Instance?.currentPlayer?.level ?? 1));
             var effective = Math.Min(elapsedSeconds, cap);
             var yield = OfflineRules.YieldRatio(effective, cap);
 
             if (!DeckService.IsLoaded) return;
+            State.lastProgressNotes = new List<OfflineProgressNote>();
+            var busyIds = ProgressionService.BusyCardIds();
+            ProgressionService.BeginGrant();
             foreach (var deck in DeckService.GetBusyDecks())
             {
                 if (deck?.action == null) continue;
                 if (deck.action.status != DeckActionStatus.Running) continue;
+                var members = DeckService.GetOrderedMembers(deck.deckId, cards);
 
                 var cycle = EconomyConstants.GatherCycleSeconds;
                 if (deck.action.actionType == DeckActionType.Gather)
                 {
                     var node = GatherNodeCatalog.Get(deck.action.targetId);
                     if (node != null) cycle = node.cycleSeconds;
+                    cycle = Math.Max(1, (int)Math.Round(
+                        ProductionService.ResolveJobCycleSeconds(deck, cards)));
                     var cycles = (int)(effective / Math.Max(1, cycle));
                     if (cycles <= 0) continue;
-                    DurabilityService.ApplyGatherWear(node?.riskLevel ?? 1); // full wear offline
+                    DurabilityService.ApplyGatherWear(node?.riskLevel ?? 1);
                     var qty = OfflineRules.ScaleReward((node?.outputQty ?? 1) * cycles, yield);
                     if (qty > 0)
                         EnqueueLoot(node?.outputDefId ?? "mat_scrap", node?.outputQuality ?? 2, qty, false, 0);
+                    var seconds = cycles * Math.Max(1, node?.cycleSeconds ?? EconomyConstants.GatherCycleSeconds);
+                    ProgressionService.GrantProfessionToParty(
+                        members, ProfessionSkill.Gather, node?.requiredSkillLevel ?? 1, seconds);
+                    if ((node?.riskLevel ?? 1) >= 2)
+                        ProgressionService.GrantCombatToParty(
+                            members, null, ProgressionCatalog.DangerousGatherCombatXp * cycles);
+                    ProgressionService.GrantCommander(ProgressionCatalog.CommanderGatherXp * cycles);
                 }
                 else if (deck.action.actionType == DeckActionType.AutoCombat)
                 {
@@ -263,17 +281,21 @@ namespace Assets.Resources.Scripts.Economy
                     var qty = OfflineRules.ScaleReward(World.Domain.WorldConstants.FarmLootQuantity * cycles, yield);
                     if (qty > 0)
                         EnqueueLoot(EconomyConstants.ScrapDefId, EconomyConstants.DefaultQuality, qty, false, 0);
+                    ProgressionService.GrantCombatToParty(
+                        members, null, ProgressionCatalog.FarmCombatXpPerCycle * cycles);
+                    ProgressionService.GrantCommander(ProgressionCatalog.CommanderFarmXp * cycles);
                 }
                 else if (deck.action.actionType == DeckActionType.Process
                          || deck.action.actionType == DeckActionType.Manufacture)
                 {
-                    // Offline craft: one synthetic output scaled (materials already consumed online)
-                    cycle = EconomyConstants.CraftCycleSeconds;
+                    cycle = Math.Max(1, (int)Math.Round(
+                        ProductionService.ResolveJobCycleSeconds(deck, cards)));
                     var cycles = (int)(effective / Math.Max(1, cycle));
                     if (cycles <= 0) continue;
                     var recipe = RecipeCatalog.Get(deck.action.targetId);
                     if (recipe == null) continue;
-                    var qty = OfflineRules.ScaleReward(recipe.outputQty * Math.Min(cycles, 1), yield);
+                    var settled = Math.Min(cycles, 1);
+                    var qty = OfflineRules.ScaleReward(recipe.outputQty * settled, yield);
                     if (qty > 0)
                     {
                         var def = ItemCatalog.Get(recipe.outputDefId);
@@ -285,9 +307,25 @@ namespace Assets.Resources.Scripts.Economy
                             def?.baseMaxDurability ?? 0);
                     }
 
+                    var seconds = settled * Math.Max(1, recipe.cycleSeconds);
+                    ProgressionService.GrantProfessionToParty(
+                        members, ProfessionSkill.Craft, recipe.requiredSkillLevel, seconds);
+                    ProgressionService.GrantCommander(ProgressionCatalog.CommanderCraftXp * settled);
                     DeckService.TryStop(deck.deckId);
                 }
             }
+
+            var farmCycles = (int)(effective / Math.Max(1, EconomyConstants.OnlineFarmCycleSeconds));
+            if (farmCycles > 0)
+            {
+                ProgressionService.GrantIdleCombat(
+                    cards,
+                    busyIds,
+                    ProgressionCatalog.FarmCombatXpPerCycle * farmCycles);
+            }
+
+            ProgressionService.EndGrant(presentUi: false);
+            State.lastProgressNotes = ProgressionService.TakeNotes();
         }
 
         public static void EnqueuePending(string defId, int qty, int quality, string source = "")

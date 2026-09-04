@@ -4,6 +4,7 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
+using UnityEngine;
 
 namespace Assets.Resources.Scripts.UI.Nexus
 {
@@ -12,7 +13,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BuildSummary()
         {
             var player = DataUtil.Instance?.currentPlayer;
-            int level = player?.level ?? 1;
+            int level = Mathf.Max(1, player?.level ?? 1);
             int credits = player?.creditPoints ?? 0;
 
             DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance?.cardEntities);
@@ -41,8 +42,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             int cargo = ItemManager.Instance?.GetItems()?.Count ?? 0;
             string cruise = running > 0 ? UiText.StatusCruiseActive : UiText.StatusCruiseIdle;
+            int power = NexusProgressUi.ActiveCombatPower();
 
-            return UiText.StatusBarSummary(level, credits, running, berths, queue, cargo, cruise);
+            return UiText.StatusBarSummary(level, power, credits, running, berths, queue, cargo, cruise);
         }
 
         public static void Apply(TextMeshProUGUI label)

@@ -364,6 +364,48 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string AddUnit => G("ui.formation.add");
         public static string JoinDeck => G("ui.formation.join");
         public static string LeaveDeck => G("ui.formation.leave");
+        public static string JoinDeckPrimary => G("ui.formation.join_primary");
+        public static string LeaveDeckPrimary => G("ui.formation.leave_primary");
+        public static string ReplaceAfterRound => G("ui.formation.replace_after");
+        public static string ReplaceAfterRoundHint => G("ui.formation.replace_after_hint");
+        public static string OccupancyFilterAll => G("ui.formation.filter_occupancy_all");
+        public static string OccupancyFilterIdle => G("ui.formation.filter_occupancy_idle");
+        public static string OccupancyFilterBusy => G("ui.formation.filter_occupancy_busy");
+        public static string RosterEmptyIdle => G("ui.formation.roster_empty_idle");
+        public static string RosterEmptyBusy => G("ui.formation.roster_empty_busy");
+        public static string StopNamedAction(string action) => F("ui.formation.stop_named", action);
+        public static string StopNamedTarget(string action, string target) =>
+            F("ui.formation.stop_named_target", action, target);
+        public static string FormationEnemyFacing => G("ui.formation.enemy_facing");
+        public static string FormationTeamEval => G("ui.formation.team_eval");
+        public static string TeamDiagnosis(string brk, string survive, string heal) =>
+            F("ui.formation.team_diagnosis", brk, survive, heal);
+        public static string TeamGradeMissing => G("ui.formation.grade_missing");
+        public static string TeamGradeWeak => G("ui.formation.grade_weak");
+        public static string TeamGradeFair => G("ui.formation.grade_fair");
+        public static string TeamGradeGood => G("ui.formation.grade_good");
+        public static string WinEstimate(string region, int pct) => F("ui.formation.win_estimate", region, pct);
+        public static string WinEstimateNa => G("ui.formation.win_estimate_na");
+        public static string DeckActionTypeLabel(string actionType) => actionType switch
+        {
+            "MainCombat" => G("ui.deck.action_main_combat"),
+            "AutoCombat" => G("ui.deck.action_auto_combat"),
+            "Gather" => G("ui.deck.action_gather"),
+            "Process" => G("ui.deck.action_process"),
+            "Manufacture" => G("ui.deck.action_manufacture"),
+            "Research" => G("ui.deck.action_research"),
+            "Transit" => G("ui.deck.action_transit"),
+            "None" => G("ui.deck.idle"),
+            _ => actionType
+        };
+        public static string CombatStrategyName(string id) => id switch
+        {
+            "Balanced" => G("ui.strategy.balanced"),
+            "FocusLowestHp" => G("ui.strategy.focus_lowest_hp"),
+            "FocusHighestThreat" => G("ui.strategy.focus_highest_threat"),
+            "PreferAoe" => G("ui.strategy.prefer_aoe"),
+            _ => id
+        };
         public static string InspectHint => G("ui.formation.inspect_hint");
         public static string EquippedGear => G("ui.formation.equipped_gear");
         public static string NoGearInSlot => G("ui.formation.empty_gear");
@@ -430,6 +472,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string SnackbarEmptyDeck => G("ui.snackbar.empty_deck");
         public static string SnackbarRegionUnavailable => G("ui.snackbar.region_unavailable");
         public static string SnackbarFarmLocked => G("ui.snackbar.farm_locked");
+        public static string SnackbarChallengeWhileAutoCombat => G("ui.snackbar.challenge_while_auto");
+        public static string SnackbarNoAutoToWatch => G("ui.snackbar.no_auto_to_watch");
+        public static string EnterBattle => G("ui.formation.enter_battle");
 
         public static string DeckCommandMessage(DeckCommandResult result)
         {
@@ -468,8 +513,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         };
         public static string DeckActionLabel(string status, string actionType) => status switch
         {
-            "Running" => F("ui.deck.running", actionType),
-            "PausedCap" => F("ui.deck.paused_cap", actionType),
+            "Running" => F("ui.deck.running", DeckActionTypeLabel(actionType)),
+            "PausedCap" => F("ui.deck.paused_cap", DeckActionTypeLabel(actionType)),
             "Completing" => G("ui.deck.completing"),
             _ => G("ui.deck.idle")
         };
@@ -627,6 +672,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         // Battle chrome
         public static string BattleBreadcrumb => G("ui.battle.breadcrumb");
         public static string AutoBattle => G("ui.battle.auto");
+        public static string BattleSpectateAuto => G("ui.battle.spectate_auto");
         public static string BattleEnd => G("ui.battle.end");
         public static string BattleVictory => G("ui.battle.victory");
         public static string BattleDefeat => G("ui.battle.defeat");
@@ -644,8 +690,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string NavGroupFleet => G("ui.nav.group.fleet");
         public static string NavGroupIndustry => G("ui.nav.group.industry");
         public static string NavGroupStarport => G("ui.nav.group.starport");
-        public static string StatusBarSummary(int lv, int credits, int running, int berths, int queue, int cargo, string cruise) =>
-            F("ui.status.bar_summary", lv, credits, running, berths, queue, cargo, cruise);
+        public static string StatusBarSummary(int lv, int power, int credits, int running, int berths, int queue, int cargo, string cruise) =>
+            F("ui.status.bar_summary", lv, power, credits, running, berths, queue, cargo, cruise);
         public static string StatusCruiseActive => G("ui.status.cruise_active");
         public static string StatusCruiseIdle => G("ui.status.cruise_idle");
         public static string QuestTrackerTitle => G("ui.quest.tracker_title");
@@ -672,6 +718,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BridgeBottleneck => G("ui.bridge.bottleneck");
         public static string BridgeRecommended => G("ui.bridge.recommended");
         public static string BridgeMiniMap => G("ui.bridge.mini_map");
+        public static string BridgeQuestRewards(string line) => F("ui.bridge.quest_rewards", line);
+        public static string BridgeQuestPower(int current, int recommended) =>
+            F("ui.bridge.quest_power", current, recommended);
+        public static string BridgeNearbyTitle => G("ui.bridge.nearby_title");
+        public static string BridgeUnknownSignal => G("ui.bridge.unknown_signal");
+        public static string BridgeEmptySlot => G("ui.bridge.empty_slot");
+        public static string BridgeCurrentNode => G("ui.bridge.current_node");
+        public static string BridgeFillDeckHint => G("ui.bridge.fill_deck_hint");
+        public static string ExploreRechallenge => G("ui.explore.rechallenge");
+        public static string ExploreVoyagePlan(string from, string to) =>
+            F("ui.explore.voyage_plan", from, to);
+        public static string ExploreVoyageRisk(int power, int recommended) =>
+            F("ui.explore.voyage_risk", power, recommended);
         public static string CommanderGoalOnboarding => G("ui.commander.goal_onboarding");
         public static string CommanderGoalPostOnboarding => G("ui.commander.goal_post");
         public static string CommanderGoalScanHint => G("ui.commander.scan_hint");
@@ -711,6 +770,66 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string DialogueLogTitle => G("ui.dialogue.log_title");
         public static string DialoguePage(int current, int total) => F("ui.dialogue.page", current, total);
         public static string DebugTestDialogue => G("ui.debug.test_dialogue");
+
+        public static string ProductionSkillGate(string skill, int required, int best, int correction) =>
+            F("ui.progress.skill_gate", skill, required, best, correction);
+        public static string EnergyRankMaxed => G("ui.progress.rank_maxed");
+        public static string EnergyRankNeedCredits(int amount) => F("ui.progress.rank_need_credits", amount);
+        public static string EnergyRankNeedScrap(int amount) => F("ui.progress.rank_need_scrap", amount);
+        public static string EnergyRankAscended(string name, string rank) => F("ui.progress.rank_ascended", name, rank);
+        public static string EnergyRankLabel(string rank) => F("ui.progress.rank_label", rank);
+        public static string EnergyAscend => G("ui.progress.ascend");
+        public static string CommanderLeveled(int level) => F("ui.progress.commander_leveled", level);
+        public static string ProfessionMilestone(string name, string skill, int level, string spec) =>
+            F("ui.progress.profession_milestone", name, skill, level, spec);
+        public static string SpecDialogTitle => G("ui.progress.spec_title");
+        public static string SpecDialogBody(string name, string skill, int level, string spec) =>
+            F("ui.progress.spec_body", name, skill, level, spec);
+        public static string SpecKeep => G("ui.progress.spec_keep");
+        public static string SpecOther => G("ui.progress.spec_other");
+        public static string SpecChanged(string name, string spec) => F("ui.progress.spec_changed", name, spec);
+        public static string ProfessionSkillsLine(int gather, int craft, int scan, int nav, int logistics) =>
+            F("ui.progress.skills_line", gather, craft, scan, nav, logistics);
+        public static string StoredXpHint(float stored) => F("ui.progress.stored_xp", stored);
+        public static string CraftReqLine(string skill, int required, int best) =>
+            F("ui.progress.craft_req", skill, required, best);
+        public static string TeamPowerLine(float power) => F("ui.progress.team_power", power);
+        public static string GatherReqLine(string skill, int required, int best) =>
+            F("ui.progress.gather_req", ProfessionSkillShort(skill), required, best);
+        public static string CombatXpLabel => G("ui.progress.combat_xp");
+        public static string CombatLevelLabel => G("ui.progress.combat_level");
+        public static string CommanderXpLabel => G("ui.progress.commander_xp");
+        public static string CommanderLvXp(int level, float current, float needed) =>
+            F("ui.progress.commander_lv_xp", level, current, needed);
+        public static string DeckPowerLabel(int power) => F("ui.progress.deck_power", power);
+        public static string ProfessionSkillShort(string skill) => skill switch
+        {
+            "Gather" => G("ui.progress.skill_gather"),
+            "Craft" => G("ui.progress.skill_craft"),
+            "Scan" => G("ui.progress.skill_scan"),
+            "Navigate" => G("ui.progress.skill_nav"),
+            "Logistics" => G("ui.progress.skill_logistics"),
+            _ => skill
+        };
+        public static string ProfessionSkillFull(string skill) => skill switch
+        {
+            "Gather" => G("ui.progress.skill_gather_full"),
+            "Craft" => G("ui.progress.skill_craft_full"),
+            "Scan" => G("ui.progress.skill_scan_full"),
+            "Navigate" => G("ui.progress.skill_nav_full"),
+            "Logistics" => G("ui.progress.skill_logistics_full"),
+            _ => ProfessionSkillShort(skill)
+        };
+        public static string GrowthSourceCombat => G("ui.progress.source_combat");
+        public static string GrowthSource(string skill) => skill switch
+        {
+            "Gather" => G("ui.progress.source_gather"),
+            "Craft" => G("ui.progress.source_craft"),
+            "Scan" => G("ui.progress.source_scan"),
+            "Navigate" => G("ui.progress.source_nav"),
+            "Logistics" => G("ui.progress.source_logistics"),
+            _ => ""
+        };
 
         public static string NavGroupLabel(NavGroup group) => group switch
         {

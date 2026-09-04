@@ -12,7 +12,9 @@ namespace Assets.Resources.Scripts.Entity
         public string playerID; // Player ID
         public string selectedTitle; // Selected title
         public string saveDate; // Save date
-        public int level; // Level
+        public float commanderExp;
+        public float commanderExpToNext;
+        public int level; // Commander level
         public int combatPower; // Combat Power
         public int creditPoints; // Number of credit points (alias: credits)
         /// <summary>Bound credits — NPC/exchange only; cannot enter player market later.</summary>
@@ -35,7 +37,9 @@ namespace Assets.Resources.Scripts.Entity
             playerID = Guid.NewGuid().ToString();
             selectedTitle = "";
             saveDate = "";
-            level = 0;
+            level = 1;
+            commanderExp = 0f;
+            commanderExpToNext = 0f;
             combatPower = 0;
             creditPoints = 0;
             creditsBound = 0;

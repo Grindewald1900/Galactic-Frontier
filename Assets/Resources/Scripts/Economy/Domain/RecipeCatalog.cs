@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Progression.Domain;
 
 namespace Assets.Resources.Scripts.Economy.Domain
 {
@@ -63,7 +64,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "int_armor_frame",
                 outputQty = 1,
                 facilityModuleId = "mod_armor",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 5
             });
             Add(new RecipeDef
             {
@@ -81,7 +84,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputQty = 1,
                 outputIsEquipment = true,
                 facilityModuleId = "mod_armor",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 10
             });
 
             // chain_energy
@@ -117,7 +122,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "int_reactor_coil",
                 outputQty = 1,
                 facilityModuleId = "mod_reactor",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 5
             });
             Add(new RecipeDef
             {
@@ -135,7 +142,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputQty = 1,
                 outputIsEquipment = true,
                 facilityModuleId = "mod_reactor",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 10
             });
 
             // chain_synth
@@ -171,7 +180,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputDefId = "int_nano_thread",
                 outputQty = 1,
                 facilityModuleId = "mod_synth",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 5
             });
             Add(new RecipeDef
             {
@@ -189,7 +200,9 @@ namespace Assets.Resources.Scripts.Economy.Domain
                 outputQty = 1,
                 outputIsEquipment = true,
                 facilityModuleId = "mod_synth",
-                cycleSeconds = EconomyConstants.CraftCycleSeconds
+                cycleSeconds = EconomyConstants.CraftCycleSeconds,
+                requiredProfession = ProfessionSkill.Craft,
+                requiredSkillLevel = 10
             });
 
             // Repair kit from scrap + parts

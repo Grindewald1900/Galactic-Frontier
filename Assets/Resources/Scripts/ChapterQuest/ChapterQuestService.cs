@@ -377,7 +377,6 @@ namespace Assets.Resources.Scripts.ChapterQuest
             var character = CharacterSkillController.GetCharacter(name);
             if (character == null) return;
             var entity = CardDataManager.Instance.GetGachaCardEntity(character);
-            entity.SetLevel(1);
             CardListManager.Instance.AddCardEntity(entity);
         }
 

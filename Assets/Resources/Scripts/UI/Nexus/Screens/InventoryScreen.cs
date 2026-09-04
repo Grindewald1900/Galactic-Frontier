@@ -42,6 +42,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 IdleSettlementService.ClaimAllPending(out var claimed);
                 claimedLines = RewardPopup.FromPending(claimed);
+                claimedLines.AddRange(RewardPopup.FromProgressNotes(IdleSettlementService.State?.lastProgressNotes));
+                IdleSettlementService.State.lastProgressNotes =
+                    new List<Assets.Resources.Scripts.Economy.Domain.OfflineProgressNote>();
+                IdleSettlementService.Save();
             }
 
             for (int i = root.childCount - 1; i >= 0; i--)

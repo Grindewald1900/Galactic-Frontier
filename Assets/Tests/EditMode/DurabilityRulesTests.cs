@@ -31,11 +31,10 @@ namespace GalacticFrontier.Tests.EditMode
         }
 
         [Test]
-        public void OfflineYield_StartsNearHalf()
+        public void OfflineYield_IsFullInsideCap()
         {
             var ratio = OfflineRules.YieldRatio(60, EconomyConstants.OfflineCapBaseSeconds);
-            Assert.GreaterOrEqual(ratio, 0.49f);
-            Assert.LessOrEqual(ratio, 0.55f);
+            Assert.AreEqual(1f, ratio);
         }
     }
 }

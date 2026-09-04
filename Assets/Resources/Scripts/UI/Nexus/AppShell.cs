@@ -11,6 +11,7 @@ using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Cosmetics;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Scripts.Utils;
@@ -79,6 +80,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private TextMeshProUGUI commanderLabel;
         private TextMeshProUGUI commanderIdLabel;
         private TextMeshProUGUI commanderLevelLabel;
+        private TextMeshProUGUI deckPowerLabel;
+        private NexusProgressUi.XpBar commanderXpBar;
         private Image commanderPortrait;
         private Image commanderFrame;
         private Image brandIcon;
@@ -93,6 +96,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             CurrencyService.Changed += OnCreditsChanged;
             FeatureUnlockService.UnlocksChanged += OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged += OnUnlocksChanged;
+            ProgressionService.ProgressChanged += OnProgressChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed += OnDebugModeChanged;
             yield return null;
@@ -160,6 +164,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             CurrencyService.Changed -= OnCreditsChanged;
             FeatureUnlockService.UnlocksChanged -= OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged -= OnUnlocksChanged;
+            ProgressionService.ProgressChanged -= OnProgressChanged;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed -= OnDebugModeChanged;
             if (Instance == this)
@@ -266,6 +271,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             commanderLabel = null;
             commanderIdLabel = null;
             commanderLevelLabel = null;
+            deckPowerLabel = null;
+            commanderXpBar = null;
             commanderPortrait = null;
             commanderFrame = null;
             brandIcon = null;
@@ -640,12 +647,31 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 parent,
                 "Commander Level",
                 $"LV.{level}",
-                new Vector2(textX + 286f, 32f),
-                new Vector2(120f, 24f),
+                new Vector2(textX + 286f, 6f),
+                new Vector2(72f, 22f),
                 16f,
                 NexusTheme.Gold,
                 TextAlignmentOptions.Left,
                 FontStyles.Bold);
+            deckPowerLabel = NexusUiFactory.CreateText(
+                parent,
+                "DeckPower",
+                UiText.DeckPowerLabel(NexusProgressUi.ActiveCombatPower()),
+                new Vector2(textX + 360f, 6f),
+                new Vector2(200f, 22f),
+                14f,
+                NexusTheme.Cyan,
+                TextAlignmentOptions.Left,
+                FontStyles.Bold);
+            var xpRatio = NexusProgressUi.CommanderXpRatio(player, out var xpCur, out var xpNeed);
+            commanderXpBar = NexusProgressUi.DrawBar(
+                parent,
+                "CommanderXp",
+                new Vector2(textX + 286f, 36f),
+                new Vector2(240f, 8f),
+                NexusProgressUi.FormatCommanderXpLabel(level, xpCur, xpNeed),
+                NexusTheme.Gold,
+                xpRatio);
             creditsLabel = NexusUiFactory.CreateText(
                 parent,
                 "Credits",
@@ -721,6 +747,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
             RefreshCreditsLabel();
         }
 
+        private void OnProgressChanged()
+        {
+            if (!mainReady)
+                return;
+            RefreshCommanderLabel();
+            if (activeScreen == AppScreen.Formation)
+                formationScreen?.RefreshProgressBars();
+        }
+
         public void RefreshCreditsLabel()
         {
             if (creditsLabel == null) return;
@@ -786,6 +821,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void RefreshCompactStatus()
         {
             CompactStatusBar.Apply(compactStatusLabel);
+            RefreshCommanderLabel();
         }
 
         private void BuildNavigation(Transform parent, bool fullNavigation)
@@ -1053,7 +1089,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Missions => UiText.ScreenMissions,
             AppScreen.Settings => UiText.ScreenSettings,
             AppScreen.Debug => UiText.ScreenDebug,
-            _ => screen.ToString()
+            _ => UiText.ScreenBridge
         };
 
         private float NavButtonWidth() => Mathf.Max(52f, navWidth - 12f);
@@ -1321,12 +1357,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var player = DataUtil.Instance?.currentPlayer;
             string commanderName = player?.playerName;
             if (string.IsNullOrWhiteSpace(commanderName)) commanderName = "COMMANDER";
+            int level = Mathf.Max(1, player?.level ?? 1);
             if (commanderLabel != null)
                 commanderLabel.text = commanderName;
             if (commanderIdLabel != null)
                 commanderIdLabel.text = UiText.ProfileIdLabel(TruncatePlayerId(player?.playerID));
             if (commanderLevelLabel != null)
-                commanderLevelLabel.text = $"LV.{player?.level ?? 1}";
+                commanderLevelLabel.text = $"LV.{level}";
+            if (deckPowerLabel != null)
+                deckPowerLabel.text = UiText.DeckPowerLabel(NexusProgressUi.ActiveCombatPower());
+            var ratio = NexusProgressUi.CommanderXpRatio(player, out var cur, out var need);
+            NexusProgressUi.ApplyBar(
+                commanderXpBar,
+                NexusProgressUi.FormatCommanderXpLabel(level, cur, need),
+                ratio);
         }
 
         public void RefreshProfileChrome()

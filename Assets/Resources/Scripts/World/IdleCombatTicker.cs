@@ -6,6 +6,9 @@ using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
+using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World.Domain;
@@ -13,14 +16,12 @@ using UnityEngine;
 
 namespace Assets.Resources.Scripts.World
 {
-    /// <summary>Online settlement for AutoCombat, Gather, and craft cycles (P2+P3).</summary>
-    public sealed class IdleEconomyTicker : MonoBehaviour
+        /// <summary>Online settlement for AutoCombat, Gather, and craft cycles (P2+P3).
+        /// AutoCombat continues on MainScene while the player uses Nexus; challenge is blocked until Stop.</summary>
+        public sealed class IdleEconomyTicker : MonoBehaviour
     {
         public static IdleEconomyTicker Instance { get; private set; }
 
-        private float farmAcc;
-        private float gatherAcc;
-        private float craftAcc;
         private float seenAcc;
 
         private void Awake()
@@ -50,52 +51,26 @@ namespace Assets.Resources.Scripts.World
 
             var busy = DeckService.GetBusyDecks();
             if (busy == null || busy.Count == 0)
-            {
-                farmAcc = gatherAcc = craftAcc = 0f;
                 return;
-            }
 
-            farmAcc += Time.unscaledDeltaTime;
-            gatherAcc += Time.unscaledDeltaTime;
-            craftAcc += Time.unscaledDeltaTime;
-
-            if (farmAcc >= WorldConstants.FarmCycleSeconds)
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var cards = CardListManager.Instance?.cardEntities;
+            foreach (var deck in busy)
             {
-                farmAcc = 0f;
-                foreach (var deck in busy)
-                {
-                    if (deck?.action == null) continue;
-                    if (deck.action.status != DeckActionStatus.Running) continue;
-                    if (deck.action.actionType == DeckActionType.AutoCombat)
-                        TickFarm(deck);
-                }
-            }
+                if (deck?.action == null) continue;
+                if (deck.action.status != DeckActionStatus.Running) continue;
+                var cycle = Math.Max(1, (int)Math.Round(ProductionService.ResolveJobCycleSeconds(deck, cards)));
+                var last = deck.action.lastSettledAtUtc > 0 ? deck.action.lastSettledAtUtc : now;
+                if (now - last < cycle) continue;
 
-            if (gatherAcc >= EconomyConstants.GatherCycleSeconds)
-            {
-                gatherAcc = 0f;
-                foreach (var deck in busy)
+                if (deck.action.actionType == DeckActionType.AutoCombat)
+                    TickFarm(deck);
+                else if (deck.action.actionType == DeckActionType.Gather)
+                    TickGather(deck);
+                else if (deck.action.actionType == DeckActionType.Process
+                         || deck.action.actionType == DeckActionType.Manufacture)
                 {
-                    if (deck?.action == null) continue;
-                    if (deck.action.status != DeckActionStatus.Running) continue;
-                    if (deck.action.actionType == DeckActionType.Gather)
-                        TickGather(deck);
-                }
-            }
-
-            if (craftAcc >= EconomyConstants.CraftCycleSeconds)
-            {
-                craftAcc = 0f;
-                foreach (var deck in busy)
-                {
-                    if (deck?.action == null) continue;
-                    if (deck.action.status != DeckActionStatus.Running) continue;
-                    if (deck.action.actionType == DeckActionType.Process
-                        || deck.action.actionType == DeckActionType.Manufacture)
-                    {
-                        Economy.ProductionService.TrySettleCraftCycle(
-                            deck, CardListManager.Instance?.cardEntities);
-                    }
+                    ProductionService.TrySettleCraftCycle(deck, cards);
                 }
             }
         }
@@ -158,8 +133,15 @@ namespace Assets.Resources.Scripts.World
                     GrantScrap(result.LootScrap);
             }
 
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantCombatToParty(members, null, ProgressionCatalog.FarmCombatXpPerCycle);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderFarmXp);
+            ProgressionService.EndGrant(presentUi: false);
+
+            deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             WorldService.MarkFarmTick(regionId);
             DataUtil.Instance?.SaveCardData(cards);
+            DeckService.Save();
         }
 
         private void TickGather(DeckEntity deck)
@@ -186,6 +168,15 @@ namespace Assets.Resources.Scripts.World
 
             Economy.IdleSettlementService.BankGather(node.outputDefId, node.outputQuality, node.outputQty);
             Economy.DurabilityService.ApplyGatherWear(node.riskLevel);
+            var cards = CardListManager.Instance?.cardEntities;
+            var members = DeckService.GetOrderedMembers(deck.deckId, cards);
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantProfessionToParty(
+                members, ProfessionSkill.Gather, node.requiredSkillLevel, Math.Max(1, node.cycleSeconds));
+            if (node.riskLevel >= 2)
+                ProgressionService.GrantCombatToParty(members, null, ProgressionCatalog.DangerousGatherCombatXp);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderGatherXp);
+            ProgressionService.EndGrant(presentUi: false);
             deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             DeckService.Save();
             Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyGatherProgress();

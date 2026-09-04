@@ -29,9 +29,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly System.Action<AppScreen> navigate;
         private BridgeLogCategory? logFilter;
 
-        /// <summary>Desaturated wash applied to locked sector art.</summary>
-        private static readonly Color LockedTint = new Color(0.36f, 0.40f, 0.48f, 0.55f);
-
         private BridgeScreen(
             Transform root,
             System.Action openMissions,
@@ -111,17 +108,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             BuildOnboardingCta();
 
-            NexusUiFactory.CreateText(
-                root,
-                "AutoBadge",
-                UiText.BridgeAutoCombatBadge,
-                new Vector2(1460f, 20f),
-                new Vector2(280f, 28f),
-                12f,
-                NexusTheme.Cyan,
-                TextAlignmentOptions.Right,
-                FontStyles.Bold);
-
             GameObject banner = NexusUiFactory.CreateBox(
                 root,
                 "Event Banner",
@@ -146,28 +132,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Gold);
             bannerText.textWrappingMode = TextWrappingModes.NoWrap;
 
-            int power = DataUtil.Instance?.currentPlayer?.combatPower ?? 0;
-            int credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
-            int progress = DataUtil.Instance?.currentPlayer?.explorationProgress ?? 0;
+            int power = NexusProgressUi.ActiveCombatPower();
+            int progress = WorldService.State?.explorationProgress
+                ?? DataUtil.Instance?.currentPlayer?.explorationProgress ?? 0;
             int cards = all.Count;
             var combatMembers = DeckService.GetActiveCombatMembers(all);
             int inLine = combatMembers.Count;
-            if (power <= 0 && inLine > 0)
-            {
-                foreach (var e in combatMembers)
-                    if (e != null) power += Mathf.RoundToInt(e.power);
-            }
 
-            AddStat(root, new Vector2(28f, 128f), UiText.StatCombatPower, power.ToString("N0"), NexusTheme.Gold, new Vector2(320f, 100f));
-            AddStat(root, new Vector2(364f, 128f), UiText.StatExploration, $"{progress}%", NexusTheme.Cyan, new Vector2(320f, 100f));
-            AddStat(root, new Vector2(700f, 128f), UiText.StatCredits, credits.ToString("N0") + "₵", NexusTheme.Purple, new Vector2(320f, 100f));
-
-            BuildActiveFleet(combatMembers);
+            BuildActiveFleet(all);
             BuildFleetCarousel();
             BuildCommanderGoal();
             BuildPendingLoot();
             BuildSectors();
-            BuildLog(inLine, cards, progress, credits, power);
+            BuildLog(inLine, cards, progress, power);
 
             string opsHint = WorldService.IsSectorComplete()
                 ? UiText.SectorComplete
@@ -187,33 +164,50 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var goal = CommanderGoalService.GetCurrent();
             GameObject panel = NexusUiFactory.CreateBox(
                 root, "Commander Goal",
-                new Vector2(1090f, 128f), new Vector2(678f, 280f),
+                new Vector2(1090f, 128f), new Vector2(678f, 300f),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
 
             NexusUiFactory.CreateText(
                 panel.transform, "GoalHead", UiText.BridgeCommanderGoal,
-                new Vector2(16f, 12f), new Vector2(640f, 22f), 12f, NexusTheme.MutedText);
+                new Vector2(16f, 10f), new Vector2(640f, 20f), 12f, NexusTheme.MutedText);
             NexusUiFactory.CreateText(
                 panel.transform, "GoalTitle", goal.Title,
-                new Vector2(16f, 34f), new Vector2(640f, 28f), 16f, NexusTheme.Gold,
+                new Vector2(16f, 32f), new Vector2(640f, 26f), 16f, NexusTheme.Gold,
                 TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(
                 panel.transform, "Progress", goal.Progress,
-                new Vector2(16f, 68f), new Vector2(640f, 22f), 12f, NexusTheme.Cyan);
-            NexusUiFactory.CreateText(
-                panel.transform, "BottleneckHead", UiText.BridgeBottleneck,
-                new Vector2(16f, 98f), new Vector2(640f, 20f), 11f, NexusTheme.MutedText);
-            NexusUiFactory.CreateText(
-                panel.transform, "Bottleneck", goal.Bottleneck,
-                new Vector2(16f, 118f), new Vector2(640f, 48f), 12f, NexusTheme.Text);
+                new Vector2(16f, 60f), new Vector2(640f, 20f), 12f, NexusTheme.Cyan);
+
+            float y = 84f;
+            if (!string.IsNullOrEmpty(goal.PowerLine))
+            {
+                NexusUiFactory.CreateText(
+                    panel.transform, "Power", goal.PowerLine,
+                    new Vector2(16f, y), new Vector2(640f, 20f), 12f, NexusTheme.Text);
+                y += 22f;
+            }
+
+            if (!string.IsNullOrEmpty(goal.RewardsLine))
+            {
+                NexusUiFactory.CreateText(
+                    panel.transform, "Rewards", goal.RewardsLine,
+                    new Vector2(16f, y), new Vector2(640f, 20f), 12f, NexusTheme.Gold);
+                y += 22f;
+            }
 
             NexusUiFactory.CreateText(
-                panel.transform, "RecHead", UiText.BridgeRecommended,
-                new Vector2(16f, 168f), new Vector2(200f, 20f), 11f, NexusTheme.MutedText);
+                panel.transform, "BottleneckHead", UiText.BridgeBottleneck,
+                new Vector2(16f, y), new Vector2(640f, 18f), 11f, NexusTheme.MutedText);
+            y += 20f;
+            var bottleneck = NexusUiFactory.CreateText(
+                panel.transform, "Bottleneck", goal.Bottleneck,
+                new Vector2(16f, y), new Vector2(640f, 44f), 12f, NexusTheme.Text);
+            bottleneck.textWrappingMode = TextWrappingModes.Normal;
+            y += 48f;
 
             NexusUiFactory.CreateRoleButton(
                 panel.transform, "Recommended", goal.RecommendedAction,
-                new Vector2(16f, 192f), new Vector2(320f, 44f),
+                new Vector2(16f, Mathf.Min(y, 244f)), new Vector2(320f, 44f),
                 () =>
                 {
                     if (goal.OnRecommended != null)
@@ -231,12 +225,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
             // P6: peer CTAs removed; use commander goal + shell navigation.
         }
 
-        private void BuildActiveFleet(List<CardEntity> lineup)
+        private void BuildActiveFleet(List<CardEntity> all)
         {
             GameObject fleet = NexusUiFactory.CreateBox(
                 root,
                 "Fleet",
-                new Vector2(28f, 244f),
+                new Vector2(28f, 128f),
                 new Vector2(1040f, 200f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
@@ -276,33 +270,61 @@ namespace Assets.Resources.Scripts.UI.Nexus
             fleetButton.colors = fleetColors;
             fleetButton.onClick.AddListener(() => openFormation?.Invoke());
 
+            const float slotW = 150f;
+            const float slotH = 148f;
+            const float gap = 20f;
             float x = 20f;
-            if (lineup != null && lineup.Count > 0)
+            for (int i = 0; i < DeckConstants.SlotsPerDeck; i++)
             {
-                foreach (CardEntity entity in lineup)
+                CardEntity entity = combat != null
+                    ? DeckService.FindMemberInSlot(combat.deckId, i, all)
+                    : null;
+                if (entity != null)
                 {
-                    if (entity == null) continue;
-                    string footer = $"Lv.{entity.Level} · {UiText.SlotLabel((int)entity.GetLineupPosition())}";
+                    string footer = $"Lv.{entity.Level} · {UiText.SlotLabel(i + 1)}";
                     NexusCardVisual.CreatePortraitCard(
                         fleet.transform,
-                        $"Unit {entity.id}",
+                        $"Unit {i}",
                         entity,
                         new Vector2(x, 36f),
-                        new Vector2(150f, 148f),
+                        new Vector2(slotW, slotH),
                         footer);
-                    x += 170f;
                 }
-            }
-            else
-            {
-                NexusUiFactory.CreateText(
-                    fleet.transform,
-                    "Empty",
-                    UiText.EmptyFleet,
-                    new Vector2(24f, 100f),
-                    new Vector2(700f, 40f),
-                    14f,
-                    NexusTheme.MutedText);
+                else
+                {
+                    GameObject empty = NexusUiFactory.CreateBox(
+                        fleet.transform,
+                        $"Empty {i}",
+                        new Vector2(x, 36f),
+                        new Vector2(slotW, slotH),
+                        NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.55f),
+                        NexusTheme.BorderSoft);
+                    var emptyImg = empty.GetComponent<Image>();
+                    emptyImg.raycastTarget = true;
+                    var emptyBtn = empty.AddComponent<Button>();
+                    emptyBtn.onClick.AddListener(() => openFormation?.Invoke());
+                    NexusUiFactory.CreateText(
+                        empty.transform,
+                        "Slot",
+                        UiText.SlotLabel(i + 1),
+                        new Vector2(8f, 12f),
+                        new Vector2(slotW - 16f, 20f),
+                        11f,
+                        NexusTheme.DimText,
+                        TextAlignmentOptions.Center);
+                    NexusUiFactory.CreateText(
+                        empty.transform,
+                        "Plus",
+                        UiText.BridgeEmptySlot,
+                        new Vector2(8f, slotH * 0.5f - 12f),
+                        new Vector2(slotW - 16f, 28f),
+                        13f,
+                        NexusTheme.Cyan,
+                        TextAlignmentOptions.Center,
+                        FontStyles.Bold);
+                }
+
+                x += slotW + gap;
             }
         }
 
@@ -311,7 +333,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             GameObject ops = NexusUiFactory.CreateBox(
                 root,
                 "FleetCarousel",
-                new Vector2(28f, 456f),
+                new Vector2(28f, 360f),
                 new Vector2(1040f, 140f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
@@ -497,7 +519,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             GameObject box = NexusUiFactory.CreateBox(
                 root,
                 "PendingLoot",
-                new Vector2(1090f, 128f),
+                new Vector2(1090f, 440f),
                 new Vector2(678f, 100f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
@@ -533,7 +555,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         var r = IdleSettlementService.ClaimAllPending(out var claimed);
                         if (!r.Success)
                             NexusSnackbar.Show(r.Message);
-                        RewardPopup.Show(UiText.RewardTitle, RewardPopup.FromPending(claimed));
+                        var lines = RewardPopup.FromPending(claimed);
+                        lines.AddRange(RewardPopup.FromProgressNotes(IdleSettlementService.State?.lastProgressNotes));
+                        IdleSettlementService.State.lastProgressNotes = new List<Assets.Resources.Scripts.Economy.Domain.OfflineProgressNote>();
+                        IdleSettlementService.Save();
+                        RewardPopup.Show(UiText.RewardTitle, lines);
                         Rebuild();
                     },
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
@@ -542,13 +568,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
         }
 
+        private static readonly Color LockedTint = new Color(0.36f, 0.40f, 0.48f, 0.55f);
+
         private void BuildSectors()
         {
             GameObject sectors = NexusUiFactory.CreateBox(
                 root,
                 "Sectors",
-                new Vector2(28f, 608f),
-                new Vector2(1740f, 248f),
+                new Vector2(28f, 512f),
+                new Vector2(1040f, 340f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
             NexusUiFactory.CreateText(
@@ -585,7 +613,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var unlocked = CollectUnlockedRegionIds();
             int unique = regions != null && regions.Count > 0 ? regions.Count : 5;
             const float itemW = 188f;
-            const float itemH = 168f;
+            const float itemH = 260f;
             const float gap = 16f;
             float stride = itemW + gap;
 
@@ -629,15 +657,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     cell.transform,
                     "Planet",
                     NexusCardVisual.PlanetSprite(index * 3),
-                    new Vector2(44f, 10f),
-                    new Vector2(100f, 86f),
+                    new Vector2(44f, 36f),
+                    new Vector2(100f, 100f),
                     locked ? LockedTint : Color.white);
                 NexusUiFactory.CreateText(
                     cell.transform,
                     "Name",
                     name,
-                    new Vector2(8f, 102f),
-                    new Vector2(itemW - 16f, 28f),
+                    new Vector2(8f, 150f),
+                    new Vector2(itemW - 16f, 36f),
                     13f,
                     locked ? NexusTheme.DimText : NexusTheme.Text,
                     TextAlignmentOptions.Center,
@@ -648,8 +676,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         cell.transform,
                         "Faction",
                         faction,
-                        new Vector2(8f, 132f),
-                        new Vector2(itemW - 16f, 22f),
+                        new Vector2(8f, 190f),
+                        new Vector2(itemW - 16f, 24f),
                         11f,
                         locked ? NexusTheme.DimText : NexusTheme.Cyan,
                         TextAlignmentOptions.Center);
@@ -664,7 +692,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                             cell.transform,
                             "LockIcon",
                             lockSprite,
-                            new Vector2(itemW * 0.5f - 16f, 30f),
+                            new Vector2(itemW * 0.5f - 16f, 56f),
                             new Vector2(32f, 32f),
                             NexusTheme.Text);
                     }
@@ -673,7 +701,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         cell.transform,
                         "LockLabel",
                         UiText.RegionLocked,
-                        new Vector2(8f, 74f),
+                        new Vector2(8f, 110f),
                         new Vector2(itemW - 16f, 20f),
                         11f,
                         NexusTheme.MutedText,
@@ -689,10 +717,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
             contentRect.sizeDelta = new Vector2(copies * stride + 16f, itemH);
         }
 
-        /// <summary>
-        /// Region ids the player may currently enter. On any world-state failure every region is
-        /// treated as unlocked so the strip degrades to its previous look instead of showing all locks.
-        /// </summary>
         private static HashSet<string> CollectUnlockedRegionIds()
         {
             var ids = new HashSet<string>();
@@ -717,18 +741,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return ids;
         }
 
-        private void BuildLog(int inLine, int cards, int progress, int credits, int power)
+        private void BuildLog(int inLine, int cards, int progress, int power)
         {
             BridgeEventLog.Ensure();
-            BridgeEventLog.UpsertLive("live_fleet", BridgeLogCategory.Combat,
-                $"Fleet status: {inLine} units deployed · roster {cards}",
-                $"舰队状态：{inLine} 人上阵 · 卡池 {cards}");
+            if (inLine < DeckConstants.SlotsPerDeck)
+            {
+                BridgeEventLog.UpsertLive("live_fleet", BridgeLogCategory.Combat,
+                    "Combat deck incomplete — open Formation to fill slots",
+                    "战斗编队未满 — 打开编队补齐席位");
+            }
+            else
+            {
+                BridgeEventLog.UpsertLive("live_fleet", BridgeLogCategory.Combat,
+                    $"Fleet ready: {inLine}/{DeckConstants.SlotsPerDeck} · roster {cards}",
+                    $"编队就绪：{inLine}/{DeckConstants.SlotsPerDeck} · 卡池 {cards}");
+            }
+
             BridgeEventLog.UpsertLive("live_explore", BridgeLogCategory.Explore,
-                $"Grid restore {progress}% · credits {credits:N0}₵",
-                $"航网恢复 {progress}% · 信用点 {credits:N0}₵");
+                $"Grid restore {progress}% — open Explore to chart neighbors",
+                $"航网恢复 {progress}% — 打开探索标绘邻接节点");
             BridgeEventLog.UpsertLive("live_power", BridgeLogCategory.Combat,
-                $"Combat power estimate {power:N0}",
-                $"预估战力 {power:N0}");
+                $"Combat power {power:N0} — compare vs node recommended power",
+                $"战力 {power:N0} — 对照节点推荐战力");
             BridgeEventLog.UpsertLive("live_ops", BridgeLogCategory.Production,
                 $"Parallel ops {DeckService.CountBusyDecks()}/{DeckService.MaxParallelActions}",
                 $"并行行动 {DeckService.CountBusyDecks()}/{DeckService.MaxParallelActions}");
@@ -736,8 +770,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             GameObject log = NexusUiFactory.CreateBox(
                 root,
                 "Log",
-                new Vector2(1090f, 244f),
-                new Vector2(678f, 292f),
+                new Vector2(1090f, 552f),
+                new Vector2(678f, 300f),
                 NexusTheme.Surface,
                 NexusTheme.BorderSoft);
             NexusUiFactory.CreateText(
@@ -918,22 +952,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 "Ship" => AppScreen.Ship,
                 _ => AppScreen.Missions
             };
-
-        private static void AddStat(Transform parent, Vector2 position, string label, string value, Color accent, Vector2? size = null)
-        {
-            Vector2 cardSize = size ?? new Vector2(320f, 118f);
-            GameObject card = NexusUiFactory.CreateBox(parent, $"Stat {label}", position, cardSize, NexusTheme.SurfaceRaised, NexusTheme.BorderSoft);
-            NexusUiFactory.CreatePanel(card.transform, "Accent", accent, new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero, new Vector2(3f, 0f));
-            NexusUiFactory.CreateText(card.transform, "Value", value, new Vector2(16f, 16f), new Vector2(cardSize.x - 32f, 36f), 22f, NexusTheme.Text, TextAlignmentOptions.Left, FontStyles.Bold);
-            NexusUiFactory.CreateText(card.transform, "Label", label, new Vector2(16f, 58f), new Vector2(cardSize.x - 32f, 22f), 12f, NexusTheme.MutedText);
-        }
-
-        private static string Truncate(string value, int max)
-        {
-            if (string.IsNullOrEmpty(value) || value.Length <= max)
-                return value ?? "";
-            return value.Substring(0, max - 1) + "…";
-        }
 
         private static void ClearDynamicChildren(Transform parent)
         {

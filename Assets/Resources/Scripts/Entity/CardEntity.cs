@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Utils;
+using EnergyRankKind = Assets.Resources.Scripts.Progression.Domain.EnergyRank;
 
 namespace Assets.Resources.Scripts.Entity
 {
@@ -29,6 +31,31 @@ namespace Assets.Resources.Scripts.Entity
         public int farmWear;
         public CardSource cardSource = CardSource.None;
         public CardBoundReason boundReason = CardBoundReason.None;
+        public int energyRank;
+        public float storedCombatXp;
+        public int gatherSkill = 1;
+        public int craftSkill = 1;
+        public int scanSkill = 1;
+        public int navSkill = 1;
+        public int logisticsSkill = 1;
+        public float gatherXp;
+        public float craftXp;
+        public float scanXp;
+        public float navXp;
+        public float logisticsXp;
+        public float storedGatherXp;
+        public float storedCraftXp;
+        public float storedScanXp;
+        public float storedNavXp;
+        public float storedLogisticsXp;
+        public int craftSpec;
+        public int gatherSpec;
+
+        public EnergyRankKind EnergyRank
+        {
+            get => ProgressionRules.ClampRank((EnergyRankKind)energyRank);
+            set => energyRank = (int)ProgressionRules.ClampRank(value);
+        }
 
         public int Level
         {
@@ -199,12 +226,24 @@ namespace Assets.Resources.Scripts.Entity
         Dictionary<Status.AttributeType, float> characterAttrs = new();
         Dictionary<Status.AttributeType, float> panelAttrs = new();
         Dictionary<Status.AttributeType, float> battleAttrs = new();
-        private readonly int levelStepForEvolution = 20;
         /// <summary>Raised whenever a derived value changes and views should refresh.</summary>
         public event Action OnDataChanged;
 
-        /// <summary>Raised after an evolution applies a new expertise.</summary>
+        /// <summary>Raised after an energy-rank breakthrough applies.</summary>
         public event Action OnCardUpgraded;
+        private static int persistSuppress;
+
+        public void NotifyRankAscended() => OnCardUpgraded?.Invoke();
+
+        public static void BeginBatchPersist() => persistSuppress++;
+
+        public static void EndBatchPersist(bool flush)
+        {
+            if (persistSuppress > 0)
+                persistSuppress--;
+            if (persistSuppress == 0 && flush)
+                DataUtil.Instance?.SaveCardData(CardListManager.Instance?.cardEntities);
+        }
 
         public CardEntity()
         {
@@ -271,45 +310,187 @@ namespace Assets.Resources.Scripts.Entity
             UpdateExpertises();
         }
 
-        /// <summary>Adds battle experience, performs chained level-ups, and stops at evolution gates.</summary>
+        /// <summary>Adds battle experience, levels automatically, and banks overflow at the energy-rank cap.</summary>
         public void AddExperience(float exp)
         {
-            if (EvolutionPending)
+            if (exp <= 0f) return;
+            EnsureProgressionDefaults();
+            var state = new CombatXpState
             {
-                UnityEngine.Debug.Log($"{cardName} 已达到进阶等级，进阶前无法获得经验。");
+                Level = Level,
+                CurrentXp = CurrentExp,
+                ExpToNext = ExpToNextLevel,
+                StoredXp = storedCombatXp
+            };
+            var before = Level;
+            state = ProgressionRules.ApplyCombatXp(state, EnergyRank, exp);
+            ApplyCombatState(state);
+            if (Level != before)
+                RefreshBaseAttributes();
+        }
+
+        private void ApplyCombatState(CombatXpState state)
+        {
+            level = state.Level;
+            currentExp = state.CurrentXp;
+            expToLevelUp = state.ExpToNext;
+            storedCombatXp = state.StoredXp;
+            evolutionPending = state.AtCap && EnergyRank < EnergyRankKind.S;
+            CalculatePower();
+        }
+
+        public void DumpStoredCombatXp()
+        {
+            EnsureProgressionDefaults();
+            var before = Level;
+            var state = new CombatXpState
+            {
+                Level = Level,
+                CurrentXp = CurrentExp,
+                ExpToNext = ExpToNextLevel,
+                StoredXp = storedCombatXp
+            };
+            state = ProgressionRules.DumpStoredCombatXp(state, EnergyRank);
+            ApplyCombatState(state);
+            if (Level != before)
+                RefreshBaseAttributes();
+        }
+
+        public ProfessionXpState AddProfessionExperience(ProfessionSkill skill, float exp)
+        {
+            EnsureProgressionDefaults();
+            var state = ReadProfessionState(skill);
+            var before = state.Level;
+            state = ProgressionRules.ApplyProfessionXp(state, EnergyRank, exp);
+            WriteProfessionState(skill, state);
+            if (state.Level != before)
+                CalculatePower();
+            return state;
+        }
+
+        public void DumpStoredProfessionXp()
+        {
+            EnsureProgressionDefaults();
+            foreach (ProfessionSkill skill in new[]
+            {
+                ProfessionSkill.Gather, ProfessionSkill.Craft, ProfessionSkill.Scan,
+                ProfessionSkill.Navigate, ProfessionSkill.Logistics
+            })
+            {
+                var state = ReadProfessionState(skill);
+                state = ProgressionRules.DumpStoredProfessionXp(state, EnergyRank);
+                WriteProfessionState(skill, state);
+            }
+        }
+
+        public int GetProfessionLevel(ProfessionSkill skill)
+        {
+            EnsureProgressionDefaults();
+            return skill switch
+            {
+                ProfessionSkill.Gather => gatherSkill,
+                ProfessionSkill.Craft => craftSkill,
+                ProfessionSkill.Scan => scanSkill,
+                ProfessionSkill.Navigate => navSkill,
+                ProfessionSkill.Logistics => logisticsSkill,
+                _ => 1
+            };
+        }
+
+        public float GetProfessionXp(ProfessionSkill skill)
+        {
+            EnsureProgressionDefaults();
+            return skill switch
+            {
+                ProfessionSkill.Gather => gatherXp,
+                ProfessionSkill.Craft => craftXp,
+                ProfessionSkill.Scan => scanXp,
+                ProfessionSkill.Navigate => navXp,
+                ProfessionSkill.Logistics => logisticsXp,
+                _ => 0f
+            };
+        }
+
+        public float GetProfessionStoredXp(ProfessionSkill skill)
+        {
+            EnsureProgressionDefaults();
+            return skill switch
+            {
+                ProfessionSkill.Gather => storedGatherXp,
+                ProfessionSkill.Craft => storedCraftXp,
+                ProfessionSkill.Scan => storedScanXp,
+                ProfessionSkill.Navigate => storedNavXp,
+                ProfessionSkill.Logistics => storedLogisticsXp,
+                _ => 0f
+            };
+        }
+
+        public ProfessionSpec GetProfessionSpec(ProfessionSkill skill) => skill switch
+        {
+            ProfessionSkill.Craft => (ProfessionSpec)craftSpec,
+            ProfessionSkill.Gather => (ProfessionSpec)gatherSpec,
+            _ => ProfessionSpec.None
+        };
+
+        public void SetProfessionSpec(ProfessionSkill skill, ProfessionSpec spec)
+        {
+            if (skill == ProfessionSkill.Craft) craftSpec = (int)spec;
+            else if (skill == ProfessionSkill.Gather) gatherSpec = (int)spec;
+        }
+
+        public void EnsureProgressionDefaults()
+        {
+            if (gatherSkill < 1) gatherSkill = 1;
+            if (craftSkill < 1) craftSkill = 1;
+            if (scanSkill < 1) scanSkill = 1;
+            if (navSkill < 1) navSkill = 1;
+            if (logisticsSkill < 1) logisticsSkill = 1;
+            EnergyRank = EnergyRank;
+            while (level > ProgressionRules.CombatCap(EnergyRank) && EnergyRank < EnergyRankKind.S)
+                EnergyRank = ProgressionRules.NextRank(EnergyRank);
+            if (expToLevelUp <= 0f)
+                expToLevelUp = ProgressionRules.CombatExpToNext(Math.Max(0, level));
+            evolutionPending = level >= ProgressionRules.CombatCap(EnergyRank) && EnergyRank < EnergyRankKind.S;
+        }
+
+        private ProfessionXpState ReadProfessionState(ProfessionSkill skill) => skill switch
+        {
+            ProfessionSkill.Gather => new ProfessionXpState { Level = gatherSkill, CurrentXp = gatherXp, StoredXp = storedGatherXp },
+            ProfessionSkill.Craft => new ProfessionXpState { Level = craftSkill, CurrentXp = craftXp, StoredXp = storedCraftXp },
+            ProfessionSkill.Scan => new ProfessionXpState { Level = scanSkill, CurrentXp = scanXp, StoredXp = storedScanXp },
+            ProfessionSkill.Navigate => new ProfessionXpState { Level = navSkill, CurrentXp = navXp, StoredXp = storedNavXp },
+            ProfessionSkill.Logistics => new ProfessionXpState { Level = logisticsSkill, CurrentXp = logisticsXp, StoredXp = storedLogisticsXp },
+            _ => new ProfessionXpState { Level = 1 }
+        };
+
+        private void WriteProfessionState(ProfessionSkill skill, ProfessionXpState state)
+        {
+            switch (skill)
+            {
+                case ProfessionSkill.Gather:
+                    gatherSkill = state.Level; gatherXp = state.CurrentXp; storedGatherXp = state.StoredXp; break;
+                case ProfessionSkill.Craft:
+                    craftSkill = state.Level; craftXp = state.CurrentXp; storedCraftXp = state.StoredXp; break;
+                case ProfessionSkill.Scan:
+                    scanSkill = state.Level; scanXp = state.CurrentXp; storedScanXp = state.StoredXp; break;
+                case ProfessionSkill.Navigate:
+                    navSkill = state.Level; navXp = state.CurrentXp; storedNavXp = state.StoredXp; break;
+                case ProfessionSkill.Logistics:
+                    logisticsSkill = state.Level; logisticsXp = state.CurrentXp; storedLogisticsXp = state.StoredXp; break;
+            }
+        }
+
+        public void RefreshBaseAttributes()
+        {
+            var mgr = CardDataManager.Instance;
+            if (mgr == null) return;
+            var attrEntity = mgr.GetBaseAttrEntitiy(Math.Max(1, Level));
+            if (attrEntity == null)
+            {
+                CalculatePower();
                 return;
             }
 
-            CurrentExp += exp;
-            UnityEngine.Debug.Log($"{cardName} 获得 {exp} 经验，总经验 {CurrentExp}/{ExpToNextLevel}");
-            // 多段升级判断：当经验超过升级需求时，进行多次升级处理
-            while (CurrentExp >= ExpToNextLevel)
-            {
-                CurrentExp -= ExpToNextLevel;
-                LevelUp();
-            }
-        }
-
-        private void LevelUp()
-        {
-            Level++;
-            UnityEngine.Debug.Log($"{cardName} 升级到 {Level} 级！");
-            // 升级后重置经验和升级需求
-            ExpToNextLevel = LevelUtil.GetNextLevelExp(Level);
-            UpdateAttributes();
-
-            // 每达到levelStepForEvolution的倍数，要求进阶（例如20级、40级……）
-            if (Level % levelStepForEvolution == 0)
-            {
-                EvolutionPending = true;
-                UnityEngine.Debug.Log($"{cardName} 达到 {Level} 级，需要进阶才能继续获得经验！");
-            }
-        }
-
-        // Update base attributes according to level
-        private void UpdateAttributes()
-        {
-            BaseAttrEntity attrEntity = CardDataManager.Instance.GetBaseAttrEntitiy(Level);
             health = attrEntity.health;
             attack = attrEntity.attack;
             defense = attrEntity.defense;
@@ -325,7 +506,8 @@ namespace Assets.Resources.Scripts.Entity
 
         /// <summary>
         /// Recomputes the score shown by collection and formation UI, then notifies listeners.
-        /// Current implementation also persists the complete collection through CardListManager.
+        /// Current implementation also persists the complete collection through CardListManager
+        /// unless a grant batch is in progress.
         /// </summary>
         private void CalculatePower()
         {
@@ -334,16 +516,13 @@ namespace Assets.Resources.Scripts.Entity
             + (GetPanelCritialDamage() * 1f) + (GetPanelDMGReduction() * 1f) + (GetPanelEnergyRate() * 1f)
             + (GetPanelSpeed() * 1f);
             OnDataChanged?.Invoke();
-            DataUtil.Instance.SaveCardData(CardListManager.Instance.cardEntities);
+            if (persistSuppress == 0)
+                DataUtil.Instance?.SaveCardData(CardListManager.Instance?.cardEntities);
         }
 
         public void UpgradeCard()
         {
-            ExpertiseEntity expertise = CardDataManager.Instance.GetExpertise(this);
-            AddExpertise(expertise);
-            EvolutionPending = false;
-            OnCardUpgraded?.Invoke();
-            UnityEngine.Debug.Log($"{cardName} 已进阶！expertise：{expertise.attributeType} {expertise.expertiseTier} {expertise.value}");
+            Assets.Resources.Scripts.Progression.ProgressionService.TryAscendEnergyRank(this);
         }
 
         // Other Setters and Getters

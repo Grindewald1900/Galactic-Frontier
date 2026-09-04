@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Progression.Domain;
 
 namespace Assets.Resources.Scripts.Economy.Domain
 {
@@ -42,6 +43,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public int cycleSeconds = EconomyConstants.CraftCycleSeconds;
         public string facilityModuleId = "";
         public bool outputIsEquipment;
+        public ProfessionSkill requiredProfession = ProfessionSkill.Craft;
+        public int requiredSkillLevel = 1;
     }
 
     [Serializable]
@@ -56,6 +59,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public int outputQuality = EconomyConstants.DefaultQuality;
         public int cycleSeconds = EconomyConstants.GatherCycleSeconds;
         public int riskLevel = 1; // 1 low, 2 mid, 3 high
+        public ProfessionSkill requiredProfession = ProfessionSkill.Gather;
+        public int requiredSkillLevel = 1;
     }
 
     [Serializable]
@@ -86,6 +91,14 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public List<PendingLootEntry> gatherBank = new List<PendingLootEntry>();
         public List<RecipeMasteryEntry> mastery = new List<RecipeMasteryEntry>();
         public int count;
+        public List<OfflineProgressNote> lastProgressNotes = new List<OfflineProgressNote>();
+    }
+
+    [Serializable]
+    public class OfflineProgressNote
+    {
+        public string textEn = "";
+        public string textZh = "";
     }
 
     public sealed class EconomyCommandResult

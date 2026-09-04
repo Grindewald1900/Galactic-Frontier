@@ -1142,8 +1142,8 @@
     },
     {
       "id": "ui.formation.available",
-      "en": "Available Characters",
-      "zh": "可用角色"
+      "en": "Joinable Characters",
+      "zh": "可加入角色"
     },
     {
       "id": "ui.formation.title",
@@ -1467,8 +1467,8 @@
     },
     {
       "id": "ui.formation.slot_mid",
-      "en": "Mid",
-      "zh": "中排"
+      "en": "Back Center",
+      "zh": "后排中"
     },
     {
       "id": "ui.formation.slot_bl",
@@ -2131,6 +2131,11 @@
       "zh": "自动战斗"
     },
     {
+      "id": "ui.battle.spectate_auto",
+      "en": "WATCHING AUTO",
+      "zh": "挂机观战"
+    },
+    {
       "id": "ui.battle.end",
       "en": "BATTLE END",
       "zh": "战斗结束"
@@ -2392,8 +2397,8 @@
     },
     {
       "id": "ui.status.bar_summary",
-      "en": "Lv.{0}  ₵{1}  Fleet {2}/{3}  Queue {4}  Cargo {5}  {6}",
-      "zh": "Lv.{0}  ₵{1}  舰队 {2}/{3}  队列 {4}  仓库 {5}  {6}"
+      "en": "Lv.{0}  POW {1:N0}  ₵{2}  Fleet {3}/{4}  Queue {5}  Cargo {6}  {7}",
+      "zh": "Lv.{0}  战力 {1:N0}  ₵{2}  舰队 {3}/{4}  队列 {5}  仓库 {6}  {7}"
     },
     {
       "id": "ui.status.cruise_active",
@@ -2552,8 +2557,8 @@
     },
     {
       "id": "ui.explore.legend",
-      "en": "Lanes: cyan stable · gold provisional · purple rift · grey fog",
-      "zh": "航线：青=稳定 · 金=临时 · 紫=裂隙 · 灰=断航"
+      "en": "Lanes: thick cyan=stable · thin dashed gold=provisional · purple=rift · dim=fog",
+      "zh": "航线：粗青=稳定 · 细金虚线=临时 · 紫=裂隙 · 暗=断航/熵雾"
     },
     {
       "id": "ui.explore.status_discovery",
@@ -2587,8 +2592,163 @@
     },
     {
       "id": "ui.formation.team_summary",
-      "en": "Armor break: —  Survival: —  Heal: —",
-      "zh": "破甲：—  生存：—  治疗：—"
+      "en": "Team evaluation",
+      "zh": "队伍评价"
+    },
+    {
+      "id": "ui.formation.join_primary",
+      "en": "Assign to Selected Slot",
+      "zh": "编入选中位置"
+    },
+    {
+      "id": "ui.formation.leave_primary",
+      "en": "Remove from Deck",
+      "zh": "移出卡组"
+    },
+    {
+      "id": "ui.formation.replace_after",
+      "en": "Replace After Round",
+      "zh": "完成本轮后替换"
+    },
+    {
+      "id": "ui.formation.replace_after_hint",
+      "en": "Stop the current op first, or wait for this round to finish.",
+      "zh": "请先停止当前行动，或等待本轮结束后再替换。"
+    },
+    {
+      "id": "ui.formation.filter_occupancy_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.formation.filter_occupancy_idle",
+      "en": "Idle",
+      "zh": "空闲"
+    },
+    {
+      "id": "ui.formation.filter_occupancy_busy",
+      "en": "Busy",
+      "zh": "占用"
+    },
+    {
+      "id": "ui.formation.roster_empty_idle",
+      "en": "No idle characters. Busy units still appear under Busy / All.",
+      "zh": "没有空闲角色。已占用角色仍可在「占用／全部」中查看。"
+    },
+    {
+      "id": "ui.formation.roster_empty_busy",
+      "en": "No busy or slotted characters.",
+      "zh": "没有已占用或已编入的角色。"
+    },
+    {
+      "id": "ui.formation.stop_named",
+      "en": "Stop {0}",
+      "zh": "停止{0}"
+    },
+    {
+      "id": "ui.formation.stop_named_target",
+      "en": "Stop {0} · {1}",
+      "zh": "停止{0} · {1}"
+    },
+    {
+      "id": "ui.formation.enemy_facing",
+      "en": "Enemy direction ↑",
+      "zh": "敌方方向 ↑"
+    },
+    {
+      "id": "ui.formation.team_eval",
+      "en": "Team evaluation",
+      "zh": "队伍评价"
+    },
+    {
+      "id": "ui.formation.team_diagnosis",
+      "en": "Damage {0}  ·  Survive {1}  ·  Heal {2}",
+      "zh": "输出 {0}  ·  生存 {1}  ·  治疗 {2}"
+    },
+    {
+      "id": "ui.formation.grade_missing",
+      "en": "Missing",
+      "zh": "缺失"
+    },
+    {
+      "id": "ui.formation.grade_weak",
+      "en": "Weak",
+      "zh": "较弱"
+    },
+    {
+      "id": "ui.formation.grade_fair",
+      "en": "Fair",
+      "zh": "一般"
+    },
+    {
+      "id": "ui.formation.grade_good",
+      "en": "Good",
+      "zh": "良好"
+    },
+    {
+      "id": "ui.formation.win_estimate",
+      "en": "{0} win estimate ~{1}%",
+      "zh": "{0}预计胜率约 {1}%"
+    },
+    {
+      "id": "ui.formation.win_estimate_na",
+      "en": "Select a star-map node to estimate win rate",
+      "zh": "在星图选择节点后可估算胜率"
+    },
+    {
+      "id": "ui.deck.action_main_combat",
+      "en": "Sector combat",
+      "zh": "区域战斗"
+    },
+    {
+      "id": "ui.deck.action_auto_combat",
+      "en": "Auto combat",
+      "zh": "自动战斗"
+    },
+    {
+      "id": "ui.deck.action_gather",
+      "en": "Gathering",
+      "zh": "采集"
+    },
+    {
+      "id": "ui.deck.action_process",
+      "en": "Processing",
+      "zh": "加工"
+    },
+    {
+      "id": "ui.deck.action_manufacture",
+      "en": "Manufacturing",
+      "zh": "制造"
+    },
+    {
+      "id": "ui.deck.action_research",
+      "en": "Research",
+      "zh": "研究"
+    },
+    {
+      "id": "ui.deck.action_transit",
+      "en": "In transit",
+      "zh": "航行中"
+    },
+    {
+      "id": "ui.strategy.balanced",
+      "en": "Balanced targeting",
+      "zh": "均衡索敌"
+    },
+    {
+      "id": "ui.strategy.focus_lowest_hp",
+      "en": "Focus lowest HP",
+      "zh": "优先集火残血"
+    },
+    {
+      "id": "ui.strategy.focus_highest_threat",
+      "en": "Focus highest threat",
+      "zh": "优先集火高威胁目标"
+    },
+    {
+      "id": "ui.strategy.prefer_aoe",
+      "en": "Prefer AoE",
+      "zh": "优先范围技能"
     },
     {
       "id": "ui.battle.next_action",
@@ -2744,6 +2904,271 @@
       "id": "ui.snackbar.farm_locked",
       "en": "Clear the region once before farming.",
       "zh": "需要先通关该区域才能挂机刷取。"
+    },
+    {
+      "id": "ui.snackbar.challenge_while_auto",
+      "en": "Auto combat is running — stop it before challenging a new region.",
+      "zh": "自动战斗进行中 — 请先停止后再挑战新关卡。"
+    },
+    {
+      "id": "ui.snackbar.no_auto_to_watch",
+      "en": "Start auto combat first to watch a live fight.",
+      "zh": "请先开始自动战斗，再进入观战。"
+    },
+    {
+      "id": "ui.formation.enter_battle",
+      "en": "Enter Battle",
+      "zh": "进入战斗"
+    },
+    {
+      "id": "ui.progress.skill_gate",
+      "en": "Need {0} {1} (best {2}, workshop +{3}). Train on easier jobs, buy the finished item, or upgrade Armor Forge.",
+      "zh": "需要{0} {1}（当前最高 {2}，工坊补正 +{3}）。可训练更简单的工作、购买成品，或升级装甲工坊。"
+    },
+    {
+      "id": "ui.progress.rank_maxed",
+      "en": "Energy rank is already at S.",
+      "zh": "能级已达 S。"
+    },
+    {
+      "id": "ui.progress.rank_need_credits",
+      "en": "Need {0} credits to ascend energy rank.",
+      "zh": "能级突破需要 {0} 信用点。"
+    },
+    {
+      "id": "ui.progress.rank_need_scrap",
+      "en": "Need {0} scrap to ascend energy rank.",
+      "zh": "能级突破需要废料 ×{0}。"
+    },
+    {
+      "id": "ui.progress.rank_ascended",
+      "en": "{0} ascended to energy rank {1}. Stored XP applied.",
+      "zh": "{0} 已突破至能级 {1}，储存经验已结算。"
+    },
+    {
+      "id": "ui.progress.rank_label",
+      "en": "Rank {0}",
+      "zh": "能级 {0}"
+    },
+    {
+      "id": "ui.progress.ascend",
+      "en": "Ascend Rank",
+      "zh": "能级突破"
+    },
+    {
+      "id": "ui.progress.commander_leveled",
+      "en": "Commander reached Lv.{0}. Fleet scale unlocked if eligible.",
+      "zh": "舰长升至 Lv.{0}。符合条件的舰队规模已解锁。"
+    },
+    {
+      "id": "ui.progress.profession_milestone",
+      "en": "{0} {1} reached Lv.{2}. Specialization: {3}.",
+      "zh": "{0} 的{1}升至 Lv.{2}。专精：{3}。"
+    },
+    {
+      "id": "ui.progress.spec_title",
+      "en": "Specialization",
+      "zh": "专精选择"
+    },
+    {
+      "id": "ui.progress.spec_body",
+      "en": "{0} {1} Lv.{2}. Recommended: {3}. Keep it, or pick the next branch.",
+      "zh": "{0} 的{1}达到 Lv.{2}。推荐专精：{3}。可保留，或切换下一分支。"
+    },
+    {
+      "id": "ui.progress.spec_keep",
+      "en": "Keep",
+      "zh": "保留推荐"
+    },
+    {
+      "id": "ui.progress.spec_other",
+      "en": "Other",
+      "zh": "其他专精"
+    },
+    {
+      "id": "ui.progress.spec_changed",
+      "en": "{0} specialization is now {1}.",
+      "zh": "{0} 的专精已改为 {1}。"
+    },
+    {
+      "id": "ui.progress.skills_line",
+      "en": "Gather {0}  Craft {1}  Scan {2}  Nav {3}  Logistics {4}",
+      "zh": "采集 {0}  制造 {1}  扫描 {2}  航行 {3}  后勤 {4}"
+    },
+    {
+      "id": "ui.progress.stored_xp",
+      "en": "Stored XP {0:0}",
+      "zh": "储存经验 {0:0}"
+    },
+    {
+      "id": "ui.progress.craft_req",
+      "en": "Requires {0} {1}  ·  best {2}",
+      "zh": "需要{0} {1}  ·  当前最高 {2}"
+    },
+    {
+      "id": "ui.progress.team_power",
+      "en": "Team power {0:0.0}",
+      "zh": "团队能力 {0:0.0}"
+    },
+    {
+      "id": "ui.progress.gather_req",
+      "en": "Requires {0} skill Lv.{1}  ·  best Lv.{2}",
+      "zh": "需要{0}技能 Lv.{1}  ·  当前最高 Lv.{2}"
+    },
+    {
+      "id": "ui.progress.combat_xp",
+      "en": "Combat",
+      "zh": "战斗"
+    },
+    {
+      "id": "ui.progress.combat_level",
+      "en": "Combat Level",
+      "zh": "战斗等级"
+    },
+    {
+      "id": "ui.progress.commander_xp",
+      "en": "Commander",
+      "zh": "舰长"
+    },
+    {
+      "id": "ui.progress.commander_lv_xp",
+      "en": "Commander Lv.{0}  XP {1:0}/{2:0}",
+      "zh": "舰长 Lv.{0}　经验 {1:0}/{2:0}"
+    },
+    {
+      "id": "ui.progress.deck_power",
+      "en": "POW {0:N0}",
+      "zh": "战力 {0:N0}"
+    },
+    {
+      "id": "ui.progress.skill_gather",
+      "en": "Gather",
+      "zh": "采集"
+    },
+    {
+      "id": "ui.progress.skill_craft",
+      "en": "Craft",
+      "zh": "制造"
+    },
+    {
+      "id": "ui.progress.skill_scan",
+      "en": "Scan",
+      "zh": "扫描"
+    },
+    {
+      "id": "ui.progress.skill_nav",
+      "en": "Nav",
+      "zh": "航行"
+    },
+    {
+      "id": "ui.progress.skill_logistics",
+      "en": "Logistics",
+      "zh": "后勤"
+    },
+    {
+      "id": "ui.progress.skill_gather_full",
+      "en": "Gather Skill",
+      "zh": "采集技能"
+    },
+    {
+      "id": "ui.progress.skill_craft_full",
+      "en": "Craft Skill",
+      "zh": "制造技能"
+    },
+    {
+      "id": "ui.progress.skill_scan_full",
+      "en": "Scan Skill",
+      "zh": "扫描技能"
+    },
+    {
+      "id": "ui.progress.skill_nav_full",
+      "en": "Navigation Skill",
+      "zh": "航行技能"
+    },
+    {
+      "id": "ui.progress.skill_logistics_full",
+      "en": "Logistics Skill",
+      "zh": "后勤技能"
+    },
+    {
+      "id": "ui.progress.source_combat",
+      "en": "Auto combat",
+      "zh": "自动战斗"
+    },
+    {
+      "id": "ui.progress.source_gather",
+      "en": "Gather jobs",
+      "zh": "采集任务"
+    },
+    {
+      "id": "ui.progress.source_craft",
+      "en": "Production jobs",
+      "zh": "生产任务"
+    },
+    {
+      "id": "ui.progress.source_scan",
+      "en": "Anomaly survey",
+      "zh": "勘探异常"
+    },
+    {
+      "id": "ui.progress.source_nav",
+      "en": "Transit",
+      "zh": "航行任务"
+    },
+    {
+      "id": "ui.progress.source_logistics",
+      "en": "Repair / logistics",
+      "zh": "修理与后勤"
+    },
+    {
+      "id": "ui.bridge.quest_rewards",
+      "en": "Rewards: {0}",
+      "zh": "奖励：{0}"
+    },
+    {
+      "id": "ui.bridge.quest_power",
+      "en": "Power {0:N0} / rec {1:N0}",
+      "zh": "战力 {0:N0} / 推荐 {1:N0}"
+    },
+    {
+      "id": "ui.bridge.nearby_title",
+      "en": "Nearby nodes",
+      "zh": "附近节点"
+    },
+    {
+      "id": "ui.bridge.unknown_signal",
+      "en": "Unknown signal",
+      "zh": "未知信号"
+    },
+    {
+      "id": "ui.bridge.empty_slot",
+      "en": "+ Assign",
+      "zh": "+ 编入角色"
+    },
+    {
+      "id": "ui.bridge.current_node",
+      "en": "Current",
+      "zh": "当前"
+    },
+    {
+      "id": "ui.bridge.fill_deck_hint",
+      "en": "Combat deck incomplete — open Formation to fill slots",
+      "zh": "战斗编队未满 — 打开编队补齐席位"
+    },
+    {
+      "id": "ui.explore.rechallenge",
+      "en": "Rechallenge",
+      "zh": "重新挑战"
+    },
+    {
+      "id": "ui.explore.voyage_plan",
+      "en": "Voyage {0} → {1}",
+      "zh": "航程 {0} → {1}"
+    },
+    {
+      "id": "ui.explore.voyage_risk",
+      "en": "Risk vs power: yours {0:N0} / rec {1:N0}",
+      "zh": "风险对战力：当前 {0:N0} / 推荐 {1:N0}"
     }
   ]
 }

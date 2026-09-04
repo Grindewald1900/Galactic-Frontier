@@ -45,8 +45,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public const int OfflineCapBaseSeconds = 7200;
         public const int OfflineCapSoftSeconds = 43200;
         public const int OfflineCapHardSeconds = 86400;
-        public const float OfflineYieldBase = 0.50f;
-        public const float OfflineYieldSoft = 0.90f;
+        public const float OfflineYieldBase = 1.00f;
+        public const float OfflineYieldSoft = 1.00f;
         public const float OfflineYieldHard = 1.00f;
         public const int AutoRepairThresholdPercent = 30;
         public const int BaseCombatWear = 2;

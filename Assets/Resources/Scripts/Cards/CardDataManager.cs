@@ -82,7 +82,8 @@ namespace Assets.Resources.Scripts.Cards
                 .SetExp(0f);
             entity.cardSource = CardSource.Gacha;
             entity.boundReason = CardBoundReason.None;
-            ApplyLevelOneStats(entity);
+            Assets.Resources.Scripts.Progression.ProgressionService.ApplyNewCardDefaults(
+                entity, CardListManager.Instance?.cardEntities);
             return entity;
         }
 
@@ -198,7 +199,22 @@ namespace Assets.Resources.Scripts.Cards
         public List<SkillEntity> GetSkillsByCharacter(CharacterName name) => skillEntities?.Where(s => s.characterName == name).ToList();
 
         /// <summary>Finds the base attributes for a level, or null.</summary>
-        public BaseAttrEntity GetBaseAttrEntitiy(int level) => baseAttrEntities?.FirstOrDefault(e => e.level == level);
+        public BaseAttrEntity GetBaseAttrEntitiy(int level)
+        {
+            if (baseAttrEntities == null || baseAttrEntities.Count == 0)
+                return null;
+            var exact = baseAttrEntities.FirstOrDefault(e => e.level == level);
+            if (exact != null) return exact;
+            BaseAttrEntity best = null;
+            foreach (var row in baseAttrEntities)
+            {
+                if (row == null) continue;
+                if (row.level <= level && (best == null || row.level > best.level))
+                    best = row;
+            }
+
+            return best ?? baseAttrEntities[0];
+        }
 
         /// <summary>Returns all expertise definitions for a character.</summary>
         public List<ExpertiseEntity> GetCharacterExpertises(CharacterName name)

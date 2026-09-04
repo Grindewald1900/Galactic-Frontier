@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Deck;
@@ -7,6 +8,9 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World.Domain;
@@ -33,17 +37,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private Button setCombatButton;
         private Button strategyButton;
         private Button stopButton;
+        private Button enterBattleButton;
         private int selectedSlot = -1;
         private CardEntity selectedCard;
         private string pendingStopDeckId = "";
+        private readonly List<NexusProgressUi.XpBar> selectedCardXpBars = new List<NexusProgressUi.XpBar>();
         private int archetypeFilter;
         private int factionFilter;
         private int rarityFilter;
         private int sortMode;
+        /// <summary>0 = All, 1 = Idle (not slotted), 2 = Busy (occupied / running).</summary>
+        private int occupancyFilter;
         private string openFilterMenu = "";
 
         private const float DeckBarH = 92f;
-        private const float SlotBarH = 188f;
+        private const float SlotBarH = 268f;
         private const float RosterW = 300f;
         private const float StatsW = 268f;
 
@@ -184,8 +192,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             slotsRect.anchorMin = new Vector2(0f, 1f);
             slotsRect.anchorMax = new Vector2(0f, 1f);
             slotsRect.pivot = new Vector2(0f, 1f);
-            slotsRect.anchoredPosition = new Vector2(16f, -28f);
-            slotsRect.sizeDelta = new Vector2(800f, 152f);
+            slotsRect.anchoredPosition = new Vector2(16f, -36f);
+            slotsRect.sizeDelta = new Vector2(820f, 220f);
 
             GameObject stats = NexusUiFactory.CreatePanel(
                 root.transform,
@@ -274,10 +282,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.12f),
                 NexusTheme.Gold,
                 13f);
+            var enterBattleBtn = NexusUiFactory.CreateButton(
+                stats.transform,
+                "EnterBattle",
+                UiText.EnterBattle,
+                new Vector2(16f, 484f),
+                new Vector2(StatsW - 32f, 40f),
+                () => screen.TryEnterLiveBattle(),
+                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.2f),
+                NexusTheme.Cyan,
+                13f);
 
             screen.setCombatButton = setCombat;
             screen.strategyButton = strategyBtn;
             screen.stopButton = stopBtn;
+            screen.enterBattleButton = enterBattleBtn;
             screen.LayoutDeckButtons();
 
             return screen;
@@ -293,8 +312,29 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             var editing = DeckService.GetEditingDeck();
             bool isCombatDeck = editing != null && editing.deckId == DeckService.GetActiveCombatDeck()?.deckId;
+            bool busy = editing != null && editing.IsActionBusy;
             var size = new Vector2(StatsW - 32f, 40f);
             float bottom = 12f;
+
+            if (stopButton != null)
+            {
+                var stopLabel = stopButton.GetComponentInChildren<TextMeshProUGUI>();
+                if (stopLabel != null)
+                {
+                    if (busy && editing?.action != null)
+                    {
+                        string actionName = UiText.DeckActionTypeLabel(editing.action.actionType.ToString());
+                        string target = string.IsNullOrEmpty(editing.action.targetId)
+                            ? ""
+                            : editing.action.targetId;
+                        stopLabel.text = string.IsNullOrEmpty(target)
+                            ? UiText.StopNamedAction(actionName)
+                            : UiText.StopNamedTarget(actionName, target);
+                    }
+                    else
+                        stopLabel.text = UiText.StopAction;
+                }
+            }
 
             void Stack(Component button, bool visible)
             {
@@ -305,7 +345,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 bottom += 44f;
             }
 
-            Stack(stopButton, isCombatDeck);
+            bool autoCombatRunning = busy
+                && editing.action != null
+                && editing.action.actionType == DeckActionType.AutoCombat
+                && isCombatDeck;
+
+            // Bottom → up: Enter Battle, Stop, Strategy, Set Combat
+            Stack(enterBattleButton, autoCombatRunning);
+            Stack(stopButton, busy);
             Stack(strategyButton, isCombatDeck);
             Stack(setCombatButton, !isCombatDeck);
         }
@@ -322,6 +369,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             ClearChildren(rosterRoot, keepHeader: true);
             ClearChildren(detailRoot, keepHeader: true);
             ClearChildren(slotsRoot, keepHeader: false);
+            selectedCardXpBars.Clear();
 
             List<CardEntity> all = CardListManager.Instance?.GetCardEntities() ?? new List<CardEntity>();
             if (DataUtil.Instance != null)
@@ -486,22 +534,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var header = rosterRoot.Find("Header")?.GetComponent<TextMeshProUGUI>();
             if (header != null)
             {
-                int availableTotal = CountAvailableForDeck(all, memberIds);
-                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{availableTotal}";
+                int total = CountValid(all);
+                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{total}";
             }
 
             DrawRosterFilters();
             var content = CreateRosterScroll(rosterRoot);
             if (visible.Count == 0)
             {
+                string emptyCopy = occupancyFilter switch
+                {
+                    1 => UiText.RosterEmptyIdle,
+                    2 => UiText.RosterEmptyBusy,
+                    _ => UiText.RosterEmpty
+                };
                 var empty = NexusUiFactory.CreateText(
                     content,
                     "Empty",
-                    UiText.RosterEmpty,
+                    emptyCopy,
                     new Vector2(8f, 8f),
                     new Vector2(240f, 56f),
                     12f,
-                    NexusTheme.MutedText);
+                    NexusTheme.Text);
                 empty.textWrappingMode = TextWrappingModes.Normal;
                 return;
             }
@@ -525,6 +579,40 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void DrawRosterFiltersOn(Transform parent, Vector2 offset)
         {
+            DrawFilterChip(
+                parent,
+                "FilterOccAll",
+                new Vector2(12f, 34f) + offset,
+                UiText.OccupancyFilterAll,
+                occupancyFilter == 0,
+                () =>
+                {
+                    occupancyFilter = 0;
+                    Rebuild();
+                });
+            DrawFilterChip(
+                parent,
+                "FilterOccIdle",
+                new Vector2(108f, 34f) + offset,
+                UiText.OccupancyFilterIdle,
+                occupancyFilter == 1,
+                () =>
+                {
+                    occupancyFilter = 1;
+                    Rebuild();
+                });
+            DrawFilterChip(
+                parent,
+                "FilterOccBusy",
+                new Vector2(204f, 34f) + offset,
+                UiText.OccupancyFilterBusy,
+                occupancyFilter == 2,
+                () =>
+                {
+                    occupancyFilter = 2;
+                    Rebuild();
+                });
+
             string typeValue = archetypeFilter == 0
                 ? UiText.RosterFilterAll
                 : UiText.ArchetypeLabel(ArchetypeCycle[archetypeFilter - 1].ToString());
@@ -535,28 +623,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
             DrawFilterChip(
                 parent,
                 "FilterType",
-                new Vector2(12f, 34f) + offset,
+                new Vector2(12f, 72f) + offset,
                 $"{UiText.RosterTypeChip(typeValue)}  ▾",
                 archetypeFilter != 0 || openFilterMenu == "type",
                 () => ToggleFilterMenu("type"));
             DrawFilterChip(
                 parent,
                 "FilterFaction",
-                new Vector2(150f, 34f) + offset,
+                new Vector2(150f, 72f) + offset,
                 $"{UiText.RosterFactionChip(factionValue)}  ▾",
                 factionFilter != 0 || openFilterMenu == "faction",
                 () => ToggleFilterMenu("faction"));
             DrawFilterChip(
                 parent,
                 "FilterRarity",
-                new Vector2(12f, 72f) + offset,
+                new Vector2(12f, 110f) + offset,
                 $"{UiText.RosterRarityChip(rarityValue)}  ▾",
                 rarityFilter != 0 || openFilterMenu == "rarity",
                 () => ToggleFilterMenu("rarity"));
             DrawFilterChip(
                 parent,
                 "FilterSort",
-                new Vector2(150f, 72f) + offset,
+                new Vector2(150f, 110f) + offset,
                 $"{UiText.RosterSortChip(sortValue)}  ▾",
                 sortMode != 0 || openFilterMenu == "sort",
                 () => ToggleFilterMenu("sort"));
@@ -656,7 +744,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             switch (openFilterMenu)
             {
                 case "faction":
-                    rosterChipPos = new Vector2(150f, 34f);
+                    rosterChipPos = new Vector2(150f, 72f);
                     options = new[]
                     {
                         UiText.RosterFilterAll,
@@ -666,7 +754,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     selected = factionFilter;
                     return;
                 case "rarity":
-                    rosterChipPos = new Vector2(12f, 72f);
+                    rosterChipPos = new Vector2(12f, 110f);
                     options = new[]
                     {
                         UiText.RosterFilterAll,
@@ -678,7 +766,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     selected = rarityFilter;
                     return;
                 case "sort":
-                    rosterChipPos = new Vector2(150f, 72f);
+                    rosterChipPos = new Vector2(150f, 110f);
                     options = new[]
                     {
                         UiText.RosterSortLabel(0),
@@ -690,7 +778,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     selected = sortMode;
                     return;
                 default:
-                    rosterChipPos = new Vector2(12f, 34f);
+                    rosterChipPos = new Vector2(12f, 72f);
                     options = TypeMenuOptions();
                     selected = archetypeFilter;
                     return;
@@ -765,13 +853,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             Color fill = inOther
-                ? NexusTheme.WithAlpha(NexusTheme.Surface, 0.55f)
+                ? NexusTheme.WithAlpha(NexusTheme.Surface, 0.65f)
                 : inCurrent
                     ? NexusTheme.WithAlpha(NexusTheme.Cyan, 0.12f)
                     : NexusTheme.SurfaceRaised;
             Color border = selected ? NexusTheme.Gold : NexusTheme.BorderSoft;
-            Color nameColor = inOther ? NexusTheme.DimText : inCurrent ? NexusTheme.Cyan : NexusTheme.Text;
-            Color metaColor = inOther ? NexusTheme.DimText : NexusTheme.MutedText;
+            Color nameColor = inOther ? NexusTheme.Text : inCurrent ? NexusTheme.Cyan : NexusTheme.Text;
+            Color metaColor = NexusTheme.Text;
 
             CardEntity captured = entity;
             GameObject row = NexusUiFactory.CreateBox(
@@ -789,7 +877,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusCardVisual.CharacterSprite(entity),
                 new Vector2(6f, 6f),
                 new Vector2(44f, 44f),
-                inOther ? new Color(1f, 1f, 1f, 0.35f) : Color.white);
+                Color.white);
             NexusUiFactory.CreateText(
                 row.transform,
                 "Label",
@@ -810,24 +898,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 metaColor);
             var button = row.AddComponent<Button>();
             button.targetGraphic = rowImage;
-            if (inOther)
+            button.onClick.AddListener(() =>
             {
-                button.interactable = false;
-                var colors = button.colors;
-                colors.disabledColor = NexusTheme.WithAlpha(NexusTheme.Surface, 0.7f);
-                button.colors = colors;
-            }
-            else
-            {
-                button.onClick.AddListener(() =>
-                {
-                    selectedCard = captured;
-                    var deck = DeckService.GetEditingDeck();
-                    if (selectedSlot >= 0 && deck != null && !IsSlotEmpty(deck, selectedSlot))
-                        selectedSlot = -1;
-                    Rebuild();
-                });
-            }
+                selectedCard = captured;
+                var deck = DeckService.GetEditingDeck();
+                if (selectedSlot >= 0 && deck != null && !IsSlotEmpty(deck, selectedSlot))
+                    selectedSlot = -1;
+                Rebuild();
+            });
         }
 
         private static Dictionary<string, List<string>> BuildDeckMembership()
@@ -878,7 +956,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             foreach (CardEntity entity in all)
             {
                 if (entity == null) continue;
-                if (memberIds != null && memberIds.Contains(entity.id))
+                if (!MatchesOccupancy(entity, memberIds))
                     continue;
                 if (archetypeFilter > 0 && entity.archetype != ArchetypeCycle[archetypeFilter - 1])
                     continue;
@@ -908,7 +986,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 };
                 if (cmp != 0)
                     return cmp;
-                int deckCmp = (memberIds.Contains(b.id) ? 1 : 0) - (memberIds.Contains(a.id) ? 1 : 0);
+                int deckCmp = (memberIds != null && memberIds.Contains(b.id) ? 1 : 0)
+                    - (memberIds != null && memberIds.Contains(a.id) ? 1 : 0);
                 if (deckCmp != 0)
                     return deckCmp;
                 return string.Compare(DisplayName(a), DisplayName(b), StringComparison.OrdinalIgnoreCase);
@@ -916,16 +995,54 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return filtered;
         }
 
-        private static int CountAvailableForDeck(List<CardEntity> all, HashSet<string> memberIds)
+        private bool MatchesOccupancy(CardEntity entity, HashSet<string> memberIds)
         {
-            int count = 0;
-            foreach (var entity in all)
+            bool inEditing = memberIds != null && memberIds.Contains(entity.id);
+            var occ = DeckService.GetOccupation(entity.id);
+            bool busy = occ != CardOccupationState.Idle || IsSlottedElsewhere(entity.id);
+
+            return occupancyFilter switch
             {
-                if (entity != null && (memberIds == null || !memberIds.Contains(entity.id)))
-                    count++;
+                1 => !inEditing && !busy && occ == CardOccupationState.Idle && !IsSlottedAnywhere(entity.id),
+                2 => busy || inEditing || IsSlottedAnywhere(entity.id),
+                _ => true
+            };
+        }
+
+        private static bool IsSlottedAnywhere(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId)) return false;
+            var decks = DeckService.GetDecks();
+            if (decks == null) return false;
+            foreach (var deck in decks)
+            {
+                if (deck?.slotCardIds == null || !deck.unlocked) continue;
+                foreach (var id in deck.slotCardIds)
+                {
+                    if (id == cardId) return true;
+                }
             }
 
-            return count;
+            return false;
+        }
+
+        private static bool IsSlottedElsewhere(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId)) return false;
+            var decks = DeckService.GetDecks();
+            if (decks == null) return false;
+            string editingId = DeckService.EditingDeckId;
+            foreach (var deck in decks)
+            {
+                if (deck?.slotCardIds == null || !deck.unlocked) continue;
+                if (deck.deckId == editingId) continue;
+                foreach (var id in deck.slotCardIds)
+                {
+                    if (id == cardId) return true;
+                }
+            }
+
+            return false;
         }
 
         private static int CountValid(List<CardEntity> all)
@@ -957,7 +1074,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             viewportRect.anchorMax = new Vector2(1f, 1f);
             viewportRect.pivot = new Vector2(0.5f, 1f);
             viewportRect.offsetMin = new Vector2(8f, 8f);
-            viewportRect.offsetMax = new Vector2(-8f, -112f);
+            viewportRect.offsetMax = new Vector2(-8f, -148f);
 
             var image = viewport.GetComponent<Image>();
             image.color = NexusTheme.WithAlpha(NexusTheme.Surface, 0.35f);
@@ -1069,26 +1186,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
             const float pad = 20f;
             const float gap = 12f;
             const float actionBand = 56f;
-            float colTop = 168f;
-            float colW = (panel.x - pad * 2f - gap * 2f) / 3f;
-            float colH = Mathf.Max(140f, panel.y - colTop - actionBand - 8f);
             float x0 = pad;
-            float x1 = pad + colW + gap;
-            float x2 = pad + (colW + gap) * 2f;
+            float identityTop = 52f;
 
             NexusUiFactory.CreateIcon(
                 detailRoot,
                 "Portrait",
                 NexusCardVisual.CharacterSprite(card),
-                new Vector2(pad, 64f),
-                new Vector2(96f, 96f),
+                new Vector2(pad, identityTop),
+                new Vector2(84f, 84f),
                 Color.white);
 
             string identity =
                 $"<size=20><color=#{gold}>{DisplayName(card)}</color></size>\n" +
                 $"<color=#{cyan}>{card.characterName} · {UiText.ArchetypeLabel(card.archetype.ToString())}" +
                 (string.IsNullOrEmpty(factionLabel) ? "" : $" · {factionLabel}") + "</color>\n" +
-                $"{UiText.LevelAbbrev}{card.Level}  {UiText.TierShort(card.CharacterTier.ToString())}  " +
+                $"{UiText.LevelAbbrev}{card.Level}  {UiText.EnergyRankLabel(card.EnergyRank.ToString())}  {UiText.TierShort(card.CharacterTier.ToString())}  " +
                 $"<color=#{gold}>{card.power:N0}</color>";
             if (inCurrent)
                 identity += $"\n<color=#{cyan}>{UiText.RosterAssignedTo(editing.displayName)}</color>";
@@ -1099,13 +1212,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 detailRoot,
                 "Identity",
                 identity,
-                new Vector2(pad + 108f, 64f),
-                new Vector2(Mathf.Max(220f, panel.x - pad - 128f), 96f),
+                new Vector2(pad + 96f, identityTop),
+                new Vector2(Mathf.Max(220f, panel.x - pad - 116f), 84f),
                 13f,
                 NexusTheme.Text);
             identityText.textWrappingMode = TextWrappingModes.Normal;
             identityText.overflowMode = TextOverflowModes.Truncate;
             identityText.richText = true;
+
+            float xpTop = identityTop + 92f;
+            selectedCardXpBars.Clear();
+            float xpHeight = NexusProgressUi.DrawCardXpStack(
+                detailRoot,
+                card,
+                new Vector2(pad, xpTop),
+                panel.x - pad * 2f,
+                22f,
+                selectedCardXpBars);
+            float colTop = xpTop + xpHeight + 10f;
+            float colW = (panel.x - pad * 2f - gap * 2f) / 3f;
+            float colH = Mathf.Max(120f, panel.y - colTop - actionBand - 8f);
+            float x1 = pad + colW + gap;
+            float x2 = pad + (colW + gap) * 2f;
 
             string statsBlock =
                 $"<color=#{muted}>{UiText.DetailStats}</color>\n" +
@@ -1533,40 +1661,66 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             Vector2 panel = DetailSize();
             float pad = 20f;
-            float gap = 10f;
+            float gap = 8f;
             float btnW = Mathf.Max(140f, (panel.x - pad * 2f - gap * 2f) / 3f);
             float btnH = 40f;
             float bottom = 10f;
+            float x = pad;
 
-            var join = NexusUiFactory.CreateButton(
-                detailRoot,
-                "JoinDeck",
-                UiText.JoinDeck,
-                new Vector2(pad, 500f),
-                new Vector2(btnW, btnH),
-                () => TryJoinSelected(),
-                NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f),
-                NexusTheme.Cyan,
-                14f);
-            join.interactable = canJoin;
-            PinBottomLeft(join, pad, bottom, new Vector2(btnW, btnH));
-            TutorialGuideService.RegisterAnchor(
-                "formation_join",
-                join.GetComponent<RectTransform>(),
-                join);
+            var editing = DeckService.GetEditingDeck();
+            bool busy = editing != null && editing.IsActionBusy;
+            bool inCurrent = editing != null && selectedCard != null
+                && IndexInEditingDeck(editing, selectedCard.id) >= 0;
 
-            var leave = NexusUiFactory.CreateButton(
-                detailRoot,
-                "LeaveDeck",
-                UiText.LeaveDeck,
-                new Vector2(pad, 500f),
-                new Vector2(btnW, btnH),
-                () => TryLeaveSelected(),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
-                NexusTheme.Gold,
-                14f);
-            leave.interactable = canLeave;
-            PinBottomLeft(leave, pad + btnW + gap, bottom, new Vector2(btnW, btnH));
+            if (canLeave)
+            {
+                var leave = NexusUiFactory.CreateButton(
+                    detailRoot,
+                    "LeaveDeck",
+                    UiText.LeaveDeckPrimary,
+                    new Vector2(pad, 500f),
+                    new Vector2(btnW, btnH),
+                    () => TryLeaveSelected(),
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
+                    NexusTheme.Gold,
+                    14f);
+                PinBottomLeft(leave, x, bottom, new Vector2(btnW, btnH));
+                x += btnW + gap;
+            }
+            else if (busy && inCurrent)
+            {
+                var wait = NexusUiFactory.CreateButton(
+                    detailRoot,
+                    "ReplaceAfter",
+                    UiText.ReplaceAfterRound,
+                    new Vector2(pad, 500f),
+                    new Vector2(btnW, btnH),
+                    () => NexusSnackbar.Show(UiText.ReplaceAfterRoundHint),
+                    NexusTheme.SurfaceRaised,
+                    NexusTheme.Text,
+                    12f);
+                PinBottomLeft(wait, x, bottom, new Vector2(btnW, btnH));
+                x += btnW + gap;
+            }
+            else if (canJoin)
+            {
+                var join = NexusUiFactory.CreateButton(
+                    detailRoot,
+                    "JoinDeck",
+                    UiText.JoinDeckPrimary,
+                    new Vector2(pad, 500f),
+                    new Vector2(btnW, btnH),
+                    () => TryJoinSelected(),
+                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f),
+                    NexusTheme.Cyan,
+                    14f);
+                PinBottomLeft(join, x, bottom, new Vector2(btnW, btnH));
+                TutorialGuideService.RegisterAnchor(
+                    "formation_join",
+                    join.GetComponent<RectTransform>(),
+                    join);
+                x += btnW + gap;
+            }
 
             var equip = NexusUiFactory.CreateButton(
                 detailRoot,
@@ -1579,7 +1733,30 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.Green,
                 13f);
             equip.interactable = selectedCard != null;
-            PinBottomLeft(equip, pad + (btnW + gap) * 2f, bottom, new Vector2(btnW, btnH));
+            PinBottomLeft(equip, x, bottom, new Vector2(btnW, btnH));
+            x += btnW + gap;
+
+            if (selectedCard != null && selectedCard.EnergyRank < EnergyRank.S)
+            {
+                var ascend = NexusUiFactory.CreateButton(
+                    detailRoot,
+                    "Ascend",
+                    UiText.EnergyAscend,
+                    new Vector2(pad, 500f),
+                    new Vector2(btnW, btnH),
+                    () =>
+                    {
+                        if (selectedCard == null) return;
+                        var result = ProgressionService.TryAscendEnergyRank(selectedCard);
+                        if (!result.Success)
+                            NexusSnackbar.Show(result.Message);
+                        Rebuild();
+                    },
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.22f),
+                    NexusTheme.Gold,
+                    12f);
+                PinBottomLeft(ascend, x, bottom, new Vector2(btnW, btnH));
+            }
         }
 
         private bool CanJoinSelected(
@@ -1671,16 +1848,56 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 barHeader.text = editing == null
                     ? UiText.DeckLineup
-                    : $"{editing.displayName}  ·  {MemberCountLabel(editing)}";
+                    : $"{editing.displayName}  ·  {MemberCountLabel(editing)}  ·  {UiText.FormationFrontRow}/{UiText.FormationBackRow}";
             }
+
+            NexusUiFactory.CreateText(
+                slotsRoot,
+                "EnemyFacing",
+                UiText.FormationEnemyFacing,
+                new Vector2(0f, 0f),
+                new Vector2(820f, 18f),
+                11f,
+                NexusTheme.Text,
+                TextAlignmentOptions.Center);
+
+            NexusUiFactory.CreateText(
+                slotsRoot,
+                "FrontLabel",
+                UiText.FormationFrontRow,
+                new Vector2(0f, 22f),
+                new Vector2(200f, 16f),
+                11f,
+                NexusTheme.Cyan);
+
+            NexusUiFactory.CreateText(
+                slotsRoot,
+                "BackLabel",
+                UiText.FormationBackRow,
+                new Vector2(0f, 118f),
+                new Vector2(200f, 16f),
+                11f,
+                NexusTheme.Cyan);
 
             string[] labels = UiText.FormationSlotLabels;
             const float slotW = 148f;
-            const float gap = 8f;
+            const float gap = 10f;
+            const float frontY = 40f;
+            const float backY = 136f;
+            float frontRowW = slotW * 2f + gap;
+            float backRowW = slotW * 3f + gap * 2f;
+            float frontStartX = (820f - frontRowW) * 0.5f;
+            float backStartX = (820f - backRowW) * 0.5f;
             bool registeredEmptySlot = false;
+
             for (int i = 0; i < DeckConstants.SlotsPerDeck; i++)
             {
-                float sx = i * (slotW + gap);
+                bool isFront = i < 2;
+                float sx = isFront
+                    ? frontStartX + i * (slotW + gap)
+                    : backStartX + (i - 2) * (slotW + gap);
+                float sy = isFront ? frontY : backY;
+
                 CardEntity occupant = editing != null
                     ? DeckService.FindMemberInSlot(editing.deckId, i, all)
                     : null;
@@ -1694,8 +1911,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 GameObject slot = NexusUiFactory.CreateBox(
                     slotsRoot,
                     $"Slot {i}",
-                    new Vector2(sx, 0f),
-                    new Vector2(slotW, 140f),
+                    new Vector2(sx, sy),
+                    new Vector2(slotW, 72f),
                     occupant != null
                         ? NexusTheme.WithAlpha(NexusTheme.Cyan, 0.10f)
                         : NexusTheme.SurfaceRaised,
@@ -1707,25 +1924,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         slot.transform,
                         "Portrait",
                         NexusCardVisual.CharacterSprite(occupant),
-                        new Vector2(24f, 22f),
-                        new Vector2(100f, 78f),
+                        new Vector2(8f, 18f),
+                        new Vector2(44f, 44f),
                         Color.white);
                 }
 
                 NexusUiFactory.CreateText(
                     slot.transform, "Pos", labels[Mathf.Min(i, labels.Length - 1)],
-                    new Vector2(8f, 4f), new Vector2(slotW - 16f, 16f), 10f, NexusTheme.MutedText);
+                    new Vector2(occupant != null ? 56f : 8f, 4f),
+                    new Vector2(slotW - (occupant != null ? 64f : 16f), 14f),
+                    10f, NexusTheme.Text);
                 NexusUiFactory.CreateText(
                     slot.transform, "Name", Truncate(title, 12),
-                    new Vector2(8f, 104f), new Vector2(slotW - 16f, 18f), 12f,
+                    new Vector2(occupant != null ? 56f : 8f, 22f),
+                    new Vector2(slotW - (occupant != null ? 64f : 16f), 18f), 12f,
                     occupant != null ? NexusTheme.Text : NexusTheme.DimText,
                     TextAlignmentOptions.Left, FontStyles.Bold);
                 if (occupant != null)
                 {
                     NexusUiFactory.CreateText(
                         slot.transform, "Meta",
-                        $"Lv.{occupant.Level}  {UiText.TierShort(occupant.CharacterTier.ToString())}",
-                        new Vector2(8f, 120f), new Vector2(slotW - 16f, 16f), 10f, NexusTheme.Cyan);
+                        $"Lv.{occupant.Level}  {occupant.power:N0}",
+                        new Vector2(56f, 44f), new Vector2(slotW - 64f, 16f), 10f, NexusTheme.Cyan);
                 }
 
                 var image = slot.GetComponent<Image>();
@@ -1863,7 +2083,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var current = CombatStrategyRules.Parse(editing.combatStrategyId);
             var next = (CombatStrategyId)(((int)current + 1) % 4);
             DeckService.TrySetCombatStrategy(editing.deckId, next.ToString());
-            statusText.text = $"{UiText.CombatStrategyLabel}: {next}";
+            statusText.text = $"{UiText.CombatStrategyLabel}: {UiText.CombatStrategyName(next.ToString())}";
             Rebuild();
         }
 
@@ -1947,6 +2167,38 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return result;
         }
 
+        private void TryEnterLiveBattle()
+        {
+            var editing = DeckService.GetEditingDeck();
+            var combat = DeckService.GetActiveCombatDeck();
+            if (editing == null
+                || combat == null
+                || editing.deckId != combat.deckId
+                || !editing.IsActionBusy
+                || editing.action == null
+                || editing.action.actionType != DeckActionType.AutoCombat)
+            {
+                NexusSnackbar.Show(UiText.SnackbarNoAutoToWatch);
+                return;
+            }
+
+            string regionId = editing.action.targetId;
+            var region = RegionCatalog.Get(regionId);
+            if (region == null || string.IsNullOrEmpty(region.farmEncounterId))
+            {
+                NexusSnackbar.Show(UiText.SnackbarRegionUnavailable);
+                return;
+            }
+
+            BattleController.PendingSpectateAutoCombat = true;
+            BattleController.PendingBattleTargetId = regionId;
+            BattleController.PendingEncounterId = region.farmEncounterId;
+            BattleController.PendingReturnScreen = AppScreen.Formation;
+            BattleController.PendingBattleSeed =
+                unchecked(regionId.GetHashCode() * 1_000_003L ^ DateTime.UtcNow.Ticks);
+            LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
+        }
+
         private void TryStopEditingDeck()
         {
             var editing = DeckService.GetEditingDeck();
@@ -1974,6 +2226,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Rebuild();
         }
 
+        public void RefreshProgressBars()
+        {
+            if (selectedCard == null || selectedCardXpBars.Count == 0)
+                return;
+            NexusProgressUi.ApplyCardXpBars(selectedCard, selectedCardXpBars);
+        }
+
         private void Persist()
         {
             if (CardListManager.Instance == null) return;
@@ -1988,12 +2247,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var editing = DeckService.GetEditingDeck();
             int count = editing?.MemberCount ?? 0;
             int power = 0;
+            int breakScore = 0;
+            int surviveScore = 0;
+            int healScore = 0;
             if (editing != null)
             {
                 foreach (var member in DeckService.GetOrderedMembers(editing.deckId, all))
                 {
-                    if (member != null)
-                        power += Mathf.RoundToInt(member.power);
+                    if (member == null) continue;
+                    power += Mathf.RoundToInt(member.power);
+                    ScoreArchetype(member.archetype, ref breakScore, ref surviveScore, ref healScore);
                 }
             }
 
@@ -2006,12 +2269,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     editing.action?.status.ToString() ?? "Idle",
                     editing.action?.actionType.ToString() ?? "None");
             bool isCombat = editing != null && editing.deckId == DeckService.GetActiveCombatDeck()?.deckId;
-            string strategy = editing == null
-                ? ""
-                : CombatStrategyRules.Parse(editing.combatStrategyId).ToString();
+            var strategyId = editing == null
+                ? CombatStrategyId.Balanced
+                : CombatStrategyRules.Parse(editing.combatStrategyId);
+            string strategy = UiText.CombatStrategyName(strategyId.ToString());
+            string diagnosis = UiText.TeamDiagnosis(
+                GradeLabel(breakScore),
+                GradeLabel(surviveScore),
+                GradeLabel(healScore));
+            string winLine = BuildWinEstimateLine(power);
 
             statsText.text =
-                UiText.FormationTeamSummary + "\n\n" +
+                $"<color=#{muted}>{UiText.FormationTeamEval}</color>\n" +
+                $"<color=#{cyan}>{diagnosis}</color>\n" +
+                $"{winLine}\n\n" +
                 $"<color=#{muted}>{UiText.SelectedDeckLabel}</color>\n" +
                 $"<size=16><color=#{gold}>{Truncate(editing?.displayName ?? "-", 20)}</color></size>\n" +
                 $"<color=#{cyan}>{UiText.DeckPurposeLabel(editing?.purpose.ToString() ?? "Flexible")}" +
@@ -2024,6 +2295,54 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 $"<size=18><color=#{cyan}>{power:N0}</color></size>\n\n" +
                 $"<color=#{muted}>{UiText.ParallelOps(DeckService.CountBusyDecks(), DeckService.MaxParallelActions)}</color>";
             statsText.overflowMode = TextOverflowModes.Truncate;
+        }
+
+        private static void ScoreArchetype(Archetype archetype, ref int breakScore, ref int surviveScore, ref int healScore)
+        {
+            switch (archetype)
+            {
+                case Archetype.Assassin:
+                case Archetype.Magician:
+                    breakScore += 2;
+                    break;
+                case Archetype.Warrior:
+                case Archetype.Monster:
+                    surviveScore += 2;
+                    breakScore += 1;
+                    break;
+                case Archetype.Potioneer:
+                    healScore += 2;
+                    surviveScore += 1;
+                    break;
+                case Archetype.Mechanician:
+                    breakScore += 1;
+                    surviveScore += 1;
+                    break;
+            }
+        }
+
+        private static string GradeLabel(int score) => score switch
+        {
+            <= 0 => UiText.TeamGradeMissing,
+            1 => UiText.TeamGradeWeak,
+            2 => UiText.TeamGradeFair,
+            _ => UiText.TeamGradeGood
+        };
+
+        private static string BuildWinEstimateLine(int power)
+        {
+            string regionId = PlayerPrefs.GetString("nexus_last_region_id", "");
+            if (string.IsNullOrEmpty(regionId))
+                return UiText.WinEstimateNa;
+            var region = RegionCatalog.Get(regionId);
+            if (region == null || region.recommendedPower <= 0)
+                return UiText.WinEstimateNa;
+            float ratio = power / Mathf.Max(1f, region.recommendedPower);
+            int pct = Mathf.Clamp(Mathf.RoundToInt(ratio * 70f), 8, 96);
+            string name = string.IsNullOrEmpty(region.displayNameZh)
+                ? region.displayNameEn
+                : UiText.T(region.displayNameEn, region.displayNameZh);
+            return UiText.WinEstimate(name, pct);
         }
 
         private static string MemberCountLabel(DeckEntity deck) =>

@@ -6,6 +6,8 @@ using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World;
@@ -28,6 +30,11 @@ namespace Assets.Resources.Scripts.Economy
             if (deck == null || deck.MemberCount < 1)
                 return EconomyCommandResult.Fail("No free deck with members for gather.");
 
+            var members = DeckService.GetOrderedMembers(deck.deckId, cards);
+            if (!ProgressionService.LeaderMeetsGate(members, node.requiredProfession, node.requiredSkillLevel))
+                return ProgressionService.SkillGateFailure(
+                    node.requiredProfession, node.requiredSkillLevel, members);
+
             var start = DeckService.TryStart(deck.deckId, DeckActionType.Gather, nodeId, cards);
             if (start.Success)
                 OnboardingService.NotifyGatherProgress();
@@ -45,6 +52,12 @@ namespace Assets.Resources.Scripts.Economy
             var deck = PreferEconomyDeck(cards);
             if (deck == null || deck.MemberCount < 1)
                 return EconomyCommandResult.Fail("No free deck with members for craft.");
+
+            var membersForGate = DeckService.GetOrderedMembers(deck.deckId, cards);
+            if (!ProgressionService.LeaderMeetsGate(
+                    membersForGate, recipe.requiredProfession, recipe.requiredSkillLevel))
+                return ProgressionService.SkillGateFailure(
+                    recipe.requiredProfession, recipe.requiredSkillLevel, membersForGate);
 
             var inv = GetLocalItems();
             if (inv == null)
@@ -100,6 +113,36 @@ namespace Assets.Resources.Scripts.Economy
             return EconomyCommandResult.Ok($"Crafted {recipe.outputQty}× {recipe.outputDefId}.");
         }
 
+        public static float ResolveJobCycleSeconds(DeckEntity deck, IList<CardEntity> cards)
+        {
+            if (deck?.action == null) return EconomyConstants.CraftCycleSeconds;
+            var members = DeckService.GetOrderedMembers(deck.deckId, cards);
+            if (deck.action.actionType == DeckActionType.Gather)
+            {
+                var node = GatherNodeCatalog.Get(deck.action.targetId);
+                var baseCycle = node != null ? node.cycleSeconds : EconomyConstants.GatherCycleSeconds;
+                return ProgressionService.AdjustedCycleSeconds(
+                    baseCycle, members, ProfessionSkill.Gather, 0);
+            }
+
+            if (deck.action.actionType == DeckActionType.Process
+                || deck.action.actionType == DeckActionType.Manufacture)
+            {
+                var recipeId = deck.action.targetId;
+                var payload = deck.action.progressPayload ?? "";
+                var parts = payload.Split('|');
+                if (parts.Length > 0 && !string.IsNullOrEmpty(parts[0]))
+                    recipeId = parts[0];
+                var recipe = RecipeCatalog.Get(recipeId);
+                var baseCycle = recipe != null ? recipe.cycleSeconds : EconomyConstants.CraftCycleSeconds;
+                var facility = recipe != null ? ShipServiceModuleLevel(recipe.facilityModuleId) : 0;
+                return ProgressionService.AdjustedCycleSeconds(
+                    baseCycle, members, ProfessionSkill.Craft, facility);
+            }
+
+            return EconomyConstants.OnlineFarmCycleSeconds;
+        }
+
         public static bool TrySettleCraftCycle(DeckEntity deck, IList<CardEntity> cards)
         {
             if (deck?.action == null) return false;
@@ -135,16 +178,8 @@ namespace Assets.Resources.Scripts.Economy
 
             var facility = ShipServiceModuleLevel(recipe.facilityModuleId);
             var members = DeckService.GetOrderedMembers(deck.deckId, cards);
-            var skill = members.Count;
-            var avgLevel = 0;
-            if (members.Count > 0)
-            {
-                foreach (var m in members)
-                    if (m != null) avgLevel += m.Level;
-                avgLevel /= members.Count;
-            }
-
-            skill += avgLevel / 10;
+            var teamPower = ProgressionService.TeamPower(members, ProfessionSkill.Craft, facility);
+            var skill = Mathf.Max(1, Mathf.RoundToInt(teamPower));
             IdleSettlementService.EnsureLoaded();
             var mastery = OfflineRules.MasteryFor(IdleSettlementService.State, recipeId);
             var quality = (int)QualityRules.Roll(skill, facility, inputMinQ, mastery, () => UnityEngine.Random.value);
@@ -163,6 +198,14 @@ namespace Assets.Resources.Scripts.Economy
             OfflineRules.AddMastery(IdleSettlementService.State, recipeId);
             IdleSettlementService.Save();
             deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            ProgressionService.BeginGrant();
+            var cycleSeconds = Math.Max(1, recipe.cycleSeconds);
+            ProgressionService.GrantProfessionToParty(
+                members, ProfessionSkill.Craft, recipe.requiredSkillLevel, cycleSeconds);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderCraftXp);
+            ProgressionService.EndGrant(presentUi: false);
+
             // Keep running for next cycle — re-consume next tick if materials remain
             // For MVP: auto-stop after one cycle (Manufacture) or continue Process if mats remain
             if (recipe.kind == RecipeKind.Manufacture || !CanAfford(recipe))
@@ -213,7 +256,8 @@ namespace Assets.Resources.Scripts.Economy
             var members = deck != null
                 ? DeckService.GetOrderedMembers(deck.deckId, cards)
                 : new List<CardEntity>();
-            var skill = members.Count;
+            var skill = Mathf.Max(1, Mathf.RoundToInt(
+                ProgressionService.TeamPower(members, ProfessionSkill.Craft, facility)));
             IdleSettlementService.EnsureLoaded();
             var mastery = OfflineRules.MasteryFor(IdleSettlementService.State, recipeId);
             return QualityRules.PreviewRange(skill, facility, inputMin, mastery);

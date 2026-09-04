@@ -109,6 +109,15 @@ namespace GalacticFrontier.Tests.EditMode
         }
 
         [Test]
+        public void ComputeUnlockedSlots_CommanderOrChapter()
+        {
+            Assert.AreEqual(2, DeckUnlockTable.ComputeUnlockedSlots(1, 1, false, false, 0));
+            Assert.AreEqual(3, DeckUnlockTable.ComputeUnlockedSlots(5, 1, false, false, 0));
+            Assert.AreEqual(3, DeckUnlockTable.ComputeUnlockedSlots(1, 1, true, false, 0));
+            Assert.AreEqual(4, DeckUnlockTable.ComputeUnlockedSlots(10, 1, false, false, 0));
+        }
+
+        [Test]
         public void IdleBackupDeck_CanShareCardAndBeRenamed()
         {
             var state = TwoDeckState();

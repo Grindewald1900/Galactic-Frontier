@@ -5,6 +5,7 @@ using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Utils;
 using UnityEngine;
 
@@ -46,6 +47,8 @@ namespace Assets.Resources.Scripts.Deck
                 Debug.Log($"[DECK] Created decks.json from legacy lineup ({State.decks[0].MemberCount} members).");
             }
 
+            ProgressionService.RefreshDeckScaleUnlocks();
+
             if (string.IsNullOrEmpty(editingDeckId) || DeckRules.FindDeck(State, editingDeckId) == null)
                 editingDeckId = State.activeCombatDeckId;
 
@@ -76,6 +79,16 @@ namespace Assets.Resources.Scripts.Deck
             if (deck != null && deck.unlocked)
                 return deck;
             return State.decks?.FirstOrDefault(d => d != null && d.unlocked);
+        }
+
+        /// <summary>True when the active combat deck is running AutoCombat (farm).</summary>
+        public static bool IsActiveCombatAutoCombatRunning()
+        {
+            var deck = GetActiveCombatDeck();
+            return deck != null
+                && deck.IsActionBusy
+                && deck.action != null
+                && deck.action.actionType == DeckActionType.AutoCombat;
         }
 
         public static DeckEntity GetEditingDeck()

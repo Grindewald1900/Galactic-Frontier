@@ -10,7 +10,8 @@
         "GalacticFrontier.EconomyDomain",
         "GalacticFrontier.MarketDomain",
         "GalacticFrontier.UnlockDomain",
-        "GalacticFrontier.ChapterQuestDomain"
+        "GalacticFrontier.ChapterQuestDomain",
+        "GalacticFrontier.ProgressionDomain"
     ],
     "includePlatforms": [
         "Editor"

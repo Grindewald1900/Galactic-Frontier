@@ -90,7 +90,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             modeLabel = NexusUiFactory.CreateText(
                 top.transform,
                 "Mode",
-                UiText.AutoBattle,
+                BattleController.PendingSpectateAutoCombat
+                    ? UiText.BattleSpectateAuto
+                    : UiText.AutoBattle,
                 new Vector2(1100f, 14f),
                 new Vector2(200f, 22f),
                 12f,

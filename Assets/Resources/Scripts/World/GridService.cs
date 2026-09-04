@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Market;
+using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Deck;
+using Assets.Resources.Scripts.Progression;
+using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World.Domain;
 using UnityEngine;
@@ -155,6 +159,7 @@ namespace Assets.Resources.Scripts.World
             WorldService.Save();
             if (bodyId == "body_mining_spur")
                 Assets.Resources.Scripts.ChapterQuest.ChapterQuestService.NotifyMiningSignalScanned();
+            GrantScanProgression();
             return WorldCommandResult.OkMessage("Signal locked. Node located — challenge when ready.");
         }
 
@@ -178,6 +183,7 @@ namespace Assets.Resources.Scripts.World
             PromoteNodeAndIncident(bodyId, GridNodeState.Stable, GridEdgeTier.Stable);
             RecalcExplore();
             WorldService.Save();
+            GrantScanProgression();
             return WorldCommandResult.OkMessage(
                 cleared
                     ? "Beacon restored. Lane is stable."
@@ -686,6 +692,19 @@ namespace Assets.Resources.Scripts.World
             }
 
             return true;
+        }
+
+        private static void GrantScanProgression()
+        {
+            var cards = CardListManager.Instance?.cardEntities;
+            var deck = DeckService.GetActiveCombatDeck();
+            var members = deck != null
+                ? DeckService.GetOrderedMembers(deck.deckId, cards)
+                : null;
+            ProgressionService.BeginGrant();
+            ProgressionService.GrantProfessionToParty(members, ProfessionSkill.Scan, 1, 15f);
+            ProgressionService.GrantCommander(ProgressionCatalog.CommanderScanXp);
+            ProgressionService.EndGrant(presentUi: false);
         }
     }
 }
