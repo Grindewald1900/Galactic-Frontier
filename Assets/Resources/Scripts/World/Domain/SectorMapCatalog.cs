@@ -5,11 +5,22 @@ namespace Assets.Resources.Scripts.World.Domain
 {
     public enum StellarBodyType
     {
+        // Combat / navigation bodies (drive the Astral Grid + exploration scoring).
         Planet = 0,
         Station = 1,
         Anomaly = 2,
         Hub = 3,
-        Beacon = 4
+        Beacon = 4,
+
+        // Points of interest on the route network (doc 20 §2.2 / §14, doc 21 §6.3).
+        // These carry no combat Region and are excluded from grid scoring.
+        Belt = 5,      // 资源带 — salvage / mineral belt
+        Relic = 6,     // 遗迹 — derelict relic structures
+        Exit = 7,      // 跨星域出口 — cross-sector exit lane
+        Shop = 8,      // 阵营商店 — faction trade post
+        Npc = 9,       // 神秘NPC — wandering merchant / contact
+        Event = 10,    // 特殊事件 — anomalous signal / event site
+        Wormhole = 11  // 虫洞 — unstable wormhole
     }
 
     [Serializable]
@@ -47,6 +58,8 @@ namespace Assets.Resources.Scripts.World.Domain
 
         private static List<StellarBodyDef> cachedBodies;
         private static List<InnerEdgeDef> cachedEdges;
+        private static List<StellarBodyDef> cachedPois;
+        private static List<InnerEdgeDef> cachedPoiEdges;
 
         public static IReadOnlyList<StellarBodyDef> Bodies
         {
@@ -66,6 +79,30 @@ namespace Assets.Resources.Scripts.World.Domain
             }
         }
 
+        /// <summary>
+        /// Non-combat points of interest (shops / NPCs / events / wormholes …) that hang off the
+        /// route network. Kept separate from <see cref="Bodies"/> so they never affect grid seeding
+        /// or exploration scoring in GridService.
+        /// </summary>
+        public static IReadOnlyList<StellarBodyDef> PointsOfInterest
+        {
+            get
+            {
+                cachedPois ??= BuildPointsOfInterest();
+                return cachedPois;
+            }
+        }
+
+        /// <summary>Lanes that attach points of interest to the grid (visual only).</summary>
+        public static IReadOnlyList<InnerEdgeDef> PoiEdges
+        {
+            get
+            {
+                cachedPoiEdges ??= BuildPoiEdges();
+                return cachedPoiEdges;
+            }
+        }
+
         public static StellarBodyDef Get(string bodyId)
         {
             if (string.IsNullOrEmpty(bodyId)) return null;
@@ -75,7 +112,25 @@ namespace Assets.Resources.Scripts.World.Domain
                     return b;
             }
 
+            foreach (var p in PointsOfInterest)
+            {
+                if (p != null && p.bodyId == bodyId)
+                    return p;
+            }
+
             return null;
+        }
+
+        /// <summary>True when the body is a non-combat point of interest (no Region attached).</summary>
+        public static bool IsPointOfInterest(string bodyId)
+        {
+            foreach (var p in PointsOfInterest)
+            {
+                if (p != null && p.bodyId == bodyId)
+                    return true;
+            }
+
+            return false;
         }
 
         public static InnerEdgeDef GetEdge(string edgeId)
@@ -153,6 +208,41 @@ namespace Assets.Resources.Scripts.World.Domain
             Edge("lane_abyss_anchor", "body_abyssal_edge", "body_frontier_anchor", GridRouteTag.Industry, 0.30f),
             Edge("lane_haven_rift", "body_outer_haven", "body_quantum_rift", GridRouteTag.Rift, 0.62f, rift: true)
         };
+
+        // Points of interest wired onto the route network besides planets (doc 20 §2.2, doc 21 §6.3).
+        private static List<StellarBodyDef> BuildPointsOfInterest() => new List<StellarBodyDef>
+        {
+            Poi("poi_trade_post", 12f, 66f, "Trade Post", "贸易站", StellarBodyType.Shop),
+            Poi("poi_wanderer", 18f, 44f, "Wandering Merchant", "流浪商人", StellarBodyType.Npc),
+            Poi("poi_signal_anomaly", 66f, 74f, "Signal Anomaly", "信号异常", StellarBodyType.Event),
+            Poi("poi_rift_gate", 82f, 64f, "Unstable Wormhole", "不稳定虫洞", StellarBodyType.Wormhole)
+        };
+
+        private static List<InnerEdgeDef> BuildPoiEdges() => new List<InnerEdgeDef>
+        {
+            Edge("poi_lane_haven_trade", "body_outer_haven", "poi_trade_post", GridRouteTag.Trade, 0.10f),
+            Edge("poi_lane_convoy_wander", "body_convoy_lane", "poi_wanderer", GridRouteTag.Trade, 0.14f),
+            Edge("poi_lane_rift_event", "body_quantum_rift", "poi_signal_anomaly", GridRouteTag.Rift, 0.45f, rift: true),
+            Edge("poi_lane_rift_gate", "body_quantum_rift", "poi_rift_gate", GridRouteTag.Rift, 0.55f, rift: true)
+        };
+
+        private static StellarBodyDef Poi(
+            string id, float x, float y, string en, string zh, StellarBodyType type) =>
+            new StellarBodyDef
+            {
+                bodyId = id,
+                sectorId = WorldConstants.SectorId,
+                x = x,
+                y = y,
+                displayNameEn = en,
+                displayNameZh = zh,
+                bodyType = type,
+                regionIds = Array.Empty<string>(),
+                planetSpriteIndex = 0,
+                recommendedExpeditionLv = 1,
+                route = GridRouteTag.None,
+                danger = 1
+            };
 
         private static StellarBodyDef Body(
             string id, float x, float y, string en, string zh,

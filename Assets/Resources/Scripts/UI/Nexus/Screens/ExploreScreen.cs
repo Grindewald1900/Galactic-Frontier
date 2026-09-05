@@ -34,6 +34,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly Transform root;
         private readonly System.Action openFormation;
         private readonly System.Action openShip;
+        private readonly System.Action openMarket;
 
         private string selectedBodyId = "body_outer_haven";
         private string selectedSectorId = WorldConstants.SectorId;
@@ -41,16 +42,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private bool IsUniverseView => mapRig != null && mapRig.IsUniverseLod;
 
-        private ExploreScreen(Transform root, System.Action openFormation, System.Action openShip)
+        private ExploreScreen(
+            Transform root, System.Action openFormation, System.Action openShip, System.Action openMarket)
         {
             this.root = root;
             this.openFormation = openFormation;
             this.openShip = openShip;
+            this.openMarket = openMarket;
         }
 
         public GameObject Root => root.gameObject;
 
-        public static ExploreScreen Build(Transform parent, System.Action openFormation, System.Action openShip = null)
+        public static ExploreScreen Build(
+            Transform parent,
+            System.Action openFormation,
+            System.Action openShip = null,
+            System.Action openMarket = null)
         {
             var panel = NexusUiFactory.CreatePanel(
                 parent,
@@ -60,7 +67,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.one,
                 Vector2.zero,
                 Vector2.zero);
-            var screen = new ExploreScreen(panel.transform, openFormation, openShip);
+            var screen = new ExploreScreen(panel.transform, openFormation, openShip, openMarket);
             screen.Rebuild();
             return screen;
         }
@@ -270,6 +277,23 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     continue;
                 BuildBodyMarker(map, body);
             }
+
+            // Points of interest (shops / NPCs / events / wormholes) hang off the same lane network.
+            // They are always charted (no fog / probe flow) and never affect grid scoring.
+            foreach (var poi in SectorMapCatalog.PointsOfInterest)
+            {
+                if (poi == null || !IsNodeDisplayable(poi.bodyId))
+                    continue;
+                BuildBodyMarker(map, poi);
+            }
+        }
+
+        /// <summary>A grid body once it is on the map, or any charted point of interest.</summary>
+        private static bool IsNodeDisplayable(string bodyId)
+        {
+            if (SectorMapCatalog.IsPointOfInterest(bodyId))
+                return true;
+            return GridService.IsBodyOnMap(bodyId);
         }
 
         private void BuildUniverseMap(Transform map)
@@ -371,12 +395,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             var local = SectorToLocal(body.x, body.y);
             bool selected = body.bodyId == selectedBodyId;
-            bool fogged = GridService.ShowsFog(body.bodyId);
+            string regionId = PrimaryRegion(body);
+            // Points of interest carry no Region — they are always charted (never fogged).
+            bool poi = string.IsNullOrEmpty(regionId);
+            bool fogged = !poi && GridService.ShowsFog(body.bodyId);
             bool docked = NavigationService.IsDocked(body);
             float size = selected ? 42f : fogged ? 28f : 34f;
 
-            string regionId = PrimaryRegion(body);
-            var view = string.IsNullOrEmpty(regionId) || fogged ? null : WorldService.GetRegionView(regionId);
+            var view = poi || fogged ? null : WorldService.GetRegionView(regionId);
             bool reachable = !fogged && (view == null || view.CanEnter || GridService.IsLocatedOrBetter(body.bodyId));
             bool cleared = view != null &&
                 (view.Progress == RegionProgressState.Cleared || view.Progress == RegionProgressState.BossDefeated);
@@ -384,6 +410,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Color border;
             if (fogged)
                 border = NexusTheme.WithAlpha(NexusTheme.Purple, 0.85f);
+            else if (poi)
+                border = selected || docked ? NexusTheme.Green : NodeAccent(body.bodyType);
             else if (selected || docked || cleared)
                 border = NexusTheme.Green;
             else if (reachable)
@@ -429,9 +457,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 NexusUiFactory.CreateIcon(
                     marker.transform, "Icon",
-                    NexusCardVisual.PlanetSprite(body.planetSpriteIndex),
+                    NodeIcon(body),
                     new Vector2(4f, 4f), new Vector2(size - 8f, size - 8f),
-                    Color.white);
+                    poi ? NodeAccent(body.bodyType) : Color.white);
             }
 
             string name = fogged
@@ -448,6 +476,82 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Center, selected ? FontStyles.Bold : FontStyles.Normal);
         }
 
+        private static Sprite NodeIcon(StellarBodyDef body)
+        {
+            switch (body.bodyType)
+            {
+                case StellarBodyType.Station: return NexusCardVisual.UiIcon("Building");
+                case StellarBodyType.Hub: return NexusCardVisual.UiIcon("World");
+                case StellarBodyType.Beacon: return NexusCardVisual.UiIcon("Bell");
+                case StellarBodyType.Shop: return NexusCardVisual.UiIcon("Shop");
+                case StellarBodyType.Npc: return NexusCardVisual.UiIcon("Character");
+                case StellarBodyType.Exit: return NexusCardVisual.UiIcon("World");
+                case StellarBodyType.Anomaly: return NexusCardVisual.EventSprite(1);
+                case StellarBodyType.Event: return NexusCardVisual.EventSprite(0);
+                case StellarBodyType.Belt: return NexusCardVisual.EventSprite(2);
+                case StellarBodyType.Relic: return NexusCardVisual.EventSprite(3);
+                case StellarBodyType.Wormhole: return NexusCardVisual.EventSprite(4);
+                default: return NexusCardVisual.PlanetSprite(body.planetSpriteIndex);
+            }
+        }
+
+        private static Color NodeAccent(StellarBodyType type) => type switch
+        {
+            StellarBodyType.Shop => NexusTheme.Gold,
+            StellarBodyType.Npc => NexusTheme.Green,
+            StellarBodyType.Event => NexusTheme.Gold,
+            StellarBodyType.Belt => NexusTheme.Cyan,
+            StellarBodyType.Relic => NexusTheme.Purple,
+            StellarBodyType.Wormhole => NexusTheme.Purple,
+            StellarBodyType.Exit => NexusTheme.Cyan,
+            _ => NexusTheme.Cyan
+        };
+
+        private static string NodeTypeLabel(StellarBodyType type) => type switch
+        {
+            StellarBodyType.Planet => UiText.T("Planet", "行星"),
+            StellarBodyType.Station => UiText.T("Station", "空间站"),
+            StellarBodyType.Anomaly => UiText.T("Anomaly", "熵雾异常"),
+            StellarBodyType.Hub => UiText.T("Capital Hub", "星域主星"),
+            StellarBodyType.Beacon => UiText.T("Beacon", "星域航标"),
+            StellarBodyType.Belt => UiText.T("Resource Belt", "资源带"),
+            StellarBodyType.Relic => UiText.T("Relic", "遗迹"),
+            StellarBodyType.Exit => UiText.T("Sector Exit", "跨星域出口"),
+            StellarBodyType.Shop => UiText.T("Faction Shop", "阵营商店"),
+            StellarBodyType.Npc => UiText.T("Wandering NPC", "神秘NPC"),
+            StellarBodyType.Event => UiText.T("Special Event", "特殊事件"),
+            StellarBodyType.Wormhole => UiText.T("Wormhole", "虫洞"),
+            _ => UiText.T("Point of Interest", "兴趣点")
+        };
+
+        private static string PoiDescription(StellarBodyType type) => type switch
+        {
+            StellarBodyType.Shop => UiText.T(
+                "A faction trade post along the lane. Restock modules and materials.",
+                "航道旁的阵营贸易站，可补给模块与材料。"),
+            StellarBodyType.Npc => UiText.T(
+                "A wandering merchant selling sector charts that reveal the whole sector.",
+                "一位贩卖星域海图的流浪商人，购入后可揭示整个星域的节点。"),
+            StellarBodyType.Event => UiText.T(
+                "An anomalous signal — a special event may be unfolding here.",
+                "异常信号——这里可能正在发生特殊事件。"),
+            StellarBodyType.Wormhole => UiText.T(
+                "An unstable wormhole. Charting it rewrites the lane network.",
+                "一处不稳定虫洞，标定后会改写航路网。"),
+            StellarBodyType.Exit => UiText.T(
+                "A cross-sector exit lane leading beyond this sector.",
+                "一条通往星域之外的跨域出口。"),
+            StellarBodyType.Relic => UiText.T(
+                "Derelict relic structures drifting in the dark.",
+                "漂浮在黑暗中的遗迹残骸。"),
+            StellarBodyType.Belt => UiText.T(
+                "A resource belt rich in salvage.",
+                "富含可打捞资源的资源带。"),
+            _ => UiText.T(
+                "A charted point of interest on the sector map.",
+                "星图上已标定的兴趣点。")
+        };
+
         private void BuildSidePanel()
         {
             GameObject side = NexusUiFactory.CreateBox(
@@ -459,6 +563,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(20f, 16f), new Vector2(420f, 28f), 15f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
+            // Build the dynamic node/sector detail first and measure where it ends, so the fixed
+            // secondary widgets (Formation / Ship / gather bank) can flow below it instead of being
+            // pinned at a fixed Y where tall detail content would overlap and hide them.
+            float contentBottom;
             if (IsUniverseView)
             {
                 var sector = UniverseMapCatalog.Get(selectedSectorId);
@@ -468,10 +576,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         side.transform, "SideBody", UiText.ExploreSideBody,
                         new Vector2(20f, 56f), new Vector2(420f, 200f), 13f, NexusTheme.MutedText);
                     fallback.textWrappingMode = TextWrappingModes.Normal;
+                    contentBottom = 260f;
                 }
                 else
                 {
-                    BuildUniverseSectorDetail(side.transform, sector);
+                    contentBottom = BuildUniverseSectorDetail(side.transform, sector);
                 }
             }
             else
@@ -483,29 +592,40 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         side.transform, "SideBody", UiText.ExploreSideBody,
                         new Vector2(20f, 56f), new Vector2(420f, 200f), 13f, NexusTheme.MutedText);
                     fallback.textWrappingMode = TextWrappingModes.Normal;
+                    contentBottom = 260f;
                 }
                 else
                 {
-                    BuildBodyDetail(side.transform, body);
+                    contentBottom = BuildBodyDetail(side.transform, body);
                 }
             }
 
+            // Keep a stable baseline for short content, but push the fixed block down when the
+            // detail (soft-gate + voyage + actions) is tall — this is what previously clipped the
+            // gather button behind the Formation button.
+            float secY = Mathf.Max(contentBottom + 16f, 452f);
             NexusUiFactory.CreateButton(
                 side.transform, "Formation", UiText.BridgeOpenFormation,
-                new Vector2(20f, 460f), new Vector2(420f, 40f),
+                new Vector2(20f, secY), new Vector2(420f, 40f),
                 () => openFormation?.Invoke(),
                 NexusTheme.SurfaceRaised, NexusTheme.Text, 13f);
+            secY += 48f;
             NexusUiFactory.CreateButton(
                 side.transform, "Ship", UiText.OpenShipBay,
-                new Vector2(20f, 508f), new Vector2(420f, 40f),
+                new Vector2(20f, secY), new Vector2(420f, 40f),
                 () => openShip?.Invoke(),
                 NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f), NexusTheme.Cyan, 13f);
+            secY += 52f;
 
-            BuildGatherBank(side.transform);
+            BuildGatherBank(side.transform, secY);
         }
 
-        private void BuildBodyDetail(Transform side, StellarBodyDef body)
+        private float BuildBodyDetail(Transform side, StellarBodyDef body)
         {
+            // Non-combat points of interest get their own compact detail (no grid / region flow).
+            if (string.IsNullOrEmpty(PrimaryRegion(body)))
+                return BuildPoiDetail(side, body);
+
             var gridState = GridService.GetState(body.bodyId);
             bool fogged = GridService.ShowsFog(body.bodyId);
             string name = fogged
@@ -601,7 +721,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     "explore_probe",
                     probe.GetComponent<RectTransform>(),
                     probe);
-                return;
+                return actionY + 48f;
             }
 
             if (GridService.CanStabilize(body.bodyId))
@@ -614,18 +734,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 actionY += 46f;
             }
 
-            if (GridService.CanBuyChart())
-            {
-                NexusUiFactory.CreateButton(
-                    side, "BuyChart", UiText.ExploreBuyChart(WorldConstants.ChartCreditCost),
-                    new Vector2(20f, actionY), new Vector2(420f, 40f),
-                    BuyChart,
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 13f);
-                actionY += 46f;
-            }
-
             if (view == null || view.Config == null)
-                return;
+                return actionY;
 
             bool cleared = view.Progress == RegionProgressState.Cleared
                 || view.Progress == RegionProgressState.BossDefeated;
@@ -634,11 +744,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             if (!view.CanEnter)
             {
+                // Progress==Locked means the spatial gate blocks it (no cleared neighbour);
+                // otherwise the ship hard-gate is the blocker.
+                string lockMsg = view.Progress == RegionProgressState.Locked
+                    ? UiText.T(
+                        "Clear an adjacent node to open this lane.",
+                        "需先通关相邻节点以开启此航路。")
+                    : UiText.RegionLocked;
                 NexusUiFactory.CreateText(
-                    side, "Locked", UiText.RegionLocked,
-                    new Vector2(20f, actionY + 6f), new Vector2(420f, 32f), 13f, NexusTheme.DimText,
+                    side, "Locked", lockMsg,
+                    new Vector2(20f, actionY + 6f), new Vector2(420f, 40f), 13f, NexusTheme.DimText,
                     TextAlignmentOptions.Center, FontStyles.Bold);
-                return;
+                return actionY + 48f;
             }
 
             if (cleared)
@@ -753,6 +870,84 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         new Vector2(20f, actionY + 42f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
                 }
             }
+
+            // Pad past the tallest trailing row (gather button + requirement line) so the fixed
+            // secondary widgets flow below without clipping it.
+            return actionY + 64f;
+        }
+
+        private float BuildPoiDetail(Transform side, StellarBodyDef body)
+        {
+            NexusUiFactory.CreateText(
+                side, "BodyName", UiText.T(body.displayNameEn, body.displayNameZh),
+                new Vector2(20f, 52f), new Vector2(420f, 28f), 16f, NexusTheme.Text,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                side, "PoiType", NodeTypeLabel(body.bodyType),
+                new Vector2(20f, 84f), new Vector2(420f, 20f), 12f, NodeAccent(body.bodyType));
+
+            var desc = NexusUiFactory.CreateText(
+                side, "PoiDesc", PoiDescription(body.bodyType),
+                new Vector2(20f, 110f), new Vector2(420f, 72f), 12f, NexusTheme.MutedText);
+            desc.textWrappingMode = TextWrappingModes.Normal;
+
+            float y = 192f;
+            switch (body.bodyType)
+            {
+                case StellarBodyType.Shop:
+                    NexusUiFactory.CreateButton(
+                        side, "PoiAction", UiText.T("Open Market", "打开市场"),
+                        new Vector2(20f, y), new Vector2(420f, 44f),
+                        () => openMarket?.Invoke(),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f), NexusTheme.Gold, 14f);
+                    y += 50f;
+                    break;
+                case StellarBodyType.Npc:
+                    if (GridService.HasChart())
+                    {
+                        NexusUiFactory.CreateText(
+                            side, "PoiChartOwned",
+                            UiText.T(
+                                "Sector chart acquired — every node in the sector is revealed.",
+                                "已购入星域海图——星域内所有节点均已揭示。"),
+                            new Vector2(20f, y), new Vector2(420f, 40f), 12f, NexusTheme.Green);
+                        y += 44f;
+                    }
+                    else
+                    {
+                        NexusUiFactory.CreateButton(
+                            side, "PoiAction", UiText.ExploreBuyChart(WorldConstants.ChartCreditCost),
+                            new Vector2(20f, y), new Vector2(420f, 44f),
+                            BuyChart,
+                            NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f), NexusTheme.Gold, 14f);
+                        y += 50f;
+                    }
+
+                    break;
+                case StellarBodyType.Wormhole:
+                case StellarBodyType.Exit:
+                    NexusUiFactory.CreateButton(
+                        side, "PoiAction", UiText.T("Enter Wormhole", "进入虫洞"),
+                        new Vector2(20f, y), new Vector2(420f, 44f),
+                        () => NexusSnackbar.Show(UiText.T(
+                            "Wormhole transit charting in progress…",
+                            "虫洞跳跃标定中……")),
+                        NexusTheme.WithAlpha(NexusTheme.Purple, 0.2f), NexusTheme.Purple, 14f);
+                    y += 50f;
+                    break;
+                default:
+                    NexusUiFactory.CreateButton(
+                        side, "PoiAction", UiText.T("Investigate", "调查"),
+                        new Vector2(20f, y), new Vector2(420f, 44f),
+                        () => NexusSnackbar.Show(UiText.T(
+                            "Nothing conclusive yet — return with better scanners.",
+                            "暂无确切发现——升级扫描后再来。")),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 13f);
+                    y += 50f;
+                    break;
+            }
+
+            return y;
         }
 
         private float DrawVoyageStub(Transform side, StellarBodyDef body, RegionView view, float y)
@@ -796,18 +991,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return y + 4f;
         }
 
-        private void BuildGatherBank(Transform side)
+        private void BuildGatherBank(Transform side, float y)
         {
             Economy.IdleSettlementService.EnsureLoaded();
             int total = Economy.IdleSettlementService.GatherBankTotal;
             bool full = Economy.IdleSettlementService.IsGatherBankFull;
 
             NexusUiFactory.CreateBox(
-                side, "GatherBank", new Vector2(20f, 560f), new Vector2(420f, 64f),
+                side, "GatherBank", new Vector2(20f, y), new Vector2(420f, 64f),
                 NexusTheme.SurfaceRaised, NexusTheme.BorderSoft);
             NexusUiFactory.CreateText(
                 side, "GatherBankTitle", UiText.GatherBankTitle,
-                new Vector2(36f, 568f), new Vector2(200f, 22f), 12f, NexusTheme.Text,
+                new Vector2(36f, y + 8f), new Vector2(200f, 22f), 12f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
             string body = total <= 0
@@ -815,7 +1010,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 : full ? UiText.GatherBankFull : UiText.GatherBankHint;
             var bodyText = NexusUiFactory.CreateText(
                 side, "GatherBankBody", body,
-                new Vector2(36f, 592f), new Vector2(250f, 22f), 11f,
+                new Vector2(36f, y + 32f), new Vector2(250f, 22f), 11f,
                 full ? NexusTheme.Red : NexusTheme.MutedText);
             bodyText.textWrappingMode = TextWrappingModes.Normal;
 
@@ -824,12 +1019,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 side, "CollectGather", UiText.CollectGather(total),
-                new Vector2(280f, 574f), new Vector2(144f, 36f),
+                new Vector2(280f, y + 14f), new Vector2(144f, 36f),
                 CollectGather,
                 NexusTheme.WithAlpha(NexusTheme.Green, 0.2f), NexusTheme.Green, 12f);
         }
 
-        private void BuildUniverseSectorDetail(Transform side, SectorNodeDef sector)
+        private float BuildUniverseSectorDetail(Transform side, SectorNodeDef sector)
         {
             bool fogged = GridService.SectorShowsFog(sector.sectorId);
             var state = GridService.GetSectorState(sector.sectorId);
@@ -874,7 +1069,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(20f, 300f), new Vector2(420f, 44f),
                     () => EnterSector(sector.sectorId),
                     NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f), NexusTheme.Gold, 14f);
+                return 350f;
             }
+
+            return 284f;
         }
 
         private void ZoomOut()
@@ -962,8 +1160,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 BridgeEventLog.Push(
                     BridgeLogCategory.Explore,
-                    "Sector chart purchased. More silhouettes revealed.",
-                    "已购入星域海图。更多轮廓已揭示。");
+                    "Sector chart purchased from a merchant. The whole sector is revealed.",
+                    "从商人处购入星域海图，整个星域的节点均已揭示。");
             }
             else
                 NexusSnackbar.Show(result.Message);
@@ -1166,7 +1364,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 var a = SectorMapCatalog.Get(edge.a);
                 var b = SectorMapCatalog.Get(edge.b);
                 if (a == null || b == null) continue;
-                if (!GridService.IsBodyOnMap(edge.a) || !GridService.IsBodyOnMap(edge.b))
+                if (!IsNodeDisplayable(edge.a) || !IsNodeDisplayable(edge.b))
                     continue;
 
                 var from = SectorToLocal(a.x, a.y);
@@ -1176,6 +1374,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 float thickness = LaneThickness(edge, tier);
                 bool dashed = tier == GridEdgeTier.Provisional && !edge.rift;
                 DrawLane(map, "Lane_" + edge.edgeId, from, to, color, thickness, dashed);
+            }
+
+            // Lanes attaching points of interest — drawn once their grid anchor is on the map.
+            foreach (var edge in SectorMapCatalog.PoiEdges)
+            {
+                if (edge == null) continue;
+                var a = SectorMapCatalog.Get(edge.a);
+                var b = SectorMapCatalog.Get(edge.b);
+                if (a == null || b == null) continue;
+                if (!IsNodeDisplayable(edge.a) || !IsNodeDisplayable(edge.b))
+                    continue;
+
+                var from = SectorToLocal(a.x, a.y);
+                var to = SectorToLocal(b.x, b.y);
+                Color color = edge.rift
+                    ? NexusTheme.WithAlpha(NexusTheme.Purple, 0.5f)
+                    : NexusTheme.WithAlpha(NexusTheme.MutedText, 0.32f);
+                DrawLane(map, "PoiLane_" + edge.edgeId, from, to, color, 2f, dashed: !edge.rift);
             }
         }
 

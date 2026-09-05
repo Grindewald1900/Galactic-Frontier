@@ -375,7 +375,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     exploreScreen = ExploreScreen.Build(
                         ContentRoot(),
                         () => ShowScreen(AppScreen.Formation),
-                        () => ShowScreen(AppScreen.Ship));
+                        () => ShowScreen(AppScreen.Ship),
+                        () => ShowScreen(AppScreen.Market));
                 }
                 else
                 {
@@ -773,9 +774,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
         }
 
         /// <summary>
-        /// Refreshes only the widgets whose data changed — the shell commander XP bar (in-place via
-        /// <see cref="NexusProgressUi.ApplyBar"/>), the Formation card XP bars, and the Bridge's live
-        /// panels. It never rebuilds a whole screen.
+        /// Refreshes only the widgets whose data actually changed — the shell commander XP bar
+        /// (in-place via <see cref="NexusProgressUi.ApplyBar"/>) and the Formation card XP bars
+        /// (in-place via <see cref="NexusProgressUi.ApplyCardXpBars"/>). It never destroys/recreates
+        /// any panel, so buttons never flicker on XP ticks. Screens like Bridge refresh their
+        /// text/log panels on navigation (their <c>Rebuild</c>), not on every progression event.
         /// </summary>
         private void RefreshBattleProgressUi()
         {
@@ -784,8 +787,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             if (activeScreen == AppScreen.Formation)
                 formationScreen?.RefreshProgressBars();
-            else if (activeScreen == AppScreen.Bridge)
-                bridgeScreen?.RefreshLivePanels();
         }
 
         public void RefreshCreditsLabel()

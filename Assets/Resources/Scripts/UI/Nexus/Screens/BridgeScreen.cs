@@ -159,40 +159,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 NexusTheme.DimText);
         }
 
-        /// <summary>
-        /// Partial refresh for idle updates (background battle settle, gather success, loot claims).
-        /// Rebuilds only the data-driven panels — commander goal, pending loot and the event log —
-        /// while leaving the animated fleet / sector carousels and static layout untouched. This
-        /// avoids tearing down and recreating the whole screen on every idle tick.
-        /// </summary>
-        public void RefreshLivePanels()
-        {
-            if (root == null)
-                return;
-
-            RemoveChild("Commander Goal");
-            RemoveChild("PendingLoot");
-            RemoveChild("Log");
-
-            List<CardEntity> all = CardListManager.Instance?.GetCardEntities() ?? new List<CardEntity>();
-            int power = NexusProgressUi.ActiveCombatPower();
-            int progress = WorldService.State?.explorationProgress
-                ?? DataUtil.Instance?.currentPlayer?.explorationProgress ?? 0;
-            int cards = all.Count;
-            int inLine = DeckService.GetActiveCombatMembers(all).Count;
-
-            BuildCommanderGoal();
-            BuildPendingLoot();
-            BuildLog(inLine, cards, progress, power);
-        }
-
-        private void RemoveChild(string childName)
-        {
-            Transform child = root.Find(childName);
-            if (child != null)
-                Object.DestroyImmediate(child.gameObject);
-        }
-
         private void BuildCommanderGoal()
         {
             var goal = CommanderGoalService.GetCurrent();

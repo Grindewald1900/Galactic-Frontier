@@ -64,6 +64,49 @@ namespace Assets.Resources.Scripts.World.Domain
             return true;
         }
 
+        private static bool IsRegionCleared(PlayerWorldState world, string regionId)
+        {
+            var cfg = RegionCatalog.Get(regionId);
+            var rt = FindRuntime(world, regionId);
+            if (cfg == null || rt == null) return false;
+            return cfg.bossRegion ? rt.bossDefeated : rt.cleared;
+        }
+
+        /// <summary>
+        /// Spatial challenge gate (doc 20 §2.2): a node can be challenged only if it is the spawn,
+        /// already cleared, or lane-adjacent to a cleared node. The linear <c>prereqRegionIds</c>
+        /// chain is only a "recommended route" and no longer hard-blocks combat — the ship gate
+        /// (doc 13) remains the hard limit.
+        /// </summary>
+        public static bool CanChallengeRegion(PlayerWorldState world, RegionConfig config)
+        {
+            if (config == null) return false;
+            if (IsRegionCleared(world, config.regionId))
+                return true;
+
+            var body = SectorMapCatalog.FindByRegion(config.regionId);
+            if (body == null)
+                return true; // No map node → do not spatially gate (fallback).
+            if (body.bodyId == WorldConstants.OuterHavenBodyId)
+                return true; // Spawn node is the initial challengeable entry point.
+
+            foreach (var edge in SectorMapCatalog.Edges)
+            {
+                if (edge == null) continue;
+                if (edge.a != body.bodyId && edge.b != body.bodyId) continue;
+                string otherId = edge.a == body.bodyId ? edge.b : edge.a;
+                var otherBody = SectorMapCatalog.Get(otherId);
+                if (otherBody?.regionIds == null) continue;
+                foreach (var rid in otherBody.regionIds)
+                {
+                    if (IsRegionCleared(world, rid))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         public static RegionProgressState GetProgressState(PlayerWorldState world, RegionConfig config)
         {
             if (config == null)
@@ -74,14 +117,14 @@ namespace Assets.Resources.Scripts.World.Domain
             {
                 if (rt.bossDefeated)
                     return RegionProgressState.BossDefeated;
-                if (PrerequisitesCleared(world, config))
+                if (CanChallengeRegion(world, config))
                     return RegionProgressState.BossAvailable;
                 return RegionProgressState.Locked;
             }
 
             if (rt.cleared)
                 return RegionProgressState.Cleared;
-            if (PrerequisitesCleared(world, config))
+            if (CanChallengeRegion(world, config))
                 return RegionProgressState.Challengeable;
             return RegionProgressState.Locked;
         }
@@ -102,15 +145,6 @@ namespace Assets.Resources.Scripts.World.Domain
                 return view;
             }
 
-            if (!PrerequisitesCleared(world, config))
-            {
-                foreach (var prereq in config.prereqRegionIds)
-                {
-                    var p = RegionCatalog.Get(prereq);
-                    view.BlockReasons.Add("Need clear: " + (p?.displayNameEn ?? prereq));
-                }
-            }
-
             var gate = ShipRules.MeetsGate(ship, config.shipGate);
             if (!gate.Ok)
             {
@@ -120,9 +154,10 @@ namespace Assets.Resources.Scripts.World.Domain
             }
 
             var progress = view.Progress;
-            view.CanEnter = progress != RegionProgressState.Locked &&
-                            PrerequisitesCleared(world, config) &&
-                            gate.Ok;
+            if (progress == RegionProgressState.Locked)
+                view.BlockReasons.Add("Clear an adjacent node first.");
+
+            view.CanEnter = progress != RegionProgressState.Locked && gate.Ok;
             view.FarmUnlocked = IsFarmUnlocked(world, config);
             return view;
         }

@@ -447,15 +447,15 @@ namespace Assets.Resources.Scripts.World
 
         private static void ApplyChartReveal(PlayerWorldState world)
         {
-            int explore = world.explorationProgress;
+            // Buying the sector chart at the merchant unlocks the ENTIRE sector's nodes — every
+            // body becomes fully located/visible. Challengeability stays gated by lane adjacency
+            // to cleared nodes (WorldRules.CanChallengeRegion), so revealing != challengeable.
             foreach (var body in SectorMapCatalog.Bodies)
             {
                 if (body == null) continue;
                 var node = EnsureNode(world, body.bodyId);
-                if (node.state != GridNodeState.Unobserved) continue;
-                if (body.capitalHub && explore < WorldConstants.HubChartExploreMin)
-                    continue;
-                node.state = GridNodeState.Fogged;
+                if (node.state < GridNodeState.Located)
+                    node.state = GridNodeState.Located;
             }
         }
 
