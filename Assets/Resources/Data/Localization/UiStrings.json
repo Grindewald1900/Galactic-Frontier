@@ -2151,14 +2151,24 @@
       "zh": "失败"
     },
     {
+      "id": "ui.battle.spectate_next",
+      "en": "NEXT BATTLE STARTING…",
+      "zh": "下一场战斗即将开始…"
+    },
+    {
       "id": "ui.battle.return_bridge",
       "en": "Return to Bridge",
       "zh": "返回舰桥"
     },
     {
+      "id": "ui.battle.flee",
+      "en": "Flee",
+      "zh": "逃离"
+    },
+    {
       "id": "ui.battle.status_hint",
-      "en": "Fully automatic combat · Esc returns to Bridge · Confirm on report returns to Explore",
-      "zh": "全自动战斗 · Esc 返回舰桥 · 战报确认后返回探索"
+      "en": "Auto combat · Return to Bridge keeps fighting in background · Flee / Esc aborts · Report confirm returns to Explore",
+      "zh": "自动战斗 · 返回舰桥后后台继续战斗 · 逃离 / Esc 终止战斗 · 战报确认后返回探索"
     },
     {
       "id": "ui.battle.log_header",

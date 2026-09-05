@@ -676,7 +676,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BattleEnd => G("ui.battle.end");
         public static string BattleVictory => G("ui.battle.victory");
         public static string BattleDefeat => G("ui.battle.defeat");
+        public static string BattleSpectateNext => G("ui.battle.spectate_next");
         public static string ReturnToBridge => G("ui.battle.return_bridge");
+        public static string BattleFlee => G("ui.battle.flee");
         public static string BattleStatusHint => G("ui.battle.status_hint");
         public static string BattleLogHeader => G("ui.battle.log_header");
         public static string BattleLogStart => G("ui.battle.log_start");

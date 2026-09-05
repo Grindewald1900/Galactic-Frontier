@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Main;
@@ -97,6 +98,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             FeatureUnlockService.UnlocksChanged += OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged += OnUnlocksChanged;
             ProgressionService.ProgressChanged += OnProgressChanged;
+            BackgroundBattleHost.FinishedTick += OnBackgroundBattleFinished;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed += OnDebugModeChanged;
             yield return null;
@@ -115,6 +117,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     PrepareMainScene();
                     if (GetComponent<IdleEconomyTicker>() == null)
                         gameObject.AddComponent<IdleEconomyTicker>();
+                    BackgroundBattleHost.Ensure();
+                    // Scene reload can interrupt a coroutine mid-frame — restart if a fight is live.
+                    // Also auto-start a farm fight when the combat deck is already AutoCombat.
+                    BackgroundBattleHost.Ensure().TryBootstrapIdleCombat();
                     if (DataUtil.Instance != null)
                     {
                         WorldService.EnsureLoaded(DataUtil.Instance);
@@ -165,6 +171,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             FeatureUnlockService.UnlocksChanged -= OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged -= OnUnlocksChanged;
             ProgressionService.ProgressChanged -= OnProgressChanged;
+            BackgroundBattleHost.FinishedTick -= OnBackgroundBattleFinished;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed -= OnDebugModeChanged;
             if (Instance == this)
@@ -410,6 +417,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         bridgeScreen.Rebuild();
                     }
                     bridgeScreen.Root.SetActive(true);
+                    RefreshCommanderLabel();
+                    BackgroundBattleHost.Ensure().TryBootstrapIdleCombat();
                     break;
                 case AppScreen.Formation:
                     if (formationScreen == null)
@@ -747,13 +756,36 @@ namespace Assets.Resources.Scripts.UI.Nexus
             RefreshCreditsLabel();
         }
 
+        /// <summary>
+        /// Fired by <see cref="ProgressionService.ProgressChanged"/> — i.e. whenever XP/rewards are
+        /// actually granted (idle gather success, farm/battle settlement, manual grants). This is the
+        /// event-driven replacement for the old 0.5s poll, so UI only updates on real data changes.
+        /// </summary>
         private void OnProgressChanged()
         {
+            RefreshBattleProgressUi();
+        }
+
+        /// <summary>Fired once when a background (idle) battle settles.</summary>
+        private void OnBackgroundBattleFinished()
+        {
+            RefreshBattleProgressUi();
+        }
+
+        /// <summary>
+        /// Refreshes only the widgets whose data changed — the shell commander XP bar (in-place via
+        /// <see cref="NexusProgressUi.ApplyBar"/>), the Formation card XP bars, and the Bridge's live
+        /// panels. It never rebuilds a whole screen.
+        /// </summary>
+        private void RefreshBattleProgressUi()
+        {
+            RefreshCommanderLabel();
             if (!mainReady)
                 return;
-            RefreshCommanderLabel();
             if (activeScreen == AppScreen.Formation)
                 formationScreen?.RefreshProgressBars();
+            else if (activeScreen == AppScreen.Bridge)
+                bridgeScreen?.RefreshLivePanels();
         }
 
         public void RefreshCreditsLabel()
@@ -1371,6 +1403,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 commanderXpBar,
                 NexusProgressUi.FormatCommanderXpLabel(level, cur, need),
                 ratio);
+            if (commanderXpBar == null)
+                Debug.LogWarning("[XP-UI] commanderXpBar is null — cannot refresh shell XP bar.");
         }
 
         public void RefreshProfileChrome()

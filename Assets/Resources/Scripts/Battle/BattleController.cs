@@ -37,7 +37,12 @@ namespace Assets.Resources.Scripts.Battle
     {
         #region Variables
         private const int MaxRound = 15;
+
+        /// <summary>Seconds the settlement report stays up before the next idle-spectate fight auto-starts.</summary>
+        private const float SpectateReportSeconds = 3f;
+
         private int currentRound = 0;
+        private Coroutine spectateLoopRoutine;
 
         /// <summary>Current auto-battle round; exposed for BattleChrome HUD (Option A).</summary>
         public int CurrentRound => currentRound;
@@ -77,6 +82,9 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         public static bool PendingSpectateAutoCombat { get; set; }
 
+        /// <summary>Resume an in-progress <see cref="LiveBattleSession"/> instead of starting Round 1.</summary>
+        public static bool PendingResumeLiveSession { get; set; }
+
         /// <summary>Screen to open when leaving BattleScene (defaults to Explore).</summary>
         public static AppScreen? PendingReturnScreen { get; set; }
 
@@ -95,9 +103,24 @@ namespace Assets.Resources.Scripts.Battle
         }
         private void Start()
         {
-            Init();
+            // Always resume from the shared session when one is mid-fight.
+            // Do not require PendingResumeLiveSession — that flag was easy to miss and caused Round-1 restarts.
+            bool resume = LiveBattleSession.CanResume;
+            PendingResumeLiveSession = false;
+
+            BackgroundBattleHost.Ensure().AttachPresentation();
+
+            Init(resume);
             WireReportConfirm();
-            StartBattle();
+            if (resume)
+            {
+                Debug.Log($"[BATTLE] Resuming live session at round {LiveBattleSession.CurrentRound}");
+                StartBattleResumed();
+            }
+            else
+            {
+                StartBattle();
+            }
         }
 
         private void OnEnable()
@@ -109,12 +132,18 @@ namespace Assets.Resources.Scripts.Battle
         }
 
         #region Initialization 🚀 
-        private void Init()
+        private void Init(bool resume = false)
         {
             // Prefer the cross-scene collection, but support direct BattleScene entry from a save.
             CharacterSkillController.InitSkillSet();
             var cardListMgr = CardListManager.Instance;
             Debug.Log("inLine counts cardListMgr " + (cardListMgr != null));
+            if (resume && LiveBattleSession.CanResume)
+            {
+                RestoreFromLiveSession();
+                return;
+            }
+
             if (cardListMgr != null)
             {
                 if (DataUtil.Instance != null && !DeckService.IsLoaded)
@@ -173,6 +202,42 @@ namespace Assets.Resources.Scripts.Battle
                 foreach (var entity in inlineEntities)
                     SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
             }
+        }
+
+        private void RestoreFromLiveSession()
+        {
+            HideCards(playerCards);
+            HideCards(enemyCards);
+            PendingBattleTargetId = LiveBattleSession.RegionId;
+            PendingEncounterId = LiveBattleSession.EncounterId;
+            PendingSpectateAutoCombat = LiveBattleSession.IsSpectateAuto;
+            PendingIsChapterPrologue = LiveBattleSession.IsPrologue;
+            activeStrategy = LiveBattleSession.Strategy;
+            BattleSeed = LiveBattleSession.Seed;
+            battleRng = LiveBattleSession.CreateRngAtCursor();
+            currentRound = LiveBattleSession.CurrentRound;
+
+            foreach (var state in LiveBattleSession.Players)
+            {
+                if (state?.entity == null) continue;
+                var copies = ListDeepCopyUtil.DeepCopyViaJson(new List<CardEntity> { state.entity });
+                var entity = copies != null && copies.Count > 0 ? copies[0] : state.entity;
+                SetCard(playerCards, state.slotIndex, entity, true);
+                if (state.slotIndex >= 0 && state.slotIndex < playerCards.Count && playerCards[state.slotIndex] != null)
+                    playerCards[state.slotIndex].ApplyBattleRuntime(state.currentHp, state.currentEnergy);
+            }
+
+            foreach (var state in LiveBattleSession.Enemies)
+            {
+                if (state?.entity == null) continue;
+                var copies = ListDeepCopyUtil.DeepCopyViaJson(new List<CardEntity> { state.entity });
+                var entity = copies != null && copies.Count > 0 ? copies[0] : state.entity;
+                SetCard(enemyCards, state.slotIndex, entity, false);
+                if (state.slotIndex >= 0 && state.slotIndex < enemyCards.Count && enemyCards[state.slotIndex] != null)
+                    enemyCards[state.slotIndex].ApplyBattleRuntime(state.currentHp, state.currentEnergy);
+            }
+
+            Debug.Log($"[BATTLE] Resumed live session at round {currentRound}");
         }
         #endregion
 
@@ -259,7 +324,79 @@ namespace Assets.Resources.Scripts.Battle
             progressApplied = false;
             BeginSeededBattle();
             EnsureMainCombatOccupation();
+            CaptureLiveSession(starting: true);
+            BackgroundBattleHost.Ensure().AttachPresentation();
             StartCoroutine(BattleRoutine());
+        }
+
+        private void StartBattleResumed()
+        {
+            if (GameStatusManager.Instance.IsBattle) return;
+            GameStatusManager.Instance.IsBattle = true;
+            LastOutcome = BattleOutcome.None;
+            progressApplied = false;
+            BackgroundBattleHost.Ensure().AttachPresentation();
+            StartCoroutine(BattleRoutine(resume: true));
+        }
+
+        /// <summary>Snapshots the fight so Bridge can keep simulating after leaving BattleScene.</summary>
+        public void CaptureLiveSession(bool starting = false)
+        {
+            var deck = DeckService.GetActiveCombatDeck();
+            var players = CaptureSide(playerCards, true);
+            var enemies = CaptureSide(enemyCards, false);
+            // `starting: true` forces a new session (fresh fight). Leave/mid-fight use UpdateRuntime
+            // so accrued XP and round are preserved.
+            if (starting || !LiveBattleSession.Active)
+            {
+                LiveBattleSession.Begin(
+                    BattleSeed,
+                    battleRng?.CallCount ?? 0,
+                    currentRound,
+                    activeStrategy,
+                    PendingBattleTargetId ?? "",
+                    PendingEncounterId ?? "",
+                    deck?.deckId ?? "",
+                    PendingSpectateAutoCombat,
+                    PendingIsChapterPrologue,
+                    players,
+                    enemies);
+            }
+            else
+            {
+                LiveBattleSession.UpdateRuntime(currentRound, battleRng?.CallCount ?? 0, players, enemies);
+            }
+
+            Debug.Log(
+                $"[BATTLE] CaptureLiveSession starting={starting} round={LiveBattleSession.CurrentRound} " +
+                $"players={players.Count} enemies={enemies.Count} rng={LiveBattleSession.RngCalls}");
+        }
+
+        private static List<LiveCombatantState> CaptureSide(List<Card> cards, bool isPlayer)
+        {
+            var list = new List<LiveCombatantState>();
+            if (cards == null) return list;
+            for (int i = 0; i < cards.Count; i++)
+            {
+                var card = cards[i];
+                if (card == null || card.cardEntity == null || !card.gameObject.activeSelf)
+                    continue;
+                var copies = ListDeepCopyUtil.DeepCopyViaJson(new List<CardEntity> { card.cardEntity });
+                var entity = copies != null && copies.Count > 0 ? copies[0] : card.cardEntity;
+                list.Add(new LiveCombatantState
+                {
+                    cardId = card.cardEntity.id ?? "",
+                    slotIndex = i,
+                    isPlayer = isPlayer,
+                    currentHp = card.currentHealth,
+                    maxHp = card.cardEntity.Health,
+                    currentEnergy = card.currentEnergy,
+                    maxEnergy = card.cardEntity.maxEnergy,
+                    entity = entity
+                });
+            }
+
+            return list;
         }
 
         private void EnsureMainCombatOccupation()
@@ -316,8 +453,10 @@ namespace Assets.Resources.Scripts.Battle
         /// Runs the battle state machine until one side is defeated or MaxRound is reached.
         /// Initiative is rebuilt every round from living cards and ordered by speed.
         /// </summary>
-        private IEnumerator BattleRoutine()
+        private IEnumerator BattleRoutine(bool resume = false)
         {
+            bool fromResume = resume;
+
             // No opposing party (e.g. encounter table not ready): resolve immediately so the report/return path works.
             if (!HasAliveCards(enemyCards) || !HasAliveCards(playerCards))
             {
@@ -334,22 +473,28 @@ namespace Assets.Resources.Scripts.Battle
                     yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
                 }
                 yield return new WaitForSeconds(0.5f);
+                LiveBattleSession.MarkFinished(LastOutcome);
                 ShowBattleReport();
                 yield break;
             }
 
             while (currentRound < MaxRound && GameStatusManager.Instance.IsBattle)
             {
-                currentRound++;
-
-                // Start of battle
-                if (currentRound == 1)
+                if (!resume)
+                    currentRound++;
+                else
                 {
-                    if (BattleInfo.Instance != null)
-                    {
-                        BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
-                        yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
-                    }
+                    resume = false;
+                    if (currentRound < 1)
+                        currentRound = 1;
+                }
+
+                CaptureLiveSession();
+
+                if (currentRound == 1 && !fromResume && BattleInfo.Instance != null)
+                {
+                    BattleInfo.Instance.PlayBattleInfoAnimation("Battle Start");
+                    yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
                 }
 
                 if (BattleInfo.Instance != null)
@@ -403,6 +548,7 @@ namespace Assets.Resources.Scripts.Battle
                     }
 
                     card.Unhighlight(DefaultProperty.defaultCardScale);
+                    CaptureLiveSession();
 
                     if (!HasAliveCards(playerCards) || !HasAliveCards(enemyCards))
                     {
@@ -439,6 +585,8 @@ namespace Assets.Resources.Scripts.Battle
             GameStatusManager.Instance.IsBattle = false;
             yield return new WaitForSeconds(0.5f);
 
+            // Keep accrued XP on the session until settlement tops up / clears.
+            LiveBattleSession.MarkFinished(LastOutcome);
             ShowBattleReport();
         }
 
@@ -511,6 +659,59 @@ namespace Assets.Resources.Scripts.Battle
                 BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
                 BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
             }
+
+            // Idle spectate: keep looping farm fights. Show the report briefly, then auto-start the
+            // next battle in-scene. The loop ends only when the player flees or stops the AutoCombat
+            // deck (both clear PendingSpectateAutoCombat / the running deck).
+            if (ShouldContinueSpectate())
+            {
+                if (reportTitle != null)
+                    reportTitle.text = $"{reportTitle.text}  ·  {UiText.BattleSpectateNext}";
+                if (spectateLoopRoutine != null)
+                    StopCoroutine(spectateLoopRoutine);
+                spectateLoopRoutine = StartCoroutine(SpectateAutoLoop());
+            }
+        }
+
+        /// <summary>
+        /// Idle-spectate auto-advance: after a short report delay, resets the arena and starts a fresh
+        /// farm fight. Repeats every fight until the player flees or stops the AutoCombat deck.
+        /// </summary>
+        private IEnumerator SpectateAutoLoop()
+        {
+            yield return new WaitForSecondsRealtime(SpectateReportSeconds);
+            spectateLoopRoutine = null;
+
+            // Re-check: the player may have fled, returned, or stopped the deck during the delay.
+            if (!ShouldContinueSpectate())
+                yield break;
+
+            if (reportPanel != null)
+                reportPanel.SetActive(false);
+
+            // Fresh arena: rebuild both parties (full HP, new enemy roll) and start a new seeded fight.
+            Init(false);
+            StartBattle();
+        }
+
+        /// <summary>
+        /// True while an idle-spectate battle should keep looping — i.e. we are still spectating in
+        /// BattleScene and the active combat deck is still running AutoCombat.
+        /// </summary>
+        private bool ShouldContinueSpectate()
+        {
+            if (!PendingSpectateAutoCombat)
+                return false;
+            if (GameStatusManager.Instance != null
+                && GameStatusManager.Instance.CurrentScene != CurrentScene.BATTLE_SCENE)
+                return false;
+            if (!DeckService.IsLoaded)
+                return false;
+            var deck = DeckService.GetActiveCombatDeck();
+            return deck != null
+                && deck.action != null
+                && deck.action.status == DeckActionStatus.Running
+                && deck.action.actionType == DeckActionType.AutoCombat;
         }
 
         private void ApplyWorldProgressOnVictory()
@@ -522,11 +723,15 @@ namespace Assets.Resources.Scripts.Battle
             {
                 progressApplied = true;
                 ApplyAutoCombatSpectateSettlement(LastOutcome == BattleOutcome.Victory);
+                LiveBattleSession.Clear();
                 return;
             }
 
             if (LastOutcome != BattleOutcome.Victory)
+            {
+                LiveBattleSession.Clear();
                 return;
+            }
             progressApplied = true;
             GrantCombatProgression();
 
@@ -536,13 +741,17 @@ namespace Assets.Resources.Scripts.Battle
                 PendingIsChapterPrologue = false;
                 PendingBattleTargetId = null;
                 PendingEncounterId = null;
+                LiveBattleSession.Clear();
                 return;
             }
 
             var regionId = PendingBattleTargetId;
             var encounterId = PendingEncounterId;
             if (string.IsNullOrEmpty(regionId))
+            {
+                LiveBattleSession.Clear();
                 return;
+            }
 
             if (DataUtil.Instance != null)
             {
@@ -569,6 +778,7 @@ namespace Assets.Resources.Scripts.Battle
             }
             Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(
                 CardListManager.Instance?.cardEntities);
+            LiveBattleSession.Clear();
         }
 
         /// <summary>
@@ -668,10 +878,20 @@ namespace Assets.Resources.Scripts.Battle
                 }
             }
 
+            float combatLeft = Mathf.Max(
+                0f, ProgressionCatalog.MainBattleCombatXp - LiveBattleSession.CombatXpGranted);
+            float cmdLeft = Mathf.Max(
+                0f, ProgressionCatalog.CommanderBattleXp - LiveBattleSession.CommanderXpGranted);
+            if (combatLeft <= 0f && cmdLeft <= 0f)
+                return;
+
             ProgressionService.BeginGrant();
-            ProgressionService.GrantCombatToParty(members, ko, ProgressionCatalog.MainBattleCombatXp);
-            ProgressionService.GrantCommander(ProgressionCatalog.CommanderBattleXp);
+            if (combatLeft > 0f)
+                ProgressionService.GrantCombatToParty(members, ko, combatLeft);
+            if (cmdLeft > 0f)
+                ProgressionService.GrantCommander(cmdLeft);
             ProgressionService.EndGrant(presentUi: true);
+            LiveBattleSession.AddXpGranted(cmdLeft, combatLeft);
         }
 
         private void WireReportConfirm()
@@ -720,6 +940,11 @@ namespace Assets.Resources.Scripts.Battle
         private void OnReportConfirm()
         {
             Debug.Log($"{GetType().Name}: Report confirmed → Main.");
+            if (spectateLoopRoutine != null)
+            {
+                StopCoroutine(spectateLoopRoutine);
+                spectateLoopRoutine = null;
+            }
             if (reportPanel != null)
                 reportPanel.SetActive(false);
             var screen = PendingReturnScreen ?? AppScreen.Battle;
