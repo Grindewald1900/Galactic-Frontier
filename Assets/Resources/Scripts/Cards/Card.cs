@@ -95,6 +95,31 @@ namespace Assets.Resources.Scripts.Cards
             energyBarBackground.SetActive(IsBattleActive());
             expBarBackground.SetActive(!IsBattleActive());
             UpdateExpBar();
+            if (IsBattleActive() && cardEntity != null)
+            {
+                currentHealth = cardEntity.Health;
+                currentEnergy = 0f;
+                if (healthBar != null)
+                    healthBar.fillAmount = 1f;
+                if (energyBar != null)
+                    energyBar.fillAmount = 0f;
+            }
+        }
+
+        /// <summary>Restores mid-fight HP/energy when resuming a live battle session.</summary>
+        public void ApplyBattleRuntime(float hp, float energy)
+        {
+            if (cardEntity == null) return;
+            currentHealth = Mathf.Clamp(hp, 0f, Mathf.Max(1f, cardEntity.Health));
+            currentEnergy = Mathf.Clamp(energy, 0f, cardEntity.maxEnergy);
+            if (healthBar != null)
+                healthBar.fillAmount = currentHealth / Mathf.Max(1f, cardEntity.Health);
+            if (energyBar != null)
+                energyBar.fillAmount = cardEntity.maxEnergy > 0f
+                    ? currentEnergy / cardEntity.maxEnergy
+                    : 0f;
+            if (currentHealth <= 0f)
+                gameObject.SetActive(false);
         }
 
         public void UpdateEnergyBar(float energy)

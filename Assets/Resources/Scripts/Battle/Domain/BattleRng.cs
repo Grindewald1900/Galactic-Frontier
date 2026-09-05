@@ -11,18 +11,40 @@ namespace Assets.Resources.Scripts.Battle.Domain
         private readonly Random random;
 
         public long Seed { get; }
+        public int CallCount { get; private set; }
 
         public BattleRng(long seed)
         {
             Seed = seed;
             random = new Random(MixToInt(seed));
+            CallCount = 0;
         }
 
         /// <summary>Uniform value in [0, 1).</summary>
-        public float Value => (float)random.NextDouble();
+        public float Value
+        {
+            get
+            {
+                CallCount++;
+                return (float)random.NextDouble();
+            }
+        }
 
-        public int Range(int minInclusive, int maxExclusive) =>
-            random.Next(minInclusive, maxExclusive);
+        public int Range(int minInclusive, int maxExclusive)
+        {
+            CallCount++;
+            return random.Next(minInclusive, maxExclusive);
+        }
+
+        /// <summary>Advances the stream to match a previously captured call count.</summary>
+        public void Burn(int calls)
+        {
+            for (var i = 0; i < calls; i++)
+            {
+                CallCount++;
+                random.NextDouble();
+            }
+        }
 
         /// <summary>Derives a per-fight seed for AFK multi-fight loops (P2).</summary>
         public static long DeriveFightSeed(long baseSeed, int fightIndex)

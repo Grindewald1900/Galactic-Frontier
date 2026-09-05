@@ -64,7 +64,12 @@ namespace Assets.Resources.Scripts.World
                 if (now - last < cycle) continue;
 
                 if (deck.action.actionType == DeckActionType.AutoCombat)
+                {
+                    // Live round sim owns farm XP while a background AutoCombat session is active.
+                    if (Assets.Resources.Scripts.Battle.BackgroundBattleHost.IsHandlingAutoCombat)
+                        continue;
                     TickFarm(deck);
+                }
                 else if (deck.action.actionType == DeckActionType.Gather)
                     TickGather(deck);
                 else if (deck.action.actionType == DeckActionType.Process

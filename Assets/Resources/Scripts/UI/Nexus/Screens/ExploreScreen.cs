@@ -1022,6 +1022,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void StartBattle(string regionId)
         {
+            if (LiveBattleSession.CanResume)
+            {
+                if (!string.IsNullOrEmpty(LiveBattleSession.RegionId)
+                    && LiveBattleSession.RegionId != regionId)
+                {
+                    NexusSnackbar.Show(UiText.SnackbarFleetBusy);
+                    return;
+                }
+
+                BattleController.PendingResumeLiveSession = true;
+                BattleController.PendingReturnScreen = AppScreen.Battle;
+                LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
+                return;
+            }
+
             if (DeckService.IsActiveCombatAutoCombatRunning())
             {
                 NexusSnackbar.Show(UiText.SnackbarChallengeWhileAutoCombat);

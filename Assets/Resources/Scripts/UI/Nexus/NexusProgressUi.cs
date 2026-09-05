@@ -192,8 +192,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 bar.Label.text = label ?? "";
             if (bar.FillRect != null)
             {
+                // Keep anchors consistent so live XP updates actually resize the fill.
+                bar.FillRect.anchorMin = Vector2.zero;
                 bar.FillRect.anchorMax = new Vector2(ratio, 1f);
+                bar.FillRect.pivot = new Vector2(0f, 0.5f);
+                bar.FillRect.offsetMin = new Vector2(1f, 1f);
                 bar.FillRect.offsetMax = new Vector2(ratio >= 0.999f ? -1f : 0f, -1f);
+                bar.FillRect.ForceUpdateRectTransforms();
             }
             else if (bar.Fill != null)
             {

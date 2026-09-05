@@ -349,10 +349,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 && editing.action != null
                 && editing.action.actionType == DeckActionType.AutoCombat
                 && isCombatDeck;
+            bool mainCombatRunning = busy
+                && editing.action != null
+                && editing.action.actionType == DeckActionType.MainCombat
+                && isCombatDeck;
+            bool canEnterBattle = isCombatDeck
+                && (LiveBattleSession.CanResume || autoCombatRunning || mainCombatRunning);
 
-            // Bottom → up: Enter Battle, Stop, Strategy, Set Combat
-            Stack(enterBattleButton, autoCombatRunning);
+            // Bottom → up: Stop, Enter Battle, Strategy, Set Combat
+            // Visual order: Strategy → Enter Battle → Stop Area Battle
             Stack(stopButton, busy);
+            Stack(enterBattleButton, canEnterBattle);
             Stack(strategyButton, isCombatDeck);
             Stack(setCombatButton, !isCombatDeck);
         }
@@ -2169,14 +2176,34 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void TryEnterLiveBattle()
         {
+            if (LiveBattleSession.CanResume)
+            {
+                BattleController.PendingResumeLiveSession = true;
+                BattleController.PendingReturnScreen = AppScreen.Formation;
+                LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
+                return;
+            }
+
             var editing = DeckService.GetEditingDeck();
             var combat = DeckService.GetActiveCombatDeck();
             if (editing == null
                 || combat == null
                 || editing.deckId != combat.deckId
                 || !editing.IsActionBusy
-                || editing.action == null
-                || editing.action.actionType != DeckActionType.AutoCombat)
+                || editing.action == null)
+            {
+                NexusSnackbar.Show(UiText.SnackbarNoAutoToWatch);
+                return;
+            }
+
+            if (editing.action.actionType == DeckActionType.MainCombat)
+            {
+                // Occupation still running but live session missing — cannot restore mid-fight.
+                NexusSnackbar.Show(UiText.SnackbarNoAutoToWatch);
+                return;
+            }
+
+            if (editing.action.actionType != DeckActionType.AutoCombat)
             {
                 NexusSnackbar.Show(UiText.SnackbarNoAutoToWatch);
                 return;
@@ -2218,6 +2245,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             var stop = DeckService.TryStop(editing.deckId);
             pendingStopDeckId = "";
+            if (stop.Success)
+                BackgroundBattleHost.AbortOccupation();
             statusText.text = stop.Success
                 ? (stop.Settlement != null && stop.Settlement.DiscardedUnsettledProgress
                     ? UiText.StopActionConfirm

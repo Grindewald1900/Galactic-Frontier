@@ -5,7 +5,6 @@ using Assets.Resources.Scripts.Scene;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
@@ -110,6 +109,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             NexusUiFactory.CreateButton(
                 top.transform,
+                "Flee",
+                UiText.BattleFlee,
+                new Vector2(1470f, 8f),
+                new Vector2(200f, 32f),
+                FleeBattle,
+                NexusTheme.WithAlpha(NexusTheme.Red, 0.18f),
+                NexusTheme.Red,
+                13f);
+
+            NexusUiFactory.CreateButton(
+                top.transform,
                 "Pause Return",
                 UiText.ReturnToBridge,
                 new Vector2(1680f, 8f),
@@ -125,19 +135,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 "Hints",
                 UiText.BattleStatusHint,
                 new Vector2(16f, 2f),
-                new Vector2(900f, 18f),
+                new Vector2(1400f, 18f),
                 10f,
                 NexusTheme.DimText);
-
-            NexusUiFactory.CreateButton(
-                status.transform, "NextAction", UiText.BattleNextAction,
-                new Vector2(920f, 0f), new Vector2(200f, 20f),
-                () =>
-                {
-                    PlayerPrefs.SetString("nexus_return_screen", "Battle");
-                    SceneManager.LoadScene(nameof(SceneLoader.SceneName.MainScene));
-                },
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f), NexusTheme.Gold, 10f);
 
             GameObject log = NexusUiFactory.CreatePanel(
                 chrome.transform,
@@ -224,10 +224,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BattleSceneExit.ReturnToBridge();
         }
 
+        private static void FleeBattle()
+        {
+            BattleSceneExit.Flee();
+        }
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
-                ReturnToBridge();
+                FleeBattle();
         }
     }
 }
