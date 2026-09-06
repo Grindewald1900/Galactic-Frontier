@@ -12,6 +12,7 @@ using Assets.Resources.Scripts.Progression.Domain;
 using Assets.Resources.Scripts.UI.Nexus;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.Utils;
+using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World;
 using UnityEngine;
 
@@ -49,6 +50,7 @@ namespace Assets.Resources.Scripts.Progression
 
         public static void EndGrant(bool presentUi)
         {
+            GrantCommander(0f);
             CardEntity.EndBatchPersist(true);
             SaveCommander();
             if (LastLog != null && LastLog.CommanderLeveled)
@@ -101,7 +103,7 @@ namespace Assets.Resources.Scripts.Progression
 
         public static void GrantCommander(float amount)
         {
-            if (amount <= 0f) return;
+            if (amount < 0f) return;
             var player = DataUtil.Instance?.currentPlayer;
             if (player == null) return;
             if (player.level < 1) player.level = 1;
@@ -423,9 +425,7 @@ namespace Assets.Resources.Scripts.Progression
 
         private static void SaveCommander()
         {
-            var player = DataUtil.Instance?.currentPlayer;
-            if (player != null)
-                DataUtil.Instance.SavePlayerData(player);
+            GameSaveService.MarkDirty();
         }
 
         private static int CountScrap()

@@ -97,7 +97,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             CardEntity card,
             Vector2 origin,
             Vector2 size,
-            System.Action onDismantle)
+            System.Action onDismantle,
+            List<NexusProgressUi.XpBar> xpBars = null)
         {
             NexusUiFactory.CreateBox(
                 parent, "Detail", origin, size, NexusTheme.Surface, NexusTheme.BorderSoft);
@@ -110,6 +111,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     14f, NexusTheme.DimText);
                 return;
             }
+
+            card.EnsureProgressionDefaults();
 
             NexusCardVisual.CreatePortraitCard(
                 parent, "DetailArt", card,
@@ -148,7 +151,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 card,
                 new Vector2(origin.x + 220f, origin.y + 176f),
                 size.x - 244f,
-                24f);
+                24f,
+                xpBars);
 
             float actionY = origin.y + 176f + xpHeight + 8f;
             var block = CardDismantleService.Evaluate(card);

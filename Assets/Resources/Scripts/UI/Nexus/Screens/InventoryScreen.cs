@@ -13,8 +13,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
     internal sealed class InventoryScreen
     {
         private readonly Transform root;
+        private Transform gridContent;
         private int typeTab;
         private int qualityTab;
+        private bool drawing;
 
         private InventoryScreen(Transform root)
         {
@@ -48,6 +50,40 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 IdleSettlementService.Save();
             }
 
+            Redraw();
+
+            if (claimedLines != null && claimedLines.Count > 0)
+                RewardPopup.Show(UiText.RewardTitle, claimedLines);
+        }
+
+        /// <summary>Updates item cards only so filter buttons do not flicker.</summary>
+        public void RefreshLive()
+        {
+            if (drawing || root == null || !root.gameObject.activeInHierarchy)
+                return;
+            if (gridContent == null)
+            {
+                Redraw();
+                return;
+            }
+
+            drawing = true;
+            try
+            {
+                FillGrid();
+            }
+            finally
+            {
+                drawing = false;
+            }
+        }
+
+        private void Redraw()
+        {
+            drawing = true;
+            try
+            {
+            gridContent = null;
             for (int i = root.childCount - 1; i >= 0; i--)
                 Object.DestroyImmediate(root.GetChild(i).gameObject);
 
@@ -65,10 +101,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             DrawTypeTabs();
             DrawQualityTabs();
-            DrawGrid(VisibleItems());
-
-            if (claimedLines != null && claimedLines.Count > 0)
-                RewardPopup.Show(UiText.RewardTitle, claimedLines);
+            gridContent = CreateScrollContent(root, new Vector2(28f, 168f), new Vector2(1480f, 680f));
+            FillGrid();
+            }
+            finally
+            {
+                drawing = false;
+            }
         }
 
         private void DrawTypeTabs()
@@ -116,14 +155,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 12f);
         }
 
-        private void DrawGrid(List<ItemEntity> visible)
+        private void FillGrid()
         {
-            var content = CreateScrollContent(root, new Vector2(28f, 168f), new Vector2(1480f, 680f));
+            if (gridContent == null) return;
+            for (int i = gridContent.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(gridContent.GetChild(i).gameObject);
+
+            var visible = VisibleItems();
             if (visible.Count == 0)
             {
                 NexusUiFactory.CreateText(
-                    content, "Empty", UiText.InventoryEmpty,
+                    gridContent, "Empty", UiText.InventoryEmpty,
                     new Vector2(8f, 8f), new Vector2(800f, 32f), 14f, NexusTheme.MutedText);
+                gridContent.GetComponent<RectTransform>().sizeDelta = new Vector2(0f, 80f);
                 return;
             }
 
@@ -134,10 +178,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 int col = i % cols;
                 int row = i / cols;
-                DrawItemCard(content, visible[i], 8f + col * colW, 8f + row * rowH);
+                DrawItemCard(gridContent, visible[i], 8f + col * colW, 8f + row * rowH);
             }
 
-            var contentRect = content.GetComponent<RectTransform>();
+            var contentRect = gridContent.GetComponent<RectTransform>();
             int rows = (visible.Count + cols - 1) / cols;
             contentRect.sizeDelta = new Vector2(0f, Mathf.Max(80f, 16f + rows * rowH));
         }

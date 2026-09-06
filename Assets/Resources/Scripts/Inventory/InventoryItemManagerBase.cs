@@ -122,6 +122,7 @@ namespace Assets.Resources.Scripts.Inventory
                     items[index].quantity += newItem.quantity;
                     UpdateItemList();
                     PersistInventory();
+                    NotifyLocalChanged();
                     return true;
                 }
             }
@@ -137,6 +138,7 @@ namespace Assets.Resources.Scripts.Inventory
             items.Add(copy);
             UpdateItemList();
             PersistInventory();
+            NotifyLocalChanged();
             return true;
         }
 
@@ -154,6 +156,7 @@ namespace Assets.Resources.Scripts.Inventory
                 items.Add(ItemFactory.FromStack(s));
             UpdateItemList();
             PersistInventory();
+            NotifyLocalChanged();
             return true;
         }
 
@@ -302,6 +305,13 @@ namespace Assets.Resources.Scripts.Inventory
         public void RefreshSlotsFromMemory()
         {
             UpdateItemList();
+            NotifyLocalChanged();
+        }
+
+        private void NotifyLocalChanged()
+        {
+            if (!IsRemote)
+                ProductionService.NotifyWarehouseChanged();
         }
 
         private void PersistInventory()

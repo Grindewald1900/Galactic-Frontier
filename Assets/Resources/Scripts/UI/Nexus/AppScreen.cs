@@ -15,6 +15,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         Missions,
         Settings,
         Debug,
-        Ship
+        Ship,
+        ProductionLines
     }
 }

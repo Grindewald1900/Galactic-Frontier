@@ -79,6 +79,7 @@ namespace Assets.Resources.Scripts.Economy
             var last = State.lastSeenAtUtc > 0 ? State.lastSeenAtUtc : now;
             var elapsed = Math.Max(0, now - last);
             SettleOffline(elapsed, cards);
+            ProductionLineService.SettleOffline(elapsed, cards);
             DurabilityService.TryAutoRepairAll();
             State.lastSeenAtUtc = now;
             Save();
@@ -241,6 +242,8 @@ namespace Assets.Resources.Scripts.Economy
             var effective = Math.Min(elapsedSeconds, cap);
             var yield = OfflineRules.YieldRatio(effective, cap);
 
+            ProductionService.SettleManualOffline(effective, yield);
+
             if (!DeckService.IsLoaded) return;
             State.lastProgressNotes = new List<OfflineProgressNote>();
             var busyIds = ProgressionService.BusyCardIds();
@@ -284,34 +287,6 @@ namespace Assets.Resources.Scripts.Economy
                     ProgressionService.GrantCombatToParty(
                         members, null, ProgressionCatalog.FarmCombatXpPerCycle * cycles);
                     ProgressionService.GrantCommander(ProgressionCatalog.CommanderFarmXp * cycles);
-                }
-                else if (deck.action.actionType == DeckActionType.Process
-                         || deck.action.actionType == DeckActionType.Manufacture)
-                {
-                    cycle = Math.Max(1, (int)Math.Round(
-                        ProductionService.ResolveJobCycleSeconds(deck, cards)));
-                    var cycles = (int)(effective / Math.Max(1, cycle));
-                    if (cycles <= 0) continue;
-                    var recipe = RecipeCatalog.Get(deck.action.targetId);
-                    if (recipe == null) continue;
-                    var settled = Math.Min(cycles, 1);
-                    var qty = OfflineRules.ScaleReward(recipe.outputQty * settled, yield);
-                    if (qty > 0)
-                    {
-                        var def = ItemCatalog.Get(recipe.outputDefId);
-                        EnqueueLoot(
-                            recipe.outputDefId,
-                            EconomyConstants.DefaultQuality,
-                            qty,
-                            recipe.outputIsEquipment,
-                            def?.baseMaxDurability ?? 0);
-                    }
-
-                    var seconds = settled * Math.Max(1, recipe.cycleSeconds);
-                    ProgressionService.GrantProfessionToParty(
-                        members, ProfessionSkill.Craft, recipe.requiredSkillLevel, seconds);
-                    ProgressionService.GrantCommander(ProgressionCatalog.CommanderCraftXp * settled);
-                    DeckService.TryStop(deck.deckId);
                 }
             }
 

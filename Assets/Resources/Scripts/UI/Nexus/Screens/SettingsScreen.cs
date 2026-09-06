@@ -6,6 +6,7 @@ using Assets.Resources.Scripts.Cosmetics.Domain;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
+using Assets.Resources.Scripts.Utils.Save;
 using Assets.Scripts.Utils;
 using TMPro;
 using UnityEngine;
@@ -68,13 +69,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
             CreateLanguageButton(root.transform, UiText.LanguageChinese, new Vector2(320f, 492f), isZh,
                 () => LocalizationUtil.SetLanguage(SystemLanguage.ChineseSimplified));
 
+            BuildAutosaveSection(root.transform);
+
             NexusUiFactory.CreateButton(
                 root.transform,
                 "Save",
                 UiText.SaveCardData,
-                new Vector2(28f, 556f),
+                new Vector2(28f, 680f),
                 new Vector2(280f, 48f),
-                SaveCards,
+                SaveNow,
                 NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f),
                 NexusTheme.Gold,
                 14f);
@@ -83,7 +86,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "Clear",
                 UiText.ClearCardsDebug,
-                new Vector2(28f, 616f),
+                new Vector2(28f, 736f),
                 new Vector2(280f, 48f),
                 ClearCards,
                 NexusTheme.SurfaceRaised,
@@ -94,7 +97,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform,
                 "MainMenu",
                 UiText.ReturnMainMenu,
-                new Vector2(28f, 676f),
+                new Vector2(28f, 792f),
                 new Vector2(280f, 48f),
                 () =>
                 {
@@ -534,11 +537,47 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NexusUiFactory.CreateButton(parent, $"Lang {label}", label, position, new Vector2(280f, 44f), onClick, bg, fg, 14f);
         }
 
-        private static void SaveCards()
+        private static void BuildAutosaveSection(Transform parent)
         {
-            if (CardListManager.Instance == null || DataUtil.Instance == null) return;
-            DataUtil.Instance.SaveCardData(CardListManager.Instance.GetCardEntities());
-            NexusSnackbar.Show(UiText.GameSaved);
+            NexusUiFactory.CreateText(
+                parent, "Autosave Label", UiText.AutosaveLabel,
+                new Vector2(28f, 548f), new Vector2(400f, 22f), 14f, NexusTheme.MutedText,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            NexusUiFactory.CreateText(
+                parent, "Autosave Hint", UiText.AutosaveHint,
+                new Vector2(28f, 570f), new Vector2(520f, 32f), 11f, NexusTheme.DimText);
+
+            var current = GameSaveService.Interval;
+            AutosaveChip(parent, 28f, UiText.AutosaveManual, AutosaveInterval.Manual, current);
+            AutosaveChip(parent, 128f, UiText.Autosave1m, AutosaveInterval.OneMinute, current);
+            AutosaveChip(parent, 228f, UiText.Autosave5m, AutosaveInterval.FiveMinutes, current);
+            AutosaveChip(parent, 328f, UiText.Autosave10m, AutosaveInterval.TenMinutes, current);
+            AutosaveChip(parent, 428f, UiText.Autosave30m, AutosaveInterval.ThirtyMinutes, current);
+        }
+
+        private static void AutosaveChip(
+            Transform parent, float x, string label, AutosaveInterval value, AutosaveInterval current)
+        {
+            var selected = value == current;
+            NexusUiFactory.CreateButton(
+                parent, "Autosave " + label, label,
+                new Vector2(x, 608f), new Vector2(92f, 36f),
+                () =>
+                {
+                    if (GameSaveService.HasPendingChanges)
+                        GameSaveService.Flush("interval-change");
+                    GameSaveService.Interval = value;
+                    AppShell.Instance?.RebuildSettingsIfActive();
+                },
+                selected ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.22f) : NexusTheme.SurfaceRaised,
+                selected ? NexusTheme.Gold : NexusTheme.Text,
+                11f);
+        }
+
+        private static void SaveNow()
+        {
+            if (GameSaveService.Flush("manual"))
+                NexusSnackbar.Show(UiText.GameSaved);
         }
 
         private static void ClearCards()

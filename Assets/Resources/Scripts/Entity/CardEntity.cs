@@ -448,9 +448,39 @@ namespace Assets.Resources.Scripts.Entity
             EnergyRank = EnergyRank;
             while (level > ProgressionRules.CombatCap(EnergyRank) && EnergyRank < EnergyRankKind.S)
                 EnergyRank = ProgressionRules.NextRank(EnergyRank);
-            if (expToLevelUp <= 0f)
-                expToLevelUp = ProgressionRules.CombatExpToNext(Math.Max(0, level));
+            if (level < 1) level = 1;
+
+            var beforeLevel = level;
+            var combat = ProgressionRules.ApplyCombatXp(
+                new CombatXpState
+                {
+                    Level = level,
+                    CurrentXp = currentExp,
+                    ExpToNext = expToLevelUp,
+                    StoredXp = storedCombatXp
+                },
+                EnergyRank,
+                0f);
+            level = combat.Level;
+            currentExp = combat.CurrentXp;
+            expToLevelUp = combat.ExpToNext;
+            storedCombatXp = combat.StoredXp;
+            while (level > ProgressionRules.CombatCap(EnergyRank) && EnergyRank < EnergyRankKind.S)
+                EnergyRank = ProgressionRules.NextRank(EnergyRank);
             evolutionPending = level >= ProgressionRules.CombatCap(EnergyRank) && EnergyRank < EnergyRankKind.S;
+
+            foreach (var skill in new[]
+            {
+                ProfessionSkill.Gather, ProfessionSkill.Craft, ProfessionSkill.Scan,
+                ProfessionSkill.Navigate, ProfessionSkill.Logistics
+            })
+            {
+                WriteProfessionState(skill, ProgressionRules.ApplyProfessionXp(
+                    ReadProfessionState(skill), EnergyRank, 0f));
+            }
+
+            if (level != beforeLevel)
+                RefreshBaseAttributes();
         }
 
         private ProfessionXpState ReadProfessionState(ProfessionSkill skill) => skill switch

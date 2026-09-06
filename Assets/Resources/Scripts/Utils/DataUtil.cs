@@ -70,6 +70,11 @@ namespace Assets.Resources.Scripts.Utils
             }
         }
 
+        private void Update()
+        {
+            GameSaveService.Tick(Time.unscaledDeltaTime);
+        }
+
         public void InitPlayerInfo()
         {
             string playerEntitiesPath = CombinePath(savePath, DefaultProperty.PLAYER_ENTITIES);
@@ -102,22 +107,15 @@ namespace Assets.Resources.Scripts.Utils
             inventoryRemotePath = GetInventoryPath(currentPlayer.playerID, InventoryStore.Remote);
             metaPath = CombinePath(playerSavePath, DefaultProperty.META_DATA);
             playerAvatarPath = GetPlayerAvatarPath(currentPlayer.playerID);
-
-            Debug.Log("数据路径已初始化：");
-            Debug.Log("savePath: " + savePath);
-            Debug.Log("playerSavePath: " + playerSavePath);
-            Debug.Log("playerDataPath: " + playerDataPath);
-            Debug.Log("playerCardPath: " + playerCardPath);
-            Debug.Log("inventoryLocalPath: " + inventoryLocalPath);
-            Debug.Log("inventoryRemotePath: " + inventoryRemotePath);
-            Debug.Log("metaPath: " + metaPath);
-            Debug.Log("playerAvatarPath: " + playerAvatarPath);
         }
 
         /// <summary>Creates a new player identity, binds its save directory, writes seed + decks + meta.</summary>
         public bool CreatePlayerData()
         {
             LastSaveError = null;
+            GameSaveService.PushImmediate();
+            try
+            {
             PlayerScopedServices.FlushAndClear(this);
             currentPlayer = new PlayerEntity();
             UpdatePaths();
@@ -166,6 +164,11 @@ namespace Assets.Resources.Scripts.Utils
             }
 
             return true;
+            }
+            finally
+            {
+                GameSaveService.PopImmediate();
+            }
         }
 
         /// <summary>Saves one inventory store file and optionally refreshes meta timestamps.</summary>
@@ -205,7 +208,6 @@ namespace Assets.Resources.Scripts.Utils
                     item.isRemote = isRemote;
             }
 
-            Debug.Log($"物品数据已加载：{path}，共{items.Count}个物品 ({store})");
             return items;
         }
 
@@ -245,10 +247,29 @@ namespace Assets.Resources.Scripts.Utils
             }
 
             var ok = SaveData(playerEntity, playerSavePath, DefaultProperty.PLAYER_DATA);
-            LoadPlayerEntities();
+            UpsertCachedPlayer(playerEntity);
             if (ok)
                 TouchMetaLastSaved();
             return ok;
+        }
+
+        /// <summary>Keeps the load-screen cache in sync without rescanning every save directory.</summary>
+        private void UpsertCachedPlayer(PlayerEntity player)
+        {
+            if (player == null || string.IsNullOrWhiteSpace(player.playerID) || playerEntities == null)
+                return;
+
+            for (var i = 0; i < playerEntities.Count; i++)
+            {
+                var existing = playerEntities[i];
+                if (existing != null && existing.playerID == player.playerID)
+                {
+                    playerEntities[i] = player;
+                    return;
+                }
+            }
+
+            playerEntities.Add(player);
         }
 
         public void SavePlayerEntities()
@@ -267,6 +288,9 @@ namespace Assets.Resources.Scripts.Utils
         /// </remarks>
         public void SaveGameData()
         {
+            GameSaveService.PushImmediate();
+            try
+            {
             SavePlayerData(currentPlayer);
 
             var cards = CardListManager.Instance?.cardEntities;
@@ -286,6 +310,11 @@ namespace Assets.Resources.Scripts.Utils
             SaveInventoryIfPopulated(InventoryStore.Remote, RemoteItemManager.Instance?.GetItems());
 
             TouchMetaLastSaved();
+            }
+            finally
+            {
+                GameSaveService.PopImmediate();
+            }
         }
 
         private void SaveInventoryIfPopulated(InventoryStore store, List<ItemEntity> items)
@@ -719,7 +748,6 @@ namespace Assets.Resources.Scripts.Utils
                 string json = File.ReadAllText(playerCardPath);
                 string encryptedJson = DecryptBase64(json);
                 CardListWrapper wrapper = JsonUtility.FromJson<CardListWrapper>(encryptedJson);
-                Debug.Log("卡片数据已加载：" + playerCardPath + "，共" + wrapper.cardEntities.Count + "张卡片");
                 return wrapper.cardEntities;
             }
 
@@ -735,7 +763,6 @@ namespace Assets.Resources.Scripts.Utils
                 string json = File.ReadAllText(expertiseDataPath);
                 string encryptedJson = DecryptBase64(json);
                 ExpertiseListWrapper wrapper = JsonUtility.FromJson<ExpertiseListWrapper>(encryptedJson);
-                Debug.Log($"专长数据已加载：{expertiseDataPath}，共{wrapper.expertiseEntities.Count}个专长");
                 expertiseEntities = wrapper.expertiseEntities;
             }
             else
@@ -788,7 +815,6 @@ namespace Assets.Resources.Scripts.Utils
             playerEntities.Sort((a, b) =>
                 GetPlayerLastSavedUtc(b.playerID).CompareTo(GetPlayerLastSavedUtc(a.playerID)));
 
-            Debug.Log("已加载存档数据：共" + playerEntities.Count + "个存档");
             return playerEntities;
         }
 
@@ -826,6 +852,9 @@ namespace Assets.Resources.Scripts.Utils
         /// <summary>Deletes a player save directory and refreshes the in-memory player list.</summary>
         public bool TryDeletePlayerSave(string playerID)
         {
+            GameSaveService.PushImmediate();
+            try
+            {
             LastSaveError = null;
             if (string.IsNullOrWhiteSpace(playerID))
             {
@@ -871,6 +900,11 @@ namespace Assets.Resources.Scripts.Utils
             LoadPlayerEntities();
             SavePlayerEntities();
             return true;
+            }
+            finally
+            {
+                GameSaveService.PopImmediate();
+            }
         }
 
         /// <summary>Reads one profile file, returning null when it is absent or cannot be parsed.</summary>
@@ -901,7 +935,6 @@ namespace Assets.Resources.Scripts.Utils
                 var name = Path.GetFileName(p);
                 if (ReservedSaveDirectoryNames.Contains(name))
                     continue;
-                Debug.Log("存在的存档：" + name);
                 ids.Add(name);
             }
             return ids;
@@ -938,6 +971,9 @@ namespace Assets.Resources.Scripts.Utils
         {
             LastSaveError = null;
             EnsurePlayerBound();
+            GameSaveService.PushImmediate();
+            try
+            {
             var result = SaveMigrator.EnsureCurrent(this, playerSavePath);
             if (!result.Success)
             {
@@ -947,6 +983,11 @@ namespace Assets.Resources.Scripts.Utils
             }
 
             return true;
+            }
+            finally
+            {
+                GameSaveService.PopImmediate();
+            }
         }
 
         public string GetPlayerSavePath(string playerID)
@@ -1024,6 +1065,12 @@ namespace Assets.Resources.Scripts.Utils
 
         public void TouchMetaLastSaved()
         {
+            if (GameSaveService.ShouldDeferWrites)
+            {
+                GameSaveService.MarkDirty();
+                return;
+            }
+
             if (currentPlayer == null || string.IsNullOrEmpty(playerSavePath))
                 return;
             if (!File.Exists(metaPath) && !File.Exists(CombinePath(playerSavePath, DefaultProperty.META_DATA)))
@@ -1108,6 +1155,12 @@ namespace Assets.Resources.Scripts.Utils
 
             CheckIfPathExist(filePath);
 
+            if (GameSaveService.ShouldDeferWrites)
+            {
+                GameSaveService.MarkDirty();
+                return true;
+            }
+
             try
             {
                 string json = JsonUtility.ToJson(data, true);
@@ -1129,7 +1182,6 @@ namespace Assets.Resources.Scripts.Utils
                     return false;
                 }
 
-                Debug.Log($"Saved {relativeFileName} at {outputPath}.");
                 return true;
             }
             catch (Exception ex)
@@ -1190,10 +1242,7 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentException("A directory path is required.", nameof(directoryPath));
 
             if (!Directory.Exists(directoryPath))
-            {
                 Directory.CreateDirectory(directoryPath);
-                Debug.Log($"Path created: {directoryPath}");
-            }
         }
 
         private void EnsurePlayerBound()

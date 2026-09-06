@@ -8,6 +8,7 @@ namespace Assets.Resources.Scripts.Progression.Domain
     {
         public const int MaxCommanderLevel = 99;
         public const int MaxCombatLevel = 100;
+        public const int MaxProfessionLevel = 60;
         public const float IdleCombatShare = 0.10f;
         public const float KoCombatShare = 0.80f;
         public const float LeaderShare = 1.00f;
@@ -187,23 +188,21 @@ namespace Assets.Resources.Scripts.Progression.Domain
 
         public static CombatXpState ApplyCombatXp(CombatXpState state, EnergyRank rank, float added)
         {
-            var cap = CombatCap(rank);
-            state.Level = Math.Max(0, state.Level);
-            if (state.ExpToNext <= 0f)
-                state.ExpToNext = CombatExpToNext(state.Level);
+            var cap = MaxCombatLevel;
+            state.Level = Math.Max(1, state.Level);
+            state.CurrentXp += Math.Max(0f, state.StoredXp);
+            state.StoredXp = 0f;
+            if (added > 0f)
+                state.CurrentXp += added;
             state.LevelsGained = 0;
-            state.AtCap = state.Level >= cap;
-            if (added <= 0f)
-                return state;
+            state = ResolveCombatOverflow(state, cap);
+            state.AtCap = state.Level >= CombatCap(rank) || state.Level >= cap;
+            return state;
+        }
 
-            if (state.Level >= cap)
-            {
-                state.StoredXp += added;
-                state.AtCap = true;
-                return state;
-            }
-
-            state.CurrentXp += added;
+        private static CombatXpState ResolveCombatOverflow(CombatXpState state, int cap)
+        {
+            state.ExpToNext = CombatExpToNext(state.Level);
             while (state.Level < cap && state.CurrentXp >= state.ExpToNext && state.ExpToNext > 0f)
             {
                 state.CurrentXp -= state.ExpToNext;
@@ -222,18 +221,8 @@ namespace Assets.Resources.Scripts.Progression.Domain
             return state;
         }
 
-        public static CombatXpState DumpStoredCombatXp(CombatXpState state, EnergyRank rank)
-        {
-            var stored = state.StoredXp;
-            if (stored <= 0f)
-            {
-                state.AtCap = state.Level >= CombatCap(rank);
-                return state;
-            }
-
-            state.StoredXp = 0f;
-            return ApplyCombatXp(state, rank, stored);
-        }
+        public static CombatXpState DumpStoredCombatXp(CombatXpState state, EnergyRank rank) =>
+            ApplyCombatXp(state, rank, 0f);
 
         public static float StoredXpForSkippedLevels(int fromLevel, int toLevel)
         {
@@ -246,24 +235,23 @@ namespace Assets.Resources.Scripts.Progression.Domain
 
         public static ProfessionXpState ApplyProfessionXp(ProfessionXpState state, EnergyRank rank, float added)
         {
-            var cap = SkillCap(rank);
+            var cap = MaxProfessionLevel;
             state.Level = Math.Max(1, state.Level);
+            state.CurrentXp += Math.Max(0f, state.StoredXp);
+            state.StoredXp = 0f;
             state.LevelsGained = 0;
             state.HitMilestone = false;
             state.MilestoneLevel = 0;
-            state.AtCap = state.Level >= cap;
-            if (added <= 0f)
-                return state;
+            if (added > 0f)
+                state.CurrentXp += added;
+            state = ResolveProfessionOverflow(state, cap);
+            state.AtCap = state.Level >= SkillCap(rank) || state.Level >= cap;
+            return state;
+        }
 
-            if (state.Level >= cap)
-            {
-                state.StoredXp += added;
-                state.AtCap = true;
-                return state;
-            }
-
+        private static ProfessionXpState ResolveProfessionOverflow(ProfessionXpState state, int cap)
+        {
             var need = ProfessionExpToNext(state.Level);
-            state.CurrentXp += added;
             while (state.Level < cap && state.CurrentXp >= need && need > 0f)
             {
                 state.CurrentXp -= need;
@@ -288,27 +276,16 @@ namespace Assets.Resources.Scripts.Progression.Domain
             return state;
         }
 
-        public static ProfessionXpState DumpStoredProfessionXp(ProfessionXpState state, EnergyRank rank)
-        {
-            var stored = state.StoredXp;
-            if (stored <= 0f)
-            {
-                state.AtCap = state.Level >= SkillCap(rank);
-                return state;
-            }
-
-            state.StoredXp = 0f;
-            return ApplyProfessionXp(state, rank, stored);
-        }
+        public static ProfessionXpState DumpStoredProfessionXp(ProfessionXpState state, EnergyRank rank) =>
+            ApplyProfessionXp(state, rank, 0f);
 
         public static CommanderXpState ApplyCommanderXp(CommanderXpState state, float added)
         {
             if (state.Level < 1) state.Level = 1;
-            if (state.ExpToNext <= 0f) state.ExpToNext = CommanderExpToNext(state.Level);
+            state.ExpToNext = CommanderExpToNext(state.Level);
             state.LevelsGained = 0;
-            if (added <= 0f) return state;
-
-            state.CurrentXp += added;
+            if (added > 0f)
+                state.CurrentXp += added;
             while (state.Level < MaxCommanderLevel && state.CurrentXp >= state.ExpToNext && state.ExpToNext > 0f)
             {
                 state.CurrentXp -= state.ExpToNext;

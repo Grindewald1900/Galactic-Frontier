@@ -9,6 +9,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         StarMap,
         Fleet,
         Industry,
+        Warehouse,
         Starport
     }
 
@@ -19,7 +20,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Bridge => NavGroup.Bridge,
             AppScreen.Battle => NavGroup.StarMap,
             AppScreen.Formation or AppScreen.Ship or AppScreen.Characters or AppScreen.Cards => NavGroup.Fleet,
-            AppScreen.Crafting or AppScreen.Inventory => NavGroup.Industry,
+            AppScreen.Crafting or AppScreen.ProductionLines => NavGroup.Industry,
+            AppScreen.Inventory => NavGroup.Warehouse,
             AppScreen.Market or AppScreen.Recruit => NavGroup.Starport,
             _ => NavGroup.Bridge
         };
@@ -30,6 +32,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NavGroup.StarMap => AppScreen.Battle,
             NavGroup.Fleet => AppScreen.Formation,
             NavGroup.Industry => AppScreen.Crafting,
+            NavGroup.Warehouse => AppScreen.Inventory,
             NavGroup.Starport => AppScreen.Market,
             _ => AppScreen.Bridge
         };
@@ -37,7 +40,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static IReadOnlyList<AppScreen> SubScreens(NavGroup group) => group switch
         {
             NavGroup.Fleet => new[] { AppScreen.Formation, AppScreen.Ship, AppScreen.Characters, AppScreen.Cards },
-            NavGroup.Industry => new[] { AppScreen.Crafting, AppScreen.Inventory },
+            NavGroup.Industry => new[] { AppScreen.Crafting, AppScreen.ProductionLines },
             NavGroup.Starport => new[] { AppScreen.Market, AppScreen.Recruit },
             _ => System.Array.Empty<AppScreen>()
         };

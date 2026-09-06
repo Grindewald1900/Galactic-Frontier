@@ -10,6 +10,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
     internal sealed class CharactersScreen
     {
         private readonly Transform root;
+        private readonly List<NexusProgressUi.XpBar> selectedXpBars = new List<NexusProgressUi.XpBar>();
         private CharacterName selectedName = CharacterName.Default;
         private CardEntity selectedCopy;
 
@@ -93,9 +94,11 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (detail == null && selectedName != CharacterName.Default && groups.ContainsKey(selectedName))
                 detail = Best(groups[selectedName]);
 
+            selectedXpBars.Clear();
             CardCollectionUi.DrawDetail(
                 root, detail, new Vector2(1130f, 64f), new Vector2(540f, 560f),
-                () => CardCollectionUi.ShowDismantleConfirm(root, detail, Rebuild));
+                () => CardCollectionUi.ShowDismantleConfirm(root, detail, Rebuild),
+                selectedXpBars);
 
             if (detail != null && groups.TryGetValue(detail.characterName, out var copiesOf))
                 DrawCopyStrip(copiesOf);
@@ -129,6 +132,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 x += 128f;
                 if (x > 1540f) break;
             }
+        }
+
+        public void RefreshProgressBars()
+        {
+            if (selectedCopy == null || selectedXpBars.Count == 0)
+                return;
+            selectedCopy.EnsureProgressionDefaults();
+            NexusProgressUi.ApplyCardXpBars(selectedCopy, selectedXpBars);
         }
 
         private static Dictionary<CharacterName, List<CardEntity>> Group(List<CardEntity> cards)

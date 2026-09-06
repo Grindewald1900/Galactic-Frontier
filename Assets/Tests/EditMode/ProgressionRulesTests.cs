@@ -19,14 +19,28 @@ namespace GalacticFrontier.Tests.EditMode
         {
             var state = new CombatXpState
             {
+                Level = ProgressionRules.MaxCombatLevel,
+                ExpToNext = ProgressionRules.CombatExpToNext(ProgressionRules.MaxCombatLevel)
+            };
+            state = ProgressionRules.ApplyCombatXp(state, EnergyRank.S, 250f);
+            Assert.AreEqual(ProgressionRules.MaxCombatLevel, state.Level);
+            Assert.AreEqual(0f, state.StoredXp);
+            Assert.Greater(state.CurrentXp, 0f);
+            Assert.IsTrue(state.AtCap);
+        }
+
+        [Test]
+        public void CombatXp_OverflowLevelsPastEnergyRankCap()
+        {
+            var state = new CombatXpState
+            {
                 Level = 10,
+                CurrentXp = 5000f,
                 ExpToNext = ProgressionRules.CombatExpToNext(10)
             };
-            state = ProgressionRules.ApplyCombatXp(state, EnergyRank.F, 250f);
-            Assert.AreEqual(10, state.Level);
-            Assert.AreEqual(250f, state.StoredXp);
-            Assert.IsTrue(state.AtCap);
-            Assert.AreEqual(0, state.LevelsGained);
+            state = ProgressionRules.ApplyCombatXp(state, EnergyRank.F, 0f);
+            Assert.Greater(state.Level, 10);
+            Assert.Less(state.CurrentXp, ProgressionRules.CombatExpToNext(state.Level));
         }
 
         [Test]

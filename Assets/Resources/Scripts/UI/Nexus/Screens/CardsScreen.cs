@@ -10,6 +10,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
     internal sealed class CardsScreen
     {
         private readonly Transform root;
+        private readonly List<NexusProgressUi.XpBar> selectedXpBars = new List<NexusProgressUi.XpBar>();
         private CardEntity selected;
         private int filter;
 
@@ -81,9 +82,19 @@ namespace Assets.Resources.Scripts.UI.Nexus
             content.GetComponent<RectTransform>().sizeDelta =
                 new Vector2(0f, Mathf.Max(760f, 20f + rows * (cardH + gap)));
 
+            selectedXpBars.Clear();
             CardCollectionUi.DrawDetail(
                 root, selected, new Vector2(1130f, 128f), new Vector2(540f, 760f),
-                () => CardCollectionUi.ShowDismantleConfirm(root, selected, Rebuild));
+                () => CardCollectionUi.ShowDismantleConfirm(root, selected, Rebuild),
+                selectedXpBars);
+        }
+
+        public void RefreshProgressBars()
+        {
+            if (selected == null || selectedXpBars.Count == 0)
+                return;
+            selected.EnsureProgressionDefaults();
+            NexusProgressUi.ApplyCardXpBars(selected, selectedXpBars);
         }
 
         private void DrawFilter(float x, float y, int id, string label)

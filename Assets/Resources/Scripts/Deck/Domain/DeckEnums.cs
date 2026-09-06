@@ -29,7 +29,9 @@ namespace Assets.Resources.Scripts.Deck.Domain
         Process = 4,
         Manufacture = 5,
         Research = 6,
-        Transit = 7
+        Transit = 7,
+        /// <summary>Shared industry fleet powering automated production lines (economy/15 §4.10).</summary>
+        Production = 8
     }
 
     public enum CardOccupationState

@@ -2259,6 +2259,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         {
             if (selectedCard == null || selectedCardXpBars.Count == 0)
                 return;
+            selectedCard.EnsureProgressionDefaults();
             NexusProgressUi.ApplyCardXpBars(selectedCard, selectedCardXpBars);
         }
 

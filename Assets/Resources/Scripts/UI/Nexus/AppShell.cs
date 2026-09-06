@@ -51,6 +51,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private FormationScreen formationScreen;
         private ShipScreen shipScreen;
         private CraftingScreen craftingScreen;
+        private ProductionLinesScreen productionLinesScreen;
         private MarketScreen marketScreen;
         private RecruitScreen recruitScreen;
         private InventoryScreen inventoryScreen;
@@ -98,6 +99,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             FeatureUnlockService.UnlocksChanged += OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged += OnUnlocksChanged;
             ProgressionService.ProgressChanged += OnProgressChanged;
+            ProductionService.WarehouseChanged += OnWarehouseChanged;
             BackgroundBattleHost.FinishedTick += OnBackgroundBattleFinished;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed += OnDebugModeChanged;
@@ -171,6 +173,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             FeatureUnlockService.UnlocksChanged -= OnUnlocksChanged;
             AvatarFrameService.UnlocksChanged -= OnUnlocksChanged;
             ProgressionService.ProgressChanged -= OnProgressChanged;
+            ProductionService.WarehouseChanged -= OnWarehouseChanged;
             BackgroundBattleHost.FinishedTick -= OnBackgroundBattleFinished;
             if (DebugModeController.Instance != null)
                 DebugModeController.Instance.Changed -= OnDebugModeChanged;
@@ -442,6 +445,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         craftingScreen.Rebuild();
                     craftingScreen.Root.SetActive(true);
                     break;
+                case AppScreen.ProductionLines:
+                    if (productionLinesScreen == null)
+                        productionLinesScreen = ProductionLinesScreen.Build(ContentRoot(), () => ShowScreen(AppScreen.Formation));
+                    else
+                        productionLinesScreen.Rebuild();
+                    productionLinesScreen.Root.SetActive(true);
+                    break;
                 case AppScreen.Market:
                     if (marketScreen == null)
                         marketScreen = MarketScreen.Build(ContentRoot());
@@ -525,6 +535,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (formationScreen != null) formationScreen.Root.SetActive(false);
             if (shipScreen != null) shipScreen.Root.SetActive(false);
             if (craftingScreen != null) craftingScreen.Root.SetActive(false);
+            if (productionLinesScreen != null) productionLinesScreen.Root.SetActive(false);
             if (marketScreen != null) marketScreen.Root.SetActive(false);
             if (recruitScreen != null) recruitScreen.Root.SetActive(false);
             if (inventoryScreen != null) inventoryScreen.Root.SetActive(false);
@@ -785,8 +796,25 @@ namespace Assets.Resources.Scripts.UI.Nexus
             RefreshCommanderLabel();
             if (!mainReady)
                 return;
-            if (activeScreen == AppScreen.Formation)
-                formationScreen?.RefreshProgressBars();
+            switch (activeScreen)
+            {
+                case AppScreen.Formation:
+                    formationScreen?.RefreshProgressBars();
+                    break;
+                case AppScreen.Characters:
+                    charactersScreen?.RefreshProgressBars();
+                    break;
+                case AppScreen.Cards:
+                    cardsScreen?.RefreshProgressBars();
+                    break;
+            }
+        }
+
+        private void OnWarehouseChanged()
+        {
+            if (!mainReady || activeScreen != AppScreen.Inventory)
+                return;
+            inventoryScreen?.RefreshLive();
         }
 
         public void RefreshCreditsLabel()
@@ -946,6 +974,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NavGroup.StarMap => NexusCardVisual.UiIcon("Battle"),
             NavGroup.Fleet => NexusCardVisual.UiIcon("Character"),
             NavGroup.Industry => NexusCardVisual.UiIcon("Building"),
+            NavGroup.Warehouse => NexusCardVisual.UiIcon("Inventory"),
             NavGroup.Starport => NexusCardVisual.UiIcon("Shop"),
             _ => NexusCardVisual.UiIcon("circle")
         };
@@ -1097,6 +1126,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 AppScreen.Cards => "Cards",
                 AppScreen.Inventory => "Inventory",
                 AppScreen.Crafting => "Building",
+                AppScreen.ProductionLines => "Building",
                 AppScreen.Market => "Shop",
                 AppScreen.Recruit => "Cards",
                 AppScreen.Missions => "Add Icon",
@@ -1117,6 +1147,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Cards => UiText.ScreenCards,
             AppScreen.Inventory => UiText.ScreenInventory,
             AppScreen.Crafting => UiText.ScreenCrafting,
+            AppScreen.ProductionLines => UiText.ScreenProductionLines,
             AppScreen.Market => UiText.ScreenMarket,
             AppScreen.Recruit => UiText.ScreenRecruit,
             AppScreen.Missions => UiText.ScreenMissions,

@@ -81,6 +81,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             AppScreen.Market => G("ui.breadcrumb.market"),
             AppScreen.Recruit => G("ui.breadcrumb.recruit"),
             AppScreen.Crafting => G("ui.breadcrumb.crafting"),
+            AppScreen.ProductionLines => T("Industry · Production Lines", "工业 · 流水线"),
             AppScreen.Missions => G("ui.breadcrumb.missions"),
             AppScreen.Settings => G("ui.breadcrumb.settings"),
             AppScreen.Debug => G("ui.breadcrumb.debug"),
@@ -141,6 +142,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ProfileFrameUnlockedBody(string hint) => F("ui.frame.unlocked_body", hint);
         public static string ProfileFrameUnlockedNotify(string name) => F("ui.frame.unlocked_notify", name);
         public static string GameSaved => G("ui.settings.game_saved");
+        public static string AutosaveLabel => G("ui.settings.autosave");
+        public static string AutosaveHint => G("ui.settings.autosave_hint");
+        public static string AutosaveManual => G("ui.settings.autosave_manual");
+        public static string Autosave1m => G("ui.settings.autosave_1m");
+        public static string Autosave5m => G("ui.settings.autosave_5m");
+        public static string Autosave10m => G("ui.settings.autosave_10m");
+        public static string Autosave30m => G("ui.settings.autosave_30m");
 
         // Branding
         public static string BrandTitle => G("ui.brand.title");
@@ -268,6 +276,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string CraftingMissingMats => G("ui.crafting.missing_mats");
         public static string CraftingAutoRepair => G("ui.crafting.auto_repair");
         public static string CraftingRepairFirst => G("ui.crafting.repair_first");
+        public static string CraftingSearch => G("ui.crafting.search");
+        public static string CraftingFilterAll => G("ui.crafting.filter_all");
+        public static string CraftingLevelAll => G("ui.crafting.level_all");
+        public static string CraftingLevel(int level) => F("ui.crafting.level", level);
+        public static string CraftingStopConfirmTitle => G("ui.crafting.stop_confirm_title");
+        public static string CraftingStopConfirmBody => G("ui.crafting.stop_confirm_body");
+        public static string CraftingConfirmStop => G("ui.crafting.confirm_stop");
+        public static string CraftingProgressIdle => G("ui.crafting.progress_idle");
+        public static string CraftingProgressEta(int seconds) => F("ui.crafting.progress_eta", seconds);
+        public static string CraftingBlockedFull => G("ui.crafting.blocked_full");
+        public static string QualityGradeLetter(int quality) => QualityGrade.Letter(quality);
+        public static string LevelPrefix => G("ui.common.lv");
         public static string StarportShopTitle => G("ui.starport.title");
         public static string StarportShopHint => G("ui.starport.hint");
         public static string CreditsLabel(int n) => F("ui.starport.credits", n);
@@ -691,7 +711,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string NavGroupStarMap => G("ui.nav.group.starmap");
         public static string NavGroupFleet => G("ui.nav.group.fleet");
         public static string NavGroupIndustry => G("ui.nav.group.industry");
+        public static string NavGroupWarehouse => T("Warehouse", "仓库");
         public static string NavGroupStarport => G("ui.nav.group.starport");
+        public static string ScreenProductionLines => T("Production Lines", "流水线");
         public static string StatusBarSummary(int lv, int power, int credits, int running, int berths, int queue, int cargo, string cruise) =>
             F("ui.status.bar_summary", lv, power, credits, running, berths, queue, cargo, cruise);
         public static string StatusCruiseActive => G("ui.status.cruise_active");
@@ -839,6 +861,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             NavGroup.StarMap => NavGroupStarMap,
             NavGroup.Fleet => NavGroupFleet,
             NavGroup.Industry => NavGroupIndustry,
+            NavGroup.Warehouse => NavGroupWarehouse,
             NavGroup.Starport => NavGroupStarport,
             _ => NavGroupBridge
         };

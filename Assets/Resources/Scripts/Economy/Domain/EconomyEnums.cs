@@ -18,6 +18,34 @@ namespace Assets.Resources.Scripts.Economy.Domain
         Q5 = 5
     }
 
+    /// <summary>Display letters for Q1–Q5 (F → S). Used by the crafting list and filters.</summary>
+    public static class QualityGrade
+    {
+        public static string Letter(int quality) => quality switch
+        {
+            1 => "F",
+            2 => "D",
+            3 => "C",
+            4 => "B",
+            5 => "S",
+            _ => "—"
+        };
+
+        public static int FromLetter(string letter)
+        {
+            if (string.IsNullOrEmpty(letter)) return 0;
+            return letter.Trim().ToUpperInvariant() switch
+            {
+                "F" => 1,
+                "D" => 2,
+                "C" => 3,
+                "B" => 4,
+                "S" => 5,
+                _ => 0
+            };
+        }
+    }
+
     public enum RecipeKind
     {
         Process = 0,

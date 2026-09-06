@@ -45,6 +45,8 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public bool outputIsEquipment;
         public ProfessionSkill requiredProfession = ProfessionSkill.Craft;
         public int requiredSkillLevel = 1;
+        /// <summary>Minimum automated line tier that can run this recipe (economy/15 §4.10.4).</summary>
+        public int requiredLineTier = 1;
     }
 
     [Serializable]
@@ -81,6 +83,23 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public int successCount;
     }
 
+    public enum ManualCraftState { Running = 0, BlockedFull = 1 }
+
+    /// <summary>
+    /// A fleet-free manual crafting job. Manual crafting never occupies a deck and has no
+    /// profession/tier gate — higher tiers simply take longer (economy/15 §4.10.1).
+    /// </summary>
+    [Serializable]
+    public class ManualCraftJob
+    {
+        public string recipeId = "";
+        public long lastSettledAtUtc;
+        public int inputMinQuality = EconomyConstants.DefaultQuality;
+        public ManualCraftState state = ManualCraftState.Running;
+        /// <summary>Materials already deducted for the in-flight batch; refunded if the player stops.</summary>
+        public List<RecipeInput> reservedInputs = new List<RecipeInput>();
+    }
+
     [Serializable]
     public class PlayerIdleState
     {
@@ -92,6 +111,12 @@ namespace Assets.Resources.Scripts.Economy.Domain
         public List<RecipeMasteryEntry> mastery = new List<RecipeMasteryEntry>();
         public int count;
         public List<OfflineProgressNote> lastProgressNotes = new List<OfflineProgressNote>();
+        /// <summary>Automated production lines and their config (economy/15 §4.10).</summary>
+        public List<ProductionLineInstance> productionLines = new List<ProductionLineInstance>();
+        /// <summary>Single deck shared by every automated line; occupied while any line runs.</summary>
+        public string productionDeckId = "";
+        /// <summary>Single fleet-free manual craft job. Only one item can be crafted at a time.</summary>
+        public ManualCraftJob manualCraftJob;
     }
 
     [Serializable]

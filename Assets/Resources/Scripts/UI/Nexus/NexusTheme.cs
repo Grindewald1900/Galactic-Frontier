@@ -38,6 +38,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return color;
         }
 
+        /// <summary>Name color for quality grades F / D / C / B / S (Q1–Q5).</summary>
+        public static Color QualityGradeColor(int quality) => quality switch
+        {
+            1 => Hex("#94A3B8"),
+            2 => Hex("#E2E8F0"),
+            3 => Hex("#34D399"),
+            4 => Hex("#60A5FA"),
+            5 => Hex("#E8A832"),
+            _ => Text
+        };
+
         private static Color Hex(string value)
         {
             return ColorUtility.TryParseHtmlString(value, out Color color) ? color : Color.white;

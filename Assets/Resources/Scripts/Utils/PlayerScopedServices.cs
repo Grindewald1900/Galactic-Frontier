@@ -5,6 +5,7 @@ using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.World;
+using Assets.Resources.Scripts.Utils.Save;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.Utils
@@ -19,6 +20,7 @@ namespace Assets.Resources.Scripts.Utils
         {
             if (dataUtil?.currentPlayer != null && !string.IsNullOrWhiteSpace(dataUtil.currentPlayer.playerID))
             {
+                GameSaveService.PushImmediate();
                 try
                 {
                     ChapterQuestService.Save(dataUtil);
@@ -33,6 +35,10 @@ namespace Assets.Resources.Scripts.Utils
                 catch (System.Exception ex)
                 {
                     Debug.LogError("[SAVE] Failed flushing player-scoped services: " + ex.Message);
+                }
+                finally
+                {
+                    GameSaveService.PopImmediate();
                 }
             }
 

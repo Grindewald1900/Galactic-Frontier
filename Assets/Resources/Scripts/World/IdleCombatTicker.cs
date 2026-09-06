@@ -49,12 +49,20 @@ namespace Assets.Resources.Scripts.World
                 IdleSettlementService.Save();
             }
 
+            var cards = CardListManager.Instance?.cardEntities;
+
+            // Manual craft is fleet-free and must settle even when no deck is busy.
+            ProductionService.SettleManualOnline();
+
+            // Automated production lines settle every tick (they manage their own occupancy + timing,
+            // so this must run even when no deck is otherwise busy).
+            ProductionLineService.SettleOnline(cards);
+
             var busy = DeckService.GetBusyDecks();
             if (busy == null || busy.Count == 0)
                 return;
 
             var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            var cards = CardListManager.Instance?.cardEntities;
             foreach (var deck in busy)
             {
                 if (deck?.action == null) continue;

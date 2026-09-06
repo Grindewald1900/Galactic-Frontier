@@ -26,6 +26,7 @@ namespace Assets.Resources.Scripts.Deck.Domain
                 DeckActionType.Gather => CardOccupationState.Gathering,
                 DeckActionType.Process => CardOccupationState.Processing,
                 DeckActionType.Manufacture => CardOccupationState.Manufacturing,
+                DeckActionType.Production => CardOccupationState.Manufacturing,
                 DeckActionType.Research => CardOccupationState.Researching,
                 DeckActionType.Transit => CardOccupationState.InTransit,
                 _ => CardOccupationState.Idle

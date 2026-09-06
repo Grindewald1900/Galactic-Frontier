@@ -612,8 +612,8 @@
     },
     {
       "id": "ui.crafting.hint",
-      "en": "Three chains: metal / energy / synth. Start consumes materials and adds the output to Inventory immediately.",
-      "zh": "三条产线：金属 / 能源 / 合成。点击开始会预扣材料，并立刻将产出放入仓库。"
+      "en": "Manual crafting needs no fleet. Filter the unlocked list, then start one batch at a time.",
+      "zh": "手动制造无需配置舰队。筛选已解锁物品后，同一时间只能制造一件。"
     },
     {
       "id": "ui.crafting.delivered",
@@ -659,6 +659,56 @@
       "id": "ui.crafting.repair_first",
       "en": "Repair Damaged",
       "zh": "维修一件"
+    },
+    {
+      "id": "ui.crafting.search",
+      "en": "Search name…",
+      "zh": "搜索物品名…"
+    },
+    {
+      "id": "ui.crafting.filter_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.crafting.level_all",
+      "en": "All Lv.",
+      "zh": "全部等级"
+    },
+    {
+      "id": "ui.crafting.level",
+      "en": "Lv.{0}",
+      "zh": "Lv.{0}"
+    },
+    {
+      "id": "ui.crafting.stop_confirm_title",
+      "en": "Stop crafting?",
+      "zh": "停止制造？"
+    },
+    {
+      "id": "ui.crafting.stop_confirm_body",
+      "en": "Unfinished progress will be discarded and reserved materials returned to the warehouse.",
+      "zh": "未完成的进度将被清空，已预扣的材料会退回仓库。"
+    },
+    {
+      "id": "ui.crafting.confirm_stop",
+      "en": "Stop",
+      "zh": "确认停止"
+    },
+    {
+      "id": "ui.crafting.progress_idle",
+      "en": "Not crafting",
+      "zh": "未开始制造"
+    },
+    {
+      "id": "ui.crafting.progress_eta",
+      "en": "{0}s remaining",
+      "zh": "剩余 {0} 秒"
+    },
+    {
+      "id": "ui.crafting.blocked_full",
+      "en": "Warehouse full",
+      "zh": "仓库已满"
     },
     {
       "id": "ui.starport.title",
@@ -1782,13 +1832,48 @@
     },
     {
       "id": "ui.settings.hint",
-      "en": "Language, save, gift codes, and developer Debug Mode.",
-      "zh": "语言、存档、礼品码，以及开发用 Debug 模式。"
+      "en": "Language, autosave interval, gift codes, and developer Debug Mode.",
+      "zh": "语言、自动存档间隔、礼品码，以及开发用 Debug 模式。"
     },
     {
       "id": "ui.settings.save_cards",
-      "en": "Save Card Data",
-      "zh": "保存卡牌数据"
+      "en": "Save Now",
+      "zh": "立即存档"
+    },
+    {
+      "id": "ui.settings.autosave",
+      "en": "Autosave interval",
+      "zh": "自动存档间隔"
+    },
+    {
+      "id": "ui.settings.autosave_manual",
+      "en": "Manual",
+      "zh": "仅手动"
+    },
+    {
+      "id": "ui.settings.autosave_1m",
+      "en": "1 min",
+      "zh": "1 分钟"
+    },
+    {
+      "id": "ui.settings.autosave_5m",
+      "en": "5 min",
+      "zh": "5 分钟"
+    },
+    {
+      "id": "ui.settings.autosave_10m",
+      "en": "10 min",
+      "zh": "10 分钟"
+    },
+    {
+      "id": "ui.settings.autosave_30m",
+      "en": "30 min",
+      "zh": "30 分钟"
+    },
+    {
+      "id": "ui.settings.autosave_hint",
+      "en": "Gameplay changes stay in memory until the next interval, a manual save, or leaving the game.",
+      "zh": "游戏中的改动会先留在内存，直到到达间隔、手动存档或退出游戏。"
     },
     {
       "id": "ui.settings.clear_cards",
