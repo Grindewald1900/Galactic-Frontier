@@ -32,8 +32,13 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       }
 
       Canvas canvas = NexusUiFactory.CreateCanvas("Tutorial Guide", SortingOrder, true);
-      if (AppShell.Instance != null)
-        canvas.transform.SetParent(AppShell.Instance.transform, false);
+      var canvasRect = canvas.GetComponent<RectTransform>();
+      canvasRect.anchorMin = Vector2.zero;
+      canvasRect.anchorMax = Vector2.one;
+      canvasRect.offsetMin = Vector2.zero;
+      canvasRect.offsetMax = Vector2.zero;
+      canvasRect.pivot = new Vector2(0.5f, 0.5f);
+      canvasRect.localScale = Vector3.one;
 
       active = canvas.gameObject.AddComponent<TutorialGuideController>();
       active.Begin(target, targetButton, script, onTargetActivated, onDismiss);
@@ -65,7 +70,10 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
     private RectTransform leftPanel;
     private RectTransform rightPanel;
     private RectTransform bottomPanel;
-    private RectTransform highlightRing;
+    private RectTransform frameTop;
+    private RectTransform frameBottom;
+    private RectTransform frameLeft;
+    private RectTransform frameRight;
     private Button holeProxy;
     private TextMeshProUGUI speakerLabel;
     private TextMeshProUGUI bodyLabel;
@@ -103,26 +111,25 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       if (overlayRoot == null)
         overlayRoot = gameObject.AddComponent<RectTransform>();
 
-      Color dim = NexusTheme.WithAlpha(Color.black, 0.62f);
+      // Dark enough to separate the target, light enough that nearby buttons stay readable.
+      Color dim = new Color(0f, 0f, 0f, 0.55f);
       topPanel = CreateBlocker("Top", dim);
       leftPanel = CreateBlocker("Left", dim);
       rightPanel = CreateBlocker("Right", dim);
       bottomPanel = CreateBlocker("Bottom", dim);
 
-      highlightRing = NexusUiFactory.CreateBox(
-        transform, "Highlight",
-        Vector2.zero, new Vector2(120f, 44f),
-        new Color(1f, 1f, 1f, 0.04f),
-        NexusTheme.Gold).GetComponent<RectTransform>();
-      highlightRing.SetAsLastSibling();
+      frameTop = CreateFrame("FrameTop");
+      frameBottom = CreateFrame("FrameBottom");
+      frameLeft = CreateFrame("FrameLeft");
+      frameRight = CreateFrame("FrameRight");
 
       var holeGo = new GameObject("HoleProxy", typeof(RectTransform), typeof(Image), typeof(Button));
       holeGo.transform.SetParent(transform, false);
       holeProxy = holeGo.GetComponent<Button>();
       var holeImage = holeGo.GetComponent<Image>();
-      holeImage.color = new Color(1f, 1f, 1f, 0.02f);
-      holeImage.raycastTarget = true;
       holeProxy.transition = Selectable.Transition.None;
+      holeImage.color = new Color(1f, 1f, 1f, 0f);
+      holeImage.raycastTarget = true;
       holeProxy.onClick.AddListener(OnHoleClicked);
 
       BuildHintBar();
@@ -133,10 +140,23 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       var panel = NexusUiFactory.CreatePanel(
         transform, name, color,
         Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, true);
+      var image = panel.GetComponent<Image>();
       var btn = panel.AddComponent<Button>();
       btn.transition = Selectable.Transition.None;
+      image.color = color;
+      image.raycastTarget = true;
       btn.onClick.AddListener(() => { });
       return panel.GetComponent<RectTransform>();
+    }
+
+    private RectTransform CreateFrame(string name)
+    {
+      var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+      go.transform.SetParent(transform, false);
+      var image = go.GetComponent<Image>();
+      image.color = NexusTheme.Gold;
+      image.raycastTarget = false;
+      return go.GetComponent<RectTransform>();
     }
 
     private void BuildHintBar()
@@ -266,13 +286,11 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       SetPanel(leftPanel, new Vector2(overlay.xMin, holeBottom), new Vector2(holeLeft, holeTop));
       SetPanel(rightPanel, new Vector2(holeRight, holeBottom), new Vector2(overlay.xMax, holeTop));
 
-      if (highlightRing != null)
-      {
-        highlightRing.anchorMin = highlightRing.anchorMax = new Vector2(0.5f, 0.5f);
-        highlightRing.pivot = new Vector2(0.5f, 0.5f);
-        highlightRing.anchoredPosition = (localMin + localMax) * 0.5f;
-        highlightRing.sizeDelta = localMax - localMin;
-      }
+      const float frame = 3f;
+      SetPanel(frameTop, new Vector2(holeLeft, holeTop - frame), new Vector2(holeRight, holeTop));
+      SetPanel(frameBottom, new Vector2(holeLeft, holeBottom), new Vector2(holeRight, holeBottom + frame));
+      SetPanel(frameLeft, new Vector2(holeLeft, holeBottom), new Vector2(holeLeft + frame, holeTop));
+      SetPanel(frameRight, new Vector2(holeRight - frame, holeBottom), new Vector2(holeRight, holeTop));
 
       if (holeProxy != null)
       {
@@ -297,12 +315,21 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
 
     private void PulseHighlight()
     {
-      if (highlightRing == null) return;
       pulseTime += Time.unscaledDeltaTime;
-      float alpha = 0.35f + Mathf.Sin(pulseTime * 4f) * 0.15f;
-      var image = highlightRing.GetComponent<Image>();
+      float alpha = 0.72f + Mathf.Sin(pulseTime * 4f) * 0.28f;
+      var color = NexusTheme.WithAlpha(NexusTheme.Gold, alpha);
+      TintFrame(frameTop, color);
+      TintFrame(frameBottom, color);
+      TintFrame(frameLeft, color);
+      TintFrame(frameRight, color);
+    }
+
+    private static void TintFrame(RectTransform frame, Color color)
+    {
+      if (frame == null) return;
+      var image = frame.GetComponent<Image>();
       if (image != null)
-        image.color = NexusTheme.WithAlpha(NexusTheme.Gold, alpha);
+        image.color = color;
     }
 
     private void OnDestroy()

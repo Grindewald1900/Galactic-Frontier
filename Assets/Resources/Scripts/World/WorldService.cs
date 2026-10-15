@@ -17,6 +17,9 @@ namespace Assets.Resources.Scripts.World
         {
             if (dataUtil == null)
                 throw new ArgumentNullException(nameof(dataUtil));
+            // Saves are batched: reloading from disk here would discard unflushed progress.
+            // Player switches clear State via PlayerScopedServices.
+            if (State != null) return;
             var loaded = dataUtil.LoadWorldState();
             State = loaded != null && loaded.regions != null && loaded.regions.Count > 0
                 ? Normalize(loaded)

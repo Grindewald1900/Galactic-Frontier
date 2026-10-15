@@ -346,20 +346,20 @@ namespace Assets.Resources.Scripts.Battle
                 return false;
 
             var cards = CardListManager.Instance?.cardEntities;
-            var members = DeckService.GetOrderedMembers(deck.deckId, cards);
-            if (members == null || members.Count == 0)
+            var stations = DeckService.GetStations(deck.deckId, cards);
+            if (stations == null || stations.Count == 0)
                 return false;
 
-            var playerCopies = ListDeepCopyUtil.DeepCopyViaJson(members) ?? new List<CardEntity>();
             var players = new List<LiveCombatantState>();
-            for (int i = 0; i < playerCopies.Count; i++)
+            foreach (var station in stations)
             {
-                var entity = playerCopies[i];
-                if (entity == null) continue;
+                if (station.Card == null) continue;
+                var copies = ListDeepCopyUtil.DeepCopyViaJson(new List<CardEntity> { station.Card });
+                var entity = copies != null && copies.Count > 0 ? copies[0] : station.Card;
                 players.Add(new LiveCombatantState
                 {
                     cardId = entity.id ?? "",
-                    slotIndex = i,
+                    slotIndex = station.SlotIndex,
                     isPlayer = true,
                     currentHp = entity.Health,
                     maxHp = entity.Health,

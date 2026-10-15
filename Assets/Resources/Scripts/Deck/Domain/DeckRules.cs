@@ -165,5 +165,19 @@ namespace Assets.Resources.Scripts.Deck.Domain
             deck.action.progressPayload = "";
             return DeckCommandResult.Ok();
         }
+
+        /// <summary>
+        /// Battle station i is deck slot i. Empty slots stay empty so a later card is not packed forward.
+        /// </summary>
+        public static string[] BattleStations(DeckEntity deck)
+        {
+            var stations = new string[DeckConstants.SlotsPerDeck];
+            if (deck?.slotCardIds == null)
+                return stations;
+
+            for (var i = 0; i < stations.Length && i < deck.slotCardIds.Length; i++)
+                stations[i] = deck.slotCardIds[i] ?? "";
+            return stations;
+        }
     }
 }

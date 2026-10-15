@@ -51,8 +51,8 @@ namespace Assets.Resources.Scripts.Onboarding.Domain
                 order = 3,
                 titleEn = "Start Gathering",
                 titleZh = "开始采集",
-                hintEn = "Start a Gather action from Explore, or obtain gather loot.",
-                hintZh = "在探索开始采集行动，或获得任意采集产物。",
+                hintEn = "Start a Gather action from Explore.",
+                hintZh = "在探索开始一次采集行动。",
                 targetScreen = "Battle",
                 rewards = new[]
                 {

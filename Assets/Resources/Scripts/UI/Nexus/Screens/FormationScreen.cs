@@ -327,6 +327,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         string target = string.IsNullOrEmpty(editing.action.targetId)
                             ? ""
                             : editing.action.targetId;
+                        var targetRegion = RegionCatalog.Get(target);
+                        if (targetRegion != null)
+                            target = UiText.T(targetRegion.displayNameEn, targetRegion.displayNameZh);
                         stopLabel.text = string.IsNullOrEmpty(target)
                             ? UiText.StopNamedAction(actionName)
                             : UiText.StopNamedTarget(actionName, target);

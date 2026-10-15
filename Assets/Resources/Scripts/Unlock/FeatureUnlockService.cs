@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Quest.Domain;
 using Assets.Resources.Scripts.Unlock.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
@@ -100,6 +102,21 @@ namespace Assets.Resources.Scripts.Unlock
                 ctx.ChainCompleted = ob.chainCompleted;
                 if (ob.claimedStepIds != null)
                     ctx.ClaimedStepIds.AddRange(ob.claimedStepIds);
+            }
+
+            // Story steps gate features too (CH-01 recruits right after the prologue), and a claimed
+            // story step counts as its mirrored onboarding step so the chapter never routes into a lock.
+            ChapterQuestService.EnsureLoaded();
+            var chapter = ChapterQuestService.State;
+            if (chapter?.claimedStepIds != null)
+            {
+                foreach (var id in chapter.claimedStepIds)
+                {
+                    ctx.ClaimedStepIds.Add(id);
+                    var linked = QuestCatalog.Get(id)?.linkedOnboardingStepId;
+                    if (!string.IsNullOrEmpty(linked))
+                        ctx.ClaimedStepIds.Add(linked);
+                }
             }
 
             ShipService.EnsureReady();
