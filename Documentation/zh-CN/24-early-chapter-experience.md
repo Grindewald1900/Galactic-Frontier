@@ -4,7 +4,7 @@
 > 文档类型：**内容 / 体验契约（首章权威）**  
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md) §3 文档 24。  
 > 上级约束：[02-core-product-design.md](02-core-product-design.md)、[03-worldbuilding.md](03-worldbuilding.md) §10  
-> 关联：[17-sector-and-onboarding.md](17-sector-and-onboarding.md)（`onboarding_v1` 系统骨架）、[22-ux-loop-and-ia.md](22-ux-loop-and-ia.md)（任务追踪器双层结构）  
+> 关联：[17-sector-and-onboarding.md](17-sector-and-onboarding.md)（`onboarding_v1` 系统骨架）、[22-ux-loop-and-ia.md](22-ux-loop-and-ia.md)（任务追踪器双层结构）、**[25-mvp-quest-flow.md](25-mvp-quest-flow.md)（MVP 全任务总表）**  
 > 更新日期：2026-09-01  
 > **Wave A 范围**：序章 + 任务 1–5（`chapter_v1` 六步）；任务 6–10 与第 2–3 天节奏见本文 §4 标注，**不在 Wave A 代码验收内**。
 
