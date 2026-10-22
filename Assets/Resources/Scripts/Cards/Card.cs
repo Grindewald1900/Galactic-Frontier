@@ -61,6 +61,7 @@ namespace Assets.Resources.Scripts.Cards
         private Vector3 originalScale;
         private int nextIndex = 0;
         private bool isHighlighted = false;
+        private bool deathLogged;
 
         public GameObject currentEffect;
         void Awake()
@@ -87,8 +88,11 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCard(CardEntity cardEntity)
         {
             this.cardEntity = cardEntity;
+            deathLogged = false;
             SetImage(cardEntity);
-            SetName(cardEntity.characterName.ToString());
+            SetName(string.IsNullOrEmpty(cardEntity.cardName)
+                ? cardEntity.characterName.ToString()
+                : cardEntity.cardName);
             FlipCard(false, false);
 
             healthBarBackground.SetActive(IsBattleActive());
@@ -150,6 +154,7 @@ namespace Assets.Resources.Scripts.Cards
         /// <summary>Queues damage presentation and applies battle state changes asynchronously.</summary>
         public void TakeDamage(Card player, List<DamageEntity> damage)
         {
+            BattleLog.Hits(player, this, damage);
             StartCoroutine(ApplyDamage(player, damage));
             CardEffectManager.Instance.SpawnHitEffect(this);
         }
@@ -189,10 +194,16 @@ namespace Assets.Resources.Scripts.Cards
 
                 dt.SetDamageText(text, textColor);
                 currentHealth -= d.damageAmount;
+                if (healthBar != null)
+                    healthBar.fillAmount = Mathf.Clamp01(currentHealth / Mathf.Max(1f, cardEntity.Health));
                 yield return new WaitForSeconds(attackTime);
             }
             nextIndex = 0;
-            healthBar.fillAmount = currentHealth / cardEntity.Health;
+            if (currentHealth <= 0f && BossPhaseDirector.TryAdvance(this))
+                yield break;
+
+            if (healthBar != null)
+                healthBar.fillAmount = currentHealth / Mathf.Max(1f, cardEntity.Health);
             if (currentHealth <= 0)
             {
                 Die();
@@ -202,6 +213,12 @@ namespace Assets.Resources.Scripts.Cards
         public void Die()
         {
             Debug.Log("Die: " + cardEntity.characterName.ToString());
+            // Overlapping hit coroutines can both finish below 0 HP.
+            if (!deathLogged)
+            {
+                deathLogged = true;
+                BattleLog.Defeated(this);
+            }
             Sequence seq = DOTween.Sequence();
             seq.Join(transform.DOScale(Vector3.zero, vanishDuration).SetEase(Ease.InBack));
             seq.OnComplete(() => HideCard());
@@ -275,11 +292,34 @@ namespace Assets.Resources.Scripts.Cards
 
         public void SetImage(CardEntity cardEntity)
         {
+            if (cardEntity != null && !string.IsNullOrEmpty(cardEntity.portraitKey))
+            {
+                Sprite placeholder = ImageUtil.GetSpriteByName(
+                    ImageUtil.characterImagePath, cardEntity.portraitKey);
+                if (characterImage != null)
+                {
+                    characterImage.sprite = placeholder;
+                    characterImage.color = Color.white;
+                }
+
+                if (baseColorImage != null)
+                {
+                    baseColorImage.sprite = placeholder;
+                    baseColorImage.color = Color.white;
+                }
+
+                if (logoImage != null)
+                    logoImage.enabled = false;
+                return;
+            }
+
             Debug.Log("Tier Image: " + cardEntity.CharacterTier.ToString());
             Sprite characterSprite = ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, cardEntity.characterName.ToString() + "_01");
             Sprite baseColorSprite = ImageUtil.GetSpriteByName(ImageUtil.cardBkImagePath, cardEntity.CharacterTier.ToString() + "_Default");
             Sprite logoSprite = ImageUtil.GetSpriteByName(ImageUtil.badgeImagePath, cardEntity.CharacterTier.ToString());
 
+            if (logoImage != null)
+                logoImage.enabled = true;
             characterImage.sprite = characterSprite;
             baseColorImage.sprite = baseColorSprite;
             logoImage.sprite = logoSprite;
@@ -287,7 +327,8 @@ namespace Assets.Resources.Scripts.Cards
 
         public void SetName(string name)
         {
-            nameText.text = name;
+            if (nameText != null)
+                nameText.text = name;
         }
 
         public bool IsAlive()

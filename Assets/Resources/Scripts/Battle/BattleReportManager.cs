@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using XCharts.Runtime;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.CharacterPanel;
 using Assets.Resources.Scripts.UI.Nexus;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,6 +80,8 @@ namespace Assets.Resources.Scripts.Battle
             }
 
             summaryText.text = text ?? "";
+            if (BattleInfo.Instance != null)
+                BattleInfo.Instance.Hide();
         }
 
         public void RefreshChart(ChartType type, List<Card> playerCards)
@@ -86,34 +89,44 @@ namespace Assets.Resources.Scripts.Battle
             if (playerCards == null || barCharts == null || (int)type >= barCharts.Count)
                 return;
 
+            var placed = new List<Card>();
+            foreach (var card in playerCards)
+            {
+                if (card == null || card.gameObject == null || !card.gameObject.activeInHierarchy)
+                    continue;
+                if (card.cardEntity == null || card.cardEntity.characterName == CharacterName.Default)
+                    continue;
+                placed.Add(card);
+            }
+
             List<float> values = new();
             List<string> cardNames = new();
             switch (type)
             {
                 case ChartType.pDamageChart:
                 case ChartType.eDmgChart:
-                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.damage)
+                    values = placed.OrderByDescending(card => card.cardBattleInfoEntity.damage)
                                          .ToList()
                                          .ConvertAll(card => card.cardBattleInfoEntity.damage);
-                    cardNames = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.damage)
+                    cardNames = placed.OrderByDescending(card => card.cardBattleInfoEntity.damage)
                                          .ToList()
                                          .ConvertAll(card => card.cardEntity != null ? card.cardEntity.cardName : "?");
                     break;
                 case ChartType.pInjuryChart:
                 case ChartType.eInjuryChart:
-                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.injury)
+                    values = placed.OrderByDescending(card => card.cardBattleInfoEntity.injury)
                                         .ToList()
                                         .ConvertAll(card => card.cardBattleInfoEntity.injury);
-                    cardNames = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.injury)
+                    cardNames = placed.OrderByDescending(card => card.cardBattleInfoEntity.injury)
                                         .ToList()
                                         .ConvertAll(card => card.cardEntity != null ? card.cardEntity.cardName : "?");
                     break;
                 case ChartType.pHealChart:
                 case ChartType.eHealChart:
-                    values = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.healing)
+                    values = placed.OrderByDescending(card => card.cardBattleInfoEntity.healing)
                                         .ToList()
                                         .ConvertAll(card => card.cardBattleInfoEntity.healing);
-                    cardNames = playerCards.OrderByDescending(card => card.cardBattleInfoEntity.healing)
+                    cardNames = placed.OrderByDescending(card => card.cardBattleInfoEntity.healing)
                                         .ToList()
                                         .ConvertAll(card => card.cardEntity != null ? card.cardEntity.cardName : "?");
                     break;
@@ -134,11 +147,25 @@ namespace Assets.Resources.Scripts.Battle
             }
 
             ApplyStyle(chart, (int)type);
+            if (chart.series != null && chart.series.Count > 0)
+            {
+                var serie = chart.series[0];
+                serie.animation.enable = true;
+                serie.animation.change.duration = 0;
+                serie.animation.addition.duration = 0;
+                serie.barWidth = 36f;
+            }
+
+            var plot = chart.transform.Find("background");
+            if (plot != null)
+                plot.gameObject.SetActive(true);
+
             chart.ClearData();
             foreach (var cardName in cardNames)
                 chart.AddXAxisData(cardName);
             foreach (var value in values)
                 chart.AddData(0, value);
+            FitValueAxis(chart, values);
             chart.RefreshChart();
 
             foreach (var go in woken)
@@ -150,6 +177,27 @@ namespace Assets.Resources.Scripts.Battle
             barCharts.Add(chart);
             chartColors.Add(color);
             chartTitles.Add(title);
+        }
+
+        private static void FitValueAxis(BarChart chart, List<float> values)
+        {
+            var yAxis = chart.GetChartComponent<YAxis>();
+            if (yAxis == null)
+                return;
+
+            double peak = 1;
+            if (values != null)
+            {
+                foreach (var value in values)
+                {
+                    if (value > peak)
+                        peak = value;
+                }
+            }
+
+            yAxis.minMaxType = Axis.AxisMinMaxType.Custom;
+            yAxis.min = 0;
+            yAxis.max = System.Math.Max(1, System.Math.Ceiling(peak * 1.2));
         }
 
         private void ApplyStyle(BarChart chart, int index)

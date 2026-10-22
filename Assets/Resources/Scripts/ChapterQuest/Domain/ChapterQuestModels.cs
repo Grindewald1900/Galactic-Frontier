@@ -13,6 +13,13 @@ namespace Assets.Resources.Scripts.ChapterQuest.Domain
         public bool miningSignalScanned;
         public bool miningSpurWon;
         public bool strategyCompareShown;
+        public bool gatherCycleSettled;
+        public bool craftedOnce;
+        public bool heldRepairKit;
+        public bool routeChoiceMade;
+        public string routeChoice = "";
+        public bool pendingLootClaimed;
+        public bool frontierBossWon;
     }
 
     [Serializable]

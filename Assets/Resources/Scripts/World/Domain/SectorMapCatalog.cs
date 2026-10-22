@@ -174,6 +174,20 @@ namespace Assets.Resources.Scripts.World.Domain
             return null;
         }
 
+        /// <summary>Combat-body end of the POI's attachment lane, or empty if none.</summary>
+        public static string FindPoiAnchorBodyId(string poiId)
+        {
+            if (string.IsNullOrEmpty(poiId)) return "";
+            foreach (var edge in PoiEdges)
+            {
+                if (edge == null) continue;
+                if (edge.a == poiId) return edge.b ?? "";
+                if (edge.b == poiId) return edge.a ?? "";
+            }
+
+            return "";
+        }
+
         private static List<StellarBodyDef> BuildFrontierVii() => new List<StellarBodyDef>
         {
             Body("body_outer_haven", 22f, 78f, "Outer Haven", "外缘港",

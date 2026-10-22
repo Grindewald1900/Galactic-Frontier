@@ -23,12 +23,25 @@ namespace Assets.Resources.Scripts.World
 
         public static GrantResult GrantForRegionVictory(string regionId, bool wasFirstClear)
         {
+            return GrantForRegionVictory(regionId, new WorldCommandResult { WasFirstClear = wasFirstClear });
+        }
+
+        public static GrantResult GrantForRegionVictory(string regionId, WorldCommandResult victory)
+        {
             var cfg = RegionCatalog.Get(regionId);
             if (cfg == null)
                 return new GrantResult { Success = false, Message = "Unknown region." };
 
-            var tableId = wasFirstClear ? cfg.firstClearRewardId : cfg.repeatClearRewardId;
-            return GrantTable(tableId, preferPending: false);
+            if (victory != null && victory.WasFirstClear)
+                return GrantTable(cfg.firstClearRewardId, preferPending: false);
+
+            if (victory != null && victory.WasStageFirstClear && !string.IsNullOrEmpty(victory.StageRewardTableId))
+                return GrantTable(victory.StageRewardTableId, preferPending: false);
+
+            if (WorldService.IsLoaded && WorldRules.IsRegionBeaconRestored(WorldService.State, regionId))
+                return GrantTable(cfg.repeatClearRewardId, preferPending: false);
+
+            return new GrantResult { Success = true, Message = "No campaign reward." };
         }
 
         public static GrantResult GrantForFarmCycle(string regionId)

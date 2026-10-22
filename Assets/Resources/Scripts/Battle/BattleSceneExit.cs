@@ -1,3 +1,4 @@
+using Assets.Resources.Scripts.Battle.Domain;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Scene;
@@ -19,14 +20,27 @@ namespace Assets.Resources.Scripts.Battle
         }
 
         /// <summary>
-        /// Return to Bridge while the fight continues via <see cref="BackgroundBattleHost"/> coroutine.
+        /// Return to Bridge. Settled or prologue fights do not keep a live session, so MainScene
+        /// cannot immediately reopen the settlement report.
         /// </summary>
         public static void ReturnToBridge()
         {
+            bool prologue = BattleController.PendingIsChapterPrologue
+                || LiveBattleSession.IsPrologue;
+            bool settled = BattleController.Instance != null
+                && BattleController.Instance.LastOutcome != BattleOutcome.None;
+
+            if (prologue || settled || LiveBattleSession.Finished)
+            {
+                LiveBattleSession.Clear();
+                BackgroundBattleHost.Ensure().ReleasePresentation();
+                LeaveBattle(AppScreen.Bridge, keepLiveSession: false, preferPendingReturn: false);
+                return;
+            }
+
             bool captured = false;
             if (BattleController.Instance != null)
             {
-                // Prefer IsBattle, but also snapshot if a live session is already active.
                 if (GameStatusManager.Instance == null
                     || GameStatusManager.Instance.IsBattle
                     || LiveBattleSession.Active)
@@ -80,6 +94,7 @@ namespace Assets.Resources.Scripts.Battle
             BattleController.PendingSpectateAutoCombat = false;
             BattleController.PendingResumeLiveSession = false;
             BattleController.PendingReturnScreen = null;
+            BattleController.PendingPlayerParty = null;
 
             AppShell.RequestScreen(
                 preferPendingReturn && returnScreen.HasValue ? returnScreen.Value : screen);

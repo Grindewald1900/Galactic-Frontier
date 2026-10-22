@@ -53,10 +53,14 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       AnchorGuide("tg_ch1_recruit_pull", ChainChapter, ChapterQuestCatalog.StepRecruitCole, "Recruit",
         "recruit_pull_one", "ch1_mita_recruit", 2),
 
-      AnchorGuide("tg_ch1_formation_slot", ChainChapter, ChapterQuestCatalog.StepFormation, "Formation",
-        "formation_empty_slot", "ch1_asra_formation", 0),
+      NavGuide("tg_ch1_formation_battle_nav", ChainChapter, ChapterQuestCatalog.StepFormation, "Battle",
+        TutorialGuideTargetKind.NavGroup, "StarMap", "ch1_formation_see_battle", 0),
+      AnchorGuide("tg_ch1_formation_battle_start", ChainChapter, ChapterQuestCatalog.StepFormation, "Battle",
+        "explore_start", "ch1_formation_see_battle", 1),
+      AnchorGuide("tg_ch1_formation_front", ChainChapter, ChapterQuestCatalog.StepFormation, "Formation",
+        "formation_front_slot", "ch1_formation_move_cole", 2),
       AnchorGuide("tg_ch1_formation_join", ChainChapter, ChapterQuestCatalog.StepFormation, "Formation",
-        "formation_join", "ch1_asra_formation", 1),
+        "formation_join", "ch1_formation_move_cole", 3),
 
       NavGuide("tg_ch1_battle_nav", ChainChapter, ChapterQuestCatalog.StepOuterCleanup, "Battle",
         TutorialGuideTargetKind.NavGroup, "StarMap", "ob_guide_battle_nav", 0),

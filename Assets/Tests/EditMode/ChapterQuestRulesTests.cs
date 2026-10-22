@@ -7,11 +7,11 @@ namespace GalacticFrontier.Tests.EditMode
     public class ChapterQuestRulesTests
     {
         [Test]
-        public void Catalog_HasSixWaveASteps()
+        public void Catalog_HasElevenChapterSteps()
         {
-            Assert.AreEqual(6, ChapterQuestCatalog.All.Count);
+            Assert.AreEqual(11, ChapterQuestCatalog.All.Count);
             Assert.AreEqual(ChapterQuestCatalog.StepPrologue, ChapterQuestCatalog.All[0].stepId);
-            Assert.AreEqual(ChapterQuestCatalog.StepMiningSpur, ChapterQuestCatalog.All[5].stepId);
+            Assert.AreEqual(ChapterQuestCatalog.StepOpenTheLock, ChapterQuestCatalog.All[10].stepId);
         }
 
         [Test]
@@ -83,6 +83,22 @@ namespace GalacticFrontier.Tests.EditMode
         {
             var def = ChapterQuestCatalog.Get(ChapterQuestCatalog.StepOuterCleanup);
             Assert.AreEqual("ob_first_battle", def.linkedOnboardingStepId);
+        }
+
+        [Test]
+        public void FlagRules_IdleGather_MetWhenSettled()
+        {
+            var state = NewState();
+            state.flags.gatherCycleSettled = true;
+            Assert.IsTrue(ChapterQuestFlagRules.IsStepSatisfiedByFlags(state.flags, ChapterQuestCatalog.StepIdleGather));
+        }
+
+        [Test]
+        public void NextAfter_MiningSpur_ReturnsIdleGather()
+        {
+            var next = ChapterQuestCatalog.NextAfter(ChapterQuestCatalog.StepMiningSpur);
+            Assert.NotNull(next);
+            Assert.AreEqual(ChapterQuestCatalog.StepIdleGather, next.stepId);
         }
 
         private static ChapterQuestState NewState() =>

@@ -12,6 +12,7 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Unlock;
@@ -317,8 +318,7 @@ namespace Assets.Resources.Scripts.Utils
             DeckService.Save(this);
             WorldService.Save(this);
             ShipService.Save(this);
-            ChapterQuestService.Save(this);
-            OnboardingService.Save(this);
+            QuestService.Save(this);
             GachaService.Save(this);
             IdleSettlementService.Save(this);
             FeatureUnlockService.Save(this);
@@ -736,6 +736,52 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentNullException(nameof(state));
             state.count = state.completedStepIds?.Count ?? 0;
             return SaveData(state, directory, DefaultProperty.CHAPTER_QUEST_DATA);
+        }
+
+        public bool SaveQuestState(
+            Assets.Resources.Scripts.Quest.Domain.QuestState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.claimedIds?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.QUEST_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Quest.Domain.QuestState LoadQuestState()
+        {
+            EnsurePlayerBound();
+            return ReadQuestStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Quest.Domain.QuestState ReadQuestStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.QUEST_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Quest.Domain.QuestState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read quests.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteQuestStateToDirectory(
+            string directory, Assets.Resources.Scripts.Quest.Domain.QuestState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.claimedIds?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.QUEST_DATA);
         }
 
         public List<CardEntity> ReadCardListFromDirectory(string directory)

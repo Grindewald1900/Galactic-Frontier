@@ -1,13 +1,13 @@
 # 系统文档：区域推进与舰船门槛
 
-> 文档版本：v1.2
+> 文档版本：v1.3
 > 文档类型：**规则**
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.8 / §7.10 / §16.1 / §20 / §22（v0.4）  
-> 关联：`11-deck-and-occupation.md`、`12-auto-battle.md`；离线/采集细则见 `14-idle-and-offline.md`  
-> 更新日期：2026-08-10  
-> 变更：v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
+> 关联：`11-deck-and-occupation.md`、`12-auto-battle.md`；离线/采集细则见 `14-idle-and-offline.md`；节点内部远征见 `20-stellar-map-and-navigation.md` §17  
+> 更新日期：2026-09-07  
+> 变更：v1.3 区域内部从「一场主挑战即通关」改为短篇远征；`Cleared` 映射为航标恢复。v1.2 对齐实现：`WorldService` / `ShipService` / `IdleCombatTicker`。
 
 ---
 
@@ -17,7 +17,7 @@
 
 用**双重门槛**驱动主线推进，并承接世界观中「断航后须自建航道与抗熵雾能力」：
 
-1. **战斗通关** — 证明能清除区域威胁；  
+1. **战斗通关** — 证明能走完该节点远征并击败 Boss（航标恢复）；  
 2. **舰船条件** — 证明具备进入并持续开发该区域的基础设施（航程、能源、**熵雾抗性**等）。
 
 由此把「开图」与「舰船成长 / 资源投入」绑在同一循环里，并避免仅靠等待时间卡进度。  
@@ -39,11 +39,11 @@
 | 术语 | 定义 |
 | --- | --- |
 | **星域（StarSector）** | MVP 内容容器；首发 **1** 个完整星域 |
-| **区域（Region）** | 星域内可探索单元；含遭遇、舰船门槛、通关态、刷取与采集挂钩 |
-| **前置战斗** | 进入本区挑战或解锁本区前，需已通关的指定区域/遭遇 |
+| **区域（Region）** | 星域内可探索单元；对应星图上一个可攻略节点；内部是短篇远征（`20` §17），不是单场战斗 |
+| **前置战斗** | 进入本区远征或解锁本区前，需前置节点已 **航标恢复** |
 | **舰船门槛（ShipGate）** | 进入区域所需的舰船等级与/或分项能力最小值 |
-| **首次通关（FirstClear）** | 该区域主挑战遭遇首次胜利 |
-| **挂机刷取解锁** | 首次通关后，允许对该区启动 `AutoCombat` |
+| **首次通关（FirstClear）** | 该节点 Boss 首次胜利，状态写入 `BeaconRestored`（旧「一场主挑战胜利」不再等于通关） |
+| **挂机刷取解锁** | **分阶段**：阶段 2 开放基础采集挂机；阶段 3 开放战斗挂机；航标恢复后合并为驻留挂机（`20` §17.7） |
 | **区域首领（RegionBoss）** | 星域内指定 Boss 遭遇（MVP **1** 名） |
 | **舰船（Ship）** | 玩家账号唯一主舰实体；等级 + 分项能力 + **可升级模块** |
 | **舰船模块（ShipModule）** | 独立升级的子系统；提升对应 ShipStat 并解锁功能钩子（并行、离线比例、卡组槽等） |
@@ -80,15 +80,15 @@
 
 ### 4.2 双重解锁状态机
 
-每个区域对玩家有进度态：
+每个区域对玩家有进度态。节点内部权威状态是 `20` §17 的 `NodeCampaignState`；下表为兼容映射，供旧 `WorldService` 读取：
 
-| `RegionProgressState` | 含义 | Explore 表现 |
+| `RegionProgressState` | 对应远征态 | Explore 表现 |
 | --- | --- | --- |
 | `Locked` | 前置或舰船未满足 | 可见但不可开战；显示缺口 |
-| `Challengeable` | 可发起首次/重复主挑战 | 「开始自动战斗」 |
-| `Cleared` | 已首次通关 | 可主挑战（扫荡）+ **可挂机刷取** |
-| `BossAvailable` | 首领区专属：前置满足且未击杀 | 挑战首领 |
-| `BossDefeated` | 首领已击败 | 星域首圈完成标记 |
+| `Challengeable` | `Advancing` / `Staging` / `BossReady` | 「继续攻略 n/m」；阶段 ≥2 可「部署挂机」 |
+| `Cleared` | `BeaconRestored` / `Developed` | 「驻留挂机」；不再逐关点击 |
+| `BossAvailable` | 星域首领节点且 `BossReady` | 挑战星域首领（边境锚点） |
+| `BossDefeated` | 星域首领节点 `BeaconRestored` | 星域首圈完成标记 |
 
 **进入校验（硬门）：**
 
@@ -194,23 +194,29 @@ CanEnter(region) =
 
 ### 4.6 首次通关 vs 挂机刷取
 
+节点内部按 `20` §17 推进。一场普通战斗胜利只推进 `currentStage`，**不**把区域标为 `Cleared`。
+
 | 行为 | 条件 | `BattleMode` | 占用 |
 | --- | --- | --- | --- |
-| 主挑战 / 首次通关 | `CanEnter` 且非必须 Cleared | `MainCombat` | 战斗期间 `MainCombat`，结束解除 |
-| 重复主挑战 | `Cleared` 后仍可打主遭遇（可选） | `MainCombat` | 同上 |
-| 挂机刷取 | **必须** `Cleared`（首领区需 `BossDefeated` 才允许普通刷取遭遇） | `AutoCombat` | 直至停止 |
+| 远征阶段战 | `CanEnter` 且当前阶段可挑战 | `MainCombat` | 战斗期间 `MainCombat`，结束解除 |
+| 节点 Boss | `BossReady`；必须单独确认 | `MainCombat` | 同上 |
+| 基础采集挂机 | 阶段 ≥2 | `Gather` | 直至停止 |
+| 战斗挂机 | 阶段 ≥3；掉落按已完成最高阶段 | `AutoCombat` | 直至停止 |
+| 驻留挂机 | `BeaconRestored` 或 `Developed` | `AutoCombat` / `Gather` | 直至停止 |
+| Boss 高难悬赏 | 航标已恢复；不阻碍航线 | `MainCombat` | 同上 |
 
 流程：
 
 ```text
-Explore 选区
+Explore 选节点
   → 校验 CanEnter + 选战斗卡组
-  → BattleRequest(encounterId = region.mainEncounterId | farmEncounterId)
-  → Victory 且首次 → 标记 FirstClear / BossDefeated，解锁刷取与采集节点引用
-  → 返回 Explore，刷新门锁文案
+  → BattleRequest(encounterId = current BattleStage.enemyGroupId)
+  → 普通/精英胜利 → currentStage++，按 idleUnlock 开放挂机
+  → Boss 胜利 → BeaconRestored / FirstClear，解锁相邻航线与驻留挂机
+  → 返回 Explore，刷新进度环与 CTA
 ```
 
-首领区：`mainEncounterId` 指向 Boss 遭遇（`isBoss=true`）；刷取可使用较弱的 `farmEncounterId`（Boss 击杀后解锁）。
+`mainEncounterId` 在样板落地前仍可作为当前阶段遭遇的兼容读取；新内容以 `battleStages[]` 为准。星域首领区（边境锚点）仍是独立深层节点，不是外缘港的第 6 场。
 
 ### 4.7 遭遇绑定
 
@@ -223,10 +229,11 @@ RegionConfig
 - sortOrder
 - prereqRegionIds[]
 - shipGate: { Level, Range, ... }
-- mainEncounterId          // 首次/主挑战
-- farmEncounterId?         // 通关后刷取；可与 main 不同
-- gatherNodeIds[]          // 采集文档消费；可空
-- recommendedPower: int    // 仅提示
+- mainEncounterId          // 兼容：当前阶段遭遇；新内容见 battleStages[]
+- farmEncounterId?         // 驻留挂机遭遇；可与阶段遭遇不同
+- battleStages[]           // 远征关卡；权威见 20 §17.9
+- gatherNodeIds[]          // 阶段 2 即可启动，不必等航标恢复
+- recommendedPower: int    // 仅提示；UI 应显示当前阶段推荐战力
 - bossRegion: bool
 ```
 
@@ -236,7 +243,7 @@ RegionConfig
 
 | 情况 | 处理 |
 | --- | --- |
-| 主挑战失败 | 不改变通关态；不降低舰船；占用结束；可立即再战 |
+| 阶段战失败 | 不回退已完成阶段；圆点下方记失败标记；不降低舰船；可立即再战 |
 | 前置未完成 | 区域可见，显示「需通关：xxx」 |
 | 舰船不足 | 区域可见，逐条列出缺口（如 熵雾抗性 2/3） |
 | 跳过未解锁区 | 不允许；不得用 GM 外的后门进战斗 |
@@ -329,7 +336,8 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 | --- | --- |
 | Explore 列表 | 每区显示：名称、锁态、舰船门槛摘要、通关/可刷取标记 |
 | 锁定区 | 按钮禁用或点按弹出缺口列表（前置 + 舰船分项） |
-| 已通关 | 提供「挑战」与「挂机刷取」入口（刷取可进 Bridge/行动面板） |
+| 攻略中 | 主按钮「继续攻略 n/m」；阶段 ≥2 次按钮「部署挂机」；工具「调整舰队」 |
+| 已通关（航标恢复） | 主按钮「驻留挂机」；收起逐关操作；可选「高难悬赏」 |
 | 舰船面板 | 等级、分项、设施、下一解锁预览（指向未开区域） |
 | Bridge | 邻近区域摘要不再写死 “Ship gate TBD”，改为真实门槛状态 |
 | 首领区 | 独立视觉强调；击杀后星域完成庆祝（可简） |
@@ -346,7 +354,8 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 - 未通关前置时后区硬锁，并显示前置名  
 - 舰船分项不足时硬锁，并逐条显示缺口  
 - 战力不足不硬锁，仅提示推荐战力  
-- 首次通关后该区挂机刷取解锁；未通关不能刷取  
+- 阶段 2 开放基础采集挂机，阶段 3 开放战斗挂机；航标恢复后合并为驻留挂机  
+- 相邻区域硬锁看前置节点是否 **航标恢复**，不看第一场普通战斗  
 - 首领击杀后标记星域首圈完成  
 - 舰船升级主路径为资源/信用，而非纯等待  
 - 进度与舰船进存档；读档后门锁一致  
@@ -384,6 +393,7 @@ Explore 开战前必须调用 `CanEnter`；失败不得 `LoadScene("BattleScene"
 - 设定：`03-worldbuilding.md`  
 - 战斗：`12-auto-battle.md`（`BattleRequest.encounterId`、`BattleMode`）  
 - 卡组：`11-deck-and-occupation.md`（舰船设施解锁钩子）  
+- **节点远征**：`20-stellar-map-and-navigation.md` §17  
 - **星域内容与掉落表**：`17-sector-and-onboarding.md`  
 - 现有 UI：`ExploreScreen.cs`、`UiText.SectorName`、`PlanetEntity`、`PlayerEntity`  
 - 开发计划：`10-mvp-development-plan.md` P2

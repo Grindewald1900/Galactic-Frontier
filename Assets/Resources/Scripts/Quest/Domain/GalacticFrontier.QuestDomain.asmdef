@@ -1,0 +1,16 @@
+{
+    "name": "GalacticFrontier.QuestDomain",
+    "rootNamespace": "Assets.Resources.Scripts.Quest.Domain",
+    "references": [
+        "GalacticFrontier.WorldDomain"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

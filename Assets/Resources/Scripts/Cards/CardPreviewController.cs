@@ -110,15 +110,25 @@ namespace Assets.Resources.Scripts.Cards
 
         public void HideCardPreview()
         {
-            card.gameObject.SetActive(false);
-            cardInfoPanel.SetActive(false);
-            addButton.gameObject.SetActive(false);
-            removeButton.gameObject.SetActive(false);
-            upgradeButton.gameObject.SetActive(false);
-            dismissButton.gameObject.SetActive(false);
-            for (int i = 0; i < skillItemSlots.Length; i++)
+            if (card != null)
+                card.gameObject.SetActive(false);
+            if (cardInfoPanel != null)
+                cardInfoPanel.SetActive(false);
+            if (addButton != null)
+                addButton.gameObject.SetActive(false);
+            if (removeButton != null)
+                removeButton.gameObject.SetActive(false);
+            if (upgradeButton != null)
+                upgradeButton.gameObject.SetActive(false);
+            if (dismissButton != null)
+                dismissButton.gameObject.SetActive(false);
+            if (skillItemSlots != null)
             {
-                skillItemSlots[i].gameObject.SetActive(false);
+                for (int i = 0; i < skillItemSlots.Length; i++)
+                {
+                    if (skillItemSlots[i] != null)
+                        skillItemSlots[i].gameObject.SetActive(false);
+                }
             }
         }
 

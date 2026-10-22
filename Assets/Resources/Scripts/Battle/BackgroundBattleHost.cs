@@ -9,6 +9,7 @@ using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.UI.Nexus;
 using Assets.Resources.Scripts.Utils;
@@ -466,7 +467,10 @@ namespace Assets.Resources.Scripts.Battle
                 {
                     Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
                     if (!string.IsNullOrEmpty(regionId))
+                    {
                         RewardService.GrantForFarmCycle(regionId);
+                        QuestService.NotifyFarmVictory(regionId);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(regionId))
@@ -524,7 +528,7 @@ namespace Assets.Resources.Scripts.Battle
                     var enc = LiveBattleSession.EncounterId;
                     var result = WorldService.RegisterBattleVictory(regionId, enc);
                     if (result.Success)
-                        RewardService.GrantForRegionVictory(regionId, result.WasFirstClear);
+                        RewardService.GrantForRegionVictory(regionId, result);
                     Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
                 }
             }

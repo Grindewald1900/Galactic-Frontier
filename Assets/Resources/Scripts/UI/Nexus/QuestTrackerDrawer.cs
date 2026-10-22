@@ -1,11 +1,8 @@
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.ChapterQuest;
-using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Deck;
-using Assets.Resources.Scripts.Deck.Domain;
-using Assets.Resources.Scripts.Entity;
-using Assets.Resources.Scripts.Onboarding;
-using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.Quest;
+using Assets.Resources.Scripts.Quest.Domain;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using TMPro;
@@ -14,7 +11,7 @@ using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
 {
-    /// <summary>Right-edge quest tracker drawer (P6). Replaces missions as primary entry.</summary>
+    /// <summary>Right-edge quest tracker (doc 25 §10): story / expedition-or-ship / onboarding / loops.</summary>
     internal sealed class QuestTrackerDrawer
     {
         private Transform host;
@@ -54,8 +51,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 DeckService.EnsureLoaded(DataUtil.Instance, CardListManager.Instance?.cardEntities);
                 WorldService.EnsureLoaded(DataUtil.Instance);
-                OnboardingService.EnsureLoaded(DataUtil.Instance);
-                ChapterQuestService.EnsureLoaded(DataUtil.Instance);
+                QuestService.EnsureLoaded(DataUtil.Instance);
             }
 
             float y = 8f;
@@ -65,173 +61,130 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 TextAlignmentOptions.Left, FontStyles.Bold);
             y += 32f;
 
-            if (!ChapterQuestService.IsChapterComplete)
+            var views = QuestService.GetTrackerViews();
+            if (views.Count == 0)
             {
                 NexusUiFactory.CreateText(
-                    content, "ChapterHead", UiText.QuestChapterTitle,
-                    new Vector2(12f, y), new Vector2(320f, 20f), 12f, NexusTheme.Cyan,
-                    TextAlignmentOptions.Left, FontStyles.Bold);
-                y += 24f;
-                foreach (var view in ChapterQuestService.GetStepViews())
+                    content, "Empty", UiText.QuestTrackerEmpty,
+                    new Vector2(12f, y), new Vector2(320f, 48f), 11f, NexusTheme.MutedText);
+                y += 56f;
+            }
+            else
+            {
+                QuestType? lastType = null;
+                foreach (var view in views)
                 {
                     if (view?.Def == null) continue;
-                    DrawChapterStep(view, ref y);
+                    if (lastType != view.Def.type)
+                    {
+                        NexusUiFactory.CreateText(
+                            content, "Head_" + view.Def.type, LayerTitle(view.Def.type),
+                            new Vector2(12f, y), new Vector2(320f, 18f), 11f, LayerColor(view.Def.type),
+                            TextAlignmentOptions.Left, FontStyles.Bold);
+                        y += 22f;
+                        lastType = view.Def.type;
+                    }
+
+                    DrawQuest(view, ref y);
                 }
-
-                y += 8f;
-                NexusUiFactory.CreateText(
-                    content, "OnboardingHead", UiText.QuestOnboardingTitle,
-                    new Vector2(12f, y), new Vector2(320f, 20f), 12f, NexusTheme.MutedText,
-                    TextAlignmentOptions.Left, FontStyles.Bold);
-                y += 24f;
-            }
-
-            if (OnboardingService.IsChainComplete && ChapterQuestService.IsChapterComplete)
-            {
-                NexusUiFactory.CreateText(
-                    content, "NextGoal", UiText.QuestNextGoalTitle,
-                    new Vector2(12f, y), new Vector2(320f, 20f), 12f, NexusTheme.Cyan,
-                    TextAlignmentOptions.Left, FontStyles.Bold);
-                y += 24f;
-                var hint = NexusUiFactory.CreateText(
-                    content, "NextSteps", UiText.QuestNextGoalSteps,
-                    new Vector2(12f, y), new Vector2(320f, 80f), 11f, NexusTheme.MutedText);
-                hint.textWrappingMode = TextWrappingModes.Normal;
-                y += 88f;
-            }
-
-            foreach (var view in OnboardingService.GetStepViews())
-            {
-                if (view?.Def == null) continue;
-                DrawStep(view, ref y);
             }
 
             panel.sizeDelta = new Vector2(360f, Mathf.Min(720f, y + 16f));
         }
 
-        private void DrawChapterStep(ChapterQuestStepView view, ref float y)
+        private void DrawQuest(QuestView view, ref float y)
         {
-            bool active = view.Status == ChapterQuestStepStatus.Active;
-            bool done = view.Status == ChapterQuestStepStatus.Completed;
+            bool ready = view.Status == QuestStatus.Ready;
+            bool active = view.Status == QuestStatus.Active || ready;
             bool claimable = view.CanClaim;
+            bool showGo = active && !claimable && view.Def.type != QuestType.Loop
+                && view.Status != QuestStatus.Claimed
+                && !string.IsNullOrEmpty(view.Def.targetScreen);
+            float height = claimable || showGo || view.Def.type == QuestType.Loop ? 88f : 64f;
 
-            Color row = active
-                ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
-                : done
-                    ? NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.5f)
+            Color row = ready
+                ? NexusTheme.WithAlpha(NexusTheme.Green, 0.18f)
+                : active
+                    ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f)
                     : NexusTheme.SurfaceRaised;
 
             NexusUiFactory.CreateBox(
-                content, "ChStep_" + view.Def.stepId,
-                new Vector2(8f, y), new Vector2(344f, claimable ? 88f : 64f),
+                content, "Q_" + view.Def.questId,
+                new Vector2(8f, y), new Vector2(344f, height),
                 row, NexusTheme.BorderSoft);
 
             string title = UiText.T(view.Def.titleEn, view.Def.titleZh);
             NexusUiFactory.CreateText(
-                content, "ChT_" + view.Def.stepId, title,
+                content, "QT_" + view.Def.questId, title,
                 new Vector2(16f, y + 8f), new Vector2(320f, 20f), 11f,
                 active ? NexusTheme.Text : NexusTheme.MutedText,
                 TextAlignmentOptions.Left, FontStyles.Bold);
 
-            string status = done
-                ? UiText.QuestStepDone
+            string status = ready
+                ? UiText.QuestStepReady
                 : active
-                    ? UiText.QuestStepActive
+                    ? LoopStatus(view)
                     : UiText.QuestStepLocked;
             NexusUiFactory.CreateText(
-                content, "ChS_" + view.Def.stepId, status,
+                content, "QS_" + view.Def.questId, status,
                 new Vector2(16f, y + 30f), new Vector2(320f, 18f), 10f, NexusTheme.DimText);
 
             if (claimable)
             {
                 NexusUiFactory.CreateButton(
-                    content, "ChClaim_" + view.Def.stepId, UiText.QuestClaim,
+                    content, "QC_" + view.Def.questId, UiText.QuestClaim,
                     new Vector2(16f, y + 50f), new Vector2(120f, 28f),
                     () =>
                     {
-                        ChapterQuestService.TryClaim(view.Def.stepId);
+                        QuestService.TryClaim(view.Def.questId);
                         Rebuild();
                     },
                     NexusTheme.WithAlpha(NexusTheme.Green, 0.2f), NexusTheme.Green, 11f);
             }
-            else if (active && !string.IsNullOrEmpty(view.Def.targetScreen))
+            else if (showGo)
             {
-                var target = MapTarget(view.Def.targetScreen);
+                var target = MapTarget(QuestService.TargetScreen(view.Def));
                 NexusUiFactory.CreateButton(
-                    content, "ChGo_" + view.Def.stepId, UiText.QuestGo,
+                    content, "QG_" + view.Def.questId, UiText.QuestGo,
                     new Vector2(16f, y + 50f), new Vector2(120f, 28f),
                     () =>
                     {
                         SetOpen(false);
-                        navigate?.Invoke(target);
+                        if (view.Def.questId == QuestIds.ChPrologue)
+                            ChapterQuestService.StartPrologueBattle();
+                        else
+                            navigate?.Invoke(target);
                     },
                     NexusTheme.WithAlpha(NexusTheme.Cyan, 0.14f), NexusTheme.Cyan, 11f);
             }
 
-            y += claimable ? 96f : 72f;
+            y += height + 8f;
         }
 
-        private void DrawStep(OnboardingStepView view, ref float y)
+        private static string LoopStatus(QuestView view)
         {
-            bool active = view.Status == OnboardingStepStatus.Active;
-            bool done = view.Status == OnboardingStepStatus.Completed;
-            bool claimable = view.CanClaim;
-
-            Color row = active
-                ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.12f)
-                : done
-                    ? NexusTheme.WithAlpha(NexusTheme.SurfaceRaised, 0.5f)
-                    : NexusTheme.SurfaceRaised;
-
-            NexusUiFactory.CreateBox(
-                content, "Step_" + view.Def.stepId,
-                new Vector2(8f, y), new Vector2(344f, claimable ? 88f : 64f),
-                row, NexusTheme.BorderSoft);
-
-            string title = UiText.T(view.Def.titleEn, view.Def.titleZh);
-            NexusUiFactory.CreateText(
-                content, "T_" + view.Def.stepId, title,
-                new Vector2(16f, y + 8f), new Vector2(320f, 20f), 11f,
-                active ? NexusTheme.Text : NexusTheme.MutedText,
-                TextAlignmentOptions.Left, FontStyles.Bold);
-
-            string status = done
-                ? UiText.QuestStepDone
-                : active
-                    ? UiText.QuestStepActive
-                    : UiText.QuestStepLocked;
-            NexusUiFactory.CreateText(
-                content, "S_" + view.Def.stepId, status,
-                new Vector2(16f, y + 30f), new Vector2(320f, 18f), 10f, NexusTheme.DimText);
-
-            if (claimable)
-            {
-                NexusUiFactory.CreateButton(
-                    content, "Claim_" + view.Def.stepId, UiText.QuestClaim,
-                    new Vector2(16f, y + 50f), new Vector2(120f, 28f),
-                    () =>
-                    {
-                        OnboardingService.TryClaim(view.Def.stepId);
-                        Rebuild();
-                    },
-                    NexusTheme.WithAlpha(NexusTheme.Green, 0.2f), NexusTheme.Green, 11f);
-            }
-            else if (active && !string.IsNullOrEmpty(view.Def.targetScreen))
-            {
-                var target = MapTarget(view.Def.targetScreen);
-                NexusUiFactory.CreateButton(
-                    content, "Go_" + view.Def.stepId, UiText.QuestGo,
-                    new Vector2(16f, y + 50f), new Vector2(120f, 28f),
-                    () =>
-                    {
-                        SetOpen(false);
-                        navigate?.Invoke(target);
-                    },
-                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.14f), NexusTheme.Cyan, 11f);
-            }
-
-            y += claimable ? 96f : 72f;
+            if (view.Def.type == QuestType.Loop && view.LoopTarget > 0)
+                return UiText.QuestLoopProgress(view.LoopCount, view.LoopTarget);
+            return UiText.QuestStepActive;
         }
+
+        private static string LayerTitle(QuestType type) => type switch
+        {
+            QuestType.Story => UiText.QuestChapterTitle,
+            QuestType.Expedition => UiText.QuestExpeditionTitle,
+            QuestType.Ship => UiText.QuestShipTitle,
+            QuestType.Onboarding => UiText.QuestOnboardingTitle,
+            QuestType.Loop => UiText.QuestLoopTitle,
+            _ => ""
+        };
+
+        private static Color LayerColor(QuestType type) => type switch
+        {
+            QuestType.Story => NexusTheme.Cyan,
+            QuestType.Expedition => NexusTheme.Gold,
+            QuestType.Ship => NexusTheme.Purple,
+            _ => NexusTheme.MutedText
+        };
 
         private static AppScreen MapTarget(string targetScreen) => targetScreen switch
         {
@@ -263,7 +216,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 root.transform, "Bg", Vector2.zero, panel.sizeDelta,
                 NexusTheme.SurfaceRaised, NexusTheme.Border);
 
-            var close = NexusUiFactory.CreateButton(
+            NexusUiFactory.CreateButton(
                 root.transform, "Close", "×",
                 new Vector2(320f, 8f), new Vector2(32f, 28f),
                 () => SetOpen(false),
