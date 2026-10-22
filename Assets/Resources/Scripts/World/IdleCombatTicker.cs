@@ -9,6 +9,7 @@ using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.Save;
 using Assets.Resources.Scripts.World.Domain;
@@ -128,6 +129,9 @@ namespace Assets.Resources.Scripts.World
             var region = RegionCatalog.Get(regionId);
             var encounter = EncounterCatalog.Get(region?.farmEncounterId ?? "");
             float enemyPower = FarmCombatResolver.EstimateEncounterPower(encounter);
+            Debug.Log(
+                $"[FARM] encounter={encounter?.encounterId} enemyPower={enemyPower:0} " +
+                $"playerPower={playerPower:0}");
             long seed = unchecked(regionId.GetHashCode() * 9176L ^ DateTime.UtcNow.Ticks);
             var result = FarmCombatResolver.Resolve(
                 playerPower, enemyPower, encounter?.lootScrap ?? WorldConstants.FarmLootQuantity, seed);
@@ -144,6 +148,7 @@ namespace Assets.Resources.Scripts.World
                 var grant = RewardService.GrantForFarmCycle(regionId);
                 if (!grant.Success && result.LootScrap > 0)
                     GrantScrap(result.LootScrap);
+                QuestService.NotifyFarmVictory(regionId);
             }
 
             ProgressionService.BeginGrant();
@@ -192,7 +197,7 @@ namespace Assets.Resources.Scripts.World
             ProgressionService.EndGrant(presentUi: false);
             deck.action.lastSettledAtUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             DeckService.Save();
-            Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyGatherProgress();
+            QuestService.NotifyGatherCycle(node.nodeId);
             Debug.Log($"[GATHER] {node.nodeId} +{node.outputQty} {node.outputDefId}");
         }
 

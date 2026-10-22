@@ -33,17 +33,21 @@ namespace Assets.Resources.Scripts.World
                 bool seededNow = false;
                 if (!world.gridSeeded)
                 {
-                    SeedFromLegacy(world);
+                    GridVisibility.SeedLaneGrid(world);
                     RecalcExplore();
                     seededNow = true;
                 }
 
                 bool missingUniverse = world.sectorNodes == null || world.sectorNodes.Count == 0;
                 SeedUniverseSectors(world);
-                SyncKnownBodies(world);
                 ReplayAdjacencyUnlocks(world);
-                if (seededNow || missingUniverse)
+                bool sanitized = GridVisibility.SanitizeLaneFog(world);
+                SyncKnownBodies(world);
+                if (seededNow || missingUniverse || sanitized)
+                {
+                    RecalcExplore();
                     WorldService.Save();
+                }
             }
             finally
             {
@@ -88,12 +92,15 @@ namespace Assets.Resources.Scripts.World
 
         public static bool ShowsFog(string bodyId) => GetState(bodyId) < GridNodeState.Located;
 
-        /// <summary>Unlocked (fogged+) or adjacent to a located node. Distant unobserved stays hidden.</summary>
+        /// <summary>Spawn, fogged+, or adjacent to a restored (Stable) beacon. Distant Unobserved stays hidden.</summary>
         public static bool IsBodyOnMap(string bodyId)
         {
             if (string.IsNullOrEmpty(bodyId)) return false;
-            if (GetState(bodyId) >= GridNodeState.Fogged) return true;
-            return HasLocatedNeighbor(bodyId);
+            EnsureReady();
+            var world = WorldService.State;
+            if (SectorMapCatalog.IsPointOfInterest(bodyId))
+                return GridVisibility.IsPoiOnMap(world, bodyId);
+            return GridVisibility.IsCombatBodyOnMap(world, bodyId);
         }
 
         public static bool IsSectorOnMap(string sectorId)
@@ -132,9 +139,46 @@ namespace Assets.Resources.Scripts.World
 
         public static bool CanStabilize(string bodyId)
         {
-            if (!IsLocatedOrBetter(bodyId) || GetState(bodyId) >= GridNodeState.Stable)
-                return false;
-            return SectorMapCatalog.Get(bodyId) != null;
+            return InspectStabilize(bodyId).CanAttempt;
+        }
+
+        public static StabilizeInspect InspectStabilize(string bodyId)
+        {
+            EnsureReady();
+            var info = new StabilizeInspect
+            {
+                NeedScrap = WorldConstants.StabilizeScrapCost,
+                NeedCredit = WorldConstants.StabilizeCreditCost,
+                HaveCredit = CurrencyService.Credits
+            };
+            var body = SectorMapCatalog.Get(bodyId);
+            if (body == null)
+            {
+                info.Block = StabilizeBlock.UnknownBody;
+                return info;
+            }
+
+            var state = GetState(bodyId);
+            if (state >= GridNodeState.Stable)
+            {
+                info.Block = StabilizeBlock.AlreadyStable;
+                return info;
+            }
+
+            if (!IsLocatedOrBetter(bodyId))
+            {
+                info.Block = StabilizeBlock.NotLocated;
+                return info;
+            }
+
+            info.CanAttempt = true;
+            info.HaveScrap = CountLocalScrap();
+            string regionId = PrimaryRegion(body);
+            info.FreeViaClear = !string.IsNullOrEmpty(regionId) && RegionCleared(regionId);
+            info.CanAfford = info.HaveScrap >= info.NeedScrap && info.HaveCredit >= info.NeedCredit;
+            if (!info.FreeViaClear && !info.CanAfford)
+                info.Block = StabilizeBlock.NeedResources;
+            return info;
         }
 
         public static bool CanBuyChart()
@@ -166,26 +210,27 @@ namespace Assets.Resources.Scripts.World
         public static WorldCommandResult TryStabilize(string bodyId)
         {
             EnsureReady();
-            var body = SectorMapCatalog.Get(bodyId);
-            if (body == null)
-                return WorldCommandResult.Fail("Unknown body.");
-            if (!CanStabilize(bodyId))
-                return WorldCommandResult.Fail("Locate the node before repairing its beacon.");
-
-            string regionId = PrimaryRegion(body);
-            bool cleared = !string.IsNullOrEmpty(regionId) && RegionCleared(regionId);
-            if (!cleared)
+            var check = InspectStabilize(bodyId);
+            if (!check.CanAttempt)
             {
-                if (!TryPayStabilize(out var err))
-                    return WorldCommandResult.Fail(err);
+                return WorldCommandResult.Fail(check.Block switch
+                {
+                    StabilizeBlock.AlreadyStable => "Beacon is already stable.",
+                    StabilizeBlock.NotLocated => "Locate the node before repairing its beacon.",
+                    _ => "Unknown body."
+                });
             }
 
+            if (!check.FreeViaClear && !TryPayStabilize(out var err))
+                return WorldCommandResult.Fail(err);
+
             PromoteNodeAndIncident(bodyId, GridNodeState.Stable, GridEdgeTier.Stable);
+            UnlockAdjacentBodies(bodyId);
             RecalcExplore();
             WorldService.Save();
             GrantScanProgression();
             return WorldCommandResult.OkMessage(
-                cleared
+                check.FreeViaClear
                     ? "Beacon restored. Lane is stable."
                     : "Beacon patched with scrap. Lane is stable.");
         }
@@ -243,9 +288,10 @@ namespace Assets.Resources.Scripts.World
             EnsureReady();
             int newly = 0;
             float range = NavigationService.GetRadarRange();
+            var world = WorldService.State;
             foreach (var body in SectorMapCatalog.Bodies)
             {
-                if (body == null || GetState(body.bodyId) != GridNodeState.Unobserved)
+                if (body == null || !GridVisibility.CanRadarFog(world, body.bodyId))
                     continue;
                 if (NavigationService.DistanceToBody(body) <= range)
                 {
@@ -361,42 +407,8 @@ namespace Assets.Resources.Scripts.World
             return Mathf.Clamp(points * 100 / max, 0, 100);
         }
 
-        private static void SeedFromLegacy(PlayerWorldState world)
-        {
-            foreach (var body in SectorMapCatalog.Bodies)
-            {
-                if (body == null) continue;
-                var node = EnsureNode(world, body.bodyId);
-                bool known = ContainsId(world.knownBodyIds, body.bodyId);
-                bool cleared = false;
-                string regionId = PrimaryRegion(body);
-                if (!string.IsNullOrEmpty(regionId))
-                    cleared = RegionCleared(world, regionId);
-
-                if (body.bodyId == WorldConstants.OuterHavenBodyId || cleared)
-                    node.state = GridNodeState.Stable;
-                else if (known)
-                    node.state = GridNodeState.Located;
-                else
-                    node.state = GridNodeState.Unobserved;
-            }
-
-            foreach (var edge in SectorMapCatalog.Edges)
-            {
-                if (edge == null) continue;
-                var rt = EnsureEdge(world, edge.edgeId);
-                var a = FindNode(world, edge.a)?.state ?? GridNodeState.Unobserved;
-                var b = FindNode(world, edge.b)?.state ?? GridNodeState.Unobserved;
-                if (a >= GridNodeState.Stable && b >= GridNodeState.Stable)
-                    rt.tier = GridEdgeTier.Stable;
-                else if (a >= GridNodeState.Located && b >= GridNodeState.Located)
-                    rt.tier = GridEdgeTier.Provisional;
-                else
-                    rt.tier = GridEdgeTier.Unknown;
-            }
-
-            world.gridSeeded = true;
-        }
+        private static void SeedFromLegacy(PlayerWorldState world) =>
+            GridVisibility.SeedLaneGrid(world);
 
         private static void SeedUniverseSectors(PlayerWorldState world)
         {
@@ -423,16 +435,8 @@ namespace Assets.Resources.Scripts.World
             }
         }
 
-        private static void UnlockAdjacentBodies(string bodyId)
-        {
-            foreach (var edge in SectorMapCatalog.Edges)
-            {
-                if (edge == null) continue;
-                if (edge.a != bodyId && edge.b != bodyId) continue;
-                string other = edge.a == bodyId ? edge.b : edge.a;
-                SetNodeState(other, GridNodeState.Located);
-            }
-        }
+        private static void UnlockAdjacentBodies(string bodyId) =>
+            GridVisibility.UnlockAdjacentLocated(WorldService.State, bodyId);
 
         private static void UnlockAdjacentSectors(string sectorId)
         {
@@ -447,16 +451,8 @@ namespace Assets.Resources.Scripts.World
 
         private static void ApplyChartReveal(PlayerWorldState world)
         {
-            // Buying the sector chart at the merchant unlocks the ENTIRE sector's nodes — every
-            // body becomes fully located/visible. Challengeability stays gated by lane adjacency
-            // to cleared nodes (WorldRules.CanChallengeRegion), so revealing != challengeable.
-            foreach (var body in SectorMapCatalog.Bodies)
-            {
-                if (body == null) continue;
-                var node = EnsureNode(world, body.bodyId);
-                if (node.state < GridNodeState.Located)
-                    node.state = GridNodeState.Located;
-            }
+            // Chart paints silhouettes only. Challenge still requires a restored adjacent beacon.
+            GridVisibility.RevealChartSilhouettes(world);
         }
 
         private static void PromoteNodeAndIncident(string bodyId, GridNodeState nodeState, GridEdgeTier minEdge)
@@ -655,22 +651,21 @@ namespace Assets.Resources.Scripts.World
             return body.regionIds[0] ?? "";
         }
 
+        private static int CountLocalScrap() =>
+            ProductionService.CountLocal(EconomyConstants.ScrapDefId, 1);
+
         private static bool TryPayStabilize(out string error)
         {
             error = null;
             int scrap = WorldConstants.StabilizeScrapCost;
             int credit = WorldConstants.StabilizeCreditCost;
-            if (credit > 0 && (DataUtil.Instance?.currentPlayer?.creditPoints ?? 0) < credit)
+            if (credit > 0 && CurrencyService.Credits < credit)
             {
                 error = $"Need {credit} credits to patch the beacon.";
                 return false;
             }
 
-            var items = ProductionService.GetLocalItems();
-            foreach (var item in items)
-                ItemFactory.NormalizeLegacy(item);
-            int have = InventoryRules.CountOf(
-                ItemFactory.ToStacks(items), EconomyConstants.ScrapDefId, 1);
+            int have = CountLocalScrap();
             if (have < scrap)
             {
                 error = $"Need {scrap} scrap to patch the beacon.";
