@@ -28,8 +28,9 @@ namespace Assets.Resources.Scripts.Economy
             var node = GatherNodeCatalog.Get(nodeId);
             if (node == null)
                 return EconomyCommandResult.Fail("Unknown gather node.");
-            if (!WorldService.IsFarmUnlocked(node.regionId) && !IsRegionCleared(node.regionId))
-                return EconomyCommandResult.Fail("Region not cleared for gather.");
+            if (!WorldService.IsGatherUnlocked(node.regionId) && !WorldService.IsFarmUnlocked(node.regionId)
+                && !IsRegionCleared(node.regionId))
+                return EconomyCommandResult.Fail("Region not ready for gather.");
 
             var deck = PreferEconomyDeck(cards);
             if (deck == null || deck.MemberCount < 1)
@@ -42,7 +43,12 @@ namespace Assets.Resources.Scripts.Economy
 
             var start = DeckService.TryStart(deck.deckId, DeckActionType.Gather, nodeId, cards);
             if (start.Success)
+            {
                 OnboardingService.NotifyGatherProgress();
+#if UNITY_EDITOR
+                Debug.Log($"[GF-EVENT] production_started kind=gather node={nodeId} deck={deck.deckId}");
+#endif
+            }
             return start.Success
                 ? EconomyCommandResult.Ok()
                 : EconomyCommandResult.Fail(start.Message);
@@ -88,7 +94,10 @@ namespace Assets.Resources.Scripts.Economy
                 reservedInputs = CloneInputs(recipe.inputs)
             };
             IdleSettlementService.Save();
-            OnboardingService.NotifyCraftedOnce();
+            OnboardingService.NotifyCraftedOnce(recipe.outputDefId);
+#if UNITY_EDITOR
+            Debug.Log($"[GF-EVENT] production_started kind=recipe recipe={recipe.recipeId} output={recipe.outputDefId}");
+#endif
             return EconomyCommandResult.Ok($"Started crafting {recipe.outputQty}× {recipe.outputDefId}.");
         }
 
@@ -545,8 +554,35 @@ namespace Assets.Resources.Scripts.Economy
         public static List<ItemEntity> GetLocalItems()
         {
             if (ItemManager.Instance != null && ItemManager.Instance.HasLoaded)
-                return ItemManager.Instance.GetItems();
+            {
+                var live = ItemManager.Instance.GetItems() ?? new List<ItemEntity>();
+                if (live.Count == 0)
+                    TryHydrateEmptyManagerFromDisk(live);
+                return live;
+            }
+
             return DataUtil.Instance?.LoadInventory(InventoryStore.Local) ?? new List<ItemEntity>();
+        }
+
+        /// <summary>Warehouse count after legacy id / quality normalization.</summary>
+        public static int CountLocal(string itemDefId, int minQuality = 1)
+        {
+            if (string.IsNullOrEmpty(itemDefId)) return 0;
+            return InventoryRules.CountOf(ItemFactory.ToStacks(GetLocalItems()), itemDefId, minQuality);
+        }
+
+        private static void TryHydrateEmptyManagerFromDisk(List<ItemEntity> live)
+        {
+            var disk = DataUtil.Instance?.LoadInventory(InventoryStore.Local);
+            if (disk == null || disk.Count == 0) return;
+            foreach (var item in disk)
+            {
+                if (item == null) continue;
+                ItemFactory.NormalizeLegacy(item);
+                live.Add(item);
+            }
+
+            ItemManager.Instance.RefreshSlotsFromMemory();
         }
 
         public static bool TryAddLocal(ItemEntity item)

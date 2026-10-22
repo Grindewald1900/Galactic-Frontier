@@ -7,6 +7,7 @@ using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using UnityEngine;
@@ -122,6 +123,8 @@ namespace Assets.Resources.Scripts.Economy
 
             State.pendingLoot = remaining;
             Save();
+            if (claimed.Count > 0)
+                QuestService.NotifyPendingLootClaimed();
             return remaining.Count == 0
                 ? EconomyCommandResult.Ok()
                 : EconomyCommandResult.Fail("Warehouse full; some loot remains pending.");
@@ -267,6 +270,8 @@ namespace Assets.Resources.Scripts.Economy
                     var qty = OfflineRules.ScaleReward((node?.outputQty ?? 1) * cycles, yield);
                     if (qty > 0)
                         EnqueueLoot(node?.outputDefId ?? "mat_scrap", node?.outputQuality ?? 2, qty, false, 0);
+                    if (cycles > 0 && node != null)
+                        QuestService.NotifyGatherCycle(node.nodeId, cycles);
                     var seconds = cycles * Math.Max(1, node?.cycleSeconds ?? EconomyConstants.GatherCycleSeconds);
                     ProgressionService.GrantProfessionToParty(
                         members, ProfessionSkill.Gather, node?.requiredSkillLevel ?? 1, seconds);
@@ -287,6 +292,8 @@ namespace Assets.Resources.Scripts.Economy
                     ProgressionService.GrantCombatToParty(
                         members, null, ProgressionCatalog.FarmCombatXpPerCycle * cycles);
                     ProgressionService.GrantCommander(ProgressionCatalog.CommanderFarmXp * cycles);
+                    if (cycles > 0 && !string.IsNullOrEmpty(deck.action.targetId))
+                        QuestService.NotifyFarmVictory(deck.action.targetId, cycles);
                 }
             }
 
