@@ -11,6 +11,7 @@
         "GalacticFrontier.MarketDomain",
         "GalacticFrontier.UnlockDomain",
         "GalacticFrontier.ChapterQuestDomain",
+        "GalacticFrontier.QuestDomain",
         "GalacticFrontier.ProgressionDomain"
     ],
     "includePlatforms": [

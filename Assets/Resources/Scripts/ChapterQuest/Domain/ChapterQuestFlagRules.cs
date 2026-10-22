@@ -16,6 +16,11 @@ namespace Assets.Resources.Scripts.ChapterQuest.Domain
                 ChapterQuestCatalog.StepOuterCleanup => flags.outerCleanupWon,
                 ChapterQuestCatalog.StepScanSignal => flags.miningSignalScanned,
                 ChapterQuestCatalog.StepMiningSpur => flags.miningSpurWon,
+                ChapterQuestCatalog.StepIdleGather => flags.gatherCycleSettled,
+                ChapterQuestCatalog.StepHullLeak => flags.craftedOnce && flags.heldRepairKit,
+                ChapterQuestCatalog.StepTwoRoutes => flags.routeChoiceMade,
+                ChapterQuestCatalog.StepExpeditionPrep => flags.pendingLootClaimed,
+                ChapterQuestCatalog.StepOpenTheLock => flags.frontierBossWon,
                 _ => false
             };
         }
