@@ -45,6 +45,7 @@ namespace Assets.Resources.Scripts.Battle
 
         private int currentRound = 0;
         private Coroutine spectateLoopRoutine;
+        private bool continuingSpectate;
 
         /// <summary>Current auto-battle round; exposed for BattleChrome HUD (Option A).</summary>
         public int CurrentRound => currentRound;
@@ -386,7 +387,7 @@ namespace Assets.Resources.Scripts.Battle
                 attackMultiplier: attackMultiplier,
                 rng: battleRng);
 
-            return new DamageEntity(roll.Damage, DamageType.DAMAGE, roll.CriticalMultiplier);
+            return new DamageEntity(roll.Damage, DamageType.DAMAGE, roll.CriticalMultiplier) { missed = !roll.Hit };
         }
 
         /// <summary>
@@ -448,6 +449,11 @@ namespace Assets.Resources.Scripts.Battle
             currentRound = 0;
             LastOutcome = BattleOutcome.None;
             progressApplied = false;
+            // Idle-spectate loops keep the previous fight's lines (and result) above the new one.
+            if (!continuingSpectate)
+                BattleLog.Clear();
+            continuingSpectate = false;
+            BattleLog.BattleStarted(EncounterDisplayName(), CountAlive(playerCards), CountAlive(enemyCards));
             BeginSeededBattle();
             EnsureMainCombatOccupation();
             CaptureLiveSession(starting: true);
@@ -470,8 +476,24 @@ namespace Assets.Resources.Scripts.Battle
             GameStatusManager.Instance.IsBattle = true;
             LastOutcome = BattleOutcome.None;
             progressApplied = false;
+            BattleLog.Clear();
+            BattleLog.BattleResumed(currentRound);
             BackgroundBattleHost.Ensure().AttachPresentation();
             StartCoroutine(BattleRoutine(resume: true));
+        }
+
+        private static string EncounterDisplayName()
+        {
+            var encounter = EncounterCatalog.Get(PendingEncounterId);
+            if (encounter == null)
+                return UiText.T("Unknown encounter", "未知遭遇");
+            string en = string.IsNullOrEmpty(encounter.displayName) ? encounter.encounterId : encounter.displayName;
+            return UiText.T(en, string.IsNullOrEmpty(encounter.displayNameZh) ? en : encounter.displayNameZh);
+        }
+
+        private static int CountAlive(List<Card> cards)
+        {
+            return cards == null ? 0 : cards.Count(card => card != null && card.IsAlive());
         }
 
         /// <summary>Snapshots the fight so Bridge can keep simulating after leaving BattleScene.</summary>
@@ -633,6 +655,8 @@ namespace Assets.Resources.Scripts.Battle
                     yield return new WaitUntil(() => !BattleInfo.Instance.isBattleInfoActive);
                 }
 
+                Debug.Log($"[BATTLE] Round {currentRound} encounter={PendingEncounterId}");
+                BattleLog.Round(currentRound);
                 if (BattleInfo.Instance != null)
                 {
                     BattleInfo.Instance.PlayBattleInfoAnimation($"Round {currentRound}");
@@ -674,15 +698,18 @@ namespace Assets.Resources.Scripts.Battle
                     {
                         Debug.Log("Max energy, using special attack.");
                         card.ResetEnergyBar();
+                        BattleLog.BeginAction(card, special: true);
                         yield return character.SpecialAttack(card, targets);
                     }
                     else
                     {
                         Debug.Log("Using normal attack.");
                         card.UpdateEnergyBar(30f);
+                        BattleLog.BeginAction(card, special: false);
                         yield return character.NormalAttack(card, targets);
                     }
 
+                    BattleLog.EndAction();
                     card.Unhighlight(DefaultProperty.defaultCardScale);
                     CaptureLiveSession();
 
@@ -710,6 +737,7 @@ namespace Assets.Resources.Scripts.Battle
                     HasAliveCards(playerCards),
                     HasAliveCards(enemyCards),
                     reachedRoundCap: true);
+                BattleLog.RoundCapReached(MaxRound);
                 BattleInfo.Instance?.PlayBattleInfoAnimation("Max Rounds Reached");
             }
 
@@ -780,7 +808,8 @@ namespace Assets.Resources.Scripts.Battle
         /// </summary>
         private void ShowBattleReport()
         {
-            Debug.Log($"{GetType().Name} ShowBattleReport outcome={LastOutcome}");
+            Debug.Log($"{GetType().Name} ShowBattleReport outcome={LastOutcome} rounds={currentRound}");
+            BattleLog.Outcome(LastOutcome, currentRound, CountAlive(playerCards), CountAlive(enemyCards));
             ApplyWorldProgressOnVictory();
             WireReportConfirm();
 
@@ -828,6 +857,7 @@ namespace Assets.Resources.Scripts.Battle
 
             // Fresh arena: rebuild both parties (full HP, new enemy roll) and start a new seeded fight.
             Init(false);
+            continuingSpectate = true;
             StartBattle();
         }
 

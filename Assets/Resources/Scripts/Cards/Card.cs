@@ -61,6 +61,7 @@ namespace Assets.Resources.Scripts.Cards
         private Vector3 originalScale;
         private int nextIndex = 0;
         private bool isHighlighted = false;
+        private bool deathLogged;
 
         public GameObject currentEffect;
         void Awake()
@@ -87,6 +88,7 @@ namespace Assets.Resources.Scripts.Cards
         public void InitCard(CardEntity cardEntity)
         {
             this.cardEntity = cardEntity;
+            deathLogged = false;
             SetImage(cardEntity);
             SetName(string.IsNullOrEmpty(cardEntity.cardName)
                 ? cardEntity.characterName.ToString()
@@ -152,6 +154,7 @@ namespace Assets.Resources.Scripts.Cards
         /// <summary>Queues damage presentation and applies battle state changes asynchronously.</summary>
         public void TakeDamage(Card player, List<DamageEntity> damage)
         {
+            BattleLog.Hits(player, this, damage);
             StartCoroutine(ApplyDamage(player, damage));
             CardEffectManager.Instance.SpawnHitEffect(this);
         }
@@ -210,6 +213,12 @@ namespace Assets.Resources.Scripts.Cards
         public void Die()
         {
             Debug.Log("Die: " + cardEntity.characterName.ToString());
+            // Overlapping hit coroutines can both finish below 0 HP.
+            if (!deathLogged)
+            {
+                deathLogged = true;
+                BattleLog.Defeated(this);
+            }
             Sequence seq = DOTween.Sequence();
             seq.Join(transform.DOScale(Vector3.zero, vanishDuration).SetEase(Ease.InBack));
             seq.OnComplete(() => HideCard());
