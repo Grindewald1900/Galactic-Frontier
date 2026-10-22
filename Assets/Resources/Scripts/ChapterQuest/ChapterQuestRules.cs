@@ -21,10 +21,15 @@ namespace Assets.Resources.Scripts.ChapterQuest
             {
                 ChapterQuestCatalog.StepPrologue => f.prologueWon,
                 ChapterQuestCatalog.StepRecruitCole => f.emergencyRecruitDone || OwnsCharacter(cards, CharacterName.Cole),
-                ChapterQuestCatalog.StepFormation => f.formationReady || MeetsFormationLayout(cards),
+                ChapterQuestCatalog.StepFormation => f.formationReady,
                 ChapterQuestCatalog.StepOuterCleanup => f.outerCleanupWon || RegionCleared(WorldConstants.OuterBeltId),
                 ChapterQuestCatalog.StepScanSignal => f.miningSignalScanned || MiningBodyLocated(),
                 ChapterQuestCatalog.StepMiningSpur => f.miningSpurWon || RegionCleared(WorldConstants.MiningSpurId),
+                ChapterQuestCatalog.StepIdleGather => f.gatherCycleSettled,
+                ChapterQuestCatalog.StepHullLeak => (f.craftedOnce && f.heldRepairKit),
+                ChapterQuestCatalog.StepTwoRoutes => f.routeChoiceMade,
+                ChapterQuestCatalog.StepExpeditionPrep => f.pendingLootClaimed,
+                ChapterQuestCatalog.StepOpenTheLock => f.frontierBossWon || RegionCleared(WorldConstants.FrontierBossId),
                 _ => false
             };
         }
@@ -34,25 +39,16 @@ namespace Assets.Resources.Scripts.ChapterQuest
             if (!DeckService.IsLoaded) return false;
             var deck = DeckService.GetActiveCombatDeck();
             if (deck?.slotCardIds == null) return false;
-
-            bool asraFront = false;
-            bool coleBack = false;
-            bool strategyChanged = !string.IsNullOrEmpty(deck.combatStrategyId)
-                && deck.combatStrategyId != "Balanced";
-
-            for (int i = 0; i < deck.slotCardIds.Length; i++)
+            for (int i = 0; i < deck.slotCardIds.Length && i < 2; i++)
             {
                 var id = deck.slotCardIds[i];
                 if (string.IsNullOrEmpty(id)) continue;
                 var entity = FindCard(cards, id);
-                if (entity == null) continue;
-                if (entity.characterName == CharacterName.Asra && i < 2)
-                    asraFront = true;
-                if (entity.characterName == CharacterName.Cole && i >= 2)
-                    coleBack = true;
+                if (entity != null && entity.characterName == CharacterName.Cole)
+                    return true;
             }
 
-            return asraFront && coleBack && strategyChanged;
+            return false;
         }
 
         public static bool OwnsCharacter(IList<CardEntity> cards, CharacterName name)
