@@ -166,6 +166,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             labelText.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             labelText.rectTransform.anchoredPosition = Vector2.zero;
             labelText.rectTransform.sizeDelta = Vector2.zero;
+            var motion = buttonObject.AddComponent<NexusUiMotion>();
+            motion.Press = true;
             return button;
         }
 

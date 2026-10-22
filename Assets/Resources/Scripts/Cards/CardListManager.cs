@@ -5,9 +5,11 @@ using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Main;
 using Assets.Resources.Scripts.Props;
 using Assets.Resources.Scripts.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Resources.Scripts.Cards
 {
@@ -16,8 +18,8 @@ namespace Assets.Resources.Scripts.Cards
     /// Sorting and filtering change presentation order; add/remove operations persist through DataUtil.
     /// </summary>
     /// <remarks>
-    /// This object survives scene changes so BattleController can consume the selected formation.
     /// CardEntity is the model, while Card is the reusable MonoBehaviour view bound to gridParent.
+    /// This manager stays in MainScene. BattleController loads the combat party from disk or a pending copy.
     /// </remarks>
     public class CardListManager : MonoBehaviour
     {
@@ -34,7 +36,6 @@ namespace Assets.Resources.Scripts.Cards
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
             }
             else
             {
@@ -42,10 +43,34 @@ namespace Assets.Resources.Scripts.Cards
             }
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
         private void OnEnable()
         {
+            if (IsBattleSceneActive())
+            {
+                HideCollectionUi();
+                return;
+            }
             InitCardList();
         }
+
+        /// <summary>
+        /// Hides the legacy collection chrome. BattleScene must not show CardPanel / card preview.
+        /// </summary>
+        public void HideCollectionUi()
+        {
+            CardPreviewController.Instance?.HideCardPreview();
+            if (gameObject.activeSelf)
+                gameObject.SetActive(false);
+        }
+
+        private static bool IsBattleSceneActive() =>
+            SceneManager.GetActiveScene().name == "BattleScene";
 
         private void OnCardClicked(Card card)
         {
@@ -99,13 +124,22 @@ namespace Assets.Resources.Scripts.Cards
             {
                 cards[i].HideCard();
             }
-            if (cards.Count > 0)
+            if (cards.Count > 0 && ShouldShowCollectionPreview())
             {
                 cards[0].Highlight(DefaultProperty.highlightCardScale);
                 CardPreviewController.Instance?.ShowCardPreview(cards[0].cardEntity);
             }
             DataUtil.Instance.SaveCardData(cardEntities);
         }
+
+        private static bool ShouldShowCollectionPreview()
+        {
+            if (IsBattleSceneActive())
+                return false;
+            return GameStatusManager.Instance == null
+                || GameStatusManager.Instance.CurrentScene == CurrentScene.CARDS_MENU;
+        }
+
         public void UnhighlightAllCards()
         {
             foreach (var card in cards) card.Unhighlight(DefaultProperty.defaultCardScale);
@@ -125,7 +159,8 @@ namespace Assets.Resources.Scripts.Cards
                 CardSortOrder.PowerDesending => cardEntities.OrderByDescending(card => card.power).ToList(),
                 _ => cardEntities
             };
-            CardPanelController.Instance.typeDropdown.value = 0;
+            if (CardPanelController.Instance != null && CardPanelController.Instance.typeDropdown != null)
+                CardPanelController.Instance.typeDropdown.value = 0;
             UpdateCardList(cardEntities);
         }
         public void FilterCardsByType(Archetype cardType)

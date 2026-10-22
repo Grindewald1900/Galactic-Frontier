@@ -226,6 +226,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string StartAutoBattle => G("ui.explore.challenge");
         public static string StartFarm => G("ui.explore.farm");
         public static string StartGather => G("ui.explore.gather");
+        public static string ExploreContinueCampaign(int current, int total) =>
+            F("ui.explore.continue_campaign", current, total);
+        public static string ExploreDeployIdle => G("ui.explore.deploy_idle");
+        public static string ExploreStationIdle => G("ui.explore.station_idle");
+        public static string ExploreCampaignProgress(int current, int total) =>
+            F("ui.explore.campaign_progress", current, total);
+        public static string ExploreAdjustFleet => G("ui.explore.adjust_fleet");
+        public static string ExploreBossConfirmTitle => G("ui.explore.boss_confirm_title");
+        public static string ExploreBossConfirmBody(string bossName) =>
+            F("ui.explore.boss_confirm_body", bossName);
+        public static string ExploreEnemyTrait(string trait) => F("ui.explore.enemy_trait", trait);
+        public static string ExploreEnvironment(string env) => F("ui.explore.environment", env);
+        public static string ExploreCampaignCurrent(string stage) =>
+            F("ui.explore.campaign_current", stage);
         public static string GatherBankTitle => G("ui.explore.gather_bank_title");
         public static string GatherBankHint => G("ui.explore.gather_bank_hint");
         public static string GatherBankEmpty => G("ui.explore.gather_bank_empty");
@@ -350,6 +364,20 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ExploreSideBody => G("ui.explore.side_body");
         public static string ExploreProbe => G("ui.explore.probe");
         public static string ExploreStabilize => G("ui.explore.stabilize");
+        public static string ExploreStabilizeFailTitle => G("ui.explore.stabilize_fail_title");
+        public static string ExploreStabilizeNotLocated => G("ui.explore.stabilize_not_located");
+        public static string ExploreStabilizeAlready => G("ui.explore.stabilize_already");
+        public static string ExploreStabilizeUnknown => G("ui.explore.stabilize_unknown");
+        public static string ExploreStabilizeNeedCost(int needScrap, int needCredit, int haveScrap, int haveCredit) =>
+            F("ui.explore.stabilize_need_cost", needScrap, needCredit, haveScrap, haveCredit);
+        public static string ExploreStabilizeConfirmTitle => G("ui.explore.stabilize_confirm_title");
+        public static string ExploreStabilizeConfirmBody(int scrap, int credit) =>
+            F("ui.explore.stabilize_confirm_body", scrap, credit);
+        public static string ExploreStabilizeOk => G("ui.explore.stabilize_ok");
+        public static string ExploreIdleRunning => G("ui.explore.idle_running");
+        public static string ExploreGatherRunning => G("ui.explore.gather_running");
+        public static string ExploreShipGateTitle => G("ui.explore.ship_gate_title");
+        public static string ExploreShipGateBody(string gaps) => F("ui.explore.ship_gate_body", gaps);
         public static string ExploreBuyChart(int credits) => F("ui.explore.buy_chart", credits);
         public static string ExploreFogName => G("ui.explore.fog_name");
         public static string ExploreSoftGate(int rec, int extraPct) => F("ui.explore.soft_gate", rec, extraPct);
@@ -444,6 +472,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string FormationHint => G("ui.formation.hint");
         public static string RosterFilterAll => G("ui.formation.filter_all");
         public static string RosterEmpty => G("ui.formation.roster_empty");
+        public static string RosterAllAssigned => G("ui.formation.roster_all_assigned");
         public static string RosterAssignedTo(string deckNames) => F("ui.formation.assigned_to", deckNames);
         public static string RosterAlreadyAssignedHint(string deckNames) =>
             F("ui.formation.already_assigned", deckNames);
@@ -673,6 +702,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string MissionsClaim => G("ui.missions.claim");
         public static string MissionsGo => G("ui.missions.go");
         public static string MissionsClaimed(string title) => F("ui.missions.claimed", title);
+        public static string MissionsClaimTab => G("ui.missions.claim_tab");
+        public static string MissionsClaimTabEmpty => G("ui.missions.claim_tab_empty");
+        public static string MissionsClaimTabCount(int count) => F("ui.missions.claim_tab_count", count);
+        public static string MissionsClaimTabResult(int count, int credits) =>
+            F("ui.missions.claim_tab_result", count, credits);
+        public static string MissionsTabEmpty(string tab) => F("ui.missions.tab_empty", tab);
         public static string MissionsNextStep(string title) => F("ui.missions.next", title);
         public static string MissionsOpenMissions => G("ui.missions.open");
         public static string MissionsStepBanner(string title) => F("ui.missions.step_banner", title);
@@ -704,6 +739,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string BattleLogStart => G("ui.battle.log_start");
         public static string BattleLogRound(int round) => F("ui.battle.log_round", round);
         public static string BattleLogEnded => G("ui.battle.log_ended");
+        public static string BattleLogFormationBad => G("ui.battle.log_formation_bad");
         public static string Turn(int round) => round > 0 ? F("ui.battle.turn", round) : G("ui.battle.turn_empty");
 
         // P6 Commander loop
@@ -729,6 +765,17 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string QuestToggle => G("ui.quest.toggle");
         public static string QuestChapterTitle => G("ui.quest.chapter_title");
         public static string QuestOnboardingTitle => G("ui.quest.onboarding_title");
+        public static string QuestExpeditionTitle => G("ui.quest.expedition_title");
+        public static string QuestShipTitle => G("ui.quest.ship_title");
+        public static string QuestLoopTitle => G("ui.quest.loop_title");
+        public static string QuestStepReady => G("ui.quest.step_ready");
+        public static string QuestTrackerEmpty => G("ui.quest.tracker_empty");
+        public static string QuestLoopProgress(int current, int target) =>
+            F("ui.quest.loop_progress", current, target);
+        public static string QuestRouteHint => G("ui.quest.route_hint");
+        public static string QuestRouteConvoy => G("ui.quest.route_convoy");
+        public static string QuestRouteRift => G("ui.quest.route_rift");
+        public static string QuestRouteNeedProbe => G("ui.quest.route_need_probe");
         public static string CommanderGoalChapter => G("ui.commander.goal_chapter");
         public static string ChapterStrategyTitle => G("ui.chapter.strategy_title");
         public static string ChapterStrategyBody => G("ui.chapter.strategy_body");
@@ -739,10 +786,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public static string ShortageGoAcquire => G("ui.shortage.go_acquire");
         public static string ShortageGoMarket => G("ui.shortage.go_market");
         public static string BridgeCommanderGoal => G("ui.bridge.commander_goal");
+        public static string BridgeQuestFilterAll => G("ui.bridge.quest_filter_all");
+        public static string BridgeQuestFilterStory => G("ui.bridge.quest_filter_story");
+        public static string BridgeQuestStatusReady => G("ui.bridge.quest_status_ready");
+        public static string BridgeQuestFilterEmpty => G("ui.bridge.quest_filter_empty");
         public static string BridgeBottleneck => G("ui.bridge.bottleneck");
         public static string BridgeRecommended => G("ui.bridge.recommended");
         public static string BridgeMiniMap => G("ui.bridge.mini_map");
         public static string BridgeQuestRewards(string line) => F("ui.bridge.quest_rewards", line);
+        public static string BridgeNextStepLabel => G("ui.bridge.next_step");
+        public static string BridgePendingClaim(string title) => F("ui.bridge.pending_claim", title);
         public static string BridgeQuestPower(int current, int recommended) =>
             F("ui.bridge.quest_power", current, recommended);
         public static string BridgeNearbyTitle => G("ui.bridge.nearby_title");

@@ -16,6 +16,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (entity == null)
                 return ImageUtil.GetSpriteByName(ImageUtil.imageDefaultPath, "Default");
 
+            if (!string.IsNullOrEmpty(entity.portraitKey))
+                return ImageUtil.GetSpriteByName(ImageUtil.characterImagePath, entity.portraitKey);
+
             return ImageUtil.GetSpriteByName(
                 ImageUtil.characterImagePath,
                 entity.characterName + "_01");

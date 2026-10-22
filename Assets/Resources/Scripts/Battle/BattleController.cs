@@ -18,7 +18,9 @@ using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.World.Domain;
+using Assets.Resources.Scripts.Scene;
 using TMPro;
 using UnityEngine.UI;
 
@@ -61,6 +63,7 @@ namespace Assets.Resources.Scripts.Battle
 
         /// <summary>Outcome of the last finished battle; set before the report opens.</summary>
         public BattleOutcome LastOutcome { get; private set; } = BattleOutcome.None;
+        private RewardService.GrantResult lastGrant;
 
         /// <summary>Seed used for this battle's hit/crit rolls.</summary>
         public long BattleSeed { get; private set; }
@@ -79,6 +82,24 @@ namespace Assets.Resources.Scripts.Battle
 
         /// <summary>Encounter id for enemy party load (P2.3).</summary>
         public static string PendingEncounterId { get; set; }
+
+        /// <summary>Shared battle entry used by Explore and debug tools.</summary>
+        public static void LaunchEncounter(string regionId, string encounterId)
+        {
+            PendingBattleTargetId = regionId;
+            PendingEncounterId = encounterId;
+            PendingSpectateAutoCombat = false;
+            PendingResumeLiveSession = false;
+            PendingBattleSeed =
+                unchecked((regionId ?? "").GetHashCode() * 1_000_003L ^ DateTime.UtcNow.Ticks);
+            // A leftover live session would restore the previous party and ignore the saved deck.
+            LiveBattleSession.Clear();
+            var deck = DeckService.GetActiveCombatDeck();
+            Debug.Log(
+                $"[BATTLE] Launch deck={deck?.deckId ?? ""} " +
+                $"slots=[{string.Join(",", DeckRules.BattleStations(deck))}]");
+            LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
+        }
 
         /// <summary>Chapter 1 prologue battle — skips world region registration.</summary>
         public static bool PendingIsChapterPrologue { get; set; }
@@ -106,12 +127,25 @@ namespace Assets.Resources.Scripts.Battle
         private void Awake()
         {
             if (Instance == null) Instance = this;
+            CardListManager.Instance?.HideCollectionUi();
         }
         private void Start()
         {
-            // Always resume from the shared session when one is mid-fight.
-            // Do not require PendingResumeLiveSession — that flag was easy to miss and caused Round-1 restarts.
-            bool resume = LiveBattleSession.CanResume;
+            CardListManager.Instance?.HideCollectionUi();
+            if (GameStatusManager.Instance != null)
+                GameStatusManager.Instance.IsBattle = false;
+
+            // Prologue must start a fresh fight. A leftover AutoCombat session would skip
+            // Round 1 and dump the player onto the settlement report.
+            bool prologue = PendingIsChapterPrologue;
+            if (prologue)
+            {
+                LiveBattleSession.Clear();
+                PendingSpectateAutoCombat = false;
+                PendingIsChapterPrologue = true;
+            }
+
+            bool resume = !prologue && LiveBattleSession.CanResume;
             PendingResumeLiveSession = false;
 
             BackgroundBattleHost.Ensure().AttachPresentation();
@@ -166,6 +200,18 @@ namespace Assets.Resources.Scripts.Battle
             HideCards(playerCards);
             HideCards(enemyCards);
             PlacePlayerParty(ownedCards);
+
+            if (PendingIsChapterPrologue && !HasPlacedPlayerCards())
+            {
+                Debug.LogWarning("[BATTLE] Prologue party empty — rebuilding starter fleet.");
+                ChapterQuestService.PrepareStarterFleet();
+                ownedCards = CardListManager.Instance != null
+                    ? CardListManager.Instance.cardEntities
+                    : DataUtil.Instance?.LoadCardData();
+                if (DataUtil.Instance != null && ownedCards != null)
+                    DeckService.EnsureLoaded(DataUtil.Instance, ownedCards);
+                PlacePlayerParty(ownedCards);
+            }
 
             if (DeckService.IsLoaded)
             {
@@ -274,6 +320,11 @@ namespace Assets.Resources.Scripts.Battle
 
             return $"[BATTLE] Party deck={deck?.deckId ?? ""} saved=[{saved}] " +
                    $"resolved={stations?.Count ?? 0} placed=[{string.Join(",", placed)}]";
+        }
+
+        private bool HasPlacedPlayerCards()
+        {
+            return HasAliveCards(playerCards);
         }
 
         private void RestoreFromLiveSession()
@@ -390,6 +441,9 @@ namespace Assets.Resources.Scripts.Battle
         public void StartBattle()
         {
             if (GameStatusManager.Instance.IsBattle) return;
+#if UNITY_EDITOR
+            LogBossEntry();
+#endif
             GameStatusManager.Instance.IsBattle = true;
             currentRound = 0;
             LastOutcome = BattleOutcome.None;
@@ -400,6 +454,15 @@ namespace Assets.Resources.Scripts.Battle
             BackgroundBattleHost.Ensure().AttachPresentation();
             StartCoroutine(BattleRoutine());
         }
+
+#if UNITY_EDITOR
+        private void LogBossEntry()
+        {
+            var encounter = EncounterCatalog.Get(PendingEncounterId);
+            if (encounter == null || !encounter.isBoss) return;
+            Debug.Log($"[GF-EVENT] enter_boss encounter={encounter.encounterId} region={PendingBattleTargetId}");
+        }
+#endif
 
         private void StartBattleResumed()
         {
@@ -731,6 +794,7 @@ namespace Assets.Resources.Scripts.Battle
                 BattleReportManager.Instance.RefreshChart(ChartType.pDamageChart, playerCards);
                 BattleReportManager.Instance.RefreshChart(ChartType.pInjuryChart, playerCards);
                 BattleReportManager.Instance.RefreshChart(ChartType.pHealChart, playerCards);
+                BattleReportManager.Instance.ShowSummary(BuildReportSummary());
             }
 
             // Idle spectate: keep looping farm fights. Show the report briefly, then auto-start the
@@ -791,6 +855,7 @@ namespace Assets.Resources.Scripts.Battle
         {
             if (progressApplied)
                 return;
+            lastGrant = null;
 
             if (PendingSpectateAutoCombat)
             {
@@ -842,8 +907,8 @@ namespace Assets.Resources.Scripts.Battle
             Debug.Log($"[WORLD] Victory registered region={regionId} enc={encounterId} ok={result.Success} first={result.WasFirstClear} {result.Message}");
             if (result.Success)
             {
-                Assets.Resources.Scripts.Onboarding.OnboardingService.NotifyFirstBattleWon();
-                RewardService.GrantForRegionVictory(regionId, result.WasFirstClear);
+                QuestService.NotifyRegionVictory(regionId);
+                lastGrant = RewardService.GrantForRegionVictory(regionId, result);
                 if (regionId == WorldConstants.OuterBeltId)
                     ChapterQuestService.NotifyOuterCleanupWon();
                 else if (regionId == WorldConstants.MiningSpurId)
@@ -880,7 +945,10 @@ namespace Assets.Resources.Scripts.Battle
             {
                 Assets.Resources.Scripts.Economy.DurabilityService.ApplyCombatWearToEquipped(cards);
                 if (!string.IsNullOrEmpty(regionId))
+                {
                     RewardService.GrantForFarmCycle(regionId);
+                    QuestService.NotifyFarmVictory(regionId);
+                }
             }
 
             if (!string.IsNullOrEmpty(regionId))
@@ -988,6 +1056,42 @@ namespace Assets.Resources.Scripts.Battle
             confirmButton.onClick.RemoveListener(OnReportConfirm);
             confirmButton.onClick.AddListener(OnReportConfirm);
             reportConfirmWired = true;
+        }
+
+        private string BuildReportSummary()
+        {
+            if (PendingSpectateAutoCombat)
+                return UiText.T("Idle combat cycle settled.", "挂机战斗本轮已结算。");
+
+            if (LastOutcome != BattleOutcome.Victory)
+                return UiText.T(
+                    "No rewards; stage progress unchanged.\nNext: fill empty slots or level up cards in Adjust Fleet, then press Continue Campaign on the star map to retry.",
+                    "未获得奖励，攻略进度不变。\n下一步：在「调整舰队」补满阵位或升级卡牌，再回星图点「继续攻略」重试。");
+
+            var regionId = PendingBattleTargetId;
+            if (string.IsNullOrEmpty(regionId))
+                return UiText.T(
+                    "Victory.\nRewards: none.\nNext: confirm to return, then follow the quest on the bridge.",
+                    "战斗胜利。\n奖励：无。\n下一步：确认返回，再按舰桥上的任务继续。");
+
+            string rewards = lastGrant == null || !lastGrant.Success
+                ? UiText.T("Rewards: none", "奖励：无")
+                : UiText.T("Rewards: ", "奖励：")
+                  + (lastGrant.CreditsGranted > 0
+                      ? UiText.T($"credits +{lastGrant.CreditsGranted}  ", $"信用点 +{lastGrant.CreditsGranted}  ")
+                      : "")
+                  + UiText.T($"items x{lastGrant.ItemsGranted}", $"物品 x{lastGrant.ItemsGranted}")
+                  + (lastGrant.ItemsPending > 0
+                      ? UiText.T($" ({lastGrant.ItemsPending} to Pending Loot)", $"（{lastGrant.ItemsPending} 件转入待领取）")
+                      : "");
+
+            var view = WorldService.GetRegionView(regionId);
+            string next = view == null
+                ? ""
+                : view.HighestClearedStage >= view.StageCount
+                    ? UiText.T("Next: region cleared — deploy idle to farm it.", "下一步：区域已全部攻略，可部署挂机刷取。")
+                    : UiText.T("Next: ", "下一步：") + UiText.ExploreContinueCampaign(view.CurrentStage, view.StageCount);
+            return string.IsNullOrEmpty(next) ? rewards : rewards + "\n" + next;
         }
 
         private void ApplyReportTitle()

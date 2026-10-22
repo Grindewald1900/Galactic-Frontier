@@ -7,6 +7,7 @@ using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Progression.Domain;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Scene;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
@@ -100,6 +101,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             }
 
             GridService.EnsureReady();
+            if (!GridService.IsBodyOnMap(selectedBodyId))
+                selectedBodyId = WorldConstants.OuterHavenBodyId;
 
             NexusUiFactory.CreateText(
                 root, "Title", UiText.ExploreTitle,
@@ -278,23 +281,18 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 BuildBodyMarker(map, body);
             }
 
-            // Points of interest (shops / NPCs / events / wormholes) hang off the same lane network.
-            // They are always charted (no fog / probe flow) and never affect grid scoring.
+            // Points of interest hang off restored lanes. They never affect grid scoring.
             foreach (var poi in SectorMapCatalog.PointsOfInterest)
             {
-                if (poi == null || !IsNodeDisplayable(poi.bodyId))
+                if (poi == null || !GridService.IsBodyOnMap(poi.bodyId))
                     continue;
                 BuildBodyMarker(map, poi);
             }
         }
 
-        /// <summary>A grid body once it is on the map, or any charted point of interest.</summary>
-        private static bool IsNodeDisplayable(string bodyId)
-        {
-            if (SectorMapCatalog.IsPointOfInterest(bodyId))
-                return true;
-            return GridService.IsBodyOnMap(bodyId);
-        }
+        /// <summary>Combat body or POI that the current fog rules allow on the map.</summary>
+        private static bool IsNodeDisplayable(string bodyId) =>
+            GridService.IsBodyOnMap(bodyId);
 
         private void BuildUniverseMap(Transform map)
         {
@@ -396,7 +394,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             var local = SectorToLocal(body.x, body.y);
             bool selected = body.bodyId == selectedBodyId;
             string regionId = PrimaryRegion(body);
-            // Points of interest carry no Region — they are always charted (never fogged).
+            // Points of interest carry no Region — they appear after their anchor beacon is restored.
             bool poi = string.IsNullOrEmpty(regionId);
             bool fogged = !poi && GridService.ShowsFog(body.bodyId);
             bool docked = NavigationService.IsDocked(body);
@@ -404,16 +402,21 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             var view = poi || fogged ? null : WorldService.GetRegionView(regionId);
             bool reachable = !fogged && (view == null || view.CanEnter || GridService.IsLocatedOrBetter(body.bodyId));
-            bool cleared = view != null &&
-                (view.Progress == RegionProgressState.Cleared || view.Progress == RegionProgressState.BossDefeated);
+            bool cleared = view != null && view.BeaconRestored;
+            bool advancing = view != null && !cleared &&
+                (view.CampaignState == NodeCampaignState.Advancing
+                 || view.CampaignState == NodeCampaignState.Staging
+                 || view.CampaignState == NodeCampaignState.BossReady);
 
             Color border;
             if (fogged)
                 border = NexusTheme.WithAlpha(NexusTheme.Purple, 0.85f);
             else if (poi)
                 border = selected || docked ? NexusTheme.Green : NodeAccent(body.bodyType);
-            else if (selected || docked || cleared)
+            else if (cleared)
                 border = NexusTheme.Green;
+            else if (advancing)
+                border = NexusTheme.Gold;
             else if (reachable)
                 border = NexusTheme.Cyan;
             else
@@ -474,6 +477,41 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(108f, 16f), 10f,
                 selected ? NexusTheme.Text : fogged ? NexusTheme.DimText : NexusTheme.MutedText,
                 TextAlignmentOptions.Center, selected ? FontStyles.Bold : FontStyles.Normal);
+
+            if (!fogged && view != null && view.StageCount > 1)
+                DrawMarkerProgress(map, local, size, view);
+        }
+
+        private static void DrawMarkerProgress(Transform map, Vector2 local, float size, RegionView view)
+        {
+            int done = view.HighestClearedStage;
+            int total = Mathf.Max(1, view.StageCount);
+            float fill = view.BeaconRestored ? 1f : Mathf.Clamp01(done / (float)total);
+            float barW = Mathf.Max(28f, size);
+            NexusUiFactory.CreateBox(
+                map, "ProgBg_" + view.Config.regionId,
+                new Vector2(local.x - barW * 0.5f, local.y + size * 0.5f + 18f),
+                new Vector2(barW, 4f),
+                NexusTheme.WithAlpha(NexusTheme.DimText, 0.35f));
+            if (fill > 0.02f)
+            {
+                var color = view.BeaconRestored ? NexusTheme.Gold : NexusTheme.Cyan;
+                if (!view.BeaconRestored && done < total)
+                    color = NexusTheme.Gold;
+                NexusUiFactory.CreateBox(
+                    map, "ProgFill_" + view.Config.regionId,
+                    new Vector2(local.x - barW * 0.5f, local.y + size * 0.5f + 18f),
+                    new Vector2(barW * fill, 4f),
+                    color);
+            }
+
+            NexusUiFactory.CreateText(
+                map, "ProgLabel_" + view.Config.regionId,
+                done + "/" + total,
+                new Vector2(local.x - 22f, local.y - size * 0.5f - 16f),
+                new Vector2(44f, 14f), 9f,
+                view.BeaconRestored ? NexusTheme.Gold : NexusTheme.MutedText,
+                TextAlignmentOptions.Center, FontStyles.Bold);
         }
 
         private static Sprite NodeIcon(StellarBodyDef body)
@@ -643,20 +681,24 @@ namespace Assets.Resources.Scripts.UI.Nexus
             int shipLv = Mathf.Max(1, ShipService.State?.level ?? 1);
             bool softGate = shipLv < recLv;
 
+            float axisY = 80f;
+            if (view != null && view.StageCount > 0)
+                axisY = DrawCampaignTrack(side, view, axisY);
+
             string discovery = ExploreDiscoveryLabel(gridState);
             string lane = ExploreLaneLabel(body.bodyId);
             string dev = ExploreDevLabel(view);
             NexusUiFactory.CreateText(
                 side, "AxisDiscovery", UiText.ExploreStatusDiscovery(discovery),
-                new Vector2(20f, 80f), new Vector2(420f, 18f), 11f, NexusTheme.Cyan);
+                new Vector2(20f, axisY), new Vector2(420f, 18f), 11f, NexusTheme.Cyan);
             NexusUiFactory.CreateText(
                 side, "AxisLane", UiText.ExploreStatusLane(lane),
-                new Vector2(20f, 100f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
+                new Vector2(20f, axisY + 20f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
             NexusUiFactory.CreateText(
                 side, "AxisDev", UiText.ExploreStatusDev(dev),
-                new Vector2(20f, 120f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
+                new Vector2(20f, axisY + 40f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
 
-            float y = 148f;
+            float y = axisY + 68f;
             if (!fogged && softGate)
             {
                 int extra = (recLv - shipLv) * 15;
@@ -671,15 +713,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             if (view?.Config != null)
             {
-                var blurb = UiText.T(view.Config.blurbEn, view.Config.blurbZh);
-                if (!string.IsNullOrEmpty(blurb))
-                {
-                    var blurbText = NexusUiFactory.CreateText(
-                        side, "Blurb", blurb,
-                        new Vector2(20f, y), new Vector2(420f, 40f), 12f, NexusTheme.Cyan);
-                    blurbText.textWrappingMode = TextWrappingModes.Normal;
-                    y += 42f;
-                }
+                y = DrawStageIntel(side, view, y);
 
                 var meta = NexusUiFactory.CreateText(
                     side, "Meta", BuildMeta(view),
@@ -698,6 +732,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             float actionY = Mathf.Max(y, 220f);
             ChapterQuestService.EnsureLoaded(DataUtil.Instance);
+            QuestService.EnsureLoaded(DataUtil.Instance);
             if (!ChapterQuestService.IsChapterComplete
                 && ChapterQuestService.ActiveStep?.stepId == ChapterQuestCatalog.StepScanSignal
                 && body.bodyId == "body_mining_spur"
@@ -708,6 +743,29 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     new Vector2(20f, actionY), new Vector2(420f, 36f), 12f, NexusTheme.Cyan);
                 scanHint.textWrappingMode = TextWrappingModes.Normal;
                 actionY += 40f;
+            }
+
+            if (!ChapterQuestService.IsChapterComplete
+                && ChapterQuestService.ActiveStep?.stepId == ChapterQuestCatalog.StepTwoRoutes
+                && QuestRules.BothRoutesFogged()
+                && QuestService.State?.flags?.routeChoiceMade != true)
+            {
+                var routeHint = NexusUiFactory.CreateText(
+                    side, "RouteHint", UiText.QuestRouteHint,
+                    new Vector2(20f, actionY), new Vector2(420f, 40f), 11f, NexusTheme.Cyan);
+                routeHint.textWrappingMode = TextWrappingModes.Normal;
+                actionY += 44f;
+                NexusUiFactory.CreateButton(
+                    side, "RouteConvoy", UiText.QuestRouteConvoy,
+                    new Vector2(20f, actionY), new Vector2(200f, 40f),
+                    () => ChooseRoute("convoy"),
+                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 12f);
+                NexusUiFactory.CreateButton(
+                    side, "RouteRift", UiText.QuestRouteRift,
+                    new Vector2(232f, actionY), new Vector2(208f, 40f),
+                    () => ChooseRoute("rift"),
+                    NexusTheme.WithAlpha(NexusTheme.Purple, 0.18f), NexusTheme.Purple, 12f);
+                actionY += 48f;
             }
 
             if (fogged)
@@ -737,139 +795,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (view == null || view.Config == null)
                 return actionY;
 
-            bool cleared = view.Progress == RegionProgressState.Cleared
-                || view.Progress == RegionProgressState.BossDefeated;
             var nodes = Economy.Domain.GatherNodeCatalog.ForRegion(regionId);
             bool hasGather = nodes.Count > 0;
 
-            if (!view.CanEnter)
+            if (view.Progress == RegionProgressState.Locked)
             {
-                // Progress==Locked means the spatial gate blocks it (no cleared neighbour);
-                // otherwise the ship hard-gate is the blocker.
-                string lockMsg = view.Progress == RegionProgressState.Locked
-                    ? UiText.T(
-                        "Clear an adjacent node to open this lane.",
-                        "需先通关相邻节点以开启此航路。")
-                    : UiText.RegionLocked;
                 NexusUiFactory.CreateText(
-                    side, "Locked", lockMsg,
+                    side, "Locked",
+                    UiText.T(
+                        "Clear an adjacent node to open this lane.",
+                        "需先通关相邻节点以开启此航路。"),
                     new Vector2(20f, actionY + 6f), new Vector2(420f, 40f), 13f, NexusTheme.DimText,
                     TextAlignmentOptions.Center, FontStyles.Bold);
                 return actionY + 48f;
             }
 
-            if (cleared)
-            {
-                if (view.FarmUnlocked)
-                {
-                    NexusUiFactory.CreateButton(
-                        side, "Farm", UiText.StartFarm,
-                        new Vector2(20f, actionY), new Vector2(420f, 44f),
-                        () => StartFarm(regionId),
-                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
-                    actionY += 50f;
-                }
-                else if (hasGather)
-                {
-                    var nodeId = nodes[0].nodeId;
-                    var gather = NexusUiFactory.CreateButton(
-                        side, "Gather", UiText.StartGather,
-                        new Vector2(20f, actionY), new Vector2(420f, 44f),
-                        () => StartGather(nodeId),
-                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
-                    TutorialGuideService.RegisterAnchor(
-                        "explore_gather",
-                        gather.GetComponent<RectTransform>(),
-                        gather);
-                    actionY += 50f;
-                    var best = ProgressionService.BestProfessionLevel(
-                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
-                    NexusUiFactory.CreateText(
-                        side, "GatherReq",
-                        UiText.GatherReqLine(
-                            nodes[0].requiredProfession.ToString(),
-                            nodes[0].requiredSkillLevel,
-                            best),
-                        new Vector2(20f, actionY), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
-                    actionY += 24f;
-                }
-
-                NexusUiFactory.CreateButton(
-                    side, "Rechallenge", UiText.ExploreRechallenge,
-                    new Vector2(20f, actionY), new Vector2(420f, 40f),
-                    () => StartBattle(regionId),
-                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
-                actionY += 46f;
-
-                if (view.FarmUnlocked && hasGather)
-                {
-                    var nodeId = nodes[0].nodeId;
-                    var gather = NexusUiFactory.CreateButton(
-                        side, "Gather", UiText.StartGather,
-                        new Vector2(20f, actionY), new Vector2(200f, 40f),
-                        () => StartGather(nodeId),
-                        NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 13f);
-                    TutorialGuideService.RegisterAnchor(
-                        "explore_gather",
-                        gather.GetComponent<RectTransform>(),
-                        gather);
-                    var best = ProgressionService.BestProfessionLevel(
-                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
-                    NexusUiFactory.CreateText(
-                        side, "GatherReq",
-                        UiText.GatherReqLine(
-                            nodes[0].requiredProfession.ToString(),
-                            nodes[0].requiredSkillLevel,
-                            best),
-                        new Vector2(230f, actionY + 10f), new Vector2(210f, 18f), 11f, NexusTheme.MutedText);
-                }
-            }
-            else
-            {
-                var start = NexusUiFactory.CreateButton(
-                    side, "Start", UiText.StartAutoBattle,
-                    new Vector2(20f, actionY), new Vector2(420f, 44f),
-                    () => StartBattle(regionId),
-                    NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
-                TutorialGuideService.RegisterAnchor(
-                    "explore_start",
-                    start.GetComponent<RectTransform>(),
-                    start);
-                actionY += 50f;
-
-                if (view.FarmUnlocked)
-                {
-                    NexusUiFactory.CreateButton(
-                        side, "Farm", UiText.StartFarm,
-                        new Vector2(20f, actionY), new Vector2(200f, 40f),
-                        () => StartFarm(regionId),
-                        NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
-                }
-
-                if (hasGather)
-                {
-                    var nodeId = nodes[0].nodeId;
-                    float gx = view.FarmUnlocked ? 240f : 20f;
-                    var gather = NexusUiFactory.CreateButton(
-                        side, "Gather", UiText.StartGather,
-                        new Vector2(gx, actionY), new Vector2(200f, 40f),
-                        () => StartGather(nodeId),
-                        NexusTheme.WithAlpha(NexusTheme.Green, 0.18f), NexusTheme.Green, 13f);
-                    TutorialGuideService.RegisterAnchor(
-                        "explore_gather",
-                        gather.GetComponent<RectTransform>(),
-                        gather);
-                    var best = ProgressionService.BestProfessionLevel(
-                        CardListManager.Instance?.cardEntities, nodes[0].requiredProfession);
-                    NexusUiFactory.CreateText(
-                        side, "GatherReq",
-                        UiText.GatherReqLine(
-                            nodes[0].requiredProfession.ToString(),
-                            nodes[0].requiredSkillLevel,
-                            best),
-                        new Vector2(20f, actionY + 42f), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
-                }
-            }
+            actionY = DrawCampaignActions(side, view, regionId, nodes, hasGather, actionY);
 
             // Pad past the tallest trailing row (gather button + requirement line) so the fixed
             // secondary widgets flow below without clipping it.
@@ -908,8 +849,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         NexusUiFactory.CreateText(
                             side, "PoiChartOwned",
                             UiText.T(
-                                "Sector chart acquired — every node in the sector is revealed.",
-                                "已购入星域海图——星域内所有节点均已揭示。"),
+                                "Sector chart acquired — remaining silhouettes are painted. Lanes still open from restored beacons.",
+                                "已购入星域海图——其余节点以剪影标出。航路仍需相邻航标恢复后才能挑战。"),
                             new Vector2(20f, y), new Vector2(420f, 40f), 12f, NexusTheme.Green);
                         y += 44f;
                     }
@@ -1137,7 +1078,45 @@ namespace Assets.Resources.Scripts.UI.Nexus
             Rebuild();
         }
 
+        private void ChooseRoute(string route)
+        {
+            if (!QuestService.TryChooseRoute(route))
+            {
+                NexusSnackbar.Show(UiText.QuestRouteNeedProbe);
+                return;
+            }
+
+            Rebuild();
+        }
+
         private void StabilizeBody(string bodyId)
+        {
+            var check = GridService.InspectStabilize(bodyId);
+            if (!check.CanAttempt || (!check.FreeViaClear && !check.CanAfford))
+            {
+                NexusDialog.Show(
+                    UiText.ExploreStabilizeFailTitle,
+                    StabilizeBlockText(check),
+                    UiText.GotIt,
+                    null);
+                return;
+            }
+
+            if (!check.FreeViaClear)
+            {
+                NexusDialog.Show(
+                    UiText.ExploreStabilizeConfirmTitle,
+                    UiText.ExploreStabilizeConfirmBody(check.NeedScrap, check.NeedCredit),
+                    UiText.ExploreStabilizeOk,
+                    () => CommitStabilize(bodyId),
+                    UiText.Back);
+                return;
+            }
+
+            CommitStabilize(bodyId);
+        }
+
+        private void CommitStabilize(string bodyId)
         {
             var result = GridService.TryStabilize(bodyId);
             if (result.Success)
@@ -1146,11 +1125,33 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     BridgeLogCategory.Explore,
                     "Beacon repaired. A lane is now stable.",
                     "航标已修复。一段航线进入稳定通航。");
+                NexusSnackbar.Show(UiText.T(
+                    "Beacon repaired. This lane is stable.",
+                    "航标已修复，本段航线已稳定通航。"));
             }
             else
-                NexusSnackbar.Show(result.Message);
+            {
+                NexusDialog.Show(
+                    UiText.ExploreStabilizeFailTitle,
+                    StabilizeBlockText(GridService.InspectStabilize(bodyId)),
+                    UiText.GotIt,
+                    null);
+            }
 
             Rebuild();
+        }
+
+        private static string StabilizeBlockText(StabilizeInspect check)
+        {
+            if (check == null) return UiText.ExploreStabilizeUnknown;
+            return check.Block switch
+            {
+                StabilizeBlock.NotLocated => UiText.ExploreStabilizeNotLocated,
+                StabilizeBlock.AlreadyStable => UiText.ExploreStabilizeAlready,
+                StabilizeBlock.NeedResources => UiText.ExploreStabilizeNeedCost(
+                    check.NeedScrap, check.NeedCredit, check.HaveScrap, check.HaveCredit),
+                _ => UiText.ExploreStabilizeUnknown
+            };
         }
 
         private void BuyChart()
@@ -1160,8 +1161,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             {
                 BridgeEventLog.Push(
                     BridgeLogCategory.Explore,
-                    "Sector chart purchased from a merchant. The whole sector is revealed.",
-                    "从商人处购入星域海图，整个星域的节点均已揭示。");
+                    "Sector chart purchased. Remaining silhouettes are painted; lanes still open from restored beacons.",
+                    "已购入星域海图。其余节点以剪影标出，航路仍需相邻航标恢复后才能挑战。");
             }
             else
                 NexusSnackbar.Show(result.Message);
@@ -1188,6 +1189,278 @@ namespace Assets.Resources.Scripts.UI.Nexus
             else
                 Debug.Log("[GATHER] started " + nodeId);
             Rebuild();
+        }
+
+        private static float DrawCampaignTrack(Transform side, RegionView view, float y)
+        {
+            int total = Mathf.Max(1, view.StageCount);
+            int done = view.HighestClearedStage;
+            NexusUiFactory.CreateText(
+                side, "CampaignProg", UiText.ExploreCampaignProgress(done, total),
+                new Vector2(20f, y), new Vector2(420f, 18f), 12f, NexusTheme.Gold,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            y += 22f;
+
+            float x = 20f;
+            for (var i = 0; i < total; i++)
+            {
+                var stage = view.Config != null
+                    ? NodeCampaignCatalog.Get(view.Config.regionId)?.stages[i]
+                    : null;
+                bool complete = i < done;
+                bool current = !view.BeaconRestored && i == done;
+                bool elite = stage != null && stage.stageType == BattleStageType.Elite;
+                bool boss = stage != null && stage.stageType == BattleStageType.Boss;
+                float size = boss ? 18f : current ? 16f : elite ? 14f : 12f;
+                Color fill;
+                Color? outline;
+                if (complete)
+                {
+                    fill = boss ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.85f) : NexusTheme.Gold;
+                    outline = null;
+                }
+                else if (current)
+                {
+                    fill = boss ? NexusTheme.Red : elite ? new Color(1f, 0.55f, 0.22f) : NexusTheme.Gold;
+                    outline = boss ? NexusTheme.Red : NexusTheme.Text;
+                }
+                else
+                {
+                    fill = NexusTheme.WithAlpha(NexusTheme.DimText, 0.25f);
+                    outline = boss ? NexusTheme.Red : elite ? new Color(1f, 0.55f, 0.22f) : NexusTheme.DimText;
+                }
+
+                if (i > 0)
+                {
+                    NexusUiFactory.CreateBox(
+                        side, "CampLine" + i,
+                        new Vector2(x - 10f, y + 6f),
+                        new Vector2(10f, 2f),
+                        complete ? NexusTheme.Gold : NexusTheme.WithAlpha(NexusTheme.DimText, 0.45f));
+                }
+
+                NexusUiFactory.CreateBox(
+                    side, "CampDot" + i,
+                    new Vector2(x, y + (18f - size) * 0.5f),
+                    new Vector2(size, size),
+                    fill,
+                    outline);
+                x += size + 12f;
+            }
+
+            return y + 26f;
+        }
+
+        private static float DrawStageIntel(Transform side, RegionView view, float y)
+        {
+            var stage = view.CurrentStageDef;
+            if (stage != null && !view.BeaconRestored)
+            {
+                var title = NexusUiFactory.CreateText(
+                    side, "StageName",
+                    UiText.ExploreCampaignCurrent(UiText.T(stage.displayNameEn, stage.displayNameZh)),
+                    new Vector2(20f, y), new Vector2(420f, 20f), 13f, NexusTheme.Text,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                title.textWrappingMode = TextWrappingModes.Normal;
+                y += 22f;
+                if (stage.recommendedPower > 0)
+                {
+                    NexusUiFactory.CreateText(
+                        side, "StagePower", UiText.ExploreRecPower(stage.recommendedPower),
+                        new Vector2(20f, y), new Vector2(420f, 16f), 11f, NexusTheme.MutedText);
+                    y += 18f;
+                }
+
+                var trait = UiText.T(stage.traitEn, stage.traitZh);
+                if (!string.IsNullOrEmpty(trait))
+                {
+                    var t = NexusUiFactory.CreateText(
+                        side, "StageTrait", UiText.ExploreEnemyTrait(trait),
+                        new Vector2(20f, y), new Vector2(420f, 18f), 11f, NexusTheme.Cyan);
+                    t.textWrappingMode = TextWrappingModes.Normal;
+                    y += 20f;
+                }
+
+                var env = UiText.T(stage.environmentEn, stage.environmentZh);
+                if (!string.IsNullOrEmpty(env))
+                {
+                    var e = NexusUiFactory.CreateText(
+                        side, "StageEnv", UiText.ExploreEnvironment(env),
+                        new Vector2(20f, y), new Vector2(420f, 18f), 11f, NexusTheme.MutedText);
+                    e.textWrappingMode = TextWrappingModes.Normal;
+                    y += 20f;
+                }
+
+                return y + 8f;
+            }
+
+            var blurb = UiText.T(view.Config.blurbEn, view.Config.blurbZh);
+            if (string.IsNullOrEmpty(blurb)) return y;
+            var blurbText = NexusUiFactory.CreateText(
+                side, "Blurb", blurb,
+                new Vector2(20f, y), new Vector2(420f, 40f), 12f, NexusTheme.Cyan);
+            blurbText.textWrappingMode = TextWrappingModes.Normal;
+            return y + 42f;
+        }
+
+        private float DrawCampaignActions(
+            Transform side,
+            RegionView view,
+            string regionId,
+            System.Collections.Generic.List<Economy.Domain.GatherNodeDef> nodes,
+            bool hasGather,
+            float actionY)
+        {
+            bool farmRunning = DeckService.IsAutoCombatRunningOn(regionId);
+            bool gatherRunning = DeckService.IsGatherRunningOnRegion(regionId);
+
+            if (farmRunning || gatherRunning)
+            {
+                NexusUiFactory.CreateText(
+                    side, "NodeBusy",
+                    farmRunning ? UiText.ExploreIdleRunning : UiText.ExploreGatherRunning,
+                    new Vector2(20f, actionY), new Vector2(420f, 18f), 12f, NexusTheme.Cyan);
+                actionY += 22f;
+            }
+
+            if (view.BeaconRestored)
+            {
+                if (view.FarmUnlocked)
+                {
+                    var idle = NexusUiFactory.CreateButton(
+                        side, "StationIdle",
+                        farmRunning ? UiText.ExploreIdleRunning : UiText.ExploreStationIdle,
+                        new Vector2(20f, actionY), new Vector2(420f, 44f),
+                        () => StartFarm(regionId),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                    if (farmRunning)
+                        StyleDisabled(idle);
+                    actionY += 50f;
+                }
+                else if (hasGather)
+                {
+                    var idle = NexusUiFactory.CreateButton(
+                        side, "StationIdle",
+                        gatherRunning ? UiText.ExploreGatherRunning : UiText.ExploreDeployIdle,
+                        new Vector2(20f, actionY), new Vector2(420f, 44f),
+                        () => StartGather(nodes[0].nodeId),
+                        NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+                    if (gatherRunning)
+                        StyleDisabled(idle);
+                    actionY += 50f;
+                }
+
+                NexusUiFactory.CreateButton(
+                    side, "AdjustFleet", UiText.ExploreAdjustFleet,
+                    new Vector2(20f, actionY), new Vector2(420f, 40f),
+                    () => openFormation?.Invoke(),
+                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
+                return actionY + 46f;
+            }
+
+            string challengeLabel = view.HighestClearedStage <= 0
+                ? UiText.StartAutoBattle
+                : UiText.ExploreContinueCampaign(view.CurrentStage, view.StageCount);
+            var start = NexusUiFactory.CreateButton(
+                side, "Continue", challengeLabel,
+                new Vector2(20f, actionY), new Vector2(420f, 44f),
+                () => StartBattle(regionId),
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f), NexusTheme.Gold, 14f);
+            TutorialGuideService.RegisterAnchor(
+                "explore_start",
+                start.GetComponent<RectTransform>(),
+                start);
+            actionY += 50f;
+
+            if (view.FarmUnlocked || (view.GatherUnlocked && hasGather))
+            {
+                bool useFarm = view.FarmUnlocked;
+                bool running = useFarm ? farmRunning : gatherRunning;
+                string deployLabel = running
+                    ? (useFarm ? UiText.ExploreIdleRunning : UiText.ExploreGatherRunning)
+                    : UiText.ExploreDeployIdle;
+                var deployBtn = NexusUiFactory.CreateButton(
+                    side, "DeployIdle", deployLabel,
+                    new Vector2(20f, actionY), new Vector2(200f, 40f),
+                    useFarm
+                        ? () => StartFarm(regionId)
+                        : () => StartGather(nodes[0].nodeId),
+                    NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f), NexusTheme.Cyan, 13f);
+                if (running)
+                    StyleDisabled(deployBtn);
+                if (!useFarm)
+                {
+                    TutorialGuideService.RegisterAnchor(
+                        "explore_gather",
+                        deployBtn.GetComponent<RectTransform>(),
+                        deployBtn);
+                }
+
+                NexusUiFactory.CreateButton(
+                    side, "AdjustFleet", UiText.ExploreAdjustFleet,
+                    new Vector2(240f, actionY), new Vector2(200f, 40f),
+                    () => openFormation?.Invoke(),
+                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
+                actionY += 46f;
+            }
+            else
+            {
+                NexusUiFactory.CreateButton(
+                    side, "AdjustFleet", UiText.ExploreAdjustFleet,
+                    new Vector2(20f, actionY), new Vector2(420f, 40f),
+                    () => openFormation?.Invoke(),
+                    NexusTheme.SurfaceRaised, NexusTheme.MutedText, 13f);
+                actionY += 46f;
+            }
+
+            return actionY;
+        }
+
+        private static string FormatShipGaps(RegionView view)
+        {
+            if (view?.ShipGaps == null || view.ShipGaps.Count == 0)
+                return "";
+            var sb = new StringBuilder();
+            foreach (var gap in view.ShipGaps)
+            {
+                if (string.IsNullOrEmpty(gap)) continue;
+                if (sb.Length > 0) sb.Append('\n');
+                sb.Append("· ").Append(LocalizeShipGap(gap));
+            }
+
+            return sb.ToString();
+        }
+
+        private static string LocalizeShipGap(string gap)
+        {
+            if (string.IsNullOrEmpty(gap)) return "";
+            var parts = gap.Split(' ');
+            if (parts.Length < 2) return gap;
+            string stat = parts[0] switch
+            {
+                "Level" => UiText.T("Level", "等级"),
+                "Range" => UiText.ShipStatRange,
+                "Energy" => UiText.ShipStatEnergy,
+                "Hull" => UiText.ShipStatHull,
+                "EntropyResist" => UiText.ShipStatEntropy,
+                "Cargo" => UiText.ShipStatCargo,
+                "Scan" => UiText.ShipStatScan,
+                "LifeSupport" => UiText.ShipStatLife,
+                _ => parts[0]
+            };
+            return stat + "  " + parts[parts.Length - 1];
+        }
+
+        private static void StyleDisabled(Button button)
+        {
+            if (button == null) return;
+            button.interactable = false;
+            var image = button.GetComponent<Image>();
+            if (image != null)
+                image.color = NexusTheme.WithAlpha(NexusTheme.Surface, 0.7f);
+            var label = button.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+                label.color = NexusTheme.DimText;
         }
 
         private static string BuildMeta(RegionView view)
@@ -1241,10 +1514,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             }
 
-            if (!WorldService.CanEnter(regionId, out var view) || view?.Config == null)
+            var view = WorldService.GetRegionView(regionId);
+            if (view?.Config == null || view.Progress == RegionProgressState.Locked)
             {
                 NexusSnackbar.Show(UiText.SnackbarRegionUnavailable);
                 Rebuild();
+                return;
+            }
+
+            if (view.ShipGaps.Count > 0)
+            {
+                NexusDialog.Show(
+                    UiText.ExploreShipGateTitle,
+                    UiText.ExploreShipGateBody(FormatShipGaps(view)),
+                    UiText.OpenShipBay,
+                    () => openShip?.Invoke(),
+                    UiText.Back);
                 return;
             }
 
@@ -1263,8 +1548,30 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 return;
             }
 
+            var encounterId = WorldService.CurrentEncounterId(regionId);
+            if (string.IsNullOrEmpty(encounterId))
+                encounterId = view.Config.mainEncounterId;
+
+            var stage = view.CurrentStageDef;
+            if (!view.BeaconRestored && stage != null && stage.stageType == BattleStageType.Boss)
+            {
+                var bossName = UiText.T(stage.displayNameEn, stage.displayNameZh);
+                NexusDialog.Show(
+                    UiText.ExploreBossConfirmTitle,
+                    UiText.ExploreBossConfirmBody(bossName),
+                    UiText.ExploreContinueCampaign(view.CurrentStage, view.StageCount),
+                    () => CommitBattle(regionId, encounterId, deck.deckId),
+                    UiText.Back);
+                return;
+            }
+
+            CommitBattle(regionId, encounterId, deck.deckId);
+        }
+
+        private void CommitBattle(string regionId, string encounterId, string deckId)
+        {
             var start = DeckService.TryStart(
-                deck.deckId, DeckActionType.MainCombat, regionId, CardListManager.Instance?.cardEntities);
+                deckId, DeckActionType.MainCombat, regionId, CardListManager.Instance?.cardEntities);
             if (!start.Success)
             {
                 NexusSnackbar.Show(start);
@@ -1273,14 +1580,12 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
             PlayerPrefs.SetString("nexus_last_region_id", regionId);
             PlayerPrefs.Save();
+            LaunchBattle(regionId, encounterId);
+        }
 
-            BattleController.PendingBattleTargetId = regionId;
-            BattleController.PendingEncounterId = view.Config.mainEncounterId;
-            BattleController.PendingBattleSeed =
-                unchecked(regionId.GetHashCode() * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
-            // A leftover live session would restore the previous party and ignore the saved deck.
-            LiveBattleSession.Clear();
-            LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
+        private static void LaunchBattle(string regionId, string encounterId)
+        {
+            BattleController.LaunchEncounter(regionId, encounterId);
         }
 
         private void StartFarm(string regionId)
@@ -1351,9 +1656,15 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private static string ExploreDevLabel(RegionView view)
         {
             if (view == null) return UiText.RegionLocked;
-            return view.Progress switch
+            return view.CampaignState switch
             {
-                RegionProgressState.Cleared or RegionProgressState.BossDefeated => UiText.RegionProgressLabel("Cleared"),
+                NodeCampaignState.BeaconRestored or NodeCampaignState.Developed =>
+                    UiText.RegionProgressLabel("Cleared"),
+                NodeCampaignState.BossReady => UiText.RegionProgressLabel("BossAvailable"),
+                NodeCampaignState.Staging => UiText.ExploreCampaignProgress(
+                    view.HighestClearedStage, view.StageCount),
+                NodeCampaignState.Advancing => UiText.ExploreContinueCampaign(
+                    view.CurrentStage, view.StageCount),
                 _ => UiText.RegionProgressLabel("Challengeable")
             };
         }
