@@ -131,6 +131,9 @@ namespace Assets.Resources.Scripts.Gacha
             if (CardListManager.Instance != null)
             {
                 CardListManager.Instance.AddCardEntity(cards);
+#if UNITY_EDITOR
+                LogClaimedCards(cards);
+#endif
                 return;
             }
 
@@ -144,6 +147,24 @@ namespace Assets.Resources.Scripts.Gacha
                 existing.Add(card);
             }
             util.SaveCardData(existing);
+#if UNITY_EDITOR
+            LogClaimedCards(cards);
+#endif
         }
+
+#if UNITY_EDITOR
+        private static void LogClaimedCards(List<CardEntity> cards)
+        {
+            var ids = new List<string>();
+            foreach (var card in cards)
+            {
+                if (card != null && !string.IsNullOrEmpty(card.id))
+                    ids.Add(card.id);
+            }
+
+            if (ids.Count == 0) return;
+            Debug.Log("[GF-EVENT] claim_card count=" + ids.Count + " ids=" + string.Join(",", ids));
+        }
+#endif
     }
 }
