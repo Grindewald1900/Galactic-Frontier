@@ -54,6 +54,12 @@ namespace Assets.Resources.Scripts.Battle
                 $"[BOSS PHASE] {profile.profileId} {current + 1}->{nextIndex + 1} " +
                 $"{next.displayNameEn} / {next.displayNameZh} skill={next.skillKey} " +
                 $"hp={next.health} atk={next.attack} def={next.defense} | {next.logZh}");
+            BattleLog.BossPhase(
+                card,
+                UI.Nexus.UiText.T(leaving.displayNameEn, leaving.displayNameZh),
+                current,
+                next,
+                nextIndex);
 
             if (BattleInfo.Instance != null && !BattleInfo.Instance.isBattleInfoActive)
                 BattleInfo.Instance.PlayBattleInfoAnimation(next.displayNameEn);
