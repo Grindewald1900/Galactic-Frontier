@@ -1,6 +1,6 @@
 # 产品与文档状态（唯一权威）
 
-> 更新日期：2026-09-02  
+> 更新日期：2026-09-08  
 > **本文是唯一**记录实现状态 / 验收完成度的地方。规则文档不写「已落地」。  
 > 叙事权威：[03-worldbuilding.md](03-worldbuilding.md)（v1.3）。舰队/探索度：[21](21-fleet-factions-and-exploration.md)。航网探索：[20](20-stellar-map-and-navigation.md)。程序生成航网：[23](23-procedural-universe-generation.md)（M3 试点已落地）。首章前期 Wave A：[24](24-early-chapter-experience.md)。成长权威：[19](19-characters-and-progression.md) v1.1 三层自动成长。
 
@@ -41,18 +41,19 @@
 | 10 | [mvp-development-plan](10-mvp-development-plan.md) | 计划 | — | — | 阶段任务；近期顺序见 §10 |
 | 11 | [deck-and-occupation](11-deck-and-occupation.md) | 规则 | 已实现 | 完成 | 多卡组占用 |
 | 12 | [auto-battle](12-auto-battle.md) | 规则 | 部分 | 进行中 | 策略深度仍薄 |
-| 13 | [region-and-ship](13-region-and-ship.md) | 规则 | 已实现 | 进行中 | 硬门/Boss；模块升级弹窗+仓库扣费已通 |
-| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 | 部分 | 进行中 | **v1.2** 废止 50% yield：**代码已改为有效时间内 100%**；cap 含舰长档；采集仓 Gather Bank 已接 |
+| 13 | [region-and-ship](13-region-and-ship.md) | 规则 | 已实现 | 进行中 | **v1.3** 远征态已落地：外缘港 6 阶段；其余区仍是单场。硬门/Boss；模块升级弹窗+仓库扣费已通 |
+| 14 | [idle-and-offline](14-idle-and-offline.md) | 规则 | 部分 | 进行中 | **v1.3** 外缘港阶段 2 采集 / 阶段 3 战斗挂机已接。**v1.2** 废止 50% yield：**代码已改为有效时间内 100%**；cap 含舰长档；采集仓 Gather Bank 已接 |
 | 15 | [economy](15-economy.md) | 规则 | 部分 | 进行中 | 手动制造+物品说明/获取提示已通；**流水线未实现**；领队技能门槛 + 团队能力已接 |
 | 16 | [market-and-card-trade](16-market-and-card-trade.md) | 规则 | 部分 | 进行中 | Solo NPC；玩家市场 Online |
-| 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | 五步+RewardService；星域叙事可再厚 |
+| 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容 | 部分 | 进行中 | **v1.1** 外缘港六阶段遭遇与分阶段奖励已接；其余五区仍单主挑战。五步+RewardService |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向 | — | — | 位面/Hub；MVP 不做 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容 | 部分 | 进行中 | **v1.1 三层自动成长本波已落地**（舰长 XP / 战斗 XP / 五项专业技能 / F–S 能级上限与储存经验）；抽卡/约 36 人已通；Characters/Cards 原生页 + 分解已通；能级突破为废料+信用 |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.3** 航网主形态；M2 域内已落地；宇宙层生成见 **23** |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则/方向 | 部分 | 进行中 | **v0.4** 外缘港远征样板已落地（进度条 / 继续攻略 n/m / 阶段挂机 / Boss 确认 / 航标恢复）。其余节点仍单场。M2 域内已落地；宇宙层见 **23** |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则 | 未开始 | — | 舰队/卡关/探索度设定已拍板 |
-| 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
+| 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | 产品/UX | 部分 | 进行中 | **v1.1** 星图远征 CTA 已接（继续攻略 / 部署挂机 / 驻留挂机）。P6 IA 已拍板；壳层 + 主循环页面改造已起步；M6 验收待 PlayMode |
 | 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | 规则/方向 | 部分 | 进行中 | **v0.1 试点**：`UniverseGenerator` + 验证器 + 种子持久化；Debug 屏可重掷/验证；M3 约 18 星域 |
-| 24 | [early-chapter-experience](24-early-chapter-experience.md) | 内容/体验 | 部分 | 进行中 | **Wave A**：`chapter_v1` 六步、序章战斗、科尔保底、双层任务追踪；PlayMode 验收见文档 24 §7 |
+| 24 | [early-chapter-experience](24-early-chapter-experience.md) | 内容/体验 | 部分 | 进行中 | **Wave A+B/C**：`chapter_v1` 十一部已接 `QuestService`；序章战斗、科尔保底、双层任务追踪仍可用。PlayMode 验收见文档 24 §7 |
+| 25 | [mvp-quest-flow](25-mvp-quest-flow.md) | 内容 | 已实现 | 进行中 | **v1.0** 任务总表 51 条已接 `QuestService` / `quests.json`（教学 5 + 剧情 11 + 远征 18 + 舰船 4 + 循环 13）；旧档从 `onboarding.json` / `chapter_quests.json` 迁移 |
 
 ---
 
@@ -90,10 +91,12 @@
 | 自动化流水线 | 未开始 | 规则在 [15](15-economy.md) §4.10；无 `ProductionLine` 领域代码 |
 | 舰队 / 探索度 | 部分 | 探索度条已接航网恢复加权（[20](20-stellar-map-and-navigation.md) M2）；舰队规则仍在 [21](21-fleet-factions-and-exploration.md) |
 | 星图 M3+（宇宙层 / 信标跃迁 / 虫洞边） | 部分 | 宇宙层 procedural 图已生成（`UniverseGenerator`）；Explore 宇宙缩放已接；信标跃迁/完整 M3 交互待做 |
+| 节点远征章节（20 §17） | 部分 | 外缘港 6 阶段样板已落地；进度条 / 继续攻略 n/m / 阶段 2–3 挂机 / Boss 确认后恢复航标。其余节点待扩展 |
 | 程序生成航网（23） | 部分 | `UniverseGenerator` / `UniverseValidator` / `universeSeed`；Debug 重掷+验证；EditMode 测试 |
 | 三层自动成长（19） | 部分 | `ProgressionService`：战斗/专业/舰长 XP、能级上限与储存经验、领队门槛、离线 100%；顶栏舰长 XP/战力条；Formation/Characters 卡牌 XP 条 |
 | P6 指挥官循环（M6） | 部分 | Wave 0–2 已落地；M6 三十分钟验收待 PlayMode 回归 |
-| 首章 Wave A（24） | 部分 | `ChapterQuestService`、`chapter_quests.json`、`enc_prologue_sweep`、`starterColeGranted`、七条 `ch1_*` 对话；任务 6–10 未做 |
+| 首章 Wave A（24） | 部分 | `QuestService` 统一任务；`ChapterQuestService` 仍负责序章战斗/`enc_prologue_sweep`/`starterColeGranted`；CH-06…CH-10 已接 |
+| MVP 任务总表（25） | 已实现 | `QuestCatalog` 51 条；`quests.json`；远征环/舰船门/循环计数；追踪器分层；CH-08 航路选择 |
 
 ---
 

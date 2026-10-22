@@ -1,6 +1,6 @@
 # Galactic Frontier 中文开发文档
 
-本目录为**唯一**中文文档集（共 **24** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+本目录为**唯一**中文文档集（共 **25** 篇编号文档 + 状态表）。若与代码冲突，以代码为准，并同步 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
 
 ## 必读入口
 
@@ -11,7 +11,7 @@
 | [03-worldbuilding.md](03-worldbuilding.md) | **世界观与故事（叙事权威）** |
 | [10-mvp-development-plan.md](10-mvp-development-plan.md) | 阶段路线图 |
 
-## 文档总表（01–24）
+## 文档总表（01–25）
 
 | # | 文档 | 类别 |
 | ---: | --- | --- |
@@ -34,11 +34,12 @@
 | 17 | [sector-and-onboarding](17-sector-and-onboarding.md) | 内容（新手+星域） |
 | 18 | [online-and-play-modes](18-online-and-play-modes.md) | 方向稿 |
 | 19 | [characters-and-progression](19-characters-and-progression.md) | 内容（抽卡+名册+能级+**自动成长**） |
-| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则（航网/星图；M2 域内雏形已落地，宇宙层为 M3+） |
+| 20 | [stellar-map-and-navigation](20-stellar-map-and-navigation.md) | 规则（航网/星图；**v0.4 节点远征章节**；M2 域内雏形已落地，宇宙层为 M3+） |
 | 21 | [fleet-factions-and-exploration](21-fleet-factions-and-exploration.md) | 规则（舰队/阵营/探索度） |
 | 22 | [ux-loop-and-ia](22-ux-loop-and-ia.md) | **产品（P6 指挥官循环 / IA / UX 契约）** |
 | 23 | [procedural-universe-generation](23-procedural-universe-generation.md) | **规则（种子航网生成 + 验证器；M3+）** |
 | 24 | [early-chapter-experience](24-early-chapter-experience.md) | **内容（首章前期体验 · Wave A 权威）** |
+| 25 | [mvp-quest-flow](25-mvp-quest-flow.md) | **内容（MVP 全部任务总表：编号 / 类型 / 奖励 / 依赖）** |
 
 ## 推荐阅读
 
@@ -46,7 +47,7 @@
 2. [03-worldbuilding](03-worldbuilding.md)（故事与主题）  
 3. [02-core-product-design](02-core-product-design.md)（玩法硬约束）  
 4. [04-architecture](04-architecture.md) → [05-core-systems](05-core-systems.md) → [06-data-and-save](06-data-and-save.md)  
-5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`24`
+5. 实现玩法：PRODUCT-STATUS §3 → 对应 `11`–`25`
 
 ## 合并说明（相对旧树）
 

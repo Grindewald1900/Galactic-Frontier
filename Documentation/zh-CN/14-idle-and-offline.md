@@ -1,13 +1,13 @@
 # 系统文档：挂机刷取与离线收益
 
-> 文档版本：v1.2
+> 文档版本：v1.3
 > 文档类型：**规则**
 > **实现与验收状态**见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)；本文仅描述规则与设计标准。
 
 > 上级约束：`02-core-product-design.md` §7.3 / §7.4 / §16.1 / §20 / §21 / §22；成长经验见 `19-characters-and-progression.md` 自动成长  
-> 关联：`11-deck-and-occupation.md`（占用 / `PausedCap`）、`12-auto-battle.md`（无场景结算）、`13-region-and-ship.md`（通关后刷取解锁、舰船模块）  
-> 更新日期：2026-09-02  
-> 变更：v1.2 **废止 Offline Yield Ratio 打折**（原开局 50%）。有效离线时间内资源、卡牌经验、舰长经验均为 100%；舰船升级拉长 cap、扩仓、自动补给与并行。上线须展示关键升级。v1.1 曾增补 Yield Ratio，已被本版取代。
+> 关联：`11-deck-and-occupation.md`（占用 / `PausedCap`）、`12-auto-battle.md`（无场景结算）、`13-region-and-ship.md`（舰船模块）、`20-stellar-map-and-navigation.md` §17（节点远征分阶段挂机）  
+> 更新日期：2026-09-07  
+> 变更：v1.3 挂机改为节点远征分阶段开放，不再要求整区通关。v1.2 **废止 Offline Yield Ratio 打折**（原开局 50%）。有效离线时间内资源、卡牌经验、舰长经验均为 100%；舰船升级拉长 cap、扩仓、自动补给与并行。上线须展示关键升级。v1.1 曾增补 Yield Ratio，已被本版取代。
 
 ---
 
@@ -61,7 +61,7 @@
 1. 多项挂机行动通过**多支独立卡组**并行，不得用单卡组多任务绕过占用。  
 2. 离线收益时间属于**成长内容**，须分阶段解锁/提升；有效离线时间内资源、卡牌经验、舰长经验按 **100%** 结算（受仓库、补给约束）。**不得**用离线效率折扣惩罚玩家。  
 3. 超过离线上限后：已获资源不丢失、行动暂停继续产出、角色与装备无额外惩罚、上线可立即恢复或调整。  
-4. 挂机刷取仅在区域**首次通关**（首领区需 Boss 击杀）后允许，见区域文档。  
+4. 挂机按节点远征进度分阶段开放（`20` §17.7）：阶段 2 基础采集（效率 40%）；阶段 3 战斗挂机（效率 60%）；航标恢复后完整掉落池（100%）。未侦察 / 阶段 0–1 **不能**挂机。首领区完整驻留挂机仍需该节点 Boss 击杀。 
 5. 离线批量战斗必须与在线跳过演出使用**同一 Resolver + 同一确定性种子规则**（见战斗文档）。  
 6. 停止行动惩罚偏低：不扣已入包/已入待领的资源，不长时间锁角色。
 
@@ -202,7 +202,7 @@ offlineCapSeconds = clamp(
 
 | 项目 | MVP 默认 |
 | --- | --- |
-| 启动 | `TryStart(Gather, gatherNodeId)`；节点须已因区域通关解锁 |
+| 启动 | `TryStart(Gather, gatherNodeId)`；节点须已因远征阶段 2（或更高）解锁，不必等航标恢复 |
 | 周期 | `cycleSeconds`（节点配置，默认 **300s**） |
 | 每周期产出 | `baseYield * deckGatherMultiplier`（乘区来自角色采集属性；公式在采集表） |
 | 货舱 / 仓库满 | 见 §4.6 |
@@ -446,6 +446,7 @@ IIdleSettlementService
 - 核心设计：`02-core-product-design.md` §7.3 / §7.4 / §21  
 - 卡组占用：`11-deck-and-occupation.md`（`PausedCap`、停止低惩罚）  
 - 战斗：`12-auto-battle.md` §8（挂机接口 / Resolver）  
-- 区域：`13-region-and-ship.md` §4.6（通关后刷取）  
+- 区域：`13-region-and-ship.md` §4.6（分阶段挂机）  
+- 节点远征：`20-stellar-map-and-navigation.md` §17.7 / §17.8  
 - 开发计划：`10-mvp-development-plan.md` P2.4 / P3.6  
 - 已知问题：`08-known-issues.md`（FakeData、战斗返回）

@@ -97,7 +97,7 @@ flowchart LR
 
 ### 5.1 首章剧情任务（`chapter_v1`）
 
-`ChapterQuestService`（`Assets/Resources/Scripts/ChapterQuest/`）管理首章线性链 `chapter_v1`（六步：`ch1_prologue` … `ch1_mining_spur`），持久化 `chapter_quests.json`，与 `OnboardingService` 并行。序章入口 `TryBeginEntryFlow`（`AppShell`）；步骤 Claim 可镜像 `ob_formation` / `ob_first_battle`。契约见 [24-early-chapter-experience.md](24-early-chapter-experience.md)。
+`ChapterQuestService`（`Assets/Resources/Scripts/ChapterQuest/`）管理首章线性链 `chapter_v1`（六步：`ch1_prologue` … `ch1_mining_spur`），持久化 `chapter_quests.json`，与 `OnboardingService` 并行。序章入口 `TryBeginEntryFlow`（`AppShell`）；步骤 Claim 可镜像 `ob_formation` / `ob_first_battle`。契约见 [24-early-chapter-experience.md](24-early-chapter-experience.md)。MVP 全量任务（教学 / 剧情 / 远征多环 / 循环）见 [25-mvp-quest-flow.md](25-mvp-quest-flow.md)。
 
 ### 6. 战斗
 

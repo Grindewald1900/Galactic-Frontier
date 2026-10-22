@@ -1,10 +1,14 @@
 # 新手引导与星域内容
-> 文档版本：v1.0
+> 文档版本：v1.1
 > 文档类型：**规则 / 内容契约**
 > 由原 `23-onboarding-and-missions` + `24-sector-and-region-content` 合并。
 > 叙事主线见 `03-worldbuilding.md` §10；**首章剧情任务链**见 [24-early-chapter-experience.md](24-early-chapter-experience.md)（`chapter_v1`）。  
+> **MVP 全部任务总表**（编号 / 类型 / 奖励 / 依赖，含循环与多环）：[25-mvp-quest-flow.md](25-mvp-quest-flow.md)。  
 > **第七前沿**为 M2 **手工星域模板**；宇宙层随机生成规则见 `23-procedural-universe-generation.md`（M3+ 不替换本域主链，除非显式迁移）。  
+> 节点内部远征结构权威：[20-stellar-map-and-navigation.md](20-stellar-map-and-navigation.md) §17。  
 > 状态见 [PRODUCT-STATUS.md](PRODUCT-STATUS.md)。
+> 更新日期：2026-09-07  
+> 变更：v1.1 外缘港定为六阶段远征样板；其余区域仍用单主挑战表，样板验收后再扩展。
 
 ---
 
@@ -295,9 +299,9 @@ OnboardingStepDef
 | --- | --- |
 | **星域** | 内容容器；MVP 仅 `sector_frontier_vii` |
 | **区域** | 星域内可探索单元；进度权威在 `world.json` |
-| **主挑战遭遇** | `mainEncounterId`；用于首次/重复通关 |
-| **刷取遭遇** | `farmEncounterId`；通关后 `AutoCombat` 使用 |
-| **首次通关奖励（FirstClear）** | 该区 `cleared` 从 false→true 时发放一次 |
+| **主挑战遭遇** | 兼容字段 `mainEncounterId`；远征样板下等于当前 `BattleStage` |
+| **刷取遭遇** | `farmEncounterId`；阶段 3 起可用，航标恢复后作为驻留挂机 |
+| **首次通关奖励（FirstClear）** | 节点 Boss 胜利、`BeaconRestored` 时发放一次；各阶段另有 `firstClearRewards` |
 | **重复挑战奖励（RepeatClear）** | 已通关后再打主挑战胜利时的较弱奖励 |
 | **挂机周期奖励（FarmCycle）** | 每次刷取结算胜利时的常规掉落 |
 | **掉落条目（LootEntry）** | `{ itemDefId, qtyMin, qtyMax, quality, chance }`；`chance=1` 为保底 |
@@ -371,7 +375,8 @@ OnboardingStepDef
 | `sec01_convoy_lane` | `enc_convoy_main` | `enc_convoy_farm` | `node_convoy_bio`（新增） |
 | `sec01_frontier_boss` | `enc_frontier_boss` | `enc_frontier_farm` | —（Boss 区无采集；刷取仅战后） |
 
-> 已实现节点见 `GatherNodeCatalog` / `09`；标注「新增」的节点为本内容契约要求，实现时应补入 Catalog。
+> 已实现节点见 `GatherNodeCatalog` / `09`；标注「新增」的节点为本内容契约要求，实现时应补入 Catalog。  
+> `enc_outer_main` 在远征样板落地后降为阶段 1「航道接触」；完整六阶段见 §5.4。
 
 #### 5.3 新增采集节点（内容默认）
 
@@ -382,6 +387,24 @@ OnboardingStepDef
 | `node_convoy_bio` | `sec01_convoy_lane` | `mat_biofiber` | 2 | Q2 | 2 | 合成链后勤 |
 
 周期秒数沿用 `EconomyConstants.GatherCycleSeconds`。
+
+#### 5.4 外缘港远征样板（首版验证）
+
+星图节点「外缘港」承载 `sec01_outer_belt`。结构权威见 `20` §17；本表只填内容。
+
+| 阶段 | stageId | 类型 | 遭遇（建议） | 区域机制揭示 | 首次奖励（语义） | 挂机解锁 |
+| ---: | --- | --- | --- | --- | --- | --- |
+| 1 | `outer_contact` | Normal | `enc_outer_s1`（现 `enc_outer_main`） | 普通劫掠艇 | 信用点、战斗经验 | 无 |
+| 2 | `outer_wreck` | Normal | `enc_outer_s2` | 敌人攻击货舱 | 铁矿、情报 | 基础采集 40%（`node_outer_iron`） |
+| 3 | `outer_escort` | Normal | `enc_outer_s3` | 高速艇绕过前排 | 招募券碎片、材料 | 战斗挂机 60% |
+| 4 | `outer_ambush` | Normal | `enc_outer_s4` | 熵雾降低命中 | 抗熵材料、扫描经验 | — |
+| 5 | `outer_elite` | Elite | `enc_outer_s5` | 精英指挥舰给友军护盾 | Boss 情报、临时增益 | 稀有材料小概率 |
+| 6 | `outer_boss` | Boss | `enc_outer_boss` | 后排突袭 + 护盾 + 熵雾 | 招募券、蓝图、航标核心 | 效率 100%，完整掉落池 |
+
+`reward_outer_first` 保留为阶段 6（航标恢复）大奖；阶段 1–5 用更小的分阶段表，禁止把整区首次奖励提前发完。  
+`enc_outer_farm` 在阶段 3 起可作为战斗挂机遭遇；航标恢复后不再让玩家重选 1–6 关。
+
+其余五区在外缘港样板验收前，仍按 §6 单主挑战 + 刷取表运行。
 
 ---
 
@@ -411,7 +434,7 @@ OnboardingStepDef
 | `enc_convoy_farm` | Convoy Escort Sweep | 护航清扫 | Magki4, Asra4 | 较弱 |
 | `enc_frontier_farm` | Anchor Debris Field | 锚点残骸带 | Asra5, Magki5 | Boss 击杀后解锁 |
 
-刷取解锁：普通区 `Cleared`；首领区需 `BossDefeated`（`03` §4.6）。
+刷取解锁：外缘港样板为阶段 ≥3；其余区在样板验收前仍按 `Cleared` / 首领 `BossDefeated`（`13` §4.6）。
 
 ---
 
@@ -746,12 +769,13 @@ RewardTable / LootEntry      // 新建 Catalog：RewardCatalog
 
 - 6 区配置齐全；外缘可打，后区前置+舰船硬锁  
 - 每区主挑战与刷取遭遇可开战；Boss 区 `isBoss`  
-- 每区首次通关发放对应 FirstClear 表，且只发一次  
-- 通关后挂机使用 farm 表；含废料以外的主题材料  
-- Boss 首次击杀发大奖并标记星域完成  
+- 外缘港样板：6 阶段推进；阶段奖励只发一次；航标恢复才发 `reward_outer_first`  
+- 阶段 2 可启动 `node_outer_iron`；阶段 3 可用 `enc_outer_farm`  
+- 阶段 3 起挂机使用 farm 表；含废料以外的主题材料；航标恢复后完整掉落池  
+- 星域首领首次击杀发大奖并标记星域完成  
 - 挂机失败不停队列；满仓 Pending/PausedBlock  
 - 掉落 Id 均存在于 `ItemCatalog`；信用点入账 `CurrencyService`  
-- 新采集节点在对应区通关后可启动 
+- 新采集节点在对应远征阶段（外缘港为阶段 2）后可启动 
 
 ---
 
@@ -767,7 +791,7 @@ RewardTable / LootEntry      // 新建 Catalog：RewardCatalog
 
 ### 16. 参考
 
-- 规则：`13-region-and-ship.md`、`14-idle-and-offline.md`、`12-auto-battle.md`  
+- 规则：`13-region-and-ship.md`、`14-idle-and-offline.md`、`12-auto-battle.md`、`20-stellar-map-and-navigation.md` §17  
 - 物品：`15-economy.md`  
 - 代码：`RegionCatalog.cs`、`EncounterCatalog.cs`、`GatherNodeCatalog.cs`、`WorldService.cs`、`IdleEconomyTicker.cs`  
 - 开发计划：`10-mvp-development-plan.md` P2 / P5
