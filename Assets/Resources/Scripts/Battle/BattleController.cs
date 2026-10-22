@@ -68,6 +68,12 @@ namespace Assets.Resources.Scripts.Battle
         /// <summary>Optional seed set before loading BattleScene (e.g. Explore / AFK).</summary>
         public static long? PendingBattleSeed { get; set; }
 
+        /// <summary>
+        /// Combat party captured before BattleScene load so the fight does not depend on
+        /// CardListManager surviving the scene change.
+        /// </summary>
+        public static List<CardEntity> PendingPlayerParty { get; set; }
+
         /// <summary>Optional combat target id (region) for MainCombat occupation / progress.</summary>
         public static string PendingBattleTargetId { get; set; }
 
@@ -144,24 +150,22 @@ namespace Assets.Resources.Scripts.Battle
                 return;
             }
 
+            IList<CardEntity> ownedCards = null;
             if (cardListMgr != null)
             {
                 if (DataUtil.Instance != null && !DeckService.IsLoaded)
                     DeckService.EnsureLoaded(DataUtil.Instance, cardListMgr.cardEntities);
-                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(cardListMgr.GetInLineCardEntities());
+                ownedCards = cardListMgr.cardEntities;
             }
             else if (DataUtil.Instance != null)
             {
-                var loaded = DataUtil.Instance.LoadCardData();
-                DeckService.EnsureLoaded(DataUtil.Instance, loaded);
-                inlineEntities = ListDeepCopyUtil.DeepCopyViaJson(DeckService.GetActiveCombatMembers(loaded));
+                ownedCards = DataUtil.Instance.LoadCardData();
+                DeckService.EnsureLoaded(DataUtil.Instance, ownedCards);
             }
-            else
-            {
-                inlineEntities = new List<CardEntity>();
-            }
+
             HideCards(playerCards);
             HideCards(enemyCards);
+            PlacePlayerParty(ownedCards);
 
             if (DeckService.IsLoaded)
             {
@@ -196,12 +200,80 @@ namespace Assets.Resources.Scripts.Battle
                 Debug.LogWarning("[BATTLE] No encounter configured and Dev Data off — enemy slots empty.");
             }
 
-            if (inlineEntities != null)
+        }
+
+        /// <summary>
+        /// Places the saved main-combat deck onto the board. Station i is deck slot i;
+        /// an empty slot stays hidden instead of pulling the next card forward.
+        /// </summary>
+        private void PlacePlayerParty(IList<CardEntity> ownedCards)
+        {
+            if (DataUtil.Instance != null)
+                DeckService.EnsureLoaded(DataUtil.Instance, ownedCards);
+
+            inlineEntities = new List<CardEntity>();
+            var deck = DeckService.IsLoaded ? DeckService.GetActiveCombatDeck() : null;
+            var stations = deck != null
+                ? DeckService.GetStations(deck.deckId, ownedCards)
+                : new List<DeckService.DeckStation>();
+
+            foreach (var station in stations)
             {
-                Debug.Log("inLine counts" + inlineEntities.Count);
-                foreach (var entity in inlineEntities)
-                    SetCard(playerCards, (int)entity.GetLineupPosition(), entity, true);
+                var copy = CopyCard(station.Card);
+                if (copy == null) continue;
+                SetCard(playerCards, station.SlotIndex, copy, true);
+                inlineEntities.Add(copy);
             }
+
+            if (inlineEntities.Count == 0 && PendingPlayerParty != null && PendingPlayerParty.Count > 0)
+            {
+                for (int i = 0; i < PendingPlayerParty.Count; i++)
+                {
+                    var copy = CopyCard(PendingPlayerParty[i]);
+                    if (copy == null) continue;
+                    int slot = (int)copy.GetLineupPosition();
+                    if (copy.GetLineupPosition() == LineupPosition.None
+                        || playerCards == null
+                        || slot < 0
+                        || slot >= playerCards.Count)
+                        slot = i;
+                    SetCard(playerCards, slot, copy, true);
+                    inlineEntities.Add(copy);
+                }
+            }
+
+            if (inlineEntities.Count > 0)
+                PendingPlayerParty = null;
+
+            Debug.Log(FormatPartyLog(deck, stations));
+        }
+
+        private static CardEntity CopyCard(CardEntity source)
+        {
+            if (source == null) return null;
+            var copies = ListDeepCopyUtil.DeepCopyViaJson(new List<CardEntity> { source });
+            return copies != null && copies.Count > 0 ? copies[0] : source;
+        }
+
+        private string FormatPartyLog(DeckEntity deck, List<DeckService.DeckStation> stations)
+        {
+            var saved = deck == null
+                ? ""
+                : string.Join(",", DeckRules.BattleStations(deck));
+            var placed = new List<string>();
+            if (playerCards != null)
+            {
+                for (int i = 0; i < playerCards.Count; i++)
+                {
+                    var card = playerCards[i];
+                    if (card == null || card.cardEntity == null || !card.gameObject.activeSelf)
+                        continue;
+                    placed.Add($"{i}:{card.cardEntity.id}:{card.cardEntity.characterName}");
+                }
+            }
+
+            return $"[BATTLE] Party deck={deck?.deckId ?? ""} saved=[{saved}] " +
+                   $"resolved={stations?.Count ?? 0} placed=[{string.Join(",", placed)}]";
         }
 
         private void RestoreFromLiveSession()
@@ -414,9 +486,10 @@ namespace Assets.Resources.Scripts.Battle
             if (deck.IsActionBusy && deck.action.actionType == DeckActionType.MainCombat)
                 return;
 
+            // BattleScene has no CardListManager; an empty owned set would reject every deck card.
             var cards = CardListManager.Instance != null
                 ? CardListManager.Instance.cardEntities
-                : null;
+                : DataUtil.Instance?.LoadCardData();
             var result = DeckService.TryStart(
                 deck.deckId,
                 DeckActionType.MainCombat,

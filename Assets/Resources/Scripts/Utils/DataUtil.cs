@@ -186,10 +186,23 @@ namespace Assets.Resources.Scripts.Utils
             var fileName = store == InventoryStore.Local
                 ? DefaultProperty.INVENTORY_LOCAL
                 : DefaultProperty.INVENTORY_REMOTE;
-            var ok = SaveData(
-                new ItemListWrapper { items = items, count = items.Count },
-                playerSavePath,
-                fileName);
+            // Batched flushes only re-save inventories held by a loaded manager; otherwise the file
+            // is the only copy and a deferred write would drop the change.
+            InventoryItemManagerBase manager = isRemote ? RemoteItemManager.Instance : ItemManager.Instance;
+            bool writeNow = manager == null || !manager.HasLoaded;
+            if (writeNow) GameSaveService.PushImmediate();
+            bool ok;
+            try
+            {
+                ok = SaveData(
+                    new ItemListWrapper { items = items, count = items.Count },
+                    playerSavePath,
+                    fileName);
+            }
+            finally
+            {
+                if (writeNow) GameSaveService.PopImmediate();
+            }
             if (ok && touchMeta)
                 TouchMetaLastSaved();
             return ok;
@@ -227,6 +240,10 @@ namespace Assets.Resources.Scripts.Utils
 
         public void SaveCardData(List<CardEntity> cards)
         {
+            // CardListManager only lives in MainScene; callers passing its collection from other scenes
+            // (e.g. enemy CardEntity stat setters in BattleScene) have nothing to persist.
+            if (cards == null)
+                return;
             SaveData(new CardListWrapper { cardEntities = cards, count = cards.Count }, playerSavePath, DefaultProperty.PLAYER_CARDS_DATA);
             TouchMetaLastSaved();
         }

@@ -211,7 +211,10 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 () =>
                 {
                     if (goal.OnRecommended != null)
+                    {
                         goal.OnRecommended();
+                        Rebuild();
+                    }
                     else if (navigate != null)
                         navigate(goal.RecommendedScreen);
                     else

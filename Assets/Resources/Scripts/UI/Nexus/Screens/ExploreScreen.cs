@@ -1278,6 +1278,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BattleController.PendingEncounterId = view.Config.mainEncounterId;
             BattleController.PendingBattleSeed =
                 unchecked(regionId.GetHashCode() * 1_000_003L ^ System.DateTime.UtcNow.Ticks);
+            // A leftover live session would restore the previous party and ignore the saved deck.
+            LiveBattleSession.Clear();
             LoadingOverlay.LoadScene(nameof(SceneLoader.SceneName.BattleScene));
         }
 

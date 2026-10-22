@@ -118,6 +118,24 @@ namespace GalacticFrontier.Tests.EditMode
         }
 
         [Test]
+        public void BattleStations_KeepEmptySlots()
+        {
+            var state = DeckStateFactory.CreateNewPlayerState();
+            var deck = state.decks[0];
+            deck.slotCardIds[0] = "asra";
+            deck.slotCardIds[4] = "cole";
+
+            var stations = DeckRules.BattleStations(deck);
+
+            Assert.AreEqual(DeckConstants.SlotsPerDeck, stations.Length);
+            Assert.AreEqual("asra", stations[0]);
+            Assert.AreEqual("", stations[1]);
+            Assert.AreEqual("", stations[2]);
+            Assert.AreEqual("", stations[3]);
+            Assert.AreEqual("cole", stations[4]);
+        }
+
+        [Test]
         public void IdleBackupDeck_CanShareCardAndBeRenamed()
         {
             var state = TwoDeckState();
