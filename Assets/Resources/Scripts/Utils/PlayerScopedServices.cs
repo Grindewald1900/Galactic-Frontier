@@ -1,8 +1,10 @@
+using Assets.Resources.Scripts.Battle;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.Utils.Save;
@@ -23,8 +25,7 @@ namespace Assets.Resources.Scripts.Utils
                 GameSaveService.PushImmediate();
                 try
                 {
-                    ChapterQuestService.Save(dataUtil);
-                    OnboardingService.Save(dataUtil);
+                    QuestService.Save(dataUtil);
                     GachaService.Save(dataUtil);
                     DeckService.Save(dataUtil);
                     WorldService.Save(dataUtil);
@@ -47,13 +48,18 @@ namespace Assets.Resources.Scripts.Utils
 
         public static void Clear()
         {
+            QuestService.Clear();
             ChapterQuestService.Clear();
             OnboardingService.Clear();
             GachaService.Clear();
+            DeckService.Clear();
             WorldService.Clear();
             ShipService.Clear();
             IdleSettlementService.Clear();
             FeatureUnlockService.Clear();
+            LiveBattleSession.Clear();
+            if (BackgroundBattleHost.Instance != null)
+                BackgroundBattleHost.Instance.ReleasePresentation();
         }
     }
 }
