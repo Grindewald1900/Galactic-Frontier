@@ -197,6 +197,45 @@ namespace Assets.Resources.Scripts.Deck
             return cards.FirstOrDefault(c => c != null && c.id == id);
         }
 
+        /// <summary>One occupied battle station. <see cref="SlotIndex"/> matches the deck slot and the battle board.</summary>
+        public readonly struct DeckStation
+        {
+            public readonly int SlotIndex;
+            public readonly CardEntity Card;
+
+            public DeckStation(int slotIndex, CardEntity card)
+            {
+                SlotIndex = slotIndex;
+                Card = card;
+            }
+        }
+
+        /// <summary>
+        /// Occupied stations of a deck. Index is the battle station; empty slots are omitted
+        /// without shifting later cards forward.
+        /// </summary>
+        public static List<DeckStation> GetStations(string deckId, IList<CardEntity> cards)
+        {
+            var list = new List<DeckStation>();
+            if (State == null)
+                return list;
+
+            var stations = DeckRules.BattleStations(DeckRules.FindDeck(State, deckId));
+            for (var i = 0; i < stations.Length; i++)
+            {
+                var id = stations[i];
+                if (string.IsNullOrEmpty(id) || cards == null)
+                    continue;
+                var entity = cards.FirstOrDefault(c => c != null && c.id == id);
+                if (entity == null)
+                    continue;
+                entity.SetLineupPosition(i);
+                list.Add(new DeckStation(i, entity));
+            }
+
+            return list;
+        }
+
         /// <summary>Members of the active combat deck, with LineupPosition mirrored for battle slotting.</summary>
         public static List<CardEntity> GetActiveCombatMembers(IList<CardEntity> cards)
         {
