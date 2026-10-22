@@ -96,15 +96,9 @@ namespace Assets.Resources.Scripts.World.Domain
 
         public static float EstimateEncounterPower(EncounterConfig encounter)
         {
-            if (encounter?.enemies == null) return 50f;
-            float sum = 0f;
-            foreach (var e in encounter.enemies)
-            {
-                if (e == null) continue;
-                sum += 40f + e.level * 25f;
-            }
-
-            return sum <= 0 ? 50f : sum;
+            if (encounter == null || string.IsNullOrEmpty(encounter.encounterId))
+                return 0f;
+            return EnemyCatalog.RecommendedPower(encounter.encounterId);
         }
     }
 }

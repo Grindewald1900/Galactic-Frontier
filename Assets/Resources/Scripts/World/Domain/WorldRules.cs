@@ -28,7 +28,8 @@ namespace Assets.Resources.Scripts.World.Domain
                     regionId = cfg.regionId,
                     cleared = false,
                     clearCount = 0,
-                    bossDefeated = false
+                    bossDefeated = false,
+                    highestClearedStage = 0
                 });
             }
 
@@ -64,6 +65,9 @@ namespace Assets.Resources.Scripts.World.Domain
             return true;
         }
 
+        public static bool IsRegionBeaconRestored(PlayerWorldState world, string regionId) =>
+            IsRegionCleared(world, regionId);
+
         private static bool IsRegionCleared(PlayerWorldState world, string regionId)
         {
             var cfg = RegionCatalog.Get(regionId);
@@ -74,9 +78,9 @@ namespace Assets.Resources.Scripts.World.Domain
 
         /// <summary>
         /// Spatial challenge gate (doc 20 §2.2): a node can be challenged only if it is the spawn,
-        /// already cleared, or lane-adjacent to a cleared node. The linear <c>prereqRegionIds</c>
-        /// chain is only a "recommended route" and no longer hard-blocks combat — the ship gate
-        /// (doc 13) remains the hard limit.
+        /// already cleared, or lane-adjacent to a restored beacon (campaign complete or paid
+        /// repair). The linear <c>prereqRegionIds</c> chain is a recommended route only — the
+        /// ship gate (doc 13) remains the hard limit.
         /// </summary>
         public static bool CanChallengeRegion(PlayerWorldState world, RegionConfig config)
         {
@@ -95,6 +99,8 @@ namespace Assets.Resources.Scripts.World.Domain
                 if (edge == null) continue;
                 if (edge.a != body.bodyId && edge.b != body.bodyId) continue;
                 string otherId = edge.a == body.bodyId ? edge.b : edge.a;
+                if (GridVisibility.IsBodyStable(world, otherId))
+                    return true;
                 var otherBody = SectorMapCatalog.Get(otherId);
                 if (otherBody?.regionIds == null) continue;
                 foreach (var rid in otherBody.regionIds)
@@ -159,7 +165,43 @@ namespace Assets.Resources.Scripts.World.Domain
 
             view.CanEnter = progress != RegionProgressState.Locked && gate.Ok;
             view.FarmUnlocked = IsFarmUnlocked(world, config);
+            FillCampaignView(view, world, config);
             return view;
+        }
+
+        public static void FillCampaignView(RegionView view, PlayerWorldState world, RegionConfig config)
+        {
+            if (view == null) return;
+            var campaign = NodeCampaignCatalog.Get(config?.regionId);
+            var rt = view.Runtime ?? FindRuntime(world, config?.regionId);
+            SyncLegacyClear(rt, campaign);
+            view.StageCount = campaign?.StageCount ?? 1;
+            view.HighestClearedStage = rt?.highestClearedStage ?? 0;
+            view.CurrentStage = NodeCampaignCatalog.NextStageIndex(rt, campaign);
+            view.CurrentStageDef = NodeCampaignCatalog.CurrentStage(rt, config?.regionId);
+            view.CampaignState = GetCampaignState(world, config);
+            view.BeaconRestored = rt != null && IsRegionCleared(world, config?.regionId);
+            view.GatherUnlocked = IsGatherUnlocked(world, config);
+            view.IdleRewardTier = IdleRewardTier(world, config);
+        }
+
+        public static NodeCampaignState GetCampaignState(PlayerWorldState world, RegionConfig config)
+        {
+            if (config == null) return NodeCampaignState.Unscouted;
+            var rt = FindRuntime(world, config.regionId) ?? new RegionRuntimeState { regionId = config.regionId };
+            var campaign = NodeCampaignCatalog.Get(config.regionId);
+            SyncLegacyClear(rt, campaign);
+            if (rt.cleared)
+                return NodeCampaignState.BeaconRestored;
+            if (!CanChallengeRegion(world, config))
+                return NodeCampaignState.Unscouted;
+            var count = campaign?.StageCount ?? 1;
+            var cleared = rt.highestClearedStage;
+            if (count > 1 && cleared >= count - 1)
+                return NodeCampaignState.BossReady;
+            if (count > 1 && cleared >= 2)
+                return NodeCampaignState.Staging;
+            return NodeCampaignState.Advancing;
         }
 
         public static bool IsFarmUnlocked(PlayerWorldState world, RegionConfig config)
@@ -167,9 +209,50 @@ namespace Assets.Resources.Scripts.World.Domain
             if (config == null) return false;
             var rt = FindRuntime(world, config.regionId);
             if (rt == null) return false;
+            var campaign = NodeCampaignCatalog.Get(config.regionId);
+            SyncLegacyClear(rt, campaign);
             if (config.bossRegion)
                 return rt.bossDefeated;
-            return rt.cleared;
+            if (campaign == null || campaign.StageCount <= 1)
+                return rt.cleared;
+            return rt.highestClearedStage >= NodeCampaignCatalog.CombatIdleMinStage(campaign);
+        }
+
+        public static bool IsGatherUnlocked(PlayerWorldState world, RegionConfig config)
+        {
+            if (config == null) return false;
+            var rt = FindRuntime(world, config.regionId);
+            if (rt == null) return false;
+            var campaign = NodeCampaignCatalog.Get(config.regionId);
+            SyncLegacyClear(rt, campaign);
+            if (campaign == null || campaign.StageCount <= 1)
+                return rt.cleared || IsFarmUnlocked(world, config);
+            return rt.highestClearedStage >= NodeCampaignCatalog.GatherIdleMinStage(campaign);
+        }
+
+        public static float IdleRewardTier(PlayerWorldState world, RegionConfig config)
+        {
+            if (config == null) return 0f;
+            var rt = FindRuntime(world, config.regionId);
+            if (rt == null) return 0f;
+            var campaign = NodeCampaignCatalog.Get(config.regionId);
+            SyncLegacyClear(rt, campaign);
+            if (rt.cleared) return 1f;
+            if (campaign == null || campaign.StageCount <= 1) return 0f;
+            if (rt.highestClearedStage >= 5) return 0.8f;
+            if (rt.highestClearedStage >= 3) return 0.6f;
+            if (rt.highestClearedStage >= 2) return 0.4f;
+            return 0f;
+        }
+
+        public static string CurrentEncounterId(PlayerWorldState world, string regionId)
+        {
+            var cfg = RegionCatalog.Get(regionId);
+            var rt = FindRuntime(world, regionId);
+            var stage = NodeCampaignCatalog.CurrentStage(rt, regionId);
+            if (stage != null && !string.IsNullOrEmpty(stage.encounterId))
+                return stage.encounterId;
+            return cfg?.mainEncounterId ?? "";
         }
 
         public static WorldCommandResult RegisterVictory(
@@ -189,32 +272,98 @@ namespace Assets.Resources.Scripts.World.Domain
                 world.regions.Add(rt);
             }
 
-            var enc = EncounterCatalog.Get(encounterId);
-            var isBossFight = config.bossRegion || (enc != null && enc.isBoss);
+            var campaign = NodeCampaignCatalog.Get(regionId);
+            SyncLegacyClear(rt, campaign);
+            encounterId ??= "";
 
-            bool wasFirstClear;
-            if (isBossFight)
+            if (!string.IsNullOrEmpty(config.farmEncounterId) && encounterId == config.farmEncounterId)
             {
-                wasFirstClear = !rt.bossDefeated;
-                rt.bossDefeated = true;
-                rt.cleared = true;
-                if (wasFirstClear)
-                    rt.firstClearedAtUtc = nowUtc;
+                rt.clearCount++;
+                world.explorationProgress = ComputeExplorationProgress(world);
+                world.count = world.regions.Count;
+                return WorldCommandResult.Ok(false, regionId, encounterId);
             }
-            else
+
+            var result = WorldCommandResult.Ok(false, regionId, encounterId);
+            var alreadyComplete = campaign != null && rt.highestClearedStage >= campaign.StageCount;
+            if (alreadyComplete)
             {
-                wasFirstClear = !rt.cleared;
-                if (wasFirstClear)
-                {
-                    rt.cleared = true;
+                rt.clearCount++;
+                return result;
+            }
+
+            var nextIndex = NodeCampaignCatalog.NextStageIndex(rt, campaign);
+            var expected = campaign != null && nextIndex >= 1 && nextIndex <= campaign.StageCount
+                ? campaign.stages[nextIndex - 1]
+                : null;
+            var canAdvance = campaign == null
+                || campaign.StageCount <= 1
+                || expected == null
+                || string.IsNullOrEmpty(encounterId)
+                || encounterId == expected.encounterId
+                || (nextIndex == 1 && encounterId == config.mainEncounterId);
+
+            if (!canAdvance)
+            {
+                rt.clearCount++;
+                return result;
+            }
+
+            rt.highestClearedStage = nextIndex;
+            result.WasStageFirstClear = true;
+            result.StageIndex = nextIndex;
+            result.StageRewardTableId = expected?.firstClearRewardId ?? "";
+
+            var complete = campaign == null || rt.highestClearedStage >= campaign.StageCount;
+            if (complete)
+            {
+                var wasFirst = !rt.cleared;
+                rt.cleared = true;
+                var last = campaign != null && campaign.StageCount > 0
+                    ? campaign.stages[campaign.StageCount - 1]
+                    : null;
+                if (config.bossRegion || last?.stageType == BattleStageType.Boss)
+                    rt.bossDefeated = true;
+                if (wasFirst)
                     rt.firstClearedAtUtc = nowUtc;
-                }
+                result.WasFirstClear = wasFirst;
+                result.BeaconRestored = wasFirst;
             }
 
             rt.clearCount++;
             world.explorationProgress = ComputeExplorationProgress(world);
             world.count = world.regions.Count;
-            return WorldCommandResult.Ok(wasFirstClear, regionId, encounterId ?? "");
+            return result;
+        }
+
+        /// <summary>Completes every remaining stage. Used by tests and debug seeds.</summary>
+        public static WorldCommandResult CompleteCampaign(PlayerWorldState world, string regionId, long nowUtc)
+        {
+            var campaign = NodeCampaignCatalog.Get(regionId);
+            WorldCommandResult last = WorldCommandResult.Fail("Unknown region.");
+            var guard = 0;
+            while (guard++ < 16)
+            {
+                var rt = FindRuntime(world, regionId);
+                if (rt != null && campaign != null && rt.highestClearedStage >= campaign.StageCount && rt.cleared)
+                    return last.Success ? last : WorldCommandResult.Ok(false, regionId, "");
+                var encounter = CurrentEncounterId(world, regionId);
+                last = RegisterVictory(world, regionId, encounter, nowUtc);
+                if (!last.Success) return last;
+                if (last.BeaconRestored || last.WasFirstClear) return last;
+            }
+
+            return last;
+        }
+
+        public static void SyncLegacyClear(RegionRuntimeState rt, NodeCampaignDef campaign)
+        {
+            if (rt == null) return;
+            var count = campaign?.StageCount ?? 1;
+            if (rt.cleared && rt.highestClearedStage < count)
+                rt.highestClearedStage = count;
+            if (!rt.cleared && count > 0 && rt.highestClearedStage >= count)
+                rt.cleared = true;
         }
 
         public static int ComputeExplorationProgress(PlayerWorldState world)

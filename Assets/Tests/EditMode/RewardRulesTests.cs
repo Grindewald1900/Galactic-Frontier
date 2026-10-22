@@ -44,11 +44,11 @@ namespace GalacticFrontier.Tests.EditMode
         public void FirstClear_Flag_Then_Repeat()
         {
             var world = WorldRules.CreateNewPlayerWorld();
-            var first = WorldRules.RegisterVictory(world, WorldConstants.OuterBeltId, "enc_outer_main", 1);
+            var first = WorldRules.CompleteCampaign(world, WorldConstants.OuterBeltId, 1);
             Assert.IsTrue(first.Success);
             Assert.IsTrue(first.WasFirstClear);
 
-            var repeat = WorldRules.RegisterVictory(world, WorldConstants.OuterBeltId, "enc_outer_main", 2);
+            var repeat = WorldRules.RegisterVictory(world, WorldConstants.OuterBeltId, "enc_outer_boss", 2);
             Assert.IsTrue(repeat.Success);
             Assert.IsFalse(repeat.WasFirstClear);
         }

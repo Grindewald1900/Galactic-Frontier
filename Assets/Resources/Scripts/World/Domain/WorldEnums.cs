@@ -9,6 +9,42 @@ namespace Assets.Resources.Scripts.World.Domain
         BossDefeated = 4
     }
 
+    /// <summary>Intra-node expedition state (doc 20 §17). Beacon restore maps to <see cref="RegionProgressState.Cleared"/>.</summary>
+    public enum NodeCampaignState
+    {
+        Unscouted = 0,
+        Advancing = 1,
+        Staging = 2,
+        BossReady = 3,
+        BeaconRestored = 4,
+        Developed = 5
+    }
+
+    public enum BattleStageType
+    {
+        Normal = 0,
+        Elite = 1,
+        Boss = 2
+    }
+
+    public enum CampaignIdleUnlock
+    {
+        None = 0,
+        Gather = 1,
+        Combat = 2,
+        RareDrop = 3,
+        Full = 4
+    }
+
+    public enum StabilizeBlock
+    {
+        None = 0,
+        UnknownBody = 1,
+        NotLocated = 2,
+        AlreadyStable = 3,
+        NeedResources = 4
+    }
+
     public enum CombatStrategyId
     {
         Balanced = 0,
