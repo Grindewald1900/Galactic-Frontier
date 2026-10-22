@@ -10,6 +10,7 @@ using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.Utils.DebugTools;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.Dialogue;
 using Assets.Resources.Scripts.Cosmetics;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Progression;
@@ -142,6 +143,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     mainReady = true;
                     PushStartupNotifications();
                     FeatureUnlockUi.PresentPending(ShowScreen);
+                    DialogueService.Close();
                     ChapterQuestService.TryBeginEntryFlow(null);
                     LoadingOverlay.NotifySceneReady();
                     break;
@@ -361,6 +363,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 }
             }
 
+            ModuleUpgradePopup.Close();
             activeScreen = screen;
             SetActiveNavigation(screen);
             SetBreadcrumb(screen);
@@ -410,7 +413,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     {
                         bridgeScreen = BridgeScreen.Build(
                             ContentRoot(),
-                            () => ShowScreen(AppScreen.Missions),
                             () => ShowScreen(AppScreen.Formation),
                             () => ShowScreen(AppScreen.Battle),
                             () => ShowScreen(AppScreen.Ship),

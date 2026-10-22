@@ -6,6 +6,8 @@ using Assets.Resources.Scripts.Dialogue;
 using Assets.Resources.Scripts.Dialogue.Domain;
 using Assets.Resources.Scripts.Onboarding;
 using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.Quest;
+using Assets.Resources.Scripts.Quest.Domain;
 using Assets.Resources.Scripts.UI.Nexus;
 using UnityEngine;
 using UnityEngine.UI;
@@ -143,6 +145,8 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
           continue;
         if (!MatchesScreen(guide, screen))
           continue;
+        if (ShouldSkipFormationPhase(guide))
+          continue;
         if (ShouldSkipFormationJoin(chain, stepId, guide))
           continue;
         if (best == null || guide.order < best.order)
@@ -150,6 +154,28 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       }
 
       return best;
+    }
+
+    private static bool ShouldSkipFormationPhase(TutorialGuideDef guide)
+    {
+      if (guide == null || guide.chain != TutorialGuideCatalog.ChainChapter
+          || guide.stepId != ChapterQuestCatalog.StepFormation)
+        return false;
+
+      QuestService.EnsureLoaded();
+      var flags = QuestService.State?.flags;
+      bool seen = flags?.formationLessonSeen == true;
+      bool done = flags?.coleFrontAdjusted == true || flags?.chapterFormationReady == true;
+      bool beforeBattle = guide.guideId == "tg_ch1_formation_battle_nav"
+          || guide.guideId == "tg_ch1_formation_battle_start";
+      if (beforeBattle)
+        return seen || done;
+
+      bool afterBattle = guide.guideId == "tg_ch1_formation_front"
+          || guide.guideId == "tg_ch1_formation_join";
+      if (afterBattle)
+        return !seen || done;
+      return false;
     }
 
     private static bool ShouldSkipFormationJoin(string chain, string stepId, TutorialGuideDef guide)
@@ -247,16 +273,8 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
     private static bool IsGuideComplete(string chain, string guideId)
     {
       if (string.IsNullOrEmpty(guideId)) return true;
-      if (chain == TutorialGuideCatalog.ChainChapter)
-      {
-        ChapterQuestService.EnsureLoaded();
-        var ids = ChapterQuestService.State?.completedGuideIds;
-        return ids != null && ids.Contains(guideId);
-      }
-
-      OnboardingService.EnsureLoaded();
-      var obIds = OnboardingService.State?.completedGuideIds;
-      return obIds != null && obIds.Contains(guideId);
+      QuestService.EnsureLoaded();
+      return QuestService.IsGuideComplete(guideId);
     }
 
     private static void CompleteGuide(string guideId)
@@ -266,24 +284,7 @@ namespace Assets.Resources.Scripts.UI.Nexus.Tutorial
       foreach (var guide in TutorialGuideCatalog.All)
       {
         if (guide == null || guide.guideId != guideId) continue;
-
-        if (guide.chain == TutorialGuideCatalog.ChainChapter)
-        {
-          ChapterQuestService.EnsureLoaded();
-          ChapterQuestService.State.completedGuideIds ??= new List<string>();
-          if (!ChapterQuestService.State.completedGuideIds.Contains(guideId))
-            ChapterQuestService.State.completedGuideIds.Add(guideId);
-          ChapterQuestService.Save();
-        }
-        else
-        {
-          OnboardingService.EnsureLoaded();
-          OnboardingService.State.completedGuideIds ??= new List<string>();
-          if (!OnboardingService.State.completedGuideIds.Contains(guideId))
-            OnboardingService.State.completedGuideIds.Add(guideId);
-          OnboardingService.Save();
-        }
-
+        QuestService.MarkGuideComplete(guideId, guide.chain == TutorialGuideCatalog.ChainChapter);
         break;
       }
 

@@ -90,8 +90,8 @@
           "speakerNameEn": "Asra",
           "speakerNameZh": "阿斯拉",
           "portraitId": "Asra",
-          "textEn": "Put me on the front line. Cole hits from the back — and change our combat strategy.",
-          "textZh": "把我放前排。科尔打后排——再把战术调一下。"
+          "textEn": "I am stuck in the back row. Fight once, then put Cole on the front line.",
+          "textZh": "我现在被放在后排。先打一场，再把科尔调到前排。"
         }
       ]
     },
@@ -248,6 +248,30 @@
           "portraitId": "Asra",
           "textEn": "Visit Starport — buy or sell once at the NPC shop.",
           "textZh": "去星港——在 NPC 商店完成一次买或卖。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_formation_see_battle",
+      "lines": [
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "Take this lineup into a fight. I am in the back — you will see it fail.",
+          "textZh": "就用现在这套阵容打一场。我在后排，你会看到它站不住。"
+        }
+      ]
+    },
+    {
+      "dialogueId": "ch1_formation_move_cole",
+      "lines": [
+        {
+          "speakerNameEn": "Asra",
+          "speakerNameZh": "阿斯拉",
+          "portraitId": "Asra",
+          "textEn": "That fight proved it. Move Cole to the front row.",
+          "textZh": "这场已经说明问题了。把科尔调到前排。"
         }
       ]
     },
