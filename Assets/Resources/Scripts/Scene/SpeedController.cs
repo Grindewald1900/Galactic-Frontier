@@ -28,6 +28,12 @@ public class SpeedController : MonoBehaviour
         }
     }
 
+    // 战斗倍速只作用于战斗场景，离开时恢复全局速度
+    void OnDestroy()
+    {
+        Time.timeScale = 1f;
+    }
+
     // 每次点击按钮调用，循环切换速度
     void ChangeSpeed()
     {

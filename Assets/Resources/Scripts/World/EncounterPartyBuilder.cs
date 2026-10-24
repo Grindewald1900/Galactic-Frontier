@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.CharacterPanel;
-using Assets.Resources.Scripts.Characters;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.World.Domain;
 using UnityEngine;
 
 namespace Assets.Resources.Scripts.World
 {
-    /// <summary>Builds enemy CardEntity lists from EncounterConfig using CardDataManager.</summary>
+    /// <summary>Builds enemy CardEntity lists from configured encounter profiles. Stats are not rolled.</summary>
     public static class EncounterPartyBuilder
     {
         public static List<CardEntity> Build(EncounterConfig encounter)
@@ -18,36 +17,60 @@ namespace Assets.Resources.Scripts.World
             if (encounter?.enemies == null)
                 return result;
 
-            var mgr = CardDataManager.Instance;
-            if (mgr == null)
+            for (var i = 0; i < encounter.enemies.Length; i++)
             {
-                Debug.LogWarning("[ENCOUNTER] CardDataManager missing.");
-                return result;
-            }
-
-            foreach (var slot in encounter.enemies)
-            {
-                if (slot == null) continue;
-                if (!Enum.TryParse(slot.characterKey, true, out CharacterName name))
-                    name = CharacterName.Asra;
-
-                Character character = CharacterSkillController.GetCharacter(name);
-                if (character == null)
+                var slot = encounter.enemies[i];
+                if (EnemyCatalog.IsEmptySlot(slot))
                 {
-                    // Fallback: ask CardDataManager for any character.
-                    character = mgr.GetCharacter();
+                    result.Add(null);
+                    continue;
                 }
 
-                if (character == null) continue;
-                var entity = mgr.GetCardEntity(character);
-                if (entity == null) continue;
-                entity.Level = Math.Max(1, slot.level);
-                entity.id = Guid.NewGuid().ToString("N");
-                entity.cardName = (encounter.isBoss ? "[Boss] " : "") + entity.cardName;
+                var resolved = EnemyCatalog.Resolve(encounter, slot, i);
+                if (resolved == null)
+                {
+                    Debug.LogWarning($"[ENCOUNTER] {encounter.encounterId} slot {i} did not resolve.");
+                    result.Add(null);
+                    continue;
+                }
+
+                var skill = ParseSkill(resolved.SkillKey);
+                var entity = new CardEntity()
+                    .SetCardName(resolved.DisplayNameEn)
+                    .SetCharacterName(skill)
+                    .SetCharacterTier(encounter.isBoss ? CharacterTier.TierA : CharacterTier.TierC)
+                    .SetLevel(resolved.Level)
+                    .SetExp(0f)
+                    .SetAttack(resolved.Attack)
+                    .SetDefense(resolved.Defense)
+                    .SetHealth(resolved.Health)
+                    .SetAccuracy(resolved.Accuracy)
+                    .SetDodge(resolved.Dodge)
+                    .SetCritical(resolved.Critical)
+                    .SetCriticalDamage(resolved.CriticalDamage)
+                    .SetEnergyGenerateRate((int)resolved.Energy)
+                    .SetSpeed(resolved.Speed)
+                    .SetId(resolved.ProfileId + "@" + encounter.encounterId + "#" + i);
+                entity.portraitKey = EnemyCatalog.PlaceholderSprite;
+                entity.enemyProfileId = resolved.ProfileId;
+                entity.enemyPhaseIndex = 0;
                 result.Add(entity);
+                Debug.Log(
+                    $"[ENCOUNTER] {encounter.encounterId} #{i} id={resolved.ProfileId} " +
+                    $"name={resolved.DisplayNameEn} role={resolved.Role} lv={resolved.Level} " +
+                    $"atk={resolved.Attack} def={resolved.Defense} hp={resolved.Health} " +
+                    $"skill={resolved.SkillKey} power={resolved.Power} art={entity.portraitKey}");
             }
 
             return result;
+        }
+
+        private static CharacterName ParseSkill(string skillKey)
+        {
+            if (!string.IsNullOrEmpty(skillKey)
+                && Enum.TryParse(skillKey, true, out CharacterName name))
+                return name;
+            return CharacterName.Asra;
         }
     }
 }

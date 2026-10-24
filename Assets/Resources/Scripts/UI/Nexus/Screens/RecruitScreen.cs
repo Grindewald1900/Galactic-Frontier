@@ -1,12 +1,15 @@
+using System.Collections.Generic;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.ChapterQuest.Domain;
 using Assets.Resources.Scripts.Economy.Domain;
+using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.UI.Nexus.Tutorial;
 using Assets.Resources.Scripts.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Resources.Scripts.UI.Nexus
 {
@@ -16,6 +19,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private readonly Transform root;
         private readonly System.Action<AppScreen> navigate;
         private string statusMessage = "";
+        private List<CardEntity> lastPull = new();
 
         private RecruitScreen(Transform root, System.Action<AppScreen> navigate)
         {
@@ -87,50 +91,99 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(640f, poolY), new Vector2(520f, 48f), 11f, NexusTheme.MutedText);
 
             float pullY = poolY + 80f;
+            var pullOneFill = NexusTheme.WithAlpha(NexusTheme.Gold, canOne ? 0.28f : 0.16f);
             var pullOne = NexusUiFactory.CreateButton(
                 root, "PullOne", UiText.RecruitPullOne,
                 new Vector2(28f, pullY), new Vector2(220f, 48f),
                 () => Pull(1),
-                canOne
-                    ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f)
-                    : NexusTheme.SurfaceRaised,
+                pullOneFill,
                 canOne ? NexusTheme.Gold : NexusTheme.DimText,
                 14f);
+            KeepDisabledColor(pullOne, pullOneFill);
+            pullOne.interactable = canOne;
             TutorialGuideService.RegisterAnchor(
                 "recruit_pull_one",
                 pullOne.GetComponent<RectTransform>(),
                 pullOne);
 
-            NexusUiFactory.CreateButton(
+            var pullTenFill = NexusTheme.WithAlpha(NexusTheme.Cyan, canTen ? 0.24f : 0.16f);
+            var pullTen = NexusUiFactory.CreateButton(
                 root, "PullTen", UiText.RecruitPullTen,
                 new Vector2(268f, pullY), new Vector2(220f, 48f),
                 () => Pull(10),
-                canTen
-                    ? NexusTheme.WithAlpha(NexusTheme.Cyan, 0.18f)
-                    : NexusTheme.SurfaceRaised,
+                pullTenFill,
                 canTen ? NexusTheme.Cyan : NexusTheme.DimText,
                 14f);
+            KeepDisabledColor(pullTen, pullTenFill);
+            pullTen.interactable = canTen;
 
             NexusUiFactory.CreateButton(
                 root, "BuyTickets", UiText.RecruitBuyTickets,
                 new Vector2(508f, pullY), new Vector2(240f, 48f),
                 () => navigate?.Invoke(AppScreen.Market),
-                NexusTheme.SurfaceRaised, NexusTheme.Text, 13f);
+                NexusTheme.WithAlpha(NexusTheme.Gold, 0.16f), NexusTheme.Gold, 13f);
 
-            if (!canOne)
+            float resultY = pullY + 68f;
+            if (!canOne && (lastPull == null || lastPull.Count == 0))
             {
                 NexusUiFactory.CreateText(
                     root, "Need", UiText.RecruitNeedTickets,
-                    new Vector2(28f, 220f), new Vector2(900f, 24f), 12f, NexusTheme.Gold);
+                    new Vector2(28f, resultY), new Vector2(900f, 24f), 12f, NexusTheme.Gold);
+                resultY += 32f;
             }
 
-            if (!string.IsNullOrEmpty(statusMessage))
+            DrawPullResult(resultY);
+        }
+
+        private static void KeepDisabledColor(Button button, Color fill)
+        {
+            if (button == null)
+                return;
+            var colors = button.colors;
+            colors.disabledColor = fill;
+            button.colors = colors;
+        }
+
+        private void DrawPullResult(float y)
+        {
+            if (lastPull != null && lastPull.Count > 0)
             {
-                var status = NexusUiFactory.CreateText(
+                var header = NexusUiFactory.CreateText(
                     root, "Status", statusMessage,
-                    new Vector2(28f, 250f), new Vector2(1200f, 420f), 13f, NexusTheme.Text);
-                status.textWrappingMode = TextWrappingModes.Normal;
+                    new Vector2(28f, y), new Vector2(1100f, 24f), 14f, NexusTheme.Text,
+                    TextAlignmentOptions.Left, FontStyles.Bold);
+                header.textWrappingMode = TextWrappingModes.NoWrap;
+
+                float x = 28f;
+                int shown = 0;
+                foreach (var card in lastPull)
+                {
+                    if (card == null || shown >= 5)
+                        continue;
+                    var view = NexusCardVisual.CreatePortraitCard(
+                        root,
+                        "PullCard" + shown,
+                        card,
+                        new Vector2(x, y + 32f),
+                        new Vector2(156f, 214f),
+                        "Lv." + card.Level);
+                    var motion = view.AddComponent<NexusUiMotion>();
+                    motion.Press = false;
+                    motion.Appear = true;
+                    x += 168f;
+                    shown++;
+                }
+
+                return;
             }
+
+            if (string.IsNullOrEmpty(statusMessage))
+                return;
+
+            var status = NexusUiFactory.CreateText(
+                root, "Status", statusMessage,
+                new Vector2(28f, y), new Vector2(1100f, 72f), 14f, NexusTheme.Text);
+            status.textWrappingMode = TextWrappingModes.Normal;
         }
 
         private void Pull(int count)
@@ -139,22 +192,13 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (!result.Success)
             {
                 statusMessage = result.Message;
+                lastPull = new List<CardEntity>();
                 Rebuild();
                 return;
             }
 
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine(UiText.RecruitResultHeader(result.TicketsSpent, result.PityAfter));
-            if (result.Cards != null)
-            {
-                foreach (var card in result.Cards)
-                {
-                    if (card == null) continue;
-                    sb.AppendLine($"· {card.cardName}  {card.CharacterTier}  Lv.{card.Level}");
-                }
-            }
-
-            statusMessage = sb.ToString();
+            statusMessage = UiText.RecruitResultHeader(result.TicketsSpent, result.PityAfter);
+            lastPull = result.Cards != null ? new List<CardEntity>(result.Cards) : new List<CardEntity>();
             Rebuild();
         }
     }

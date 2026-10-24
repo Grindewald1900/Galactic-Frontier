@@ -57,6 +57,33 @@ namespace Assets.Resources.Scripts.World.Domain
         public bool bossDefeated;
         public long firstClearedAtUtc;
         public long lastFarmAtUtc;
+        /// <summary>Highest completed expedition stage (0 = none). Beacon restore when this reaches the campaign length.</summary>
+        public int highestClearedStage;
+    }
+
+    [Serializable]
+    public class BattleStageDef
+    {
+        public string stageId = "";
+        public BattleStageType stageType = BattleStageType.Normal;
+        public string encounterId = "";
+        public int recommendedPower;
+        public string firstClearRewardId = "";
+        public string displayNameEn = "";
+        public string displayNameZh = "";
+        public string traitEn = "";
+        public string traitZh = "";
+        public string environmentEn = "";
+        public string environmentZh = "";
+        public CampaignIdleUnlock idleUnlock = CampaignIdleUnlock.None;
+    }
+
+    [Serializable]
+    public class NodeCampaignDef
+    {
+        public string regionId = "";
+        public BattleStageDef[] stages = Array.Empty<BattleStageDef>();
+        public int StageCount => stages?.Length ?? 0;
     }
 
     [Serializable]
@@ -125,6 +152,9 @@ namespace Assets.Resources.Scripts.World.Domain
     [Serializable]
     public class EncounterEnemySlot
     {
+        /// <summary>EnemyCatalog id. When set, stats and name come from that profile.</summary>
+        public string profileId = "";
+        /// <summary>Skill-kit key used when <see cref="profileId"/> is empty. Empty means a vacant board slot.</summary>
         public string characterKey = "Asra";
         public int level = 1;
         public int weight = 1;
@@ -164,6 +194,14 @@ namespace Assets.Resources.Scripts.World.Domain
         public RegionProgressState Progress;
         public bool CanEnter;
         public bool FarmUnlocked;
+        public bool GatherUnlocked;
+        public bool BeaconRestored;
+        public NodeCampaignState CampaignState;
+        public int HighestClearedStage;
+        public int StageCount;
+        public int CurrentStage;
+        public BattleStageDef CurrentStageDef;
+        public float IdleRewardTier;
         public List<string> BlockReasons = new List<string>();
         public List<string> ShipGaps = new List<string>();
     }
@@ -174,11 +212,27 @@ namespace Assets.Resources.Scripts.World.Domain
         public List<string> Missing = new List<string>();
     }
 
+    public sealed class StabilizeInspect
+    {
+        public bool CanAttempt;
+        public bool FreeViaClear;
+        public bool CanAfford;
+        public StabilizeBlock Block = StabilizeBlock.None;
+        public int NeedScrap;
+        public int NeedCredit;
+        public int HaveScrap;
+        public int HaveCredit;
+    }
+
     public sealed class WorldCommandResult
     {
         public bool Success;
         public string Message = "";
         public bool WasFirstClear;
+        public bool WasStageFirstClear;
+        public bool BeaconRestored;
+        public int StageIndex;
+        public string StageRewardTableId = "";
         public string RegionId = "";
         public string EncounterId = "";
         public static WorldCommandResult Ok(bool wasFirstClear = false, string regionId = "", string encounterId = "") =>

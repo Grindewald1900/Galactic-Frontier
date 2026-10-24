@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using Assets.Resources.Scripts.Cards;
+using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Deck;
 using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Entity;
+using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Onboarding;
-using Assets.Resources.Scripts.Onboarding.Domain;
+using Assets.Resources.Scripts.Quest;
+using Assets.Resources.Scripts.Quest.Domain;
 using Assets.Resources.Scripts.Unlock;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
@@ -22,23 +25,23 @@ namespace Assets.Resources.Scripts.UI.Nexus
     internal sealed class BridgeScreen
     {
         private readonly Transform root;
-        private readonly System.Action openMissions;
         private readonly System.Action openFormation;
         private readonly System.Action openExplore;
         private readonly System.Action openShip;
         private readonly System.Action<AppScreen> navigate;
         private BridgeLogCategory? logFilter;
+        private QuestType? boardType;
+        private CommanderGoalService.QuestBoardStatusFilter boardStatus = CommanderGoalService.QuestBoardStatusFilter.All;
+        private string selectedQuestId = "";
 
         private BridgeScreen(
             Transform root,
-            System.Action openMissions,
             System.Action openFormation,
             System.Action openExplore,
             System.Action openShip,
             System.Action<AppScreen> navigate)
         {
             this.root = root;
-            this.openMissions = openMissions;
             this.openFormation = openFormation;
             this.openExplore = openExplore;
             this.openShip = openShip;
@@ -49,7 +52,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         public static BridgeScreen Build(
             Transform parent,
-            System.Action openMissions,
             System.Action openFormation,
             System.Action openExplore,
             System.Action openShip = null,
@@ -65,7 +67,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 Vector2.zero);
 
             var screen = new BridgeScreen(
-                root.transform, openMissions, openFormation, openExplore, openShip, navigate);
+                root.transform, openFormation, openExplore, openShip, navigate);
             screen.Rebuild();
             return screen;
         }
@@ -105,8 +107,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 new Vector2(720f, 22f),
                 12f,
                 NexusTheme.MutedText);
-
-            BuildOnboardingCta();
 
             GameObject banner = NexusUiFactory.CreateBox(
                 root,
@@ -161,64 +161,337 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void BuildCommanderGoal()
         {
-            var goal = CommanderGoalService.GetCurrent();
+            var headline = CommanderGoalService.CurrentStoryHeadline();
+            var visible = CommanderGoalService.ListBoard(boardType, boardStatus);
+            EnsureBoardSelection(visible, headline.QuestId);
+            QuestView selected = FindBoardQuest(visible, selectedQuestId);
+            int claimable = CountClaimable(visible);
+
             GameObject panel = NexusUiFactory.CreateBox(
                 root, "Commander Goal",
                 new Vector2(1090f, 128f), new Vector2(678f, 300f),
                 NexusTheme.Surface, NexusTheme.BorderSoft);
 
+            // The bridge content sits beside the left nav, so the card's right edge
+            // can fall outside a 1920-wide game view. Keep text and buttons inside
+            // the visible span; the card chrome stays aligned with the loot panel.
+            const float contentW = 580f;
             NexusUiFactory.CreateText(
                 panel.transform, "GoalHead", UiText.BridgeCommanderGoal,
-                new Vector2(16f, 10f), new Vector2(640f, 20f), 12f, NexusTheme.MutedText);
+                new Vector2(12f, 6f), new Vector2(contentW, 16f), 11f, NexusTheme.MutedText);
             NexusUiFactory.CreateText(
-                panel.transform, "GoalTitle", goal.Title,
-                new Vector2(16f, 32f), new Vector2(640f, 26f), 16f, NexusTheme.Gold,
+                panel.transform, "GoalTitle", headline.Title,
+                new Vector2(12f, 22f), new Vector2(contentW, 20f), 15f, NexusTheme.Gold,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+
+            DrawBoardChips(panel.transform, 12f, 46f, TypeChips());
+            DrawBoardChips(panel.transform, 12f, 72f, StatusChips());
+
+            var content = CreateBoardScroll(panel.transform, new Vector2(12f, 98f), new Vector2(contentW, 158f));
+            if (visible.Count == 0)
+            {
+                string empty = boardStatus == CommanderGoalService.QuestBoardStatusFilter.InProgress
+                    ? UiText.QuestTrackerEmpty
+                    : UiText.BridgeQuestFilterEmpty;
+                NexusUiFactory.CreateText(
+                    panel.transform, "BoardEmpty", empty,
+                    new Vector2(20f, 112f), new Vector2(560f, 36f), 12f, NexusTheme.MutedText);
+            }
+            else
+            {
+                const float rowH = 34f;
+                for (int i = 0; i < visible.Count; i++)
+                    DrawBoardRow(content, visible[i], i * rowH, contentW - 8f, visible[i].Def.questId == selectedQuestId);
+                var contentRect = content.GetComponent<RectTransform>();
+                contentRect.sizeDelta = new Vector2(0f, visible.Count * rowH);
+            }
+
+            bool canGo = selected != null && selected.Status != QuestStatus.Claimed
+                && (selected.Def.questId == QuestIds.ChPrologue || !string.IsNullOrEmpty(QuestService.TargetScreen(selected.Def)));
+            var go = NexusUiFactory.CreateRoleButton(
+                panel.transform, "BoardGo", UiText.QuestGo,
+                new Vector2(12f, 262f), new Vector2(120f, 30f),
+                () => GoToQuest(selected),
+                canGo ? NexusButtonRole.Primary : NexusButtonRole.Disabled, 12f);
+            go.interactable = canGo;
+
+            bool canClaim = selected != null && selected.CanClaim;
+            var claim = NexusUiFactory.CreateRoleButton(
+                panel.transform, "BoardClaim", UiText.QuestClaim,
+                new Vector2(140f, 262f), new Vector2(100f, 30f),
+                () => ClaimQuest(selected),
+                canClaim ? NexusButtonRole.Confirm : NexusButtonRole.Disabled, 12f);
+            claim.interactable = canClaim;
+
+            var claimAll = NexusUiFactory.CreateRoleButton(
+                panel.transform, "BoardClaimAll", UiText.MissionsClaimTab,
+                new Vector2(372f, 262f), new Vector2(196f, 30f),
+                () => ClaimVisible(visible),
+                claimable > 0 ? NexusButtonRole.Confirm : NexusButtonRole.Disabled, 12f);
+            claimAll.interactable = claimable > 0;
+        }
+
+        private struct BoardChip
+        {
+            public string Name;
+            public string Label;
+            public bool On;
+            public System.Action Click;
+        }
+
+        private BoardChip[] TypeChips()
+        {
+            return new[]
+            {
+                Chip("TypeAll", UiText.BridgeQuestFilterAll, boardType == null, () => boardType = null),
+                Chip("TypeStory", UiText.BridgeQuestFilterStory, boardType == QuestType.Story, () => boardType = QuestType.Story),
+                Chip("TypeTeach", UiText.QuestOnboardingTitle, boardType == QuestType.Onboarding, () => boardType = QuestType.Onboarding),
+                Chip("TypeExpedition", UiText.QuestExpeditionTitle, boardType == QuestType.Expedition, () => boardType = QuestType.Expedition),
+                Chip("TypeShip", UiText.QuestShipTitle, boardType == QuestType.Ship, () => boardType = QuestType.Ship),
+                Chip("TypeLoop", UiText.QuestLoopTitle, boardType == QuestType.Loop, () => boardType = QuestType.Loop)
+            };
+        }
+
+        private BoardChip[] StatusChips()
+        {
+            return new[]
+            {
+                Chip("StatusAll", UiText.BridgeQuestFilterAll, boardStatus == CommanderGoalService.QuestBoardStatusFilter.All, () => boardStatus = CommanderGoalService.QuestBoardStatusFilter.All),
+                Chip("StatusActive", UiText.MissionsStatusActive, boardStatus == CommanderGoalService.QuestBoardStatusFilter.InProgress, () => boardStatus = CommanderGoalService.QuestBoardStatusFilter.InProgress),
+                Chip("StatusReady", UiText.BridgeQuestStatusReady, boardStatus == CommanderGoalService.QuestBoardStatusFilter.Ready, () => boardStatus = CommanderGoalService.QuestBoardStatusFilter.Ready),
+                Chip("StatusDone", UiText.MissionsStatusDone, boardStatus == CommanderGoalService.QuestBoardStatusFilter.Claimed, () => boardStatus = CommanderGoalService.QuestBoardStatusFilter.Claimed)
+            };
+        }
+
+        private static BoardChip Chip(string name, string label, bool on, System.Action click) =>
+            new BoardChip { Name = name, Label = label, On = on, Click = click };
+
+        private void DrawBoardChips(Transform parent, float x, float y, BoardChip[] chips)
+        {
+            float cursor = x;
+            for (int i = 0; i < chips.Length; i++)
+            {
+                var chip = chips[i];
+                float width = ChipWidth(chip.Label);
+                var captured = chip.Click;
+                var button = NexusUiFactory.CreateButton(
+                    parent, chip.Name, chip.Label,
+                    new Vector2(cursor, y), new Vector2(width, 22f),
+                    () =>
+                    {
+                        captured?.Invoke();
+                        Rebuild();
+                    },
+                    chip.On ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.28f) : NexusTheme.SurfaceRaised,
+                    chip.On ? NexusTheme.Gold : NexusTheme.MutedText,
+                    11f);
+                if (chip.On)
+                    button.GetComponent<Image>().color = NexusTheme.WithAlpha(NexusTheme.Gold, 0.28f);
+                cursor += width + 4f;
+            }
+        }
+
+        private static float ChipWidth(string label)
+        {
+            int chars = string.IsNullOrEmpty(label) ? 2 : label.Length;
+            return Mathf.Clamp(chars * 13f + 16f, 52f, 132f);
+        }
+
+        private static Transform CreateBoardScroll(Transform parent, Vector2 position, Vector2 size)
+        {
+            var viewport = new GameObject("QuestScroll", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            viewport.transform.SetParent(parent, false);
+            var viewportRect = viewport.GetComponent<RectTransform>();
+            viewportRect.anchorMin = new Vector2(0f, 1f);
+            viewportRect.anchorMax = new Vector2(0f, 1f);
+            viewportRect.pivot = new Vector2(0f, 1f);
+            viewportRect.anchoredPosition = new Vector2(position.x, -position.y);
+            viewportRect.sizeDelta = size;
+            var image = viewport.GetComponent<Image>();
+            image.color = new Color(0f, 0f, 0f, 0.01f);
+            image.raycastTarget = true;
+
+            var content = new GameObject("Content", typeof(RectTransform));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = content.GetComponent<RectTransform>();
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = new Vector2(1f, 1f);
+            contentRect.pivot = new Vector2(0f, 1f);
+            contentRect.anchoredPosition = Vector2.zero;
+            contentRect.sizeDelta = new Vector2(0f, size.y);
+
+            var scroll = viewport.GetComponent<ScrollRect>();
+            scroll.content = contentRect;
+            scroll.viewport = viewportRect;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 24f;
+            return content.transform;
+        }
+
+        private void DrawBoardRow(Transform parent, QuestView view, float y, float width, bool selected)
+        {
+            if (view?.Def == null) return;
+            var def = view.Def;
+            string title = UiText.T(def.titleEn, def.titleZh);
+            string status = BoardStatusLabel(view);
+            var bg = selected
+                ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.22f)
+                : view.Status == QuestStatus.Ready
+                    ? NexusTheme.WithAlpha(NexusTheme.Green, 0.14f)
+                    : NexusTheme.SurfaceRaised;
+            string questId = def.questId;
+            var row = NexusUiFactory.CreateBox(
+                parent, "Quest " + questId,
+                new Vector2(0f, y), new Vector2(width, 32f),
+                bg, selected ? NexusTheme.Gold : NexusTheme.BorderSoft);
+            var rowImage = row.GetComponent<Image>();
+            rowImage.raycastTarget = true;
+            var button = row.AddComponent<Button>();
+            button.targetGraphic = rowImage;
+            button.onClick.AddListener(() =>
+            {
+                selectedQuestId = questId;
+                Rebuild();
+            });
+
+            NexusUiFactory.CreateText(
+                row.transform, "Title",
+                def.displayId + "  " + title,
+                new Vector2(8f, 6f), new Vector2(width - 150f, 20f), 12f, NexusTheme.Text,
                 TextAlignmentOptions.Left, FontStyles.Bold);
             NexusUiFactory.CreateText(
-                panel.transform, "Progress", goal.Progress,
-                new Vector2(16f, 60f), new Vector2(640f, 20f), 12f, NexusTheme.Cyan);
-
-            float y = 84f;
-            if (!string.IsNullOrEmpty(goal.PowerLine))
-            {
-                NexusUiFactory.CreateText(
-                    panel.transform, "Power", goal.PowerLine,
-                    new Vector2(16f, y), new Vector2(640f, 20f), 12f, NexusTheme.Text);
-                y += 22f;
-            }
-
-            if (!string.IsNullOrEmpty(goal.RewardsLine))
-            {
-                NexusUiFactory.CreateText(
-                    panel.transform, "Rewards", goal.RewardsLine,
-                    new Vector2(16f, y), new Vector2(640f, 20f), 12f, NexusTheme.Gold);
-                y += 22f;
-            }
-
-            NexusUiFactory.CreateText(
-                panel.transform, "BottleneckHead", UiText.BridgeBottleneck,
-                new Vector2(16f, y), new Vector2(640f, 18f), 11f, NexusTheme.MutedText);
-            y += 20f;
-            var bottleneck = NexusUiFactory.CreateText(
-                panel.transform, "Bottleneck", goal.Bottleneck,
-                new Vector2(16f, y), new Vector2(640f, 44f), 12f, NexusTheme.Text);
-            bottleneck.textWrappingMode = TextWrappingModes.Normal;
-            y += 48f;
-
-            NexusUiFactory.CreateRoleButton(
-                panel.transform, "Recommended", goal.RecommendedAction,
-                new Vector2(16f, Mathf.Min(y, 244f)), new Vector2(320f, 44f),
-                () =>
-                {
-                    if (goal.OnRecommended != null)
-                        goal.OnRecommended();
-                    else if (navigate != null)
-                        navigate(goal.RecommendedScreen);
-                    else
-                        openExplore?.Invoke();
-                },
-                NexusButtonRole.Primary, 14f);
+                row.transform, "Status", status,
+                new Vector2(width - 136f, 6f), new Vector2(124f, 20f), 11f,
+                view.Status == QuestStatus.Ready ? NexusTheme.Green : NexusTheme.MutedText,
+                TextAlignmentOptions.Right);
         }
+
+        private static string BoardStatusLabel(QuestView view)
+        {
+            if (view.Status == QuestStatus.Claimed) return UiText.MissionsStatusDone;
+            if (view.Status == QuestStatus.Ready) return UiText.QuestStepReady;
+            if (view.Def.type == QuestType.Loop && view.LoopTarget > 0)
+                return UiText.QuestLoopProgress(view.LoopCount, view.LoopTarget);
+            return UiText.MissionsStatusActive;
+        }
+
+        private void EnsureBoardSelection(List<QuestView> visible, string storyId)
+        {
+            if (visible == null || visible.Count == 0)
+            {
+                selectedQuestId = "";
+                return;
+            }
+
+            if (FindBoardQuest(visible, selectedQuestId) != null)
+                return;
+            if (FindBoardQuest(visible, storyId) != null)
+            {
+                selectedQuestId = storyId;
+                return;
+            }
+
+            selectedQuestId = visible[0].Def.questId;
+        }
+
+        private static QuestView FindBoardQuest(List<QuestView> visible, string questId)
+        {
+            if (visible == null || string.IsNullOrEmpty(questId)) return null;
+            foreach (var view in visible)
+            {
+                if (view?.Def != null && view.Def.questId == questId)
+                    return view;
+            }
+
+            return null;
+        }
+
+        private static int CountClaimable(List<QuestView> visible)
+        {
+            int count = 0;
+            if (visible == null) return 0;
+            foreach (var view in visible)
+            {
+                if (view != null && view.CanClaim)
+                    count++;
+            }
+
+            return count;
+        }
+
+        private void GoToQuest(QuestView view)
+        {
+            if (view?.Def == null || view.Status == QuestStatus.Claimed) return;
+            if (view.Def.questId == QuestIds.ChPrologue && view.Status == QuestStatus.Active)
+            {
+                ChapterQuestService.StartPrologueBattle();
+                return;
+            }
+
+            var target = MapQuestTarget(QuestService.TargetScreen(view.Def));
+            if (navigate != null)
+                navigate(target);
+            else if (target == AppScreen.Formation)
+                openFormation?.Invoke();
+            else if (target == AppScreen.Battle)
+                openExplore?.Invoke();
+            else if (target == AppScreen.Ship)
+                openShip?.Invoke();
+        }
+
+        private void ClaimQuest(QuestView view)
+        {
+            if (view?.Def == null || !view.CanClaim) return;
+            var result = QuestService.TryClaim(view.Def.questId);
+            if (!result.Success && !string.IsNullOrEmpty(result.Message))
+                NexusSnackbar.Show(result.Message);
+            Rebuild();
+        }
+
+        private void ClaimVisible(List<QuestView> visible)
+        {
+            var ids = new List<string>();
+            foreach (var view in visible)
+            {
+                if (view?.Def != null && view.CanClaim)
+                    ids.Add(view.Def.questId);
+            }
+
+            if (ids.Count == 0)
+            {
+                NexusSnackbar.Show(UiText.MissionsClaimTabEmpty);
+                return;
+            }
+
+            int before = CurrencyService.Credits;
+            int claimed = 0;
+            foreach (var id in ids)
+            {
+                if (QuestService.TryClaim(id).Success)
+                    claimed++;
+            }
+
+            int delta = CurrencyService.Credits - before;
+            NexusSnackbar.Show(claimed > 0
+                ? UiText.MissionsClaimTabResult(claimed, delta)
+                : UiText.MissionsClaimTabEmpty);
+            Rebuild();
+        }
+
+        private static AppScreen MapQuestTarget(string targetScreen) =>
+            targetScreen switch
+            {
+                "Formation" => AppScreen.Formation,
+                "Battle" => AppScreen.Battle,
+                "Recruit" => AppScreen.Recruit,
+                "Crafting" => AppScreen.Crafting,
+                "Market" => AppScreen.Market,
+                "Ship" => AppScreen.Ship,
+                "Inventory" => AppScreen.Inventory,
+                _ => AppScreen.Bridge
+            };
 
         private void BuildCtas()
         {
@@ -886,72 +1159,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
             BridgeLogCategory.Trade => NexusTheme.Purple,
             _ => NexusTheme.MutedText
         };
-
-        private void BuildOnboardingCta()
-        {
-            if (OnboardingService.IsChainComplete)
-                return;
-
-            var step = OnboardingService.ActiveStep;
-            if (step == null)
-                return;
-
-            var title = UiText.T(step.titleEn, step.titleZh);
-            NexusUiFactory.CreateText(
-                root,
-                "OnboardNext",
-                UiText.MissionsNextStep(title),
-                new Vector2(780f, 20f),
-                new Vector2(360f, 24f),
-                12f,
-                NexusTheme.Gold,
-                TextAlignmentOptions.Right,
-                FontStyles.Bold);
-
-            NexusUiFactory.CreateButton(
-                root,
-                "OnboardMissions",
-                UiText.MissionsOpenMissions,
-                new Vector2(1160f, 14f),
-                new Vector2(140f, 32f),
-                () => openMissions?.Invoke(),
-                NexusTheme.WithAlpha(NexusTheme.Gold, 0.18f),
-                NexusTheme.Gold,
-                11f);
-
-            NexusUiFactory.CreateButton(
-                root,
-                "OnboardGo",
-                UiText.MissionsGo,
-                new Vector2(1312f, 14f),
-                new Vector2(88f, 32f),
-                () =>
-                {
-                    var target = MapOnboardingTarget(step.targetScreen);
-                    if (navigate != null)
-                        navigate(target);
-                    else if (target == AppScreen.Formation)
-                        openFormation?.Invoke();
-                    else if (target == AppScreen.Battle)
-                        openExplore?.Invoke();
-                    else
-                        openMissions?.Invoke();
-                },
-                NexusTheme.SurfaceRaised,
-                NexusTheme.Text,
-                11f);
-        }
-
-        private static AppScreen MapOnboardingTarget(string targetScreen) =>
-            targetScreen switch
-            {
-                "Formation" => AppScreen.Formation,
-                "Battle" => AppScreen.Battle,
-                "Crafting" => AppScreen.Crafting,
-                "Market" => AppScreen.Market,
-                "Ship" => AppScreen.Ship,
-                _ => AppScreen.Missions
-            };
 
         private static void ClearDynamicChildren(Transform parent)
         {

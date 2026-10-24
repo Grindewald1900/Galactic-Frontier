@@ -1,5 +1,6 @@
 ﻿using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Economy.Domain;
+using Assets.Resources.Scripts.Market;
 using Assets.Resources.Scripts.Utils;
 using Assets.Resources.Scripts.World;
 using Assets.Resources.Scripts.World.Domain;
@@ -32,8 +33,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             int next = currentLevel + 1;
             int scrapNeed = ShipRules.ScrapCostForModule(def.moduleId, next);
             int creditNeed = ShipRules.CreditCostForModule(def.moduleId, next);
-            int scrapHave = CountScrap();
-            int creditHave = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
+            int scrapHave = ShipService.CountScrap();
+            int creditHave = CurrencyService.Credits;
             bool canAfford = ShipService.CanAfford(scrapNeed, creditNeed);
 
             Canvas canvas = NexusUiFactory.CreateCanvas("Module Upgrade Popup", 510, true);
@@ -163,12 +164,5 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 have >= need ? NexusTheme.Text : NexusTheme.Red);
         }
 
-        private static int CountScrap()
-        {
-            var items = ProductionService.GetLocalItems();
-            foreach (var item in items)
-                ItemFactory.NormalizeLegacy(item);
-            return InventoryRules.CountOf(ItemFactory.ToStacks(items), EconomyConstants.ScrapDefId, 1);
-        }
     }
 }

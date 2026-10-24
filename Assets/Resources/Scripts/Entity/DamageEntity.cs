@@ -32,6 +32,8 @@ namespace Assets.Resources.Scripts.Entity
         public DamageType damageType;
         // 是否暴击
         public float criticalMultiplier;
+        // 命中判定失败（区别于技能附带的装饰性 MISS 飘字）
+        public bool missed;
         public Status.BuffType buffType;
         public Status.DebuffType debuffType;
 

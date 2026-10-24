@@ -17,6 +17,9 @@ namespace Assets.Resources.Scripts.World
         {
             if (dataUtil == null)
                 throw new ArgumentNullException(nameof(dataUtil));
+            // Saves are batched: reloading from disk here would discard unflushed progress.
+            // Player switches clear State via PlayerScopedServices.
+            if (State != null) return;
             var loaded = dataUtil.LoadWorldState();
             State = loaded != null && loaded.regions != null && loaded.regions.Count > 0
                 ? Normalize(loaded)
@@ -112,6 +115,18 @@ namespace Assets.Resources.Scripts.World
             return WorldRules.IsFarmUnlocked(State, RegionCatalog.Get(regionId));
         }
 
+        public static bool IsGatherUnlocked(string regionId)
+        {
+            EnsureReady();
+            return WorldRules.IsGatherUnlocked(State, RegionCatalog.Get(regionId));
+        }
+
+        public static string CurrentEncounterId(string regionId)
+        {
+            EnsureReady();
+            return WorldRules.CurrentEncounterId(State, regionId);
+        }
+
         public static WorldCommandResult RegisterBattleVictory(string regionId, string encounterId)
         {
             EnsureReady();
@@ -119,7 +134,8 @@ namespace Assets.Resources.Scripts.World
             var result = WorldRules.RegisterVictory(State, regionId, encounterId, now);
             if (result.Success)
             {
-                GridService.OnRegionCleared(regionId);
+                if (result.BeaconRestored || result.WasFirstClear)
+                    GridService.OnRegionCleared(regionId);
                 GridService.RecalcExplore();
                 Save();
                 SyncPlayerExploration();
@@ -184,6 +200,12 @@ namespace Assets.Resources.Scripts.World
             {
                 world.navX = SectorMapCatalog.SpawnX;
                 world.navY = SectorMapCatalog.SpawnY;
+            }
+
+            foreach (var cfg in RegionCatalog.All)
+            {
+                var rt = WorldRules.FindRuntime(world, cfg.regionId);
+                WorldRules.SyncLegacyClear(rt, NodeCampaignCatalog.Get(cfg.regionId));
             }
 
             world.count = world.regions.Count;

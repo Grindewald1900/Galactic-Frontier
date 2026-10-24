@@ -27,6 +27,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private readonly Transform root;
         private readonly System.Action onClose;
+        private bool subscribed;
 
         private ShipScreen(Transform root, System.Action onClose)
         {
@@ -42,12 +43,22 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 parent, "Ship Screen", NexusTheme.Background,
                 Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             var screen = new ShipScreen(panel.transform, onClose);
+            screen.EnsureSubscriptions();
             screen.Rebuild();
             return screen;
         }
 
+        private void EnsureSubscriptions()
+        {
+            if (subscribed) return;
+            subscribed = true;
+            ProductionService.WarehouseChanged += Rebuild;
+            Market.CurrencyService.Changed += Rebuild;
+        }
+
         public void Rebuild()
         {
+            if (root == null) return;
             CloseMascotPicker();
             ModuleUpgradePopup.Close();
             ItemTooltip.Hide();
@@ -471,7 +482,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void BuildUpgrades(ShipEntity ship)
         {
             var stats = ShipRules.GetEffectiveStats(ship);
-            int credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
+            int credits = Market.CurrencyService.Credits;
 
             NexusUiFactory.CreateText(
                 root, "Title", UiText.ShipBayTitle,
@@ -560,22 +571,16 @@ namespace Assets.Resources.Scripts.UI.Nexus
             int capturedLevel = level;
             var capturedDef = def;
             bool canAfford = ShipService.CanAffordModuleUpgrade(def.moduleId);
-            var upgradeBtn = NexusUiFactory.CreateButton(
+            NexusUiFactory.CreateButton(
                 box.transform, "Upgrade",
-                canAfford ? UiText.ShipModuleUpgrade : UiText.ShipModuleCannotAfford,
+                UiText.ShipModuleUpgrade,
                 new Vector2(width - 168f, 18f), new Vector2(148f, 42f),
-                () =>
-                {
-                    if (!ShipService.CanAffordModuleUpgrade(capturedDef.moduleId))
-                        return;
-                    ModuleUpgradePopup.Show(capturedDef, capturedLevel, Rebuild);
-                },
+                () => ModuleUpgradePopup.Show(capturedDef, capturedLevel, Rebuild),
                 canAfford
                     ? NexusTheme.WithAlpha(NexusTheme.Gold, 0.2f)
                     : NexusTheme.WithAlpha(NexusTheme.Surface, 0.85f),
                 canAfford ? NexusTheme.Gold : NexusTheme.DimText,
                 13f);
-            upgradeBtn.interactable = canAfford;
         }
 
         private static Sprite ModuleSprite(string moduleId)

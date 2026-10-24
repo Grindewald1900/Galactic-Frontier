@@ -1311,6 +1311,11 @@
       "zh": "没有符合筛选条件的角色。"
     },
     {
+      "id": "ui.formation.roster_all_assigned",
+      "en": "Every available character is already in this deck.",
+      "zh": "可加入的角色都已在当前卡组里。"
+    },
+    {
       "id": "ui.formation.assigned_to",
       "en": "In {0}",
       "zh": "已编入 {0}"
@@ -2136,6 +2141,31 @@
       "zh": "前往"
     },
     {
+      "id": "ui.missions.claim_tab",
+      "en": "Claim all on this tab",
+      "zh": "领取本页全部"
+    },
+    {
+      "id": "ui.missions.claim_tab_empty",
+      "en": "Nothing to claim on this tab.",
+      "zh": "本页没有可领取的奖励"
+    },
+    {
+      "id": "ui.missions.claim_tab_count",
+      "en": "{0} ready on this tab",
+      "zh": "本页可领 {0} 条"
+    },
+    {
+      "id": "ui.missions.claim_tab_result",
+      "en": "Claimed {0} on this tab. Credits +{1}. Claiming again adds nothing.",
+      "zh": "已领取本页 {0} 条，信用点 +{1}。再领不会重复发放。"
+    },
+    {
+      "id": "ui.missions.tab_empty",
+      "en": "No {0} quests yet.",
+      "zh": "{0}还没有任务。"
+    },
+    {
       "id": "ui.missions.claimed",
       "en": "Claimed: {0}",
       "zh": "已领取：{0}"
@@ -2269,6 +2299,11 @@
       "id": "ui.battle.log_round",
       "en": "— Round {0} —",
       "zh": "— 第 {0} 回合 —"
+    },
+    {
+      "id": "ui.battle.log_formation_bad",
+      "en": "Lineup is wrong: Asra is in the back row and the front is empty. After the fight, move Cole to the front.",
+      "zh": "阵容不合适：阿斯拉在后排，前排空着。打完后把科尔调到前排。"
     },
     {
       "id": "ui.battle.log_ended",
@@ -2561,6 +2596,56 @@
       "zh": "系统教学"
     },
     {
+      "id": "ui.quest.expedition_title",
+      "en": "Expedition ring",
+      "zh": "远征环"
+    },
+    {
+      "id": "ui.quest.ship_title",
+      "en": "Ship gate",
+      "zh": "舰船门"
+    },
+    {
+      "id": "ui.quest.loop_title",
+      "en": "Loop contracts",
+      "zh": "循环任务"
+    },
+    {
+      "id": "ui.quest.step_ready",
+      "en": "Ready to claim",
+      "zh": "可领取"
+    },
+    {
+      "id": "ui.quest.tracker_empty",
+      "en": "No active contracts. Restore beacons and keep the ship supplied.",
+      "zh": "当前没有进行中的任务。继续修复航标并补给舰船。"
+    },
+    {
+      "id": "ui.quest.loop_progress",
+      "en": "{0}/{1}",
+      "zh": "{0}/{1}"
+    },
+    {
+      "id": "ui.quest.route_hint",
+      "en": "Convoy Lane and Quantum Rift are charted. Choose which route to emphasize.",
+      "zh": "护航航道与量子裂隙已探明轮廓。选择先强调的一条航路。"
+    },
+    {
+      "id": "ui.quest.route_convoy",
+      "en": "Emphasize Convoy",
+      "zh": "先走护航"
+    },
+    {
+      "id": "ui.quest.route_rift",
+      "en": "Emphasize Rift",
+      "zh": "先走裂隙"
+    },
+    {
+      "id": "ui.quest.route_need_probe",
+      "en": "Probe both Convoy Lane and Quantum Rift first.",
+      "zh": "请先将护航航道与量子裂隙探测至轮廓。"
+    },
+    {
       "id": "ui.commander.goal_chapter",
       "en": "Story objective",
       "zh": "剧情目标"
@@ -2609,6 +2694,26 @@
       "id": "ui.bridge.commander_goal",
       "en": "Current objective",
       "zh": "当前主目标"
+    },
+    {
+      "id": "ui.bridge.quest_filter_all",
+      "en": "All",
+      "zh": "全部"
+    },
+    {
+      "id": "ui.bridge.quest_filter_story",
+      "en": "Chapter",
+      "zh": "第一章"
+    },
+    {
+      "id": "ui.bridge.quest_status_ready",
+      "en": "Unclaimed",
+      "zh": "已完成未领取"
+    },
+    {
+      "id": "ui.bridge.quest_filter_empty",
+      "en": "No quests in this filter.",
+      "zh": "这个筛选下没有任务。"
     },
     {
       "id": "ui.bridge.bottleneck",
@@ -3216,6 +3321,16 @@
       "zh": "修理与后勤"
     },
     {
+      "id": "ui.bridge.next_step",
+      "en": "Next step",
+      "zh": "下一步"
+    },
+    {
+      "id": "ui.bridge.pending_claim",
+      "en": "Reward ready: {0}",
+      "zh": "可领取：{0}"
+    },
+    {
       "id": "ui.bridge.quest_rewards",
       "en": "Rewards: {0}",
       "zh": "奖励：{0}"
@@ -3264,6 +3379,116 @@
       "id": "ui.explore.voyage_risk",
       "en": "Risk vs power: yours {0:N0} / rec {1:N0}",
       "zh": "风险对战力：当前 {0:N0} / 推荐 {1:N0}"
+    },
+    {
+      "id": "ui.explore.continue_campaign",
+      "en": "Continue {0}/{1}",
+      "zh": "继续攻略 {0}/{1}"
+    },
+    {
+      "id": "ui.explore.deploy_idle",
+      "en": "Deploy Idle",
+      "zh": "部署挂机"
+    },
+    {
+      "id": "ui.explore.station_idle",
+      "en": "Station Idle",
+      "zh": "驻留挂机"
+    },
+    {
+      "id": "ui.explore.campaign_progress",
+      "en": "Campaign {0}/{1}",
+      "zh": "攻略进度 {0}/{1}"
+    },
+    {
+      "id": "ui.explore.adjust_fleet",
+      "en": "Adjust Fleet",
+      "zh": "调整舰队"
+    },
+    {
+      "id": "ui.explore.boss_confirm_title",
+      "en": "Challenge the node boss?",
+      "zh": "确认挑战节点 Boss？"
+    },
+    {
+      "id": "ui.explore.boss_confirm_body",
+      "en": "{0} uses the full regional mechanic. Confirm before committing the fleet.",
+      "zh": "{0} 将使用完整区域机制。请确认后再投入舰队。"
+    },
+    {
+      "id": "ui.explore.enemy_trait",
+      "en": "Enemy: {0}",
+      "zh": "敌人特征：{0}"
+    },
+    {
+      "id": "ui.explore.environment",
+      "en": "Environment: {0}",
+      "zh": "环境影响：{0}"
+    },
+    {
+      "id": "ui.explore.campaign_current",
+      "en": "Current: {0}",
+      "zh": "当前关卡：{0}"
+    },
+    {
+      "id": "ui.explore.stabilize_fail_title",
+      "en": "Cannot repair beacon",
+      "zh": "无法修复航标"
+    },
+    {
+      "id": "ui.explore.stabilize_not_located",
+      "en": "This node is still lost in the entropy fog. Probe or locate it before repairing the beacon.",
+      "zh": "该节点仍在熵雾中。请先探测或定位，再修复航标。"
+    },
+    {
+      "id": "ui.explore.stabilize_already",
+      "en": "This beacon is already stable.",
+      "zh": "该航标已经稳定，无需再次修复。"
+    },
+    {
+      "id": "ui.explore.stabilize_unknown",
+      "en": "This location has no beacon to repair.",
+      "zh": "该地点没有可修复的航标。"
+    },
+    {
+      "id": "ui.explore.stabilize_need_cost",
+      "en": "Beacon repair needs scrap ×{0} and {1} credits.\nYou have scrap ×{2} and {3} credits.\nFinish the node boss for a free restore, or gather the missing materials.",
+      "zh": "修复航标需要废料 ×{0} 与信用点 {1}。\n当前：废料 ×{2}，信用点 {3}。\n击败节点 Boss 可免费恢复航标，或先补齐材料再来。"
+    },
+    {
+      "id": "ui.explore.stabilize_confirm_title",
+      "en": "Repair this beacon?",
+      "zh": "确认修复航标？"
+    },
+    {
+      "id": "ui.explore.stabilize_confirm_body",
+      "en": "Spend scrap ×{0} and {1} credits to patch the beacon and stabilize this lane.",
+      "zh": "将消耗废料 ×{0} 与信用点 {1}，临时修复航标并使本段航线稳定通航。"
+    },
+    {
+      "id": "ui.explore.stabilize_ok",
+      "en": "Repair",
+      "zh": "修复"
+    },
+    {
+      "id": "ui.explore.idle_running",
+      "en": "Idle running",
+      "zh": "挂机中"
+    },
+    {
+      "id": "ui.explore.gather_running",
+      "en": "Gathering",
+      "zh": "采集中"
+    },
+    {
+      "id": "ui.explore.ship_gate_title",
+      "en": "Ship is not ready",
+      "zh": "舰船属性不足"
+    },
+    {
+      "id": "ui.explore.ship_gate_body",
+      "en": "This node needs a stronger ship before you can challenge it:\n{0}\n\nUpgrade the matching modules in the ship bay, then try again.",
+      "zh": "该节点需要更高的舰船属性才能挑战：\n{0}\n\n请先到舰船舱升级对应模块，再回来挑战。"
     }
   ]
 }

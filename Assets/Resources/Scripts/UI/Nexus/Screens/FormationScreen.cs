@@ -327,6 +327,9 @@ namespace Assets.Resources.Scripts.UI.Nexus
                         string target = string.IsNullOrEmpty(editing.action.targetId)
                             ? ""
                             : editing.action.targetId;
+                        var targetRegion = RegionCatalog.Get(target);
+                        if (targetRegion != null)
+                            target = UiText.T(targetRegion.displayNameEn, targetRegion.displayNameZh);
                         stopLabel.text = string.IsNullOrEmpty(target)
                             ? UiText.StopNamedAction(actionName)
                             : UiText.StopNamedTarget(actionName, target);
@@ -369,6 +372,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
         public void Rebuild()
         {
             TutorialGuideService.UnregisterAnchor("formation_empty_slot");
+            TutorialGuideService.UnregisterAnchor("formation_front_slot");
             TutorialGuideService.UnregisterAnchor("formation_join");
             CloseFilterMenu();
             CloseGearPicker();
@@ -482,33 +486,26 @@ namespace Assets.Resources.Scripts.UI.Nexus
 
         private void EnsureSelectedCard(List<CardEntity> all)
         {
-            var editing = DeckService.GetEditingDeck();
-
             if (selectedCard != null && all != null)
             {
-                bool found = false;
                 foreach (var entity in all)
                 {
-                    if (entity != null && entity.id == selectedCard.id)
-                    {
-                        selectedCard = entity;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found && editing != null && IndexInEditingDeck(editing, selectedCard.id) >= 0)
+                    if (entity == null || entity.id != selectedCard.id)
+                        continue;
+                    selectedCard = entity;
                     return;
+                }
             }
 
-            if (selectedSlot >= 0 && selectedCard == null)
-                return;
-
-            if (selectedSlot >= 0 && selectedCard != null)
-                return;
-
             selectedCard = null;
-            selectedSlot = -1;
+            var editing = DeckService.GetEditingDeck();
+            var joinable = FilterAndSort(all, CollectEditingMemberIds(editing));
+            if (joinable.Count > 0)
+            {
+                selectedCard = joinable[0];
+                return;
+            }
+
             if (editing == null)
                 return;
 
@@ -518,7 +515,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 if (member == null)
                     continue;
                 selectedCard = member;
-                selectedSlot = i;
+                if (selectedSlot < 0)
+                    selectedSlot = i;
                 return;
             }
         }
@@ -526,41 +524,46 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private void BuildRoster(List<CardEntity> all)
         {
             var editing = DeckService.GetEditingDeck();
-            var memberIds = new HashSet<string>();
-            if (editing?.slotCardIds != null)
-            {
-                foreach (var id in editing.slotCardIds)
-                {
-                    if (!string.IsNullOrEmpty(id))
-                        memberIds.Add(id);
-                }
-            }
-
+            var memberIds = CollectEditingMemberIds(editing);
             var membership = BuildDeckMembership();
             var visible = FilterAndSort(all, memberIds);
             var header = rosterRoot.Find("Header")?.GetComponent<TextMeshProUGUI>();
             if (header != null)
             {
-                int total = CountValid(all);
-                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{total}";
+                int available = CountAvailableForDeck(all, memberIds);
+                header.text = $"{UiText.AvailableCharacters}  {visible.Count}/{available}";
             }
 
             DrawRosterFilters();
             var content = CreateRosterScroll(rosterRoot);
             if (visible.Count == 0)
             {
-                string emptyCopy = occupancyFilter switch
+                bool filtersOn = occupancyFilter != 0 || archetypeFilter > 0 || rarityFilter > 0 || factionFilter > 0;
+                int owned = 0;
+                if (all != null)
                 {
-                    1 => UiText.RosterEmptyIdle,
-                    2 => UiText.RosterEmptyBusy,
-                    _ => UiText.RosterEmpty
-                };
+                    foreach (var entity in all)
+                    {
+                        if (entity != null)
+                            owned++;
+                    }
+                }
+
+                bool allAssigned = !filtersOn && owned > 0 && memberIds != null && memberIds.Count >= owned;
+                string emptyCopy = allAssigned
+                    ? UiText.RosterAllAssigned
+                    : occupancyFilter switch
+                    {
+                        1 => UiText.RosterEmptyIdle,
+                        2 => UiText.RosterEmptyBusy,
+                        _ => UiText.RosterEmpty
+                    };
                 var empty = NexusUiFactory.CreateText(
                     content,
                     "Empty",
                     emptyCopy,
                     new Vector2(8f, 8f),
-                    new Vector2(240f, 56f),
+                    new Vector2(240f, 80f),
                     12f,
                     NexusTheme.Text);
                 empty.textWrappingMode = TextWrappingModes.Normal;
@@ -631,28 +634,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 parent,
                 "FilterType",
                 new Vector2(12f, 72f) + offset,
-                $"{UiText.RosterTypeChip(typeValue)}  ▾",
+                $"{UiText.RosterTypeChip(typeValue)}  v",
                 archetypeFilter != 0 || openFilterMenu == "type",
                 () => ToggleFilterMenu("type"));
             DrawFilterChip(
                 parent,
                 "FilterFaction",
                 new Vector2(150f, 72f) + offset,
-                $"{UiText.RosterFactionChip(factionValue)}  ▾",
+                $"{UiText.RosterFactionChip(factionValue)}  v",
                 factionFilter != 0 || openFilterMenu == "faction",
                 () => ToggleFilterMenu("faction"));
             DrawFilterChip(
                 parent,
                 "FilterRarity",
                 new Vector2(12f, 110f) + offset,
-                $"{UiText.RosterRarityChip(rarityValue)}  ▾",
+                $"{UiText.RosterRarityChip(rarityValue)}  v",
                 rarityFilter != 0 || openFilterMenu == "rarity",
                 () => ToggleFilterMenu("rarity"));
             DrawFilterChip(
                 parent,
                 "FilterSort",
                 new Vector2(150f, 110f) + offset,
-                $"{UiText.RosterSortChip(sortValue)}  ▾",
+                $"{UiText.RosterSortChip(sortValue)}  v",
                 sortMode != 0 || openFilterMenu == "sort",
                 () => ToggleFilterMenu("sort"));
         }
@@ -963,6 +966,8 @@ namespace Assets.Resources.Scripts.UI.Nexus
             foreach (CardEntity entity in all)
             {
                 if (entity == null) continue;
+                if (memberIds != null && memberIds.Contains(entity.id))
+                    continue;
                 if (!MatchesOccupancy(entity, memberIds))
                     continue;
                 if (archetypeFilter > 0 && entity.archetype != ArchetypeCycle[archetypeFilter - 1])
@@ -993,10 +998,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 };
                 if (cmp != 0)
                     return cmp;
-                int deckCmp = (memberIds != null && memberIds.Contains(b.id) ? 1 : 0)
-                    - (memberIds != null && memberIds.Contains(a.id) ? 1 : 0);
-                if (deckCmp != 0)
-                    return deckCmp;
                 return string.Compare(DisplayName(a), DisplayName(b), StringComparison.OrdinalIgnoreCase);
             });
             return filtered;
@@ -1052,12 +1053,28 @@ namespace Assets.Resources.Scripts.UI.Nexus
             return false;
         }
 
-        private static int CountValid(List<CardEntity> all)
+        private static HashSet<string> CollectEditingMemberIds(DeckEntity editing)
+        {
+            var memberIds = new HashSet<string>();
+            if (editing?.slotCardIds == null)
+                return memberIds;
+            foreach (var id in editing.slotCardIds)
+            {
+                if (!string.IsNullOrEmpty(id))
+                    memberIds.Add(id);
+            }
+
+            return memberIds;
+        }
+
+        private static int CountAvailableForDeck(List<CardEntity> all, HashSet<string> memberIds)
         {
             int count = 0;
+            if (all == null)
+                return 0;
             foreach (var entity in all)
             {
-                if (entity != null)
+                if (entity != null && (memberIds == null || !memberIds.Contains(entity.id)))
                     count++;
             }
 
@@ -1709,7 +1726,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                 PinBottomLeft(wait, x, bottom, new Vector2(btnW, btnH));
                 x += btnW + gap;
             }
-            else if (canJoin)
+            else if (selectedCard != null && !inCurrent)
             {
                 var join = NexusUiFactory.CreateButton(
                     detailRoot,
@@ -1721,6 +1738,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     NexusTheme.WithAlpha(NexusTheme.Cyan, 0.16f),
                     NexusTheme.Cyan,
                     14f);
+                join.interactable = canJoin;
                 PinBottomLeft(join, x, bottom, new Vector2(btnW, btnH));
                 TutorialGuideService.RegisterAnchor(
                     "formation_join",
@@ -1817,19 +1835,6 @@ namespace Assets.Resources.Scripts.UI.Nexus
         private static bool CanLeaveSelected(DeckEntity editing, bool inCurrent)
         {
             return editing != null && editing.unlocked && !editing.IsActionBusy && inCurrent;
-        }
-
-        private static int FirstEmptySlot(DeckEntity deck)
-        {
-            if (deck?.slotCardIds == null)
-                return -1;
-            for (int i = 0; i < deck.slotCardIds.Length; i++)
-            {
-                if (string.IsNullOrEmpty(deck.slotCardIds[i]))
-                    return i;
-            }
-
-            return -1;
         }
 
         private static int IndexInEditingDeck(DeckEntity deck, string cardId)
@@ -1967,6 +1972,14 @@ namespace Assets.Resources.Scripts.UI.Nexus
                     Rebuild();
                 });
 
+                if (i == 0)
+                {
+                    TutorialGuideService.RegisterAnchor(
+                        "formation_front_slot",
+                        slot.GetComponent<RectTransform>(),
+                        slotButton);
+                }
+
                 if (!registeredEmptySlot && occupant == null)
                 {
                     TutorialGuideService.RegisterAnchor(
@@ -2006,13 +2019,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             else
             {
                 statusText.text = string.Empty;
-            }
-
-            if (assign.Success)
-            {
-                selectedCard = null;
-                var refreshed = DeckService.GetEditingDeck();
-                selectedSlot = FirstEmptySlot(refreshed);
+                selectedSlot = target;
                 Persist();
             }
             Rebuild();
@@ -2049,10 +2056,7 @@ namespace Assets.Resources.Scripts.UI.Nexus
             if (!result.Success)
                 statusText.text = result.Message;
             else
-            {
-                selectedCard = null;
                 selectedSlot = index;
-            }
             Persist();
             Rebuild();
         }

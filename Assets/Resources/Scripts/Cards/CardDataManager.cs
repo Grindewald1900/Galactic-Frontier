@@ -36,11 +36,23 @@ namespace Assets.Resources.Scripts.Cards
         [SerializeField] private List<BaseAttrEntity> baseAttrEntities;
         public static Dictionary<Archetype, Dictionary<AttributeType, float>> baseAttributeProbabilities;
         public static Dictionary<CharacterTier, float> baseTierProbabilities;
+        private static bool spawningPersistentHost;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            // Scene copies share their GameObject with scene UI (MainScene Canvas root) or with
+            // BattleController (BattleScene Background): never destroy or persist that host.
+            if (Instance != null && Instance != this) { Destroy(this); return; }
+            if (!spawningPersistentHost)
+            {
+                spawningPersistentHost = true;
+                try { new GameObject(nameof(CardDataManager)).AddComponent<CardDataManager>(); }
+                finally { spawningPersistentHost = false; }
+                Destroy(this);
+                return;
+            }
             Instance = this;
+            DontDestroyOnLoad(gameObject);
             filePath = Path.Combine(Application.persistentDataPath, "Cards.json");
             InitCharacterList();
             InitSkillList();

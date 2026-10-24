@@ -12,6 +12,7 @@ using Assets.Resources.Scripts.Deck.Domain;
 using Assets.Resources.Scripts.ChapterQuest;
 using Assets.Resources.Scripts.Inventory;
 using Assets.Resources.Scripts.Onboarding;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Gacha;
 using Assets.Resources.Scripts.Economy;
 using Assets.Resources.Scripts.Unlock;
@@ -186,10 +187,23 @@ namespace Assets.Resources.Scripts.Utils
             var fileName = store == InventoryStore.Local
                 ? DefaultProperty.INVENTORY_LOCAL
                 : DefaultProperty.INVENTORY_REMOTE;
-            var ok = SaveData(
-                new ItemListWrapper { items = items, count = items.Count },
-                playerSavePath,
-                fileName);
+            // Batched flushes only re-save inventories held by a loaded manager; otherwise the file
+            // is the only copy and a deferred write would drop the change.
+            InventoryItemManagerBase manager = isRemote ? RemoteItemManager.Instance : ItemManager.Instance;
+            bool writeNow = manager == null || !manager.HasLoaded;
+            if (writeNow) GameSaveService.PushImmediate();
+            bool ok;
+            try
+            {
+                ok = SaveData(
+                    new ItemListWrapper { items = items, count = items.Count },
+                    playerSavePath,
+                    fileName);
+            }
+            finally
+            {
+                if (writeNow) GameSaveService.PopImmediate();
+            }
             if (ok && touchMeta)
                 TouchMetaLastSaved();
             return ok;
@@ -227,6 +241,10 @@ namespace Assets.Resources.Scripts.Utils
 
         public void SaveCardData(List<CardEntity> cards)
         {
+            // CardListManager only lives in MainScene; callers passing its collection from other scenes
+            // (e.g. enemy CardEntity stat setters in BattleScene) have nothing to persist.
+            if (cards == null)
+                return;
             SaveData(new CardListWrapper { cardEntities = cards, count = cards.Count }, playerSavePath, DefaultProperty.PLAYER_CARDS_DATA);
             TouchMetaLastSaved();
         }
@@ -300,8 +318,7 @@ namespace Assets.Resources.Scripts.Utils
             DeckService.Save(this);
             WorldService.Save(this);
             ShipService.Save(this);
-            ChapterQuestService.Save(this);
-            OnboardingService.Save(this);
+            QuestService.Save(this);
             GachaService.Save(this);
             IdleSettlementService.Save(this);
             FeatureUnlockService.Save(this);
@@ -719,6 +736,52 @@ namespace Assets.Resources.Scripts.Utils
                 throw new ArgumentNullException(nameof(state));
             state.count = state.completedStepIds?.Count ?? 0;
             return SaveData(state, directory, DefaultProperty.CHAPTER_QUEST_DATA);
+        }
+
+        public bool SaveQuestState(
+            Assets.Resources.Scripts.Quest.Domain.QuestState state, bool touchMeta = true)
+        {
+            EnsurePlayerBound();
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.claimedIds?.Count ?? 0;
+            var ok = SaveData(state, playerSavePath, DefaultProperty.QUEST_DATA);
+            if (ok && touchMeta)
+                TouchMetaLastSaved();
+            return ok;
+        }
+
+        public Assets.Resources.Scripts.Quest.Domain.QuestState LoadQuestState()
+        {
+            EnsurePlayerBound();
+            return ReadQuestStateFromDirectory(playerSavePath);
+        }
+
+        public Assets.Resources.Scripts.Quest.Domain.QuestState ReadQuestStateFromDirectory(string directory)
+        {
+            var path = CombinePath(directory, DefaultProperty.QUEST_DATA);
+            if (!File.Exists(path))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(path);
+                var decoded = DecryptBase64(json);
+                return JsonUtility.FromJson<Assets.Resources.Scripts.Quest.Domain.QuestState>(decoded);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("[SAVE] Failed to read quests.json: " + ex.Message);
+                return null;
+            }
+        }
+
+        public bool WriteQuestStateToDirectory(
+            string directory, Assets.Resources.Scripts.Quest.Domain.QuestState state)
+        {
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+            state.count = state.claimedIds?.Count ?? 0;
+            return SaveData(state, directory, DefaultProperty.QUEST_DATA);
         }
 
         public List<CardEntity> ReadCardListFromDirectory(string directory)

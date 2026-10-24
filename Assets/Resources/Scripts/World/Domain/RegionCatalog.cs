@@ -11,9 +11,16 @@ namespace Assets.Resources.Scripts.World.Domain
         {
             get
             {
-                cached ??= BuildDefaults();
+                CachedOrBuild();
+                NodeCampaignCatalog.SyncRegionPower();
                 return cached;
             }
+        }
+
+        internal static List<RegionConfig> CachedOrBuild()
+        {
+            cached ??= BuildDefaults();
+            return cached;
         }
 
         public static RegionConfig Get(string regionId)

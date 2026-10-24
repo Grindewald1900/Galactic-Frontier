@@ -210,6 +210,12 @@ namespace Assets.Resources.Scripts.Entity
         public float maxEnergy = 100f;
         public float maxAttack = 100f;
         public float score = 5f;
+        /// <summary>Sprite name under Images/Cards/Characters. Encounter enemies use EnemyPlaceholder.</summary>
+        public string portraitKey = "";
+        /// <summary>EnemyCatalog profile id. Empty on player cards.</summary>
+        public string enemyProfileId = "";
+        /// <summary>Zero-based phase index for a configured boss. Zero on everyone else.</summary>
+        public int enemyPhaseIndex;
         /// <summary>
         /// All the card attributes and expertises are stored here.
         /// </summary>

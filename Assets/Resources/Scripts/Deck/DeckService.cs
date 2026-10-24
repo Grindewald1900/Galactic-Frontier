@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Resources.Scripts.Cards;
 using Assets.Resources.Scripts.ChapterQuest;
+using Assets.Resources.Scripts.Quest;
 using Assets.Resources.Scripts.Deck.Domain;
+using Assets.Resources.Scripts.Economy.Domain;
 using Assets.Resources.Scripts.Entity;
 using Assets.Resources.Scripts.Progression;
 using Assets.Resources.Scripts.Utils;
@@ -35,19 +37,24 @@ namespace Assets.Resources.Scripts.Deck
             if (dataUtil == null)
                 throw new ArgumentNullException(nameof(dataUtil));
 
-            var loaded = dataUtil.LoadDeckState();
-            if (loaded != null && loaded.decks != null && loaded.decks.Count > 0)
+            if (State == null)
             {
-                State = Normalize(loaded);
-            }
-            else
-            {
-                State = DeckStateFactory.CreateFromLegacyLineup(CollectLegacyLineup(cards));
-                dataUtil.SaveDeckState(State, touchMeta: true);
-                Debug.Log($"[DECK] Created decks.json from legacy lineup ({State.decks[0].MemberCount} members).");
-            }
+                var loaded = dataUtil.LoadDeckState();
+                if (loaded != null && loaded.decks != null && loaded.decks.Count > 0)
+                {
+                    State = Normalize(loaded);
+                    // Live battles exist only in memory, so a MainCombat occupation read from disk is orphaned.
+                    StopAllMainCombat();
+                }
+                else
+                {
+                    State = DeckStateFactory.CreateFromLegacyLineup(CollectLegacyLineup(cards));
+                    dataUtil.SaveDeckState(State, touchMeta: true);
+                    Debug.Log($"[DECK] Created decks.json from legacy lineup ({State.decks[0].MemberCount} members).");
+                }
 
-            ProgressionService.RefreshDeckScaleUnlocks();
+                ProgressionService.RefreshDeckScaleUnlocks();
+            }
 
             if (string.IsNullOrEmpty(editingDeckId) || DeckRules.FindDeck(State, editingDeckId) == null)
                 editingDeckId = State.activeCombatDeckId;
@@ -89,6 +96,40 @@ namespace Assets.Resources.Scripts.Deck
                 && deck.IsActionBusy
                 && deck.action != null
                 && deck.action.actionType == DeckActionType.AutoCombat;
+        }
+
+        public static bool IsAutoCombatRunningOn(string regionId) =>
+            IsActionRunningOn(DeckActionType.AutoCombat, regionId);
+
+        public static bool IsMainCombatRunningOn(string regionId) =>
+            IsActionRunningOn(DeckActionType.MainCombat, regionId);
+
+        public static bool IsGatherRunningOn(string nodeId) =>
+            IsActionRunningOn(DeckActionType.Gather, nodeId);
+
+        public static bool IsGatherRunningOnRegion(string regionId)
+        {
+            if (string.IsNullOrEmpty(regionId)) return false;
+            foreach (var node in GatherNodeCatalog.ForRegion(regionId))
+            {
+                if (node != null && IsGatherRunningOn(node.nodeId))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool IsActionRunningOn(DeckActionType type, string targetId)
+        {
+            if (string.IsNullOrEmpty(targetId)) return false;
+            foreach (var deck in GetBusyDecks())
+            {
+                if (deck?.action == null) continue;
+                if (deck.action.actionType == type && deck.action.targetId == targetId)
+                    return true;
+            }
+
+            return false;
         }
 
         public static DeckEntity GetEditingDeck()
@@ -197,6 +238,45 @@ namespace Assets.Resources.Scripts.Deck
             return cards.FirstOrDefault(c => c != null && c.id == id);
         }
 
+        /// <summary>One occupied battle station. <see cref="SlotIndex"/> matches the deck slot and the battle board.</summary>
+        public readonly struct DeckStation
+        {
+            public readonly int SlotIndex;
+            public readonly CardEntity Card;
+
+            public DeckStation(int slotIndex, CardEntity card)
+            {
+                SlotIndex = slotIndex;
+                Card = card;
+            }
+        }
+
+        /// <summary>
+        /// Occupied stations of a deck. Index is the battle station; empty slots are omitted
+        /// without shifting later cards forward.
+        /// </summary>
+        public static List<DeckStation> GetStations(string deckId, IList<CardEntity> cards)
+        {
+            var list = new List<DeckStation>();
+            if (State == null)
+                return list;
+
+            var stations = DeckRules.BattleStations(DeckRules.FindDeck(State, deckId));
+            for (var i = 0; i < stations.Length; i++)
+            {
+                var id = stations[i];
+                if (string.IsNullOrEmpty(id) || cards == null)
+                    continue;
+                var entity = cards.FirstOrDefault(c => c != null && c.id == id);
+                if (entity == null)
+                    continue;
+                entity.SetLineupPosition(i);
+                list.Add(new DeckStation(i, entity));
+            }
+
+            return list;
+        }
+
         /// <summary>Members of the active combat deck, with LineupPosition mirrored for battle slotting.</summary>
         public static List<CardEntity> GetActiveCombatMembers(IList<CardEntity> cards)
         {
@@ -246,8 +326,13 @@ namespace Assets.Resources.Scripts.Deck
             var result = DeckRules.TryAssignSlot(State, deckId, slotIndex, cardId);
             if (result.Success)
             {
+#if UNITY_EDITOR
+                Debug.Log($"[GF-EVENT] formation_changed deck={deckId} slot={slotIndex} card={cardId ?? ""}");
+#endif
                 SyncLegacyLineupPositions(allCards);
                 Save();
+                if (slotIndex < 2 && !string.IsNullOrEmpty(cardId))
+                    QuestService.NotifyColePlacedInFront(cardId, allCards);
                 if (GetDecks() != null)
                 {
                     foreach (var d in GetDecks())

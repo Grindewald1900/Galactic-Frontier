@@ -26,6 +26,15 @@ namespace Assets.Resources.Scripts.Battle
             }
         }
 
+        public void Hide()
+        {
+            if (battleInfoText == null)
+                return;
+            battleInfoText.DOKill();
+            battleInfoText.gameObject.SetActive(false);
+            isBattleInfoActive = false;
+        }
+
         public void PlayBattleInfoAnimation(string info)
         {
             if (battleInfoText == null) return;

@@ -28,6 +28,8 @@ namespace Assets.Resources.Scripts.Battle
             // 检查是否已存在相同类型的 debuff
             Debug.Log("AddDebuff: " + newDebuff.name);
             DebuffEntity debuffEntity = currentDebuffs.Find(d => d.name == newDebuff.name);
+            if (debuffEntity == null)
+                BattleLog.StatusApplied(card, newDebuff);
             if (debuffEntity != null)
             {
                 debuffEntity.roundsRemaining += newDebuff.roundsRemaining;

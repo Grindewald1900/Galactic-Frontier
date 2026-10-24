@@ -89,10 +89,9 @@ namespace Assets.Resources.Scripts.Economy
         public static string ResolveDefId(ItemEntity e)
         {
             if (e == null) return "";
-            if (!string.IsNullOrEmpty(e.itemDefId)) return e.itemDefId;
-            if (string.Equals(e.itemName, "seed_scrap", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(e.itemName, "Scrap", StringComparison.OrdinalIgnoreCase))
+            if (IsScrapAlias(e.itemDefId) || IsScrapAlias(e.itemName))
                 return EconomyConstants.ScrapDefId;
+            if (!string.IsNullOrEmpty(e.itemDefId)) return e.itemDefId;
             // Match by display name
             foreach (var kv in ItemCatalog.All)
             {
@@ -103,11 +102,18 @@ namespace Assets.Resources.Scripts.Economy
             return e.itemName ?? "";
         }
 
+        public static bool IsScrapAlias(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            return string.Equals(id, EconomyConstants.ScrapDefId, StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(id, "seed_scrap", StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(id, "scrap", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static void NormalizeLegacy(ItemEntity e)
         {
             if (e == null) return;
-            if (string.IsNullOrEmpty(e.itemDefId))
-                e.itemDefId = ResolveDefId(e);
+            e.itemDefId = ResolveDefId(e);
             if (e.quality < 1 || e.quality > 5)
                 e.quality = EconomyConstants.DefaultQuality;
 

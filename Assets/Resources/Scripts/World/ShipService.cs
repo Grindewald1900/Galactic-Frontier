@@ -15,6 +15,8 @@ namespace Assets.Resources.Scripts.World
         {
             if (dataUtil == null)
                 throw new ArgumentNullException(nameof(dataUtil));
+            // Saves are batched: reloading from disk here would discard unflushed upgrades.
+            if (State != null) return;
             var loaded = dataUtil.LoadShipState();
             State = loaded != null && !string.IsNullOrEmpty(loaded.shipId)
                 ? loaded
@@ -144,26 +146,15 @@ namespace Assets.Resources.Scripts.World
                 ShipRules.CreditCostForModule(moduleId, next));
         }
 
+        public static int CountScrap() =>
+            Economy.ProductionService.CountLocal(Economy.Domain.EconomyConstants.ScrapDefId, 1);
+
         public static bool CanAfford(int scrap, int credit)
         {
-            if (credit > 0)
-            {
-                var credits = DataUtil.Instance?.currentPlayer?.creditPoints ?? 0;
-                if (credits < credit) return false;
-            }
-
-            if (scrap > 0)
-            {
-                var items = Economy.ProductionService.GetLocalItems();
-                foreach (var item in items)
-                    Economy.ItemFactory.NormalizeLegacy(item);
-                var have = Economy.Domain.InventoryRules.CountOf(
-                    Economy.ItemFactory.ToStacks(items),
-                    Economy.Domain.EconomyConstants.ScrapDefId,
-                    1);
-                if (have < scrap) return false;
-            }
-
+            if (credit > 0 && Market.CurrencyService.Credits < credit)
+                return false;
+            if (scrap > 0 && CountScrap() < scrap)
+                return false;
             return true;
         }
 
@@ -172,8 +163,7 @@ namespace Assets.Resources.Scripts.World
             error = null;
             if (!CanAfford(scrap, credit))
             {
-                if (credit > 0 &&
-                    (DataUtil.Instance?.currentPlayer?.creditPoints ?? 0) < credit)
+                if (credit > 0 && Market.CurrencyService.Credits < credit)
                 {
                     error = $"Need {credit} credits.";
                     return false;
